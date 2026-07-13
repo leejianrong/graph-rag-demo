@@ -38,5 +38,5 @@ custom entity types are wanted without retraining.
 - The curated type set is a deliberate narrowing; broadening it later is cheap
   but re-processing the corpus would be needed to backfill new types.
 - Not every extracted type becomes a graph node: `PERSON, ORG, LOCATION, EVENT,
-  PRODUCT` are first-class nodes while `DATE` is modeled as an edge attribute —
-  see [ADR-0006](./0006-knowledge-graph-builder-and-model.md).
+  PRODUCT, NORP` are first-class nodes while `DATE` is modeled as an edge
+  attribute — see [ADR-0006](./0006-knowledge-graph-builder-and-model.md).

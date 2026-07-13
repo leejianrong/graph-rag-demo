@@ -204,3 +204,66 @@ register) and, where architectural, into `docs/adr/*.md`.
 All questions A–K answered. Decisions distilled into
 [`CONTEXT.md`](./CONTEXT.md) (register D1–D9) and
 [`docs/adr/0001–0009`](./adr/). One confirmation outstanding (Q40).
+
+---
+
+## Step E — post-shaping consistency review
+
+_Raised by the agent running Step E (grill-with-docs, recovered method — the
+skill is a broken one-liner, see WORKFLOW-PAINPOINTS #19). Cross-checked
+FRAME/SHAPING/BREADBOARD/SLICES against REQS/PRD/CONTEXT/ADRs. The shaping
+outputs are consistent with the ADRs on all major points; the items below were
+the exceptions + one ADR to extract. **All three resolved** (Q46/Q47/Q48
+answered) and rippled through the ADRs, CONTEXT register, PRD, and shaping docs._
+
+- **Q46 · P1 · ANSWERED → (a)** — **When is the raw document persisted to ES-Documents?**
+  *Decision: raw text written at ingestion (before processing); NER/coref/EL
+  enrichment held in-memory and persisted into the same record at the EL
+  checkpoint. ADR-0001 reworded; SLICES V1–V4 + BREADBOARD N5 realigned.*
+  `REQS.md` says the original text is "saved to Elasticsearch (Documents)
+  **before any processing**." But `ADR-0001` says the document record
+  (text + NER + coref + per-doc EL) is written to ES-Documents in a **single
+  checkpoint after entity linking** — implying it is *not* separately persisted
+  pre-processing. These two readings conflict.
+  - **(a)** write raw text at ingestion **and** enrich/append at the EL
+    checkpoint (two writes — honors REQS's "before processing" + keeps the
+    enrichment checkpoint). *Recommended.*
+  - **(b)** single write after EL (strict ADR-0001); raw text lives only in
+    MinIO until then.
+  **Knock-on to `SLICES.md`:** slices V1–V3 currently read as if ES-Documents is
+  written incrementally per stage. Under (b), V1's demo is "bytes in MinIO +
+  trigger consumed" and V2/V3 observe stage output in-memory/logs, not via ES
+  writes. Whichever we pick, ADR-0001's wording and SLICES V1–V3 need a one-line
+  align. (Flagged inline in `SLICES.md`.)
+
+- **Q47 · P2 · ANSWERED → (a)** — **What is NORP's fate in the graph?**
+  *Decision: NORP is a first-class node (`:Entity:Norp`). ADR-0002 & ADR-0006
+  node lists updated; CONTEXT A2-item-3 + PRD stories 25 / node model updated.* `ADR-0002` extracts
+  `NORP` as an NER type, but `ADR-0006`'s first-class node types are
+  `PERSON, ORG, LOCATION, EVENT, PRODUCT` (with `DATE` as an edge qualifier).
+  `NORP` is named in neither list — so it is extracted but its graph treatment is
+  unspecified.
+  - **(a)** promote `NORP` to a first-class node type;
+  - **(b)** model it as an edge attribute/qualifier (like `DATE`);
+  - **(c)** extract-only — used for mention context but not materialized in the
+    graph.
+  Affects `ADR-0006` node model + `SHAPING.md` A7 + `BREADBOARD.md` N9.
+
+- **Q48 · P1 · ANSWERED → yes** — **Extract `ADR-0010` for the external-dependency port
+  boundary + fakes-first testing seam?**
+  *Decision: created [`ADR-0010`](./adr/0010-external-dependency-port-boundary.md)
+  and added `D10` to the CONTEXT register; PRD port-boundary heading references it.* This is a load-bearing architectural
+  decision (six `Protocol` ports — `ObjectStore`, `DocumentStore`, `EntityStore`,
+  `GraphStore`, `LLMClient`, `Embedder` — as the single DI/test seam, with
+  in-memory fakes for the fast $0 suite + a thin real-container contract layer).
+  It currently lives **only in `PRD.md`** (Implementation + Testing Decisions),
+  with **no ADR**, unlike all nine other decisions. Step E is "extract ADRs," so:
+  propose promoting it to **`ADR-0010`** and adding **`D10`** to the
+  `CONTEXT.md` register. OK to create? *Recommended — it's already decided in the
+  PRD; this only records it at ADR level for consistency.*
+
+### Resolved during Step E (no confirmation needed)
+
+- **E-fix-1** — `CONTEXT.md` status footer said "Next process step: B (PRD)",
+  which was stale (B and C are done). Updated to reflect Step C complete →
+  Step E in progress. (Safe, factual.)

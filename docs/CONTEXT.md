@@ -96,6 +96,7 @@ Status values: **Accepted** · **Proposed** · **Open** (still being grilled).
 | D7 | Graph RAG query: non-LLM vector-anchored + graph-expansion retrieval (default), optional gated LLM synthesis; ES vectors + Neo4j; Kafka=ingestion, REST=query | Accepted | [ADR-0007](./adr/0007-graph-rag-query-retrieval.md) |
 | D8 | Provider-agnostic LLM client (per-stage model config), prompt-hash response cache, structured output + Pydantic validation | Accepted | [ADR-0008](./adr/0008-llm-abstraction-caching-structured-output.md) |
 | D9 | Benchmarking: dual-track (end-to-end primary + extraction sanity check); 2WikiMultihopQA subset; non-LLM metrics (supporting-fact P/R/F1, answer EM/F1) | Accepted | [ADR-0009](./adr/0009-benchmarking-strategy.md) |
+| D10 | External-dependency port boundary (6 `Protocol` ports) as the single DI/test seam; fakes-first $0 fast suite + thin real-container contract layer | Accepted | [ADR-0010](./adr/0010-external-dependency-port-boundary.md) |
 
 ### Settled details (not warranting their own ADR yet)
 
@@ -153,10 +154,24 @@ are resolved and folded into the ADRs:
    (ADR-0001).
 2. Provenance — LLM cites sentence index only; offsets resolved by our spaCy
    segmentation (ADR-0006).
-3. Node vs. attribute — `PERSON/ORG/LOCATION/EVENT/PRODUCT` are nodes; `DATE` is
-   an edge attribute (ADR-0002, ADR-0006).
+3. Node vs. attribute — `PERSON/ORG/LOCATION/EVENT/PRODUCT/NORP` are nodes
+   (`NORP` added in Step E, Q47); `DATE` is an edge attribute (ADR-0002,
+   ADR-0006).
 4. Answer scoring — EM/F1 against node `name` + `aliases` with standard
    normalization (ADR-0009).
 5. Benchmark reproducibility — fixed ingestion order + EL thresholds (ADR-0009).
 
-**Next process step: B (PRD)** — fresh context window, **High** model.
+## Process status
+
+- **Step A (grilling + domain modeling): COMPLETE** — see above (D1–D9, ADRs).
+- **Step B (PRD): COMPLETE** — [`PRD.md`](./PRD.md).
+- **Step C (shaping): COMPLETE** — [`FRAME.md`](./FRAME.md),
+  [`SHAPING.md`](./SHAPING.md), [`BREADBOARD.md`](./BREADBOARD.md),
+  [`SLICES.md`](./SLICES.md). No spike needed (Shape A had no flagged unknowns).
+- **Step E (extract ADRs & consistency): COMPLETE** — Q46–Q48 resolved:
+  Q46 raw text persisted at ingest + enriched at EL checkpoint (ADR-0001
+  reworded); Q47 `NORP` is a first-class node (ADR-0002/0006 updated);
+  Q48 `ADR-0010`/`D10` created for the external-dependency port boundary +
+  testing seam. All shaping docs realigned.
+- Step D (breadboarding) is redundant here — `/shaping` already produced the
+  breadboard + slices (see WORKFLOW-PAINPOINTS #17).

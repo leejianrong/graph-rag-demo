@@ -34,8 +34,14 @@ Supporting choices:
   single process, stages hand off **in-memory** (Python objects), not via
   Elasticsearch round-trips. Elasticsearch writes happen at defined
   **checkpoints**, not between every stage:
-  - the document record (text + NER mentions + coref clusters + per-document EL
-    result) is written to `ES-Documents` after entity linking;
+  - the **raw document text** is written to `ES-Documents` **at ingestion, before
+    processing** (per `REQS.md`) — the record is created up front keyed by the
+    deterministic document ID;
+  - that same record is **enriched in place at the entity-linking checkpoint**
+    with NER mentions + coref clusters + per-document EL result (and, later,
+    passage/sentence vectors) — the enrichment fields are computed in-memory
+    through the stages and persisted together at this one checkpoint, not written
+    incrementally per stage;
   - canonical entities are upserted to `ES-Entities` during entity linking;
   - the graph is written to Neo4j at the KG-build stage.
 - **Error handling:** log-and-drop per document (no dead-letter queue) for the

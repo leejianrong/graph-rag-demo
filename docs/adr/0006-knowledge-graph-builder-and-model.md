@@ -45,13 +45,19 @@ or one type via its label; idiomatic Neo4j with per-label indexes. Properties:
 `canonical_id`, `name`, `type`, `aliases`.
 
 **Which entity types become nodes vs. attributes:** `PERSON`, `ORG`,
-`LOCATION`, `EVENT`, and `PRODUCT` are **first-class nodes**. `DATE` is modeled
-as an **edge attribute / qualifier** (e.g. an `OCCURRED_ON` property or date
-qualifier on the relevant edge), **not** a standalone node — dates as nodes
+`LOCATION`, `EVENT`, `PRODUCT`, and `NORP` are **first-class nodes**. `DATE` is
+modeled as an **edge attribute / qualifier** (e.g. an `OCCURRED_ON` property or
+date qualifier on the relevant edge), **not** a standalone node — dates as nodes
 clutter the graph and hurt multi-hop readability. A lightweight date node is
 introduced only if a question genuinely needs to hop *through* time. (This
 refines the extracted-type set of [ADR-0002](./0002-local-ner-with-spacy.md):
 `DATE` is still extracted, just modeled as an attribute.)
+
+`NORP` (nationalities, religious/political groups — e.g. "German", "Catholic",
+"Republican") is a **first-class node** (decided in Step E, Q47): it participates
+in genuine relations (`PERSON —AFFILIATED_WITH→ NORP`, `PERSON —MEMBER_OF→ NORP`)
+and dropping it would silently lose an extracted type and those multi-hop paths.
+Its type label is `:Entity:Norp`.
 
 **Provenance (Q21):** every edge records `source_doc_id`, `sentence_index`, the
 `source_sentence` text, `raw_predicate`, and a `confidence`. The LLM only cites

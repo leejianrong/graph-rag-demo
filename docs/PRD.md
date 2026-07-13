@@ -79,11 +79,12 @@ at ~$0 thanks to response caching.
 6. As an operator, I want a failed document to be logged and dropped (no
    dead-letter queue) for this local demo, so that one bad document never wedges
    the pipeline, and I can simply re-trigger it.
-7. As an operator, I want stages to hand off in-memory within the single process
-   and to persist only at defined **checkpoints** (document record after entity
-   linking; canonical entities during entity linking; graph at KG-build), so
-   that I avoid needless storage round-trips while still having durable state to
-   inspect.
+7. As an operator, I want the raw document text written to ES-Documents **at
+   ingestion (before processing)**, then that same record enriched in place at
+   defined **checkpoints** (NER mentions + coref clusters + per-document EL result
+   at the entity-linking checkpoint; canonical entities during entity linking;
+   graph at KG-build), so that the original is durably captured up front while
+   in-between stage handoff stays in-memory and I avoid needless round-trips.
 8. As an operator, I want a seed/loader path (the ingestion endpoint) that
    uploads a file to MinIO and publishes the Kafka trigger, so that I can drive
    the demo end-to-end from empty stores.
@@ -157,7 +158,7 @@ at ~$0 thanks to response caching.
     preserves the model's original phrasing in a `raw_predicate` edge property,
     so that rare relations are never silently lost.
 25. As a graph consumer, I want first-class entity types (PERSON, ORG, LOCATION,
-    EVENT, PRODUCT) modeled as nodes and DATE modeled as an **edge
+    EVENT, PRODUCT, NORP) modeled as nodes and DATE modeled as an **edge
     attribute/qualifier**, so that the graph isn't cluttered by date nodes and
     multi-hop paths stay readable.
 26. As a Neo4j user, I want multi-label nodes — a shared `:Entity` label plus a
@@ -268,9 +269,10 @@ paths or code beyond the small interface/shape sketches noted as such.
   interface (`read`, `ner`, `coref`, `entity_linking`, `kg_build`). Stages must
   not share hidden state — the modular boundary is load-bearing.
 - Stage handoff is **in-memory** (Python objects). Elasticsearch/Neo4j writes
-  occur only at **checkpoints**: document record → ES-Documents after entity
-  linking; canonical entities → ES-Entities during entity linking; graph → Neo4j
-  at KG-build.
+  occur at defined **checkpoints**: raw text → ES-Documents **at ingestion
+  (before processing)**; that record enriched in place (NER + coref + per-doc EL)
+  → ES-Documents at the entity-linking checkpoint; canonical entities →
+  ES-Entities during entity linking; graph → Neo4j at KG-build. (ADR-0001.)
 - **Error handling:** log-and-drop per document (no DLQ).
 - **Idempotency:** deterministic **document ID** from `{bucket}/{objectKey}`;
   reprocessing overwrites.
@@ -278,7 +280,7 @@ paths or code beyond the small interface/shape sketches noted as such.
   `process_document({bucket, objectKey})` call — the orchestrator is decoupled
   from Kafka so it can be driven directly in tests.
 
-### External-dependency port boundary (primary architectural seam)
+### External-dependency port boundary (primary architectural seam) — ADR-0010
 
 Everything outside the pipeline's control sits behind a narrow interface
 (Python `Protocol`), constructor-injected into the orchestrator and query
@@ -347,7 +349,7 @@ This is the single seam the whole system is tested at; see Testing Decisions.
   `raw_predicate`.
 - **Node model:** multi-label `:Entity` + type label; properties `canonical_id`,
   `name`, `type`, `aliases`. First-class node types: PERSON, ORG, LOCATION,
-  EVENT, PRODUCT. **DATE is an edge attribute/qualifier, not a node.**
+  EVENT, PRODUCT, NORP. **DATE is an edge attribute/qualifier, not a node.**
 - **Edge provenance:** `source_doc_id`, `sentence_index`, `source_sentence`,
   `raw_predicate`, `confidence`. LLM cites the **sentence index** only; our
   spaCy segmentation resolves `char_start`/`char_end`.
