@@ -72,9 +72,21 @@ establish the port seam + Docker Compose so every later slice plugs in.
 `document_id`; the file is in MinIO and a bare ES-Documents record exists.
 Re-ingesting the same file **overwrites** (same ID, no duplicate).
 
-**Acceptance (seam):** drive `process_document({bucket, objectKey})` against fake
-`ObjectStore`/`DocumentStore`; assert the written record + deterministic ID +
-idempotent overwrite; a failing doc is logged and dropped without wedging.
+**Implementation:** define the six `Protocol` ports + in-memory fakes (A2); MinIO
+`ObjectStore` adapter; ES-Documents `DocumentStore` adapter (raw record); FastAPI
+`/ingest`; thin Kafka consumer → `process_document`; deterministic `document_id`;
+Docker Compose (Kafka/MinIO/ES/service) + `.env` + logging seam.
+
+### Test Plan
+- **End-to-End:** drive `process_document({bucket, objectKey})` against fake
+  `ObjectStore`/`DocumentStore` → assert the raw record written with deterministic
+  ID + idempotent overwrite + a failing doc logged-and-dropped without wedging;
+  `/ingest` exercised via FastAPI `TestClient`.
+- **Integration (real adapters):** `ObjectStore` round-trips bytes to real MinIO;
+  `DocumentStore` writes+reads a record in real Elasticsearch; the Kafka consumer
+  receives a published trigger.
+- **Unit:** `document_id` derivation from `{bucket}/{objectKey}` is deterministic
+  and idempotent.
 
 **Proves:** R1.1, R1.2, R1.3, R1.5, R1.6, R1.7, R7.1, R7.2, R7.4, R7.5 + A2 seam.
 
@@ -101,9 +113,17 @@ curated-type mentions (PERSON/ORG/LOCATION/DATE/EVENT/NORP/[PRODUCT]) each with
 `char_start/end`, plus the sentence segmentation. (Not yet persisted to
 ES-Documents — that lands at V4.)
 
-**Acceptance (seam):** assert mentions, types, spans, and sentence boundaries on
-the orchestrator's returned NER result for a fixed input; NER is deterministic
-and calls no LLM.
+**Implementation:** NER stage wrapping spaCy `en_core_web_trf` (fallback
+`en_core_web_lg`); map curated types (merge `GPE`+`LOC` → LOCATION); retain char
+spans + sentence segmentation in one pass; carry the result in-memory on the
+pipeline object.
+
+### Test Plan
+- **End-to-End:** ingest a fixed doc → orchestrator result has curated-type
+  mentions with `char_start/end` + sentence boundaries; deterministic; no LLM.
+- **Integration:** spaCy model loads and runs (smoke) — no external service.
+- **Unit:** `GPE`+`LOC` → LOCATION merge; span offsets align to source text;
+  sentence-boundary segmentation.
 
 **Proves:** R2.1, R2.2, R2.3, R2.5.
 
@@ -122,9 +142,19 @@ and calls no LLM.
 cluster map grouping mentions to a chosen in-doc canonical; a second identical run
 is a cache hit (observably $0 / no API call).
 
-**Acceptance (seam):** fake `LLMClient` returns canned clusters (cache doubles as
-fixture); assert cluster map shape, non-destructive original text, valid spans;
-assert cache-key stability (`model+prompt+params`).
+**Implementation:** coref stage calling `LLMClient` (LiteLLM) with a
+structured-output prompt → Pydantic cluster-map model + retry; response cache
+keyed `sha256(model+prompt+params)`; fake `LLMClient` with canned clusters as
+fixtures.
+
+### Test Plan
+- **End-to-End:** ingest a doc with pronouns → orchestrator result has a
+  non-destructive cluster map (mention→canonical); a second identical run is a
+  cache hit (no LLM call).
+- **Integration (real adapter):** `LLMClient` against a real provider returns
+  schema-valid clusters (opt-in, excluded from the fast suite).
+- **Unit:** cache-key stability (same inputs → same key; change model/prompt/
+  params → new key); Pydantic validation + retry on malformed JSON.
 
 **Proves:** R2.4, R6.1, R6.2, R6.3.
 
@@ -145,10 +175,19 @@ node — the heart of R3.
 canonical entity in ES-Entities (merge); ingest a doc with a genuinely new entity
 → a **new** canonical record (create-new). `canonical_id` is stable and reused.
 
-**Acceptance (seam):** the ADR-0004 unit seam — same entity across two docs
-merges to one canonical ID; a new entity creates one; **order-sensitivity is
-explicit in fixtures** (first mention seeds the canonical record); gated paths
-stay off by default.
+**Implementation:** EL stage — normalized-name + type blocking against
+ES-Entities; `Embedder` scores mention-in-context vs candidates; threshold →
+merge / else create-new; upsert canonical entities; enrich the ES-Documents
+record at the EL checkpoint; gated tie-breaker + NIL wired but off.
+
+### Test Plan
+- **End-to-End:** two docs naming the same entity differently → one canonical
+  (merge); a new entity → a new canonical; enriched ES-Documents record written;
+  order-sensitivity explicit in fixtures (first mention seeds the canonical).
+- **Integration (real adapters):** `EntityStore` blocking + kNN over
+  `dense_vector` in real Elasticsearch; `Embedder` produces stable vectors.
+- **Unit:** merge-vs-create-new at the threshold boundary (B2); normalized-name
+  blocking; `canonical_id` stability/reuse; gated paths default off.
 
 **Proves:** R3.1, R3.2, R3.3, R3.4, R3.5 (+ R3.6 mechanism present, gated off);
 R6.4 (fixed thresholds → deterministic).
@@ -170,10 +209,21 @@ edges whose properties include `source_doc_id`, `sentence_index`,
 `RELATED_TO` + preserved `raw_predicate`; a dated fact shows the date as an edge
 qualifier (no DATE node).
 
-**Acceptance (seam):** drive ingestion end-to-end against fakes; assert emitted
-triples reference canonical IDs (not strings), predicate mapping + fallback,
-node/edge model, and the **provenance offset resolution** unit seam (LLM cites a
-sentence index → spaCy segmentation resolves offsets to the correct sentence).
+**Implementation:** KG-build stage — `LLMClient` emits triples over canonical IDs
+(structured output); map each predicate to the closed set else
+`RELATED_TO`+`raw_predicate`; resolve char offsets from the spaCy segmentation
+(not the LLM); `GraphStore` Neo4j adapter writes multi-label nodes + provenance
+edges; DATE as edge qualifier.
+
+### Test Plan
+- **End-to-End:** ingest a small corpus against fakes → triples reference
+  canonical IDs (not strings); nodes multi-label; edges carry full provenance; a
+  rare relation → `RELATED_TO`+`raw_predicate`; a dated fact → edge qualifier (no
+  DATE node).
+- **Integration (real adapter):** `GraphStore` node/edge writes + k-hop traversal
+  in real Neo4j (Cypher).
+- **Unit:** predicate mapping + fallback; provenance offset resolution (sentence
+  index → correct `char_start/end`); DATE-as-qualifier modeling.
 
 **Proves:** R0 (graph exists), R4.1, R4.2, R4.3, R4.4, R4.5, R4.6.
 
@@ -195,10 +245,19 @@ response returns the **connected path/subgraph** (not isolated passages), the
 supporting sentences with provenance, and a concrete top-entity answer — with no
 LLM call.
 
-**Acceptance (seam):** drive the retrieval function behind `/query` against
-pre-seeded fake `EntityStore`/`DocumentStore`/`GraphStore`; assert ranked
-subgraph, supporting sentences + provenance, and the top-ranked entity answer;
-HTTP contract checked via FastAPI `TestClient` at the same seam.
+**Implementation:** query retriever — embed the question (`Embedder`); ES kNN seed
+on entity + passage/sentence vectors; k-hop expand in Neo4j; rank the subgraph +
+supporting sentences; top-entity answer; FastAPI `/query` + U3 response schema.
+
+### Test Plan
+- **End-to-End:** `/query` a multi-hop question against pre-seeded fake
+  `EntityStore`/`DocumentStore`/`GraphStore` → connected subgraph + supporting
+  sentences + provenance + top-entity answer, no LLM; HTTP contract via
+  `TestClient`.
+- **Integration (real adapters):** kNN seeding in real Elasticsearch + k-hop
+  traversal in real Neo4j.
+- **Unit:** subgraph ranking-function ordering (B4); top-node answer selection;
+  kNN seed merge (entity- vs passage-anchored, B5).
 
 **Proves:** R0, R5.1, R5.2, R5.3, R5.4, R5.5.
 
@@ -215,8 +274,16 @@ HTTP contract checked via FastAPI `TestClient` at the same seam.
 **Demo:** `POST /query {synthesize:true}` → prose answer grounded in the same
 retrieved evidence; without the flag, the response is identical to V6 (no LLM).
 
-**Acceptance (seam):** fake `LLMClient`; assert prose is produced only when gated
-on and that the default path invokes no LLM.
+**Implementation:** gated synthesizer — when `synthesize=true`, assemble the V6
+subgraph + sentences into a prompt and call `LLMClient` for prose; default off.
+
+### Test Plan
+- **End-to-End:** `/query {synthesize:true}` → prose grounded in the retrieved
+  evidence; without the flag → identical to V6, no LLM.
+- **Integration (real adapter):** `LLMClient` synthesis call returns usable prose
+  (opt-in).
+- **Unit:** gate defaults off; prompt correctly assembles subgraph + supporting
+  sentences.
 
 **Proves:** R5.6.
 
@@ -235,10 +302,19 @@ on and that the default path invokes no LLM.
 answer EM/token-F1 (scored vs `name` + `aliases` under standard normalization);
 a second run reuses the graph + cache and is observably ~$0.
 
-**Acceptance (seam):** small fixture corpus → stable scores across runs (fixed
-ingestion order + fixed EL thresholds + warm cache); the **answer
-normalization + EM/F1** unit seam (differently-phrased-but-correct entity scores
-as correct); scoring uses no LLM.
+**Implementation:** benchmark harness — ingest 2WikiMultihopQA context paragraphs
+(fixed order) via the V1 path; run the fixed subset through V6 retrieval; score
+supporting-fact P/R/F1 + answer EM/token-F1 vs `name`+`aliases` under standard
+normalization; CLI; warm-cache reuse of the pre-built graph.
+
+### Test Plan
+- **End-to-End:** small fixture corpus → stable scores across runs (fixed
+  ingestion order + fixed EL thresholds + warm cache); CLI prints metrics;
+  scoring uses no LLM.
+- **Integration:** full ingest → graph → query → score over the fixture against
+  the real stack (slow, opt-in).
+- **Unit:** answer normalization + EM/token-F1 (differently-phrased-but-correct
+  entity scores as correct); supporting-fact P/R/F1 computation.
 
 **Proves:** R8.1, R8.2, R8.3, R8.4, R8.5, R8.6, R6.1, R6.4.
 
@@ -266,7 +342,13 @@ Nice-to-haves that are their own mechanism (R5.6, R8.5) land in V7 and V8. R3.6
 
 ## Next process step
 
-Shaping (Step C) is complete after this slice breakdown. Per the
-build-plan-product flow: **D (breadboarding refinement) → E (extract ADRs & final
-consistency)**, then implementation planning per slice (V1-plan.md, …) in the
-specs phase.
+Steps C (shaping) and E (consistency) are complete. **Step F is folded into this
+doc** — each slice above carries its **Implementation** notes and a three-tier
+**Test Plan** (End-to-End / Integration / Unit), so no separate `SLICE-V*.md`
+files are produced (streamlining, per WORKFLOW-PAINPOINTS #22). The technical
+architecture is in [`ARCHITECTURE.md`](./ARCHITECTURE.md) (Step G) and the
+test-strategy audit in [`TESTING.md`](./TESTING.md) (Step H).
+
+**Remaining:** Step I (to-issues) — turn these slices into epic + issue tickets
+on the Simple Kanban board via `/project-manager-kanban`. Then implementation,
+building V1→V6 (critical path) then V7/V8.

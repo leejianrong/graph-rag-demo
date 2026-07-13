@@ -32,27 +32,29 @@ ingestion — decide those deliberately, not by default.
 
 ---
 
-## Slice implementation plans to write
+## Slice implementation plans
 
-One plan per slice (`V1-plan.md … V8-plan.md`), each detailing the affordances,
-port contracts, fakes, and tests for that slice. Definitions + demo criteria +
-per-slice affordances live in [`SLICES.md`](./SLICES.md); the plan adds the
-concrete implementation steps.
+Per-slice detail (Implementation notes + 3-tier Test Plan) is **folded into
+[`SLICES.md`](./SLICES.md)** — one scannable doc, no separate `SLICE-V*.md` files
+(streamlining, WORKFLOW-PAINPOINTS #22). Technical architecture is in
+[`ARCHITECTURE.md`](./ARCHITECTURE.md); the test-strategy audit in
+[`TESTING.md`](./TESTING.md).
 
-| Plan | Slice | Delivers | Pins params |
-|------|-------|----------|-------------|
-| `V1-plan.md` | V1 | Walking skeleton: ingest → stored raw doc | — |
-| `V2-plan.md` | V2 | NER (typed mentions + spans) | — |
-| `V3-plan.md` | V3 | Coreference + LLM client/cache | B6 |
-| `V4-plan.md` | V4 | Entity linking (cross-doc unification) + EL checkpoint | B1, B2 |
-| `V5-plan.md` | V5 | Graph build (triples + provenance) | B6, B7 |
-| `V6-plan.md` | V6 | Retrieval (non-LLM multi-hop) | B3, B4, B5 |
-| `V7-plan.md` | V7 | Gated prose synthesis | B6 |
-| `V8-plan.md` | V8 | Benchmark harness + metrics | B8 |
+| Slice | Delivers | Pins params |
+|-------|----------|-------------|
+| V1 | Walking skeleton: ingest → stored raw doc | — |
+| V2 | NER (typed mentions + spans) | — |
+| V3 | Coreference + LLM client/cache | B6 |
+| V4 | Entity linking (cross-doc unification) + EL checkpoint | B1, B2 |
+| V5 | Graph build (triples + provenance) | B6, B7 |
+| V6 | Retrieval (non-LLM multi-hop) | B3, B4, B5 |
+| V7 | Gated prose synthesis | B6 |
+| V8 | Benchmark harness + metrics | B8 |
 
 **Build order:** V1→V6 is the critical path to the core goal (R0); V7 and V8
 hang off V6. The A2 port seam (ADR-0010) is established in V1 and reused by every
-later slice.
+later slice. Tickets for these become epic + issue cards in Step I via
+`/project-manager-kanban`.
 
 ---
 

@@ -175,3 +175,10 @@ are resolved and folded into the ADRs:
   testing seam. All shaping docs realigned.
 - Step D (breadboarding) is redundant here — `/shaping` already produced the
   breadboard + slices (see WORKFLOW-PAINPOINTS #17).
+- **Step F (slicing / per-slice detail + test plans): COMPLETE** — folded into
+  [`SLICES.md`](./SLICES.md) (each slice carries Implementation + a 3-tier Test
+  Plan; no separate `SLICE-V*.md` files, per streamlining #22).
+- **Step G (tech architecture): COMPLETE** — [`ARCHITECTURE.md`](./ARCHITECTURE.md).
+- **Step H (testing audit): COMPLETE** — [`TESTING.md`](./TESTING.md).
+- **Step I (to-issues): PENDING** — will use `/project-manager-kanban` to create
+  epic + issue tickets on Simple Kanban (user provides `.mcp.json`).
