@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Pre-push hook — the CHEAP mirror of the required CI jobs (dev-playbook #5).
+#
+# Runs only fast, no-infra checks so a push rarely lands red:
+#   1. ruff check .                         (lint)
+#   2. uv run pytest -m "not contract" -q   (fast $0 suite — fakes only, no Docker)
+#
+# Contract/integration tests are CI-only; they stay out of this hook so it never
+# needs Docker (a hook that needs Docker is a hook people disable).
+#
+# Install (version-controlled, from the repo root):
+#   ln -sf ../../scripts/pre-push .git/hooks/pre-push
+#
+# Escape hatch for a rare scoped exception (docs-only change, hotfix):
+#   git push --no-verify
+# CI is still the real gate, so the bypass is safe.
+
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+echo "pre-push: ruff check ."
+uv run ruff check .
+
+echo "pre-push: fast suite (uv run pytest -m 'not contract')"
+uv run pytest -m "not contract" -q
+
+echo "pre-push: OK"
