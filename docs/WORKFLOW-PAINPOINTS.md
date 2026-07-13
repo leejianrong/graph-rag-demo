@@ -283,3 +283,49 @@ _(To be filled in by the agent that runs Step D.)_
     is worth keeping in the flow — it's not a rubber stamp.
 
 _— observed running Step E on Opus 4.8, fresh context (recovered method)._
+
+---
+
+## Meta — the end-to-end process is too long for the fidelity it adds (cross-cutting)
+
+### P1 — the dominant friction, spanning both skills
+
+22. **[NEW] Nine lettered steps (A–I) across two skills, each mandating a fresh
+    context + model switch — and the back half is largely re-consolidation of
+    already-settled material.** By the time the ADRs exist (end of A/E), the
+    architecture is *decided*; yet the process keeps spawning heavyweight,
+    fresh-context steps that mostly re-express it:
+    - **D (breadboarding)** duplicates **C** — `/shaping` already produces the
+      breadboard (#17).
+    - **F1 (slicing)** is *also* done inside **C** — `/shaping` owns slicing too,
+      so `SLICES.md` already existed before "Step F" began.
+    - **G (tech architecture)** and **H (testing)** are largely pre-decided by the
+      ADRs + `PRD.md` §Testing Decisions + `ADR-0010` (the port seam / fakes-first
+      strategy). They become consolidation write-ups, not fresh investigations.
+    - Every step also carries ceremony (context reset, model hint, bespoke prompt
+      template) that assumes the step is doing net-new work. After E, most aren't.
+    Net effect: high handoff cost (≈9 fresh chats + model swaps) for diminishing
+    marginal output — exactly the "this is really long" symptom.
+
+    **What must NOT be lost (product owner values these):** the up-front
+    **grilling questions** (Step A) and the **de-confliction / consistency pass**
+    (Step E) — both do real work. E alone caught three genuine issues (#21). The
+    goal is *fewer, denser steps*, not fewer questions.
+
+    → **Fix — collapse to ~4 phases, keeping both high-value touchpoints:**
+    1. **Grill + domain-model + ADRs** (= A). *Keep the relentless questions.*
+    2. **Synthesize PRD** (= B).
+    3. **One shaping pass**: frame → R → shape → breadboard → slice →
+       per-slice detail + test plans (= C + D + F merged; `/shaping` already
+       spans all of it in a single context).
+    4. **One consolidation pass**: de-conflict + extract any missing ADRs +
+       sign off tech-architecture & testing (= E + G + H merged; the E-style
+       cross-check is where architecture/testing gaps actually surface).
+
+    Then **to-issues** (= I). That halves the fresh-context handoffs and the step
+    count while preserving the grilling and the consistency sweep. Attach model
+    hints to the 4 phases, not 9 steps. (This run effectively *already* did
+    C+D+F1 as one pass and is about to do F+G+H as one pass — the streamlined
+    shape is what naturally happened once the ADRs were locked.)
+
+_— observed after completing Steps A–E and mapping F–I, Opus 4.8._
