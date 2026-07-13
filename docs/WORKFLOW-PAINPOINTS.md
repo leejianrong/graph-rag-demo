@@ -136,7 +136,112 @@ _— observed running Step B on Opus 4.8 (High), fresh context._
 
 ## Step C — shaping (frame → requirements → shapes → fit → detail)
 
-_(To be filled in by the agent that runs Step C.)_
+_(Started by the agent running Step C — Opus 4.8, fresh context. C1 (Frame)
+complete; C2–C7 pending in the same context. Findings so far below.)_
+
+### P0 — broken dependency (blocks later sub-steps C6/C7)
+
+13. **[NEW — investigated & narrowed] `/shaping` references a `/breadboarding`
+    skill that does not exist, but the method is (partly) inlined in `/shaping`
+    itself.** `~/.claude/skills/breadboarding` is **missing**, and a
+    `grep -rli breadboard ~/.claude/skills/` finds the standalone procedure
+    **nowhere** — the only hits are a doc-name mention in `write-tech-blog-post`
+    and unrelated "vertical slice" matches in `dev-playbook`/
+    `project-manager-kanban`. So the process-plan-product install line
+    (`rjs/shaping-skills … --skill breadboarding`) is a **dangling reference**:
+    there is no such skill to install (confirmed known issue per product owner).
+    `/shaping`'s SKILL.md offloads **Detailing** and **Slicing** to it
+    ("Use the `/breadboarding` skill…") — the exact hidden-skill / broken-dep
+    pattern from Step A (#1–#3). **Mitigation found:** `/shaping` *inlines the
+    breadboard output spec* (SKILL.md ~311–326, 443–452) — the three deliverables
+    (UI Affordances table, Non-UI Affordances table, Wiring diagram grouped by
+    Place), plus "tables are source of truth / diagram renders them," the
+    `Wires Out` column, and `CURRENT` as reserved baseline. That is enough to run
+    C4/C6 as an **inline fallback**; only the standalone skill's finer procedural
+    detail (exact column schemas, slicing recipe) is unrecoverable. So this is
+    **not a hard blocker** — downgraded from "blocks C4/C6" to "degraded, inline
+    fallback used."
+    → **Fix:** either ship the real `breadboarding` skill (the install line
+    promises it), or — since its essentials already live in `/shaping` —
+    **remove the `/breadboarding` cross-references from `/shaping` and promote the
+    inlined spec to the canonical method**, so `/shaping` is self-contained and
+    stops pointing at a skill that was never published.
+    → **Workaround applied (C4):** built `docs/BREADBOARD.md` directly from the
+    breadboard spec inlined in `/shaping` — UI Affordances table + Non-UI
+    Affordances table (with a `Wires Out` column) + a Mermaid wiring diagram
+    grouped by Place, generated *from* the tables (tables = source of truth).
+    Column schema was reconstructed from the `/shaping` examples since the
+    standalone skill's canonical schema is unavailable; if the real
+    `/breadboarding` ever ships with different columns, this doc may need a
+    reformat. No content was blocked — only the exact table shape is
+    unverified-against-canonical.
+
+### P2 — minor
+
+14. **[CORRECTED — prediction #6 does NOT fire for `/shaping`.]** Predicted
+    painpoint #6 said templates assume `REQS.md`/`CONTEXT.md` at repo root.
+    `grep -niE 'reqs|context|prd|repo root|frame\.md'` over
+    `~/.claude/skills/shaping/` returns **nothing** — the `/shaping` skill never
+    references those files or a repo-root location at all. It is fully
+    path-agnostic, so moving the docs under `docs/` caused it **zero** friction.
+    Painpoint #6 is a property of the *process-plan-product templates*, not of
+    `/shaping`. Override #2 was therefore a no-op for this step (harmless).
+
+15. **[NEW] `/shaping` is silent on *where* to write its documents.** The skill's
+    Documents table names the artifacts (Frame, Shaping doc, Slices doc) and
+    mandates `shaping: true` frontmatter, but specifies **no filename and no
+    directory** for any of them — not repo root, not `docs/`, nothing. Left to
+    its defaults the agent must guess a location. Override #1 (write under
+    `docs/` as `FRAME.md`, `SHAPING.md`, …) supplied the missing convention and
+    was genuinely needed — but as a gap-filler, not a correction. Distinct from
+    #6: the problem isn't a *wrong* hardcoded path, it's the *absence* of any
+    path guidance.
+    → **Fix:** have `/shaping` state a default output location/filenames (e.g.
+    `FRAME.md`, `SHAPING.md`, `SLICES.md` beside the other planning docs) and let
+    the invocation override it, mirroring how `to-prd` should parameterize its
+    output target (#9).
+
+### P1 — process-ordering friction (shaping runs after the shape is decided)
+
+16. **[NEW] Step C (shaping) runs *after* A/B have already locked 9 ADRs, so
+    shaping's core engine has little to bite on.** `/shaping` is built to explore
+    a solution space: propose mutually-exclusive shapes (A/B/C), play them
+    against R in a binary fit check, and *pick one*. But in the
+    build-plan-product ordering, the winning shape is already fully determined by
+    the Accepted ADRs before shaping starts — there is no live A-vs-B choice left
+    to make. Consequently R (C2) reads almost entirely "Must-have + will-be-
+    satisfied," and C3's shapes risk being a single foregone shape (essentially
+    "the ADRs") with no genuine alternative to compare — making the fit check a
+    formality rather than a decision tool. Not blocking (the R set + a single
+    detailed shape + breadboard are still useful as a consolidated spec view),
+    but it means the skill is being used against its grain.
+    → **Fix:** either (a) have build-plan-product tell Step C to *skip shape
+    exploration* and go straight to detailing/breadboarding the already-decided
+    shape (frame → R → Detail → breadboard → slice), or (b) run shaping *before*
+    ADRs are frozen. As-is, document that C3 will be a single "CURRENT-of-record"
+    shape derived from the ADRs, not a genuine multi-shape bake-off.
+
+17. **[NEW] Step C (shaping) and Step D (breadboarding) overlap — the `/shaping`
+    skill already does D's job.** The build-plan-product flow lists **C = shaping**
+    then **D = breadboarding** as *separate* steps (and this very file has a
+    distinct `## Step D — breadboarding` heading). But `/shaping` explicitly owns
+    breadboarding *and* slicing within itself ("Shaping → Slicing"; the Documents
+    table includes Breadboard + Slices doc). Running Step C to completion
+    therefore already produced `BREADBOARD.md` **and** `SLICES.md` — leaving Step
+    D with nothing distinct to do. The two steps are redundant as scoped.
+    → **Fix:** collapse D into C (shaping *is* frame→R→shape→breadboard→slice), or
+    re-scope D to mean "refine/validate the breadboard against real code" —
+    something genuinely post-shaping — so the steps don't duplicate. Update the
+    `## Step D` heading here accordingly.
+
+18. **[NEW — keep, not a fix] No spike was needed, and that's correctly
+    signalled.** `/shaping` says a selected shape "should have no flags (all ⚠️
+    resolved), or explicit spikes to resolve them." Shape A had **zero** flagged
+    unknowns (every mechanism is pinned by an ADR), so no `SPIKE-*.md` was
+    created — the flag convention did its job as a gate. Noting it so the absence
+    of a spike file isn't later read as a missed step.
+
+_— observed running Step C (C1–C5, full shaping arc) on Opus 4.8, fresh context._
 
 ## Step D — breadboarding
 
@@ -144,4 +249,37 @@ _(To be filled in by the agent that runs Step D.)_
 
 ## Step E — grill-with-docs (extract ADRs & final consistency)
 
-_(To be filled in by the agent that runs Step E.)_
+### P0 — broken dependency (same as Step A #1–#3, still unfixed)
+
+19. **[CONFIRMED — Step A's P0 recurs verbatim] `grill-with-docs` is still a
+    dangling one-liner.** `~/.claude/skills/grill-with-docs/SKILL.md` reads, in
+    full: *"Run a `/grilling` session, using the `/domain-modeling` skill."* Both
+    `/grilling` and `/domain-modeling` are **still missing**
+    (`ls ~/.claude/skills/{grilling,domain-modeling}` → MISSING). So Step E, like
+    Step A, has **nothing to execute** as shipped. Recovered the intended
+    behaviour from `build-plan-product/assets/process-plan-product.md` §E ("E1:
+    Ensure consistency and capture decisions" — review shaping files, assess
+    CONTEXT/PRD/ADRs, log inconsistencies + questions to QUESTIONS.md) and ran
+    that method by hand.
+    → **Fix:** same as Step A #1–#3 — either ship `/grilling` + `/domain-modeling`
+    or inline the method into `grill-with-docs`. This has now bitten **two**
+    separate steps (A and E) that both invoke `grill-with-docs`; the fix is
+    high-value.
+
+### P2 — minor
+
+20. **[NEW] The Step E prompt lists shaping files but omits `SLICES.md` and
+    `FRAME.md`.** `process-plan-product.md` §E says review "FRAME.md +
+    SHAPING.md + BREADBOARD.md + (…spike files)" — it names FRAME and SHAPING but
+    **not** `SLICES.md`, even though slicing is part of Step C's output and is
+    exactly where a consistency issue surfaced (Q46, the ES-write-timing gap).
+    Reviewed it anyway. → **Fix:** add `SLICES.md` to the §E review list.
+
+21. **[NEW — keep] Step E earned its keep: the sweep found 3 real items.** Even
+    though shaping was derived straight from the ADRs, the cross-check surfaced a
+    genuine REQS↔ADR-0001 conflict (raw-doc write timing, Q46), an unspecified
+    node type (NORP, Q47), and a load-bearing decision with no ADR (the port
+    seam → proposed ADR-0010, Q48). The "extract ADRs & check consistency" step
+    is worth keeping in the flow — it's not a rubber stamp.
+
+_— observed running Step E on Opus 4.8, fresh context (recovered method)._
