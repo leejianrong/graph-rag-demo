@@ -1,0 +1,34 @@
+{
+  "//": "Copy to .mcp.json (repo root) for Claude Code, then keep ONE of the two 'kanban' servers below and delete the other. See mcp/README.md.",
+  "//token": "Since V8 (ADR 0013) /api/v1 is auth-required, and V10 (ADR 0015) removed the shared API_TOKENS bypass. Create a personal access token in the SPA (Tokens tab, V9) and put the kanban_pat_... secret in KANBAN_TOKEN. It acts as your user and is owner-gated. An empty/invalid token yields 401.",
+  "//boards": "KANBAN_BOARD_ID sets the default board (an integer id) for calls that omit board_id — it is preset to 1 (the seeded default board) so a wired agent doesn't accidentally target the wrong board. Call list_boards to find your board id and change 1 to it. Leave it empty to fall back to the API default (list = all your boards, create = your earliest).",
+  "//prod": "Set KANBAN_API_URL to https://simple-kanban-jian.fly.dev and KANBAN_TOKEN to your kanban_pat_... secret.",
+  "//run-modes": "Two ways to run the server: (1) 'kanban' runs it from source with uv (needs a checkout + uv). (2) 'kanban-docker' runs the prebuilt image from ghcr.io (KAN-47) — no Python/uv/checkout, just Docker. Pick one; rename it to whatever you like.",
+  "mcpServers": {
+    "kanban": {
+      "command": "uv",
+      "args": ["run", "--directory", "./mcp", "python", "-m", "kanban_mcp"],
+      "env": {
+        "KANBAN_API_URL": "http://localhost:8000",
+        "KANBAN_TOKEN": "",
+        "KANBAN_BOARD_ID": "1"
+      }
+    },
+    "kanban-docker": {
+      "//": "Prebuilt OCI image (KAN-47). `-i` keeps stdin open for the stdio transport; `--rm` cleans up. The -e flags forward the values from the env block below into the container. Pin a version instead of :latest if you prefer (e.g. :0.1). Use host.docker.internal instead of localhost to reach a backend on the host.",
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "KANBAN_API_URL",
+        "-e", "KANBAN_TOKEN",
+        "-e", "KANBAN_BOARD_ID",
+        "ghcr.io/leejianrong/simple-kanban-mcp:latest"
+      ],
+      "env": {
+        "KANBAN_API_URL": "https://simple-kanban-jian.fly.dev",
+        "KANBAN_TOKEN": "",
+        "KANBAN_BOARD_ID": "1"
+      }
+    }
+  }
+}

@@ -21,6 +21,7 @@ uv.lock.local
 .env
 .env.*
 !.env.example
+.mcp.json
 
 # LLM response cache & local model artifacts
 .cache/

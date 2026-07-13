@@ -286,6 +286,27 @@ _— observed running Step E on Opus 4.8, fresh context (recovered method)._
 
 ---
 
+## Step I — to-issues (create epic + issue tickets on Simple Kanban)
+
+### P2 — minor tooling nits (kanban / build-plan-specs, not build-plan-product)
+
+23. **[NEW] `kan create --points N` is silently ignored.** Creating the 8 story
+    cards with `--points` left every card at `story_points: null`; the value only
+    stuck via a follow-up `kan update <id> --points N`. Also the API/JSON field is
+    **`story_points`**, not `points` — so `jq .points` reads null even when set.
+    → **Fix (simple-kanban / kan CLI):** honor `--points` on `create`, or document
+    that points must be set via `update`; and note the field is `story_points`.
+
+24. **[NEW] `.mcp.json` ships with `KANBAN_BOARD_ID: -1`.** The seeded default is a
+    placeholder, so a wired agent that omits `--board` targets nothing valid. Had
+    to pass `--board 9` explicitly on every call. → **Fix:** after creating the
+    project board, update `.mcp.json`'s `KANBAN_BOARD_ID` to the real id (left to
+    the user since the file also holds the secret PAT).
+
+_— observed running Step I on Opus 4.8; credential handled blind throughout._
+
+---
+
 ## Meta — the end-to-end process is too long for the fidelity it adds (cross-cutting)
 
 ### P1 — the dominant friction, spanning both skills
