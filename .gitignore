@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# uv / virtualenv
+.venv/
+venv/
+uv.lock.local
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# LLM response cache & local model artifacts
+.cache/
+llm_cache/
+*.spacy
+models/
+
+# Docker / local service data
+data/
+volumes/
+*.log
+
+# Benchmark artifacts / datasets (keep large corpora out of git)
+datasets/
+benchmarks/results/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
