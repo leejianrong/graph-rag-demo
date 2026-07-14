@@ -11,9 +11,19 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: "deps"
+    # Batch only minor/patch bumps together; majors come as their own PRs so one
+    # server-coupled major (e.g. an ES client requiring a matching server) can't
+    # block an otherwise-safe group.
     groups:
       python-deps:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
+    ignore:
+      # elasticsearch-py 9.x requires an ES 9.x server; ours is pinned to 8.x in
+      # docker-compose + the contract fixtures. Hold the major until we migrate the
+      # server in lockstep (a dedicated ES 8->9 slice), then remove this ignore.
+      - dependency-name: "elasticsearch"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions used by the CI workflow.
   - package-ecosystem: "github-actions"
