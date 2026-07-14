@@ -52,6 +52,10 @@ embed = [
     "sentence-transformers",
 ]
 
+[project.scripts]
+# V8 benchmark CLI (U4): `benchmark run --subset small` (also `python -m graph_rag.benchmark`).
+benchmark = "graph_rag.benchmark.cli:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -73,4 +77,5 @@ markers = [
     "e2e: end-to-end tests driving an entry point through the port seam",
     "model: tests that load a real spaCy model or embedder (needs `make models` / `.[embed]`; excluded from the fast pre-push gate)",
     "llm: opt-in tests that call a real LLM provider (needs an API key; skipped without one; excluded from the fast pre-push gate)",
+    "benchmark: opt-in slow whole-pipeline benchmark run over the real adapter stack (V8; needs infra/models/key; skips cleanly if absent; excluded from the fast pre-push gate)",
 ]

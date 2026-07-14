@@ -123,7 +123,37 @@ returns cached `complete()` prose. Wired as an OPTIONAL `QueryRetriever` collabo
 `prose: str | None = None` — the **default path (`synthesize=false`, or no
 synthesizer wired) makes NO LLM call and the response is byte-for-byte the V6 shape**.
 `main.py` builds `AnswerSynthesizer.from_settings(settings)` and passes it to the
-retriever. V8 (benchmark) is **not built**.
+retriever.
+
+**V8 (benchmark harness + metrics) — LANDED. The pipeline is now feature-complete
+V1–V8.** `graph_rag/benchmark/` — the final slice, measuring the multi-hop
+capability reproducibly at ~$0 with **non-LLM scoring** (ADR-0009).
+`metrics.py` is the PURE, unit-testable scoring core: `normalize_answer` (the
+standard SQuAD/2Wiki normalization — lowercase, strip punctuation, strip articles
+`a`/`an`/`the`, collapse whitespace), `exact_match(prediction, golds)`,
+`token_f1(prediction, golds)` (max SQuAD token-F1 over the acceptable golds, so an
+alias / differently-phrased-but-correct entity scores correct), `supporting_fact_prf`
+(P/R/F1 over `(title, sentence_index)` identifier sets) and `aggregate`.
+`dataset.py` loads 2WikiMultihopQA-shaped examples (`question`/`answer`/
+`answer_aliases`/`context`/`supporting_facts`) from a file/dir (the real corpus is
+gitignored under `datasets/`, B8) and pins FIXED, deterministic named subsets
+(`select_subset` sorts by id then takes a prefix; `small`/`medium`/`full`).
+`harness.py` — `BenchmarkHarness` ingests each example's context paragraphs through
+the V1 path (`process_document`) in a **fixed order** (order-sensitive EL, ADR-0004),
+building the graph **ONCE**, runs each question through the V6 `QueryRetriever`, and
+scores answer EM/token-F1 (vs the answer_entity's `name`+`aliases`) + supporting-fact
+P/R/F1 — returning per-question + aggregate metrics and an `llm_calls` count for the
+run. `pipeline.py` wires an OFFLINE deterministic pipeline (in-memory stores +
+`FakeEmbedder` + text-driven `HeuristicNerStage`/`HeuristicKgBuildStage` +
+`LLMCorefStage` over `FakeLLMClient` + real EL pinned to merge-by-name) so the
+benchmark + CLI run with **no Docker/model/LLM**, plus `build_real_components` for the
+real stack. `cli.py` — `benchmark run --subset small [--dataset PATH] [--limit N]
+[--real] [--per-question]` (console script `benchmark`, or `python -m graph_rag.benchmark`)
+prints a clean metrics table. A warm re-run reuses the pre-built graph + LLM cache
+and makes **0 LLM calls** — the observable ~$0 signal. Mini in-repo fixture:
+`tests/fixtures/wiki2_mini.json`. Whole-pipeline real-stack smoke:
+`tests/integration/test_benchmark_real_stack.py` (new `benchmark` marker, opt-in,
+skips cleanly without infra; excluded from the fast gate).
 
 > **Trust the code over the docs.** `docs/` (ARCHITECTURE, SLICES, TESTING, ADRs)
 > is the design intent; where code and docs disagree, the code on this branch is
@@ -227,9 +257,15 @@ real gate.
 - `graph_rag/adapters/` — real adapters (MinIO `ObjectStore`, ES `DocumentStore`,
   LiteLLM `LLMClient`).
 - `graph_rag/stages/` — injected enrichment stages: `ner.py` (`NerStage`), `coref.py`
-  (`CorefStage`).
+  (`CorefStage`), `entity_linking.py` (`ELStage`), `kg_build.py` (`KgStage`).
+- `graph_rag/query/` — V6 retrieval (`retriever.py`, `ranking.py`) + V7 `synthesis.py`.
+- `graph_rag/benchmark/` — V8: `metrics.py` (pure scoring), `dataset.py` (2Wiki loader
+  + fixed subsets, B8), `harness.py`, `pipeline.py` (offline/real wiring), `cli.py`
+  (console script `benchmark`).
 - `graph_rag/messaging/` — Kafka trigger publisher + thin consumer.
 - `graph_rag/api.py` — FastAPI `create_app(object_store, publisher, settings)`.
 - `tests/e2e/` fast E2E · `tests/contract/` real-adapter contract · `tests/unit/` units ·
-  `tests/model/` spaCy-model · `tests/llm/` opt-in real-provider.
+  `tests/model/` spaCy-model · `tests/llm/` opt-in real-provider ·
+  `tests/integration/` opt-in `benchmark`-marked whole-pipeline smoke ·
+  `tests/fixtures/wiki2_mini.json` mini 2Wiki fixture.
 - Design: `docs/ARCHITECTURE.md`, `docs/SLICES.md`, `docs/TESTING.md`, `docs/adr/`.
