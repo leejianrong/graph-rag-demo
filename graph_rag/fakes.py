@@ -26,6 +26,7 @@ from graph_rag.models import (
     Mention,
     Sentence,
     Subgraph,
+    SupportingSentence,
     Triple,
 )
 from graph_rag.normalize import normalize_name
@@ -93,6 +94,38 @@ class InMemoryDocumentStore:
     def get(self, document_id: str) -> DocumentRecord | None:
         """Return the record for ``document_id``, or ``None`` if absent."""
         return self._records.get(document_id)
+
+    def search_sentences(self, *, vector: list[float], top_k: int) -> list[SupportingSentence]:
+        """Return the ``top_k`` sentences nearest ``vector`` by cosine (V6, B5).
+
+        Brute-force cosine over every stored record's ``sentence_vectors``,
+        pairing each vector positionally with the record's ``sentences`` by index.
+        A record with no ``sentence_vectors`` (``None``/empty) contributes nothing,
+        as do vectors with no aligned :class:`~graph_rag.models.Sentence`. Ordering
+        is deterministic — score descending, then ``document_id``, then
+        ``sentence_index`` — mirroring the real adapter's re-sort so the contract
+        test can prove equivalence.
+        """
+        scored: list[SupportingSentence] = []
+        for record in self._records.values():
+            vectors = record.sentence_vectors or []
+            for idx, sentence_vector in enumerate(vectors):
+                if idx >= len(record.sentences):
+                    # A vector without an aligned sentence has no offsets to return.
+                    continue
+                sentence = record.sentences[idx]
+                scored.append(
+                    SupportingSentence(
+                        document_id=record.document_id,
+                        text=sentence.text,
+                        char_start=sentence.char_start,
+                        char_end=sentence.char_end,
+                        sentence_index=sentence.index,
+                        score=_cosine(vector, sentence_vector),
+                    )
+                )
+        scored.sort(key=lambda s: (-s.score, s.document_id, s.sentence_index))
+        return scored[:top_k]
 
 
 class InMemoryTriggerPublisher:

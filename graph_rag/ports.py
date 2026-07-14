@@ -26,6 +26,7 @@ from graph_rag.models import (
     DocumentRecord,
     IngestTrigger,
     Subgraph,
+    SupportingSentence,
     Triple,
 )
 
@@ -81,6 +82,23 @@ class DocumentStore(Protocol):
 
     def get(self, document_id: str) -> DocumentRecord | None:
         """Return the record for ``document_id``, or ``None`` if absent."""
+        ...
+
+    def search_sentences(self, *, vector: list[float], top_k: int) -> list[SupportingSentence]:
+        """Return the ``top_k`` sentences nearest ``vector`` by cosine (V6, B5).
+
+        Passage/sentence-anchored query seeding (ADR-0007): ranks over the
+        per-sentence dense vectors persisted on the ``ES-Documents`` records
+        (``DocumentRecord.sentence_vectors``, positionally aligned with
+        ``DocumentRecord.sentences``), descending by cosine similarity in
+        ``[-1, 1]``, and returns each match as a
+        :class:`~graph_rag.models.SupportingSentence` carrying its source
+        ``document_id``, sentence ``text``, char offsets, ``sentence_index`` and
+        ``score``. Records with no sentence vectors contribute nothing. Ordering
+        is deterministic: score descending, then ``document_id``, then
+        ``sentence_index``. This is the passage side of query seeding; the
+        entity-anchored side reuses :meth:`EntityStore.knn`.
+        """
         ...
 
 

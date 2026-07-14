@@ -80,8 +80,32 @@ so RE-INGESTING a document REPLACES its edges rather than duplicating (closes th
 TESTING graph-idempotency gap; nodes stay shared/idempotent). Triples are carried
 in-memory on `PipelineResult.triples` (they live in **Neo4j**, not ES). Alongside
 the real `Neo4jGraphStore` adapter (Agent A). Whole body stays inside log-and-drop
-(a KG-build failure drops the doc, never wedges the loop). V6–V8 (retrieval →
-benchmark) are **not built**.
+(a KG-build failure drops the doc, never wedges the loop).
+
+**V6 (multi-hop retrieval + `POST /query`) — LANDED.** The payoff read path: answer
+a multi-hop, cross-document question with a connected result, **no LLM, `$0`,
+deterministic** (ADR-0007). `graph_rag/query/ranking.py` (Wave 1) pins the B4
+subgraph ranker (`rank_nodes` = `0.7*seed_cosine + 0.3*proximity`, `select_answer`,
+`rank_sentences`). `graph_rag/query/retriever.py` — the `QueryRetriever` (N16),
+constructor-injected with `Embedder` + `EntityStore` + `DocumentStore` +
+`GraphStore` (+ the settings-derived B3/B4/B5 knobs; `from_settings` classmethod).
+`retrieve(QueryRequest)` runs **seed → expand → rank → answer**: embed the question
+→ seed (B5) via `EntityStore.knn` (entity seeds + cosines → `seed_scores`) and
+`DocumentStore.search_sentences` (passage seeds, already scored) → expand
+`GraphStore.khop(seed_ids, khop_depth)` → compute `hop_distance` by **BFS over the
+returned subgraph's undirected edges** (seeds = 0; unreachable omitted → the ranker
+reads them as inf → 0 proximity) → `rank_nodes` → `select_answer` (top node, no type
+filter in V6). Returns a `QueryResponse` (answer + `answer_entity` + connected
+`Subgraph` + `ranked_nodes` + `supporting_sentences` with provenance). The
+`synthesize` flag (V7) is ignored, never errors — no LLM on this path.
+`api.create_app` gains an optional keyword-only `retriever=`; `POST /query` parses a
+`QueryRequest`, returns `retriever.retrieve(...)` as JSON, and **503s when no
+retriever is wired** (existing `/ingest` + `/health` call sites unchanged). `main.py`
+wires the retriever reusing the SAME embedder/stores built for ingestion. The
+orchestrator EL checkpoint now also persists `record.sentences` (per-sentence
+offsets) alongside `sentence_vectors`, so end-to-end passage search returns matched
+sentences with their offsets. V7 (LLM answer synthesis) + V8 (benchmark) are **not
+built**.
 
 > **Trust the code over the docs.** `docs/` (ARCHITECTURE, SLICES, TESTING, ADRs)
 > is the design intent; where code and docs disagree, the code on this branch is

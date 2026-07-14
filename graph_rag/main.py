@@ -33,6 +33,7 @@ from graph_rag.config import Settings
 from graph_rag.logging import configure_logging, get_logger
 from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer, KafkaTriggerPublisher
 from graph_rag.orchestrator import Orchestrator
+from graph_rag.query.retriever import QueryRetriever
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.entity_linking import EntityLinkingStage
 from graph_rag.stages.kg_build import KgBuildStage
@@ -90,6 +91,18 @@ def main() -> None:
         kg_build_stage=kg_build_stage,
     )
 
+    # --- Query retriever (N16, V6): the synchronous /query read path --------
+    #     Reuses the SAME embedder + entity/document/graph stores built for
+    #     ingestion so query-side kNN + k-hop read exactly what was written. No
+    #     LLM in the default path (ADR-0007) — deterministic and $0.
+    retriever = QueryRetriever.from_settings(
+        settings,
+        embedder=embedder,
+        entity_store=entity_store,
+        document_store=document_store,
+        graph_store=graph_store,
+    )
+
     # --- Messaging seam: publisher (for POST /ingest) + consumer driver -----
     publisher = KafkaTriggerPublisher.from_settings(settings)
     consumer = KafkaTriggerConsumer(
@@ -105,8 +118,8 @@ def main() -> None:
     consumer_thread.start()
     logger.info("started Kafka trigger consumer on topic %r", settings.ingest_trigger_topic)
 
-    # --- FastAPI app (POST /ingest publishes through the port) --------------
-    app = create_app(object_store, publisher, settings)
+    # --- FastAPI app (POST /ingest publishes; POST /query retrieves) --------
+    app = create_app(object_store, publisher, settings, retriever=retriever)
 
     logger.info("serving FastAPI app on 0.0.0.0:8000")
     uvicorn.run(app, host="0.0.0.0", port=8000)  # noqa: S104 — local demo, bind all.
