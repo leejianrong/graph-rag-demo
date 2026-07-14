@@ -1,5 +1,5 @@
 # One-command dev loop (dev-playbook #16). See docs/ARCHITECTURE.md §8.
-.PHONY: up down logs test benchmark contract model models models-trf embed-model lint fmt
+.PHONY: up down logs demo demo-offline test benchmark test-benchmark contract model models models-trf embed-model lint fmt
 
 # Bring up the whole local stack (Kafka/MinIO/ES/app), building the app image.
 up:
@@ -13,12 +13,30 @@ down:
 logs:
 	docker compose logs -f app
 
+# End-to-end demo over the real running stack (needs `make up` + OPENAI_API_KEY):
+# ingests the bundled supply-chain corpus, waits for the graph, runs the multi-hop
+# query and prints the connected subgraph. Add SYNTHESIZE=1 for a prose answer.
+demo:
+	uv run python -m graph_rag.demo --http http://localhost:8000 $(if $(SYNTHESIZE),--synthesize,)
+
+# Same multi-hop demo with NO Docker, NO model, NO API key — the deterministic
+# offline heuristic pipeline over the same bundled corpus ($0).
+demo-offline:
+	uv run python -m graph_rag.demo
+
 # Fast suite — in-memory fakes, $0, no Docker, no model. The primary pre-push gate.
 test:
 	uv run pytest -m "not contract and not model and not benchmark"
 
-# Opt-in whole-pipeline benchmark smoke over the real stack (V8; skips without infra).
+# Run the V8 benchmark and print the metrics scorecard (EM / token-F1 /
+# supporting-fact P·R·F1). Offline by default: no Docker, no model, no key ($0).
+# Point at the real corpus with DATASET=..., or add REAL=1 for the real stack.
 benchmark:
+	uv run benchmark run --subset small $(if $(DATASET),--dataset $(DATASET),) $(if $(REAL),--real,)
+
+# Opt-in whole-pipeline benchmark SMOKE TEST over the real stack (V8 pytest
+# marker; skips cleanly without infra). This is the test, not the scorecard.
+test-benchmark:
 	uv run pytest -m benchmark
 
 # Contract suite — real adapters via testcontainers (needs Docker).
