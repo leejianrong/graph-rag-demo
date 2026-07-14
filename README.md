@@ -141,6 +141,28 @@ provenance, and the top-ranked entity as the predicted answer. Add
 `"synthesize": true` to also get an LLM-written prose answer grounded in that same
 evidence; that one does call the model.
 
+### The bundled demo
+
+If you'd rather not assemble a corpus by hand, there's a ready-made one under
+[`examples/supply-chain/`](examples/supply-chain/) that reproduces the Supplier-A
+story from the top of this README: three short documents where no single file
+connects a company to the law that governs it, but the graph does, through the
+city they share.
+
+```bash
+make demo-offline   # no Docker, no API key — deterministic, $0
+make demo           # the real stack over HTTP (needs `make up` + OPENAI_API_KEY)
+```
+
+Both ingest the same files and answer *"How is Aurelia Components connected to the
+German Supply Chain Act?"*, then print the two-hop connection, the subgraph, and
+the supporting sentences. `make demo-offline` runs the whole pipeline in-process
+with heuristic stages instead of the LLM, so it needs nothing installed beyond the
+Python deps and every edge is a generic `RELATED_TO`. `make demo` drives the real
+service you brought up with `make up`, so the edges are typed and `make demo
+SYNTHESIZE=1` adds a prose answer. It's the fastest way to see what the pipeline is
+for before pointing it at your own documents.
+
 ### What to watch for
 
 A few things trip people up the first time:
@@ -186,7 +208,12 @@ fixed subset keeps runs quick, and the harness is a console command:
 
 ```bash
 uv run benchmark run --subset small --dataset path/to/2wiki.json
+# or, over the in-repo mini fixture: make benchmark
 ```
+
+`make benchmark` runs the same thing against a small bundled fixture with no
+arguments, so you can see the scorecard immediately; pass `DATASET=path/to/2wiki.json`
+for the real corpus or `REAL=1` for the real adapter stack.
 
 The metrics are deliberately non-LLM: supporting-fact precision, recall and F1
 for whether retrieval surfaced the gold evidence, plus exact-match and token-F1
