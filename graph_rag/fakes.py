@@ -5,16 +5,28 @@ suite (exposed as fixtures in ``tests/conftest.py``). Each fake implements the
 matching ``Protocol`` in :mod:`graph_rag.ports`.
 
 V1 actively uses :class:`InMemoryObjectStore`, :class:`InMemoryDocumentStore` and
-:class:`InMemoryTriggerPublisher`. The remaining fakes exist so later slices can
-instantiate and plug them in; their unused stub methods raise
-``NotImplementedError``, but construction never does.
+:class:`InMemoryTriggerPublisher`; V3 adds :class:`FakeLLMClient`; V4 adds the
+full-fidelity :class:`FakeEmbedder` + :class:`InMemoryEntityStore`. Only
+:class:`InMemoryGraphStore` remains a construct-only stub whose methods raise
+``NotImplementedError`` until V5/V6.
 """
 
 from __future__ import annotations
 
+import hashlib
+import math
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from graph_rag.models import CorefCluster, DocumentRecord, IngestTrigger, Mention, Sentence
+from graph_rag.models import (
+    CanonicalEntity,
+    CorefCluster,
+    CuratedType,
+    DocumentRecord,
+    IngestTrigger,
+    Mention,
+    Sentence,
+)
+from graph_rag.normalize import normalize_name
 from graph_rag.stages.ner import NerResult
 
 if TYPE_CHECKING:
@@ -100,22 +112,72 @@ class InMemoryTriggerPublisher:
 
 
 class InMemoryEntityStore:
-    """Trivial in-memory :class:`~graph_rag.ports.EntityStore`.
+    """In-memory :class:`~graph_rag.ports.EntityStore` (V4-active).
 
-    Stub for later slices (V4); not exercised in V1. Construction is cheap; the
-    stub methods raise until a slice needs them.
+    Full-fidelity fake backing the EL fast E2E: a dict keyed by ``canonical_id``,
+    type + normalized-name (or alias) blocking, and brute-force cosine kNN over
+    entity vectors. Deterministic, ``$0``, no Docker — the same external behaviour
+    the real Elasticsearch adapter is proved against by its contract test.
     """
 
     def __init__(self) -> None:
-        self._entities: dict[str, dict[str, Any]] = {}
+        self._entities: dict[str, CanonicalEntity] = {}
 
-    def upsert(self, entity: dict[str, Any]) -> None:
-        """Not implemented in V1."""
-        raise NotImplementedError("EntityStore is a stub until V4")
+    def upsert(self, entity: CanonicalEntity) -> None:
+        """Insert or overwrite the entity keyed by ``entity.canonical_id`` (idempotent)."""
+        self._entities[entity.canonical_id] = entity
 
-    def search(self, vector: list[float], top_k: int) -> list[dict[str, Any]]:
-        """Not implemented in V1."""
-        raise NotImplementedError("EntityStore is a stub until V4")
+    def get(self, canonical_id: str) -> CanonicalEntity | None:
+        """Return the canonical entity for ``canonical_id``, or ``None`` if absent."""
+        return self._entities.get(canonical_id)
+
+    def block_candidates(
+        self, *, entity_type: CuratedType, normalized_name: str
+    ) -> list[CanonicalEntity]:
+        """Return entities of ``entity_type`` whose name/alias normalizes to ``normalized_name``.
+
+        Blocking key uses the shared :func:`~graph_rag.normalize.normalize_name`
+        so the fake and the real adapter block identically (ADR-0004).
+        """
+        candidates: list[CanonicalEntity] = []
+        for entity in self._entities.values():
+            if entity.type != entity_type:
+                continue
+            keys = {normalize_name(entity.name)}
+            keys.update(normalize_name(alias) for alias in entity.aliases)
+            if normalized_name in keys:
+                candidates.append(entity)
+        return candidates
+
+    def knn(
+        self,
+        *,
+        vector: list[float],
+        entity_type: CuratedType | None = None,
+        top_k: int,
+    ) -> list[tuple[CanonicalEntity, float]]:
+        """Return the ``top_k`` entities nearest ``vector`` by cosine, descending.
+
+        Skips entities with no stored ``vector``; optionally restricts to a single
+        ``entity_type``. Ties keep insertion order (Python's stable sort).
+        """
+        scored: list[tuple[CanonicalEntity, float]] = []
+        for entity in self._entities.values():
+            if entity_type is not None and entity.type != entity_type:
+                continue
+            if entity.vector is None:
+                continue
+            scored.append((entity, _cosine(vector, entity.vector)))
+        scored.sort(key=lambda pair: pair[1], reverse=True)
+        return scored[:top_k]
+
+    def count(self) -> int:
+        """Return the number of canonical entities stored."""
+        return len(self._entities)
+
+    def all(self) -> list[CanonicalEntity]:
+        """Return every stored canonical entity (insertion order)."""
+        return list(self._entities.values())
 
 
 class InMemoryGraphStore:
@@ -189,14 +251,63 @@ class FakeLLMClient:
 
 
 class FakeEmbedder:
-    """Trivial :class:`~graph_rag.ports.Embedder`.
+    """Deterministic :class:`~graph_rag.ports.Embedder` for the fast suite (V4-active).
 
-    Stub for later slices (V4/V6); not exercised in V1.
+    Pure-Python feature-hashing embedder — no torch, no model download, instant.
+    Each text is tokenized with the shared :func:`~graph_rag.normalize.normalize_name`
+    rule, each token is hashed into a signed bucket of a ``dim``-length vector, and
+    the vector is L2-normalized. Consequences the fast suite relies on:
+
+    * **Deterministic:** identical text → identical vector.
+    * **Collidable:** texts that share normalized tokens have overlapping buckets
+      and therefore high cosine similarity, so a test can make two surface forms
+      "match" (score above threshold) or "not match" by construction — without a
+      real model.
     """
 
+    def __init__(self, dim: int = 384) -> None:
+        """Configure the output dimension (defaults to B1's 384-dim ``bge-small``)."""
+        self._dim = dim
+
+    @property
+    def dim(self) -> int:
+        """The embedding dimension."""
+        return self._dim
+
     def embed(self, texts: list[str]) -> list[list[float]]:
-        """Not implemented in V1."""
-        raise NotImplementedError("Embedder is a stub until V4")
+        """Return one deterministic L2-normalized vector per text, in order."""
+        return [self._embed_one(text) for text in texts]
+
+    def _embed_one(self, text: str) -> list[float]:
+        """Feature-hash one text into a unit vector of length :attr:`dim`."""
+        vec = [0.0] * self._dim
+        tokens = normalize_name(text).split()
+        if not tokens:
+            # Empty/all-punctuation text: hash the raw text into one bucket so the
+            # vector is still deterministic and non-zero.
+            tokens = [text or "\x00"]
+        for token in tokens:
+            digest = hashlib.sha256(token.encode("utf-8")).digest()
+            bucket = int.from_bytes(digest[:8], "big") % self._dim
+            sign = 1.0 if digest[8] & 1 == 0 else -1.0
+            vec[bucket] += sign
+        norm = math.sqrt(sum(x * x for x in vec))
+        if norm == 0.0:
+            # Pathological cancellation: seed a stable bucket so the result is a
+            # valid unit vector rather than all-zeros.
+            vec[len(text) % self._dim] = 1.0
+            return vec
+        return [x / norm for x in vec]
+
+
+def _cosine(a: list[float], b: list[float]) -> float:
+    """Cosine similarity of two equal-length vectors (0.0 if either is zero)."""
+    dot = sum(x * y for x, y in zip(a, b, strict=False))
+    norm_a = math.sqrt(sum(x * x for x in a))
+    norm_b = math.sqrt(sum(x * x for x in b))
+    if norm_a == 0.0 or norm_b == 0.0:
+        return 0.0
+    return dot / (norm_a * norm_b)
 
 
 # --- V2-active fake ----------------------------------------------------------

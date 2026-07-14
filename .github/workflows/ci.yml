@@ -50,9 +50,10 @@ jobs:
       - name: Fast suite ($0, no infra, no model, no LLM provider)
         run: uv run pytest -m "not contract and not model and not llm" -q
 
-  # --- Model gate: NER tests that load a real spaCy model (no Docker) -------
-  # Separate from the required fast gate: installs the small model, then runs the
-  # `model`-marked suite (real SpacyNerStage + the model-availability smoke test,
+  # --- Model gate: tests that load a real spaCy model + embedder (no Docker) -
+  # Separate from the required fast gate: installs the small spaCy model AND the
+  # `embed` extra (sentence-transformers), then runs the `model`-marked suite
+  # (real SpacyNerStage + model-availability smoke test + the bge embedder test,
   # TESTING §5). Uses en_core_web_sm — the heavy trf extra is NOT installed here.
   model:
     runs-on: ubuntu-latest
@@ -65,11 +66,13 @@ jobs:
           cache-dependency-glob: uv.lock
       - name: Set up Python
         run: uv python install 3.12
-      - name: Sync (frozen)
-        run: uv sync --frozen --extra dev
+      - name: Sync (frozen, with the embed extra)
+        run: uv sync --frozen --extra dev --extra embed
       - name: Download spaCy model (en_core_web_sm)
         run: uv run python -m spacy download en_core_web_sm
-      - name: Model-backed NER suite
+      - name: Model-backed suite (spaCy NER + bge embedder)
+        env:
+          HF_HUB_DISABLE_XET: "1"  # route around the HF xet endpoint so bge downloads reliably
         run: uv run pytest -m model -q
 
   # --- Opt-in gate: real-provider LLM suite (NOT required; no secret) -------

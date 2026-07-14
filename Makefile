@@ -1,5 +1,5 @@
 # One-command dev loop (dev-playbook #16). See docs/ARCHITECTURE.md §8.
-.PHONY: up down logs test contract model models models-trf lint fmt
+.PHONY: up down logs test contract model models models-trf embed-model lint fmt
 
 # Bring up the whole local stack (Kafka/MinIO/ES/app), building the app image.
 up:
@@ -33,6 +33,11 @@ models:
 # Fetch the transformer model for the real stack (needs the `trf` extra).
 models-trf:
 	uv run --extra trf python -m spacy download en_core_web_trf
+
+# Fetch the sentence-transformer embedding model (V4, B1; needs the `embed` extra).
+# Also warms it for the `model`-marked embedder test.
+embed-model:
+	uv run --extra embed python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5')"
 
 # Lint.
 lint:

@@ -6,16 +6,30 @@ document bytes via :class:`~graph_rag.ports.ObjectStore`, create the bare
 persist it via :class:`~graph_rag.ports.DocumentStore`.
 
 V2 adds the first enrichment stage, NER (N6), behind this same shell. V3 adds the
-coref stage (N7) — the pipeline's first LLM use — right after it. Both stages are
+coref stage (N7) — the pipeline's first LLM use — right after it. V4 adds the
+entity-linking stage (N8) and the **EL checkpoint**. All stages are
 constructor-injected collaborators (like the ports, ADR-0010) so the fast suite
 injects canned fakes and the real stack injects
 :class:`~graph_rag.stages.ner.SpacyNerStage` +
-:class:`~graph_rag.stages.coref.LLMCorefStage`. Their output — typed mentions +
-char spans + sentences (N6) and a non-destructive within-document coref cluster
-map (N7) — is carried **in-memory** on the returned
-:class:`~graph_rag.models.PipelineResult` and is NOT persisted to ES in V2/V3 (the
-ES record still stores raw text only); persistence lands at the V4 EL checkpoint
-(ARCHITECTURE §4). Later slices add EL/KG-build to this shell.
+:class:`~graph_rag.stages.coref.LLMCorefStage` +
+:class:`~graph_rag.stages.entity_linking.EntityLinkingStage`.
+
+The NER + coref output — typed mentions + char spans + sentences (N6) and a
+non-destructive within-document coref cluster map (N7) — is carried **in-memory**
+on the returned :class:`~graph_rag.models.PipelineResult`. Through V3 it is NOT
+persisted to ES (the raw record holds text only). **V4's entity-linking stage
+resolves each doc-level entity to a corpus-wide ``canonical_id`` (merge or
+create-new, upserting canonicals to ``ES-Entities``) and then runs the EL
+checkpoint (ADR-0001/0005, ARCHITECTURE §4/§5): the SAME ``ES-Documents`` record
+is enriched in place — raw text + NER mentions + coref clusters + per-doc EL
+result + sentence vectors — and re-upserted, a second idempotent write to the
+same ``document_id`` that overwrites the raw record.**
+
+The EL stage is **opt-in via injection**: when it is not supplied the shell keeps
+the raw-only V1–V3 write model (no EL, no checkpoint). This is deliberate — unlike
+NER/coref, the EL checkpoint changes what is persisted, so it runs only when an EL
+stage is wired (the real stack wires it in ``main.py``; the fast suite injects the
+real stage over in-memory fakes). Later slices add KG-build to this shell.
 
 Error handling is **log-and-drop per document** (ADR-0001): any exception while
 processing one document is logged and swallowed (``process_document`` returns
@@ -30,7 +44,7 @@ from typing import TYPE_CHECKING
 
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
-from graph_rag.models import DocumentRecord, PipelineResult
+from graph_rag.models import DocumentRecord, EntityLink, PipelineResult
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.ner import SpacyNerStage
 
@@ -38,6 +52,7 @@ if TYPE_CHECKING:
     from graph_rag.models import IngestTrigger
     from graph_rag.ports import DocumentStore, ObjectStore
     from graph_rag.stages.coref import CorefStage
+    from graph_rag.stages.entity_linking import ELStage
     from graph_rag.stages.ner import NerStage
 
 __all__ = ["Orchestrator"]
@@ -60,6 +75,7 @@ class Orchestrator:
         document_store: DocumentStore,
         ner_stage: NerStage | None = None,
         coref_stage: CorefStage | None = None,
+        entity_linking_stage: ELStage | None = None,
     ) -> None:
         """Wire the active ports and stages.
 
@@ -73,11 +89,18 @@ class Orchestrator:
                 :class:`~graph_rag.stages.coref.LLMCorefStage` (LiteLLM); the fast
                 suite injects :class:`~graph_rag.stages.coref.FakeCorefStage` (or an
                 ``LLMCorefStage`` over ``FakeLLMClient``) so no provider is called.
+            entity_linking_stage: The entity-linking stage (N8). **Opt-in**: when
+                ``None`` the shell keeps the raw-only V1–V3 write model (no EL, no
+                checkpoint). Supplied, it resolves canonical entities and drives
+                the EL checkpoint. The real stack wires
+                :class:`~graph_rag.stages.entity_linking.EntityLinkingStage` in
+                ``main.py``; the fast suite injects it over in-memory fakes.
         """
         self._object_store = object_store
         self._document_store = document_store
         self._ner_stage: NerStage = ner_stage if ner_stage is not None else SpacyNerStage()
         self._coref_stage: CorefStage = coref_stage if coref_stage is not None else LLMCorefStage()
+        self._entity_linking_stage: ELStage | None = entity_linking_stage
 
     def process_document(self, trigger: IngestTrigger) -> PipelineResult | None:
         """Process one ingest trigger end-to-end, log-and-drop on failure.
@@ -126,25 +149,46 @@ class Orchestrator:
             ner = self._ner_stage.analyze(text)
 
             # 6. Coref stage (N7, first LLM use): a non-destructive within-doc
-            #    cluster map over the raw text + mentions, also carried in-memory
-            #    (persisted at V4, not here). A cached/identical run costs $0.
+            #    cluster map over the raw text + mentions, also carried in-memory.
+            #    A cached/identical run costs $0.
             coref_clusters = self._coref_stage.resolve(text, ner.mentions)
 
+            # 7. Entity-linking stage (N8) + EL checkpoint (V4, ADR-0004/0005).
+            #    Opt-in: only when an EL stage is wired. It resolves each doc-level
+            #    entity to a corpus-wide canonical_id (merge / create-new, upserting
+            #    canonicals to ES-Entities), then the checkpoint enriches the SAME
+            #    ES-Documents record in place and re-upserts it (a 2nd idempotent
+            #    write to the same document_id, overwriting the raw record).
+            el_result: list[EntityLink] = []
+            if self._entity_linking_stage is not None:
+                el = self._entity_linking_stage.link(
+                    text, ner.mentions, ner.sentences, coref_clusters
+                )
+                el_result = el.links
+                record.mentions = ner.mentions
+                record.coref_clusters = coref_clusters
+                record.el_result = el.links
+                record.sentence_vectors = el.sentence_vectors
+                self._document_store.upsert(record)
+
             _logger.info(
-                "ingested document %s (%s/%s): %d mention(s), %d sentence(s), %d coref cluster(s)",
+                "ingested document %s (%s/%s): %d mention(s), %d sentence(s), "
+                "%d coref cluster(s), %d entity link(s)",
                 doc_id,
                 trigger.bucket,
                 trigger.object_key,
                 len(ner.mentions),
                 len(ner.sentences),
                 len(coref_clusters),
+                len(el_result),
             )
-            # 7. Return the in-memory carry so callers/tests can assert on it.
+            # 8. Return the in-memory carry so callers/tests can assert on it.
             return PipelineResult(
                 record=record,
                 mentions=ner.mentions,
                 sentences=ner.sentences,
                 coref_clusters=coref_clusters,
+                el_result=el_result,
             )
         except Exception:  # noqa: BLE001 — log-and-drop per document (ADR-0001).
             _logger.exception(

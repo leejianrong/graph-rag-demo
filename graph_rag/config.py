@@ -53,6 +53,28 @@ class Settings(BaseSettings):
     # needs the ``trf`` optional extra (spacy-transformers + torch).
     ner_model: str = "en_core_web_trf"
 
+    # --- Embedder + entity linking (V4, ADR-0004/0005) ----------------------
+    # Local sentence-transformer for EL + query anchoring. B1: the model and its
+    # dimension are hard to change after ingestion (they pin the ES
+    # ``dense_vector`` mapping), so they are fixed here. ``bge-small-en-v1.5`` →
+    # 384-dim.
+    embed_model: str = "BAAI/bge-small-en-v1.5"
+    embed_dim: int = 384
+    # B2: the cosine merge-vs-create-new threshold for entity linking. A blocked
+    # candidate scoring at or above this merges into the existing canonical
+    # entity; otherwise a new canonical entity is created (ADR-0004). Fixed for
+    # benchmark reproducibility (ADR-0009), but tunable via ``EL_THRESHOLD``.
+    el_threshold: float = 0.82
+    # How many nearest entity vectors to pull as extra EL candidates alongside the
+    # type + normalized-name blocking set (ADR-0004).
+    el_knn_top_k: int = 5
+    # Credit-conserving EL refinements, wired but GATED OFF by default (ADR-0004):
+    # an LLM tie-breaker for near-threshold decisions and NIL retention for
+    # very-low-confidence entities. Off → the EL default path is deterministic and
+    # $0 (no LLM call). Flip via ``EL_TIEBREAKER_ENABLED`` / ``EL_NIL_ENABLED``.
+    el_tiebreaker_enabled: bool = False
+    el_nil_enabled: bool = False
+
     # --- LLM client (V3, ADR-0008) ------------------------------------------
     # Provider-agnostic via LiteLLM: the model is a LiteLLM model string, so any
     # OpenAI-compatible endpoint (incl. DeepSeek) is swappable here. The per-stage

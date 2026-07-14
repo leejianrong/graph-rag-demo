@@ -78,11 +78,12 @@ def test_writes_raw_record_with_deterministic_id(
     assert stored.text == "hello graph rag"
 
     # V2 still writes RAW text only — NER output is carried in-memory, not
-    # persisted to the ES record until the V4 EL checkpoint.
-    assert stored.mentions is None
-    assert stored.coref_clusters is None
-    assert stored.el_result is None
-    assert stored.vectors is None
+    # persisted to the ES record until the V4 EL checkpoint. The enrichment
+    # fields therefore stay at their empty defaults on the stored raw record.
+    assert stored.mentions == []
+    assert stored.coref_clusters == []
+    assert stored.el_result == []
+    assert stored.sentence_vectors is None
 
 
 def test_result_carries_canned_mentions_and_sentences(
@@ -127,7 +128,7 @@ def test_result_carries_canned_mentions_and_sentences(
     # Not persisted to the ES record yet (raw-only write model).
     stored = document_store.get(document_id(BUCKET, KEY))
     assert stored is not None
-    assert stored.mentions is None
+    assert stored.mentions == []
 
 
 def test_decodes_utf8_text(

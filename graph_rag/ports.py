@@ -5,10 +5,10 @@ Everything outside the pipeline's control sits behind a narrow Python
 service. Real adapters (``graph_rag.adapters``) wrap live services; in-memory
 fakes (``graph_rag.fakes``) back the fast, $0, no-Docker suite.
 
-Six ports map to the architecture's N10–N15 affordances. **V1 actively uses only
-``ObjectStore`` and ``DocumentStore``.** ``EntityStore``, ``GraphStore``,
-``LLMClient`` and ``Embedder`` are declared with minimal, clearly-marked stub
-method sets so later slices (V4/V5/V3/V6) plug in without changing this contract.
+Six ports map to the architecture's N10–N15 affordances. ``ObjectStore`` +
+``DocumentStore`` are active from V1, ``LLMClient`` from V3, and ``EntityStore`` +
+``Embedder`` from V4 (entity linking). ``GraphStore`` stays a minimal stub until
+V5/V6. Signatures are fixed here so slices plug in without changing this contract.
 
 ``TriggerPublisher`` is the messaging seam: ``POST /ingest`` publishes through it
 so the endpoint and its test can inject the fake instead of a real Kafka producer.
@@ -20,7 +20,7 @@ from typing import Any, Protocol, TypeVar, runtime_checkable
 
 from pydantic import BaseModel
 
-from graph_rag.models import DocumentRecord, IngestTrigger
+from graph_rag.models import CanonicalEntity, CuratedType, DocumentRecord, IngestTrigger
 
 # Structured-output type variable: ``structured`` returns an instance of exactly
 # the Pydantic model type the caller asked for (ADR-0008).
@@ -84,15 +84,59 @@ class DocumentStore(Protocol):
 class EntityStore(Protocol):
     """Canonical-entity store over ``ES-Entities`` (upsert + blocking/kNN search).
 
-    Stub for later slices (V4); not exercised in V1.
+    Active from V4 (ADR-0004/0005). Backs corpus-local entity linking —
+    block-then-score EL at ingestion and, later, query-side kNN entity seeding
+    (V6). ``upsert`` is idempotent, keyed by ``entity.canonical_id``: re-upserting
+    the same ID overwrites (so merges that grow ``aliases``/refresh ``vector`` do
+    not duplicate). The real adapter runs these against Elasticsearch; the fast
+    suite injects :class:`~graph_rag.fakes.InMemoryEntityStore`.
     """
 
-    def upsert(self, entity: dict[str, Any]) -> None:
-        """Insert or overwrite a canonical entity, keyed by its ``canonical_id``."""
+    def upsert(self, entity: CanonicalEntity) -> None:
+        """Insert or overwrite a canonical entity, keyed by ``entity.canonical_id``."""
         ...
 
-    def search(self, vector: list[float], top_k: int) -> list[dict[str, Any]]:
-        """Return up to ``top_k`` candidate entities nearest to ``vector`` (kNN)."""
+    def get(self, canonical_id: str) -> CanonicalEntity | None:
+        """Return the canonical entity for ``canonical_id``, or ``None`` if absent."""
+        ...
+
+    def block_candidates(
+        self, *, entity_type: CuratedType, normalized_name: str
+    ) -> list[CanonicalEntity]:
+        """Return the blocking candidates for an EL match (ADR-0004).
+
+        The blocking filter narrows candidates cheaply before embedding scoring:
+        an entity is a candidate iff its ``type`` equals ``entity_type`` **and**
+        ``normalized_name`` matches the normalized form of its ``name`` or any of
+        its ``aliases``. ``normalized_name`` must be produced by
+        :func:`graph_rag.normalize.normalize_name` — the one shared rule both the
+        fake and the real adapter block on.
+        """
+        ...
+
+    def knn(
+        self,
+        *,
+        vector: list[float],
+        entity_type: CuratedType | None = None,
+        top_k: int,
+    ) -> list[tuple[CanonicalEntity, float]]:
+        """Return the ``top_k`` nearest entities to ``vector`` by cosine similarity.
+
+        Ranks over each entity's ``dense_vector``, descending by similarity, and
+        returns ``(entity, score)`` pairs where ``score`` is cosine similarity in
+        ``[-1, 1]``. Optionally restrict the search to a single ``entity_type``.
+        Entities with no ``vector`` are skipped. Used both to confirm a blocked EL
+        match and for query-side entity seeding (V6, B5).
+        """
+        ...
+
+    def count(self) -> int:
+        """Return the number of canonical entities currently stored (test helper)."""
+        ...
+
+    def all(self) -> list[CanonicalEntity]:
+        """Return every stored canonical entity (test/inspection helper)."""
         ...
 
 
@@ -137,13 +181,24 @@ class LLMClient(Protocol):
 
 @runtime_checkable
 class Embedder(Protocol):
-    """Local sentence-transformer embedder (``bge-small-en-v1.5``).
+    """Local sentence-transformer embedder (``BAAI/bge-small-en-v1.5``, B1).
 
-    Stub for later slices (V4/V6); not exercised in V1.
+    Active from V4 (ADR-0004): produces the dense vectors EL scores over
+    (mention-in-context + canonical entities) and, later, passage/sentence and
+    query vectors (V6). The default model ``BAAI/bge-small-en-v1.5`` emits
+    **384-dim** vectors (:attr:`dim`), which pins the ES ``dense_vector`` mapping.
+    Embeddings must be **deterministic** for a given input text. The real adapter
+    wraps ``sentence-transformers``; the fast suite injects
+    :class:`~graph_rag.fakes.FakeEmbedder` (pure-Python, no model download).
     """
 
+    @property
+    def dim(self) -> int:
+        """The embedding dimension (384 for ``bge-small-en-v1.5``)."""
+        ...
+
     def embed(self, texts: list[str]) -> list[list[float]]:
-        """Return one dense vector per input text."""
+        """Return one dense vector (length :attr:`dim`) per input text, in order."""
         ...
 
 

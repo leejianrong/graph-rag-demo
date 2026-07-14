@@ -33,7 +33,29 @@ read→NER→**coref** and returns a `PipelineResult` also carrying `coref_clust
 non-destructive within-doc cluster map, mention surface forms → in-doc canonical) — still
 **NOT persisted to ES** (V4 EL checkpoint). `FakeLLMClient` now returns canned STRUCTURED
 responses + counts `.calls`. Per-stage model from `Settings` (coref pins B6 = `gpt-4o-mini`);
-API key strictly from env. V4–V8 (EL → benchmark) are **not built**.
+API key strictly from env.
+
+**V4 (entity linking + EL checkpoint) — LANDED.** The corpus-local cross-document
+unification that turns the same entity into one canonical record (the heart of R3,
+ADR-0004/0005). `graph_rag/stages/entity_linking.py` — a constructor-injected
+`ELStage` seam with the real `EntityLinkingStage` over the `EntityStore` + `Embedder`
+ports; per doc-level entity (derived from coref clusters, else lone mentions) it
+**embeds mention-in-context → blocks (type + normalized name) + kNN → scores by
+cosine → merges** above `Settings.el_threshold` (B2 = 0.82) **or create-news**
+(the always-on path). `canonical_id` is deterministic + stable
+(`e-sha256("el:{type}:{normalized_name}")`), so a re-ingest of the same corpus
+merges rather than duplicates; linking is **order-sensitive** (first doc seeds the
+canonical name + vector). Alongside the real `SentenceTransformerEmbedder` +
+`EsEntityStore` adapters (Agent A). **The EL checkpoint now persists the enriched
+`ES-Documents` record** — `Orchestrator.process_document` runs
+read→NER→coref→**EL**, then enriches the SAME `DocumentRecord` in place (raw text +
+`mentions` + `coref_clusters` + `el_result` + `sentence_vectors`) and re-upserts it
+(a 2nd idempotent write, overwriting the raw record), **and upserts the canonical
+entities to `ES-Entities`**. The EL stage is **opt-in via injection** (absent → the
+raw-only V1–V3 write model is preserved). The gated **LLM tie-breaker + NIL
+retention are wired but OFF by default** (`el_tiebreaker_enabled`/`el_nil_enabled`),
+so the default EL path is deterministic and `$0` (no LLM call). V5–V8 (KG-build →
+benchmark) are **not built**.
 
 > **Trust the code over the docs.** `docs/` (ARCHITECTURE, SLICES, TESTING, ADRs)
 > is the design intent; where code and docs disagree, the code on this branch is

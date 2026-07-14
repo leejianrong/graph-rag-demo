@@ -137,9 +137,10 @@ def test_coref_not_persisted_to_es_record(
     stored = document_store.get(document_id(BUCKET, KEY))
     assert stored is not None
     assert stored.text == TEXT
-    # Enrichment (incl. coref) is NOT persisted until the V4 EL checkpoint.
-    assert stored.coref_clusters is None
-    assert stored.mentions is None
+    # Enrichment (incl. coref) is NOT persisted until the V4 EL checkpoint —
+    # the stored raw record keeps the empty defaults.
+    assert stored.coref_clusters == []
+    assert stored.mentions == []
 
 
 def test_coref_failure_is_logged_and_dropped(
