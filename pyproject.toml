@@ -18,6 +18,11 @@ dependencies = [
     # extra so the base install + fast CI/pre-push stay light. Models are fetched
     # separately (`make models` / `make models-trf`), never installed as deps.
     "spacy>=3.7,<4",
+    # LLM client (V3, ADR-0008). Provider-agnostic via LiteLLM: coref (and later
+    # KG-build) call the LLM through it; the provider/model is a per-stage config
+    # choice. LiteLLM is imported lazily by the adapter so the fakes-only fast
+    # suite never imports it and stays offline.
+    "litellm",
 ]
 
 [project.optional-dependencies]
@@ -54,4 +59,5 @@ markers = [
     "contract: real-service tests via testcontainers (excluded from the fast suite)",
     "e2e: end-to-end tests driving an entry point through the port seam",
     "model: tests that load a real spaCy model (needs `make models`; excluded from the fast pre-push gate)",
+    "llm: opt-in tests that call a real LLM provider (needs an API key; skipped without one; excluded from the fast pre-push gate)",
 ]

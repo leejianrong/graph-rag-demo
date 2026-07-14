@@ -16,9 +16,15 @@ so the endpoint and its test can inject the fake instead of a real Kafka produce
 
 from __future__ import annotations
 
-from typing import Any, Protocol, runtime_checkable
+from typing import Any, Protocol, TypeVar, runtime_checkable
+
+from pydantic import BaseModel
 
 from graph_rag.models import DocumentRecord, IngestTrigger
+
+# Structured-output type variable: ``structured`` returns an instance of exactly
+# the Pydantic model type the caller asked for (ADR-0008).
+StructuredT = TypeVar("StructuredT", bound=BaseModel)
 
 __all__ = [
     "ObjectStore",
@@ -110,11 +116,22 @@ class GraphStore(Protocol):
 class LLMClient(Protocol):
     """Provider-agnostic LLM client (LiteLLM + response cache + structured output).
 
-    Stub for later slices (V3/V5/V7); not exercised in V1.
+    Active from V3 (coref is the first LLM use, ADR-0008). Both methods are served
+    through a persistent ``sha256(model + prompt + params)`` response cache, so a
+    repeated call is a cache hit that never touches the provider (observably $0).
     """
 
     def complete(self, prompt: str, **params: Any) -> str:
         """Return the model completion for ``prompt`` under the given ``params``."""
+        ...
+
+    def structured(self, prompt: str, schema: type[StructuredT], **params: Any) -> StructuredT:
+        """Return a validated ``schema`` instance for ``prompt`` (ADR-0008).
+
+        Requests structured/JSON output and validates it against the Pydantic
+        ``schema``, retrying on parse/validation failure before raising. Cached
+        like :meth:`complete`.
+        """
         ...
 
 

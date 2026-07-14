@@ -20,6 +20,15 @@ V2 (NER) adds the in-memory enrichment carry (ADR-0002, ARCHITECTURE §4):
   raw :class:`DocumentRecord` plus the enrichment computed so far, held
   **in-memory** and NOT persisted to ES until the V4 EL checkpoint. Later slices
   extend it in place (V3 ``coref_clusters``, V4 ``el_result``).
+
+V3 (coreference) adds the within-document coref cluster map (ADR-0003):
+
+* :class:`CorefCluster` / :class:`ClusterMap` — a **non-destructive** grouping of
+  coreferent mentions (including pronouns/repeats) onto a chosen in-document
+  canonical surface form. ``ClusterMap`` is the Pydantic type the LLM structured
+  output validates against; :class:`PipelineResult` carries the resulting
+  ``coref_clusters`` in-memory (persisted at the V4 EL checkpoint). The original
+  text is preserved — the map references surface forms, it never rewrites text.
 """
 
 from __future__ import annotations
@@ -34,6 +43,8 @@ __all__ = [
     "CuratedType",
     "Mention",
     "Sentence",
+    "CorefCluster",
+    "ClusterMap",
     "PipelineResult",
 ]
 
@@ -141,6 +152,37 @@ class Sentence(BaseModel):
     index: int
 
 
+# --- V3 (coreference) within-document cluster map ---------------------------
+
+
+class CorefCluster(BaseModel):
+    """One within-document coreference cluster (ADR-0003), non-destructively.
+
+    Groups the surface forms that co-refer within a single document — including
+    pronouns (``"she"``, ``"they"``, ``"it"``) and repeated names — onto a chosen
+    in-document ``canonical`` surface form. This is a **map, not a rewrite**: the
+    raw document text is preserved untouched, and ``canonical``/``members`` are
+    verbatim surface strings drawn from it. Each document's clusters become the
+    doc-level entities handed to entity linking at V4.
+    """
+
+    canonical: str  # the chosen in-document canonical surface form for the cluster
+    members: list[str] = Field(
+        default_factory=list
+    )  # all coreferent surface forms (incl. pronouns/repeats), verbatim from the text
+
+
+class ClusterMap(BaseModel):
+    """The coref stage's structured output — the full set of clusters for a doc.
+
+    This is the Pydantic type the LLM's structured/JSON output validates against
+    (ADR-0008): a single JSON object wrapping the list of :class:`CorefCluster` s,
+    so JSON-mode providers have an object (not a bare array) to return.
+    """
+
+    clusters: list[CorefCluster] = Field(default_factory=list)
+
+
 class PipelineResult(BaseModel):
     """The object the orchestrator RETURNS — the in-memory enrichment carry.
 
@@ -148,13 +190,15 @@ class PipelineResult(BaseModel):
     ingestion) with the enrichment computed so far in the pipeline. Per the write
     model (ARCHITECTURE §4, ADR-0001), this enrichment is held **in-memory** and
     is NOT persisted to ``ES-Documents`` until the V4 entity-linking checkpoint —
-    in V2 the ES record still stores raw text only.
+    in V2/V3 the ES record still stores raw text only.
 
-    V2 populates ``mentions`` and ``sentences``. Later slices extend this object
-    in place: V3 adds a ``coref_clusters`` field, V4 adds an ``el_result`` field
-    and then writes the whole thing back into ``record`` at the EL checkpoint.
+    V2 populates ``mentions`` and ``sentences``; V3 adds ``coref_clusters`` (the
+    non-destructive within-document cluster map). Later slices extend this object
+    in place: V4 adds an ``el_result`` field and then writes the whole thing back
+    into ``record`` at the EL checkpoint.
     """
 
     record: DocumentRecord
     mentions: list[Mention] = Field(default_factory=list)
     sentences: list[Sentence] = Field(default_factory=list)
+    coref_clusters: list[CorefCluster] = Field(default_factory=list)

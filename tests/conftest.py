@@ -18,6 +18,7 @@ from graph_rag.fakes import (
     InMemoryObjectStore,
     InMemoryTriggerPublisher,
 )
+from graph_rag.stages.coref import FakeCorefStage
 
 
 @pytest.fixture
@@ -52,7 +53,12 @@ def graph_store() -> InMemoryGraphStore:
 
 @pytest.fixture
 def llm_client() -> FakeLLMClient:
-    """A fresh LLMClient fake (stub until V3)."""
+    """A fresh LLMClient fake (V3-active); canned structured responses, counts calls.
+
+    Returns no canned clusters by default (an empty ``ClusterMap``); tests that
+    need canned clusters construct their own
+    :class:`~graph_rag.fakes.FakeLLMClient(clusters=...)`.
+    """
     return FakeLLMClient()
 
 
@@ -71,3 +77,14 @@ def ner_stage() -> FakeNerStage:
     their own :class:`~graph_rag.fakes.FakeNerStage` with the desired output.
     """
     return FakeNerStage()
+
+
+@pytest.fixture
+def coref_stage() -> FakeCorefStage:
+    """A fresh coref-stage fake (V3-active); returns no canned clusters by default.
+
+    Injecting this into the orchestrator keeps the fast suite LLM-free and ``$0``:
+    no provider is called. Tests that need canned clusters construct their own
+    :class:`~graph_rag.stages.coref.FakeCorefStage` with the desired output.
+    """
+    return FakeCorefStage()
