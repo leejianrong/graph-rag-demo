@@ -22,7 +22,9 @@ import threading
 
 import uvicorn
 
+from graph_rag.adapters.embedder import SentenceTransformerEmbedder
 from graph_rag.adapters.es_document_store import EsDocumentStore
+from graph_rag.adapters.es_entity_store import EsEntityStore
 from graph_rag.adapters.llm_client import LiteLLMClient
 from graph_rag.adapters.minio_object_store import MinioObjectStore
 from graph_rag.api import create_app
@@ -31,6 +33,7 @@ from graph_rag.logging import configure_logging, get_logger
 from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer, KafkaTriggerPublisher
 from graph_rag.orchestrator import Orchestrator
 from graph_rag.stages.coref import LLMCorefStage
+from graph_rag.stages.entity_linking import EntityLinkingStage
 from graph_rag.stages.ner import SpacyNerStage
 
 __all__ = ["main"]
@@ -57,12 +60,21 @@ def main() -> None:
     llm_client = LiteLLMClient.from_settings(settings)
     coref_stage = LLMCorefStage(llm_client)
 
+    # --- Entity linking (N8, V4): local embedder + ES-Entities canonical store.
+    #     Both behind their ports (ADR-0010); the stage blocks/scores/merges and
+    #     drives the EL checkpoint. Gated tie-breaker/NIL stay off (Settings).
+    embedder = SentenceTransformerEmbedder.from_settings(settings)
+    entity_store = EsEntityStore.from_settings(settings)
+    entity_store.ensure_index()
+    entity_linking_stage = EntityLinkingStage.from_settings(settings, entity_store, embedder)
+
     # --- The pipeline shell over those ports + stages -----------------------
     orchestrator = Orchestrator(
         object_store=object_store,
         document_store=document_store,
         ner_stage=ner_stage,
         coref_stage=coref_stage,
+        entity_linking_stage=entity_linking_stage,
     )
 
     # --- Messaging seam: publisher (for POST /ingest) + consumer driver -----

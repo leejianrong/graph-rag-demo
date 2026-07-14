@@ -9,8 +9,8 @@ V1 models:
   ``{bucket, object_key}`` (ADR-0001).
 * :class:`DocumentRecord` — the ``ES-Documents`` record. V1 writes ``text`` at
   ingestion; the enrichment fields (``mentions``, ``coref_clusters``,
-  ``el_result``, ``vectors``) are declared as optional now so later slices extend
-  the record in place at the V4 entity-linking checkpoint without breaking V1.
+  ``el_result``, ``sentence_vectors``) default empty/``None`` so raw-only V1–V3
+  writes validate, and are populated together at the V4 entity-linking checkpoint.
 
 V2 (NER) adds the in-memory enrichment carry (ADR-0002, ARCHITECTURE §4):
 
@@ -29,11 +29,22 @@ V3 (coreference) adds the within-document coref cluster map (ADR-0003):
   output validates against; :class:`PipelineResult` carries the resulting
   ``coref_clusters`` in-memory (persisted at the V4 EL checkpoint). The original
   text is preserved — the map references surface forms, it never rewrites text.
+
+V4 (entity linking) adds the corpus-local canonical store + per-document result
+(ADR-0004/0005):
+
+* :class:`CanonicalEntity` — one deduplicated ``ES-Entities`` record, keyed by
+  ``canonical_id`` (the merge key / graph node identity), carrying the entity
+  ``dense_vector`` that blocking + kNN search rank over.
+* :class:`EntityLink` — one per-document EL result (doc-level entity →
+  ``canonical_id``, with score + merge/create-new flag); :class:`PipelineResult`
+  carries the list and it is persisted on the :class:`DocumentRecord` at the EL
+  checkpoint.
 """
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -45,6 +56,8 @@ __all__ = [
     "Sentence",
     "CorefCluster",
     "ClusterMap",
+    "CanonicalEntity",
+    "EntityLink",
     "PipelineResult",
 ]
 
@@ -87,9 +100,16 @@ class DocumentRecord(BaseModel):
     """The ``ES-Documents`` record for one document.
 
     In V1 only ``document_id``, ``bucket``, ``object_key`` and ``text`` are set —
-    the bare record created at ingestion, before processing. The remaining fields
-    are populated at the entity-linking checkpoint (V4) and stay ``None`` until
-    then, so V1 code and later slices share one schema.
+    the bare record created at ingestion, before processing. The enrichment
+    fields default empty/``None`` so that raw-only V1–V3 writes still validate
+    against one shared schema; they are populated together **in place at the V4
+    entity-linking checkpoint** (ARCHITECTURE §4/§5, ADR-0001/0005) with the NER
+    mentions, coref cluster map, per-document EL result and sentence vectors that
+    the pipeline computed in-memory.
+
+    The concrete sub-schemas are now pinned (V4): the fields carry
+    :class:`Mention`, :class:`CorefCluster` and :class:`EntityLink` instances, so
+    an enriched record round-trips through :meth:`to_json`/:meth:`from_json`.
     """
 
     document_id: str
@@ -97,14 +117,15 @@ class DocumentRecord(BaseModel):
     object_key: str
     text: str  # raw document text, written at ingestion (V1)
 
-    # --- Enrichment fields: populated at the EL checkpoint (V4) ---------------
-    # Declared Optional/None-default so later slices extend the record in place
-    # without breaking the V1 write model. Kept as loose types here; the concrete
-    # sub-schemas are pinned by the slices that own them (V2/V3/V4).
-    mentions: list[dict[str, Any]] | None = None  # populated at EL checkpoint (V4)
-    coref_clusters: list[dict[str, Any]] | None = None  # populated at EL checkpoint (V4)
-    el_result: dict[str, Any] | None = None  # populated at EL checkpoint (V4)
-    vectors: dict[str, Any] | None = None  # populated at EL checkpoint (V4)
+    # --- Enrichment fields: written together at the EL checkpoint (V4) --------
+    # Default-empty / None so a raw-only V1–V3 write validates unchanged; the EL
+    # stage (Wave 2) sets them when it persists the enriched record in place.
+    mentions: list[Mention] = Field(default_factory=list)  # NER (V2)
+    coref_clusters: list[CorefCluster] = Field(default_factory=list)  # coref (V3)
+    el_result: list[EntityLink] = Field(default_factory=list)  # per-doc EL (V4)
+    # Passage/sentence dense vectors for query-side seeding (ARCHITECTURE §5, B5);
+    # None until the EL checkpoint embeds the document's sentences.
+    sentence_vectors: list[list[float]] | None = None
 
     # Ignore anything from stored JSON that a later slice adds and this code
     # doesn't yet know about, rather than raising.
@@ -183,6 +204,46 @@ class ClusterMap(BaseModel):
     clusters: list[CorefCluster] = Field(default_factory=list)
 
 
+# --- V4 (entity linking) canonical store + per-document EL result -----------
+
+
+class CanonicalEntity(BaseModel):
+    """One deduplicated corpus-wide entity — an ``ES-Entities`` record (ADR-0005).
+
+    The corpus-local source of truth entity linking blocks/scores against
+    (ADR-0004). ``canonical_id`` is the **merge key and graph node identity**:
+    upsert is idempotent by it, and the same real-world entity mentioned across
+    documents resolves to one ``CanonicalEntity``. ``name`` is the seed surface
+    form (the first mention that created it); merged surface forms accumulate in
+    ``aliases``. ``vector`` is the entity ``dense_vector`` (``bge-small-en-v1.5``,
+    384-dim, B1) that the store's kNN search ranks over — ``None`` only for an
+    entity created before its embedding is attached.
+    """
+
+    canonical_id: str
+    name: str
+    type: CuratedType
+    aliases: list[str] = Field(default_factory=list)
+    vector: list[float] | None = None
+
+
+class EntityLink(BaseModel):
+    """One per-document entity-linking result (ADR-0004/0005).
+
+    Records that a doc-level entity (a coref cluster's canonical surface form,
+    ``mention_text``) resolved to the canonical entity ``canonical_id`` of type
+    ``entity_type``, with the embedding-similarity ``score`` that decided it and
+    ``is_new`` telling merge (``False``) from create-new (``True``). The list of
+    these is persisted on the :class:`DocumentRecord` at the EL checkpoint.
+    """
+
+    mention_text: str
+    canonical_id: str
+    entity_type: CuratedType
+    score: float
+    is_new: bool
+
+
 class PipelineResult(BaseModel):
     """The object the orchestrator RETURNS — the in-memory enrichment carry.
 
@@ -193,12 +254,21 @@ class PipelineResult(BaseModel):
     in V2/V3 the ES record still stores raw text only.
 
     V2 populates ``mentions`` and ``sentences``; V3 adds ``coref_clusters`` (the
-    non-destructive within-document cluster map). Later slices extend this object
-    in place: V4 adds an ``el_result`` field and then writes the whole thing back
-    into ``record`` at the EL checkpoint.
+    non-destructive within-document cluster map); V4 adds ``el_result`` (the
+    per-document entity-linking result). At the EL checkpoint the orchestrator
+    writes this enrichment back into ``record`` and persists it.
     """
 
     record: DocumentRecord
     mentions: list[Mention] = Field(default_factory=list)
     sentences: list[Sentence] = Field(default_factory=list)
     coref_clusters: list[CorefCluster] = Field(default_factory=list)
+    el_result: list[EntityLink] = Field(default_factory=list)
+
+
+# ``DocumentRecord`` and ``PipelineResult`` annotate fields with model types
+# defined later in this module (``from __future__ import annotations`` defers all
+# annotations to strings). Rebuild them now that every referenced name is in the
+# module namespace so Pydantic resolves the forward references.
+DocumentRecord.model_rebuild()
+PipelineResult.model_rebuild()

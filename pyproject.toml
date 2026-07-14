@@ -38,6 +38,14 @@ trf = [
     "spacy-transformers",
     "torch",
 ]
+# Local embedder runtime (V4, ADR-0004, B1). `sentence-transformers` pulls torch,
+# so it lives in this OPTIONAL extra — kept OUT of the base install so the fast
+# CI / pre-push gate stays light (fakes-only, no torch). The real stack + the
+# `model`-marked embedder test install `.[embed]`; the bge model is fetched
+# separately (`make embed-model`), never installed as a dep.
+embed = [
+    "sentence-transformers",
+]
 
 [build-system]
 requires = ["hatchling"]
@@ -58,6 +66,6 @@ testpaths = ["tests"]
 markers = [
     "contract: real-service tests via testcontainers (excluded from the fast suite)",
     "e2e: end-to-end tests driving an entry point through the port seam",
-    "model: tests that load a real spaCy model (needs `make models`; excluded from the fast pre-push gate)",
+    "model: tests that load a real spaCy model or embedder (needs `make models` / `.[embed]`; excluded from the fast pre-push gate)",
     "llm: opt-in tests that call a real LLM provider (needs an API key; skipped without one; excluded from the fast pre-push gate)",
 ]

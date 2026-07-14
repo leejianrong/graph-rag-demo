@@ -19,6 +19,7 @@ from graph_rag.fakes import (
     InMemoryTriggerPublisher,
 )
 from graph_rag.stages.coref import FakeCorefStage
+from graph_rag.stages.entity_linking import EntityLinkingStage
 
 
 @pytest.fixture
@@ -88,3 +89,18 @@ def coref_stage() -> FakeCorefStage:
     :class:`~graph_rag.stages.coref.FakeCorefStage` with the desired output.
     """
     return FakeCorefStage()
+
+
+@pytest.fixture
+def entity_linking_stage(
+    entity_store: InMemoryEntityStore, embedder: FakeEmbedder
+) -> EntityLinkingStage:
+    """A real EL stage (V4-active) over the in-memory EntityStore + FakeEmbedder.
+
+    The stage itself is the real :class:`~graph_rag.stages.entity_linking.EntityLinkingStage`
+    (fakes-first, ADR-0010): only its ports are faked, so the fast suite exercises
+    the actual block/score/merge logic + the EL checkpoint — no Docker, no model,
+    no LLM. Gated tie-breaker/NIL stay off (their defaults). Tests that need a
+    tuned threshold or per-doc state construct their own instance.
+    """
+    return EntityLinkingStage(entity_store, embedder)
