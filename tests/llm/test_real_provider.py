@@ -60,3 +60,65 @@ def test_real_provider_via_stage() -> None:
     clusters = stage.resolve(text, [])
 
     assert isinstance(clusters, list)
+
+
+def test_real_provider_synthesizes_prose() -> None:
+    """A real-provider V7 synthesis call returns usable prose from a small prompt.
+
+    Proves the integration: :class:`~graph_rag.query.synthesis.AnswerSynthesizer`
+    over a real :class:`~graph_rag.adapters.llm_client.LiteLLMClient` (pinned to
+    ``settings.synthesis_model``) turns a tiny assembled evidence prompt into
+    grounded prose. Skips cleanly without an API key.
+    """
+    from graph_rag.models import (
+        CanonicalEntity,
+        EdgeProvenance,
+        QueryResponse,
+        RankedNode,
+        Subgraph,
+        SupportingSentence,
+        Triple,
+    )
+    from graph_rag.query.synthesis import AnswerSynthesizer
+
+    settings = _settings_or_skip()
+    synthesizer = AnswerSynthesizer.from_settings(settings)
+
+    node_a = CanonicalEntity(canonical_id="e-ada", name="Ada Lovelace", type="PERSON")
+    node_b = CanonicalEntity(canonical_id="e-engine", name="Analytical Engine", type="PRODUCT")
+    response = QueryResponse(
+        answer="Ada Lovelace",
+        answer_entity=RankedNode(
+            canonical_id="e-ada", name="Ada Lovelace", type="PERSON", score=1.0
+        ),
+        subgraph=Subgraph(
+            nodes=[node_a, node_b],
+            edges=[
+                Triple(
+                    subject_id="e-ada",
+                    predicate="WORKED_ON",
+                    object_id="e-engine",
+                    provenance=EdgeProvenance(
+                        source_doc_id="doc1",
+                        sentence_index=0,
+                        source_sentence="Ada Lovelace worked on the Analytical Engine.",
+                    ),
+                )
+            ],
+        ),
+        supporting_sentences=[
+            SupportingSentence(
+                document_id="doc1",
+                text="Ada Lovelace worked on the Analytical Engine.",
+                char_start=0,
+                char_end=45,
+                sentence_index=0,
+                score=0.99,
+            )
+        ],
+    )
+
+    prose = synthesizer.synthesize(question="What did Ada Lovelace work on?", response=response)
+
+    assert isinstance(prose, str)
+    assert prose.strip()

@@ -104,8 +104,26 @@ retriever is wired** (existing `/ingest` + `/health` call sites unchanged). `mai
 wires the retriever reusing the SAME embedder/stores built for ingestion. The
 orchestrator EL checkpoint now also persists `record.sentences` (per-sentence
 offsets) alongside `sentence_vectors`, so end-to-end passage search returns matched
-sentences with their offsets. V7 (LLM answer synthesis) + V8 (benchmark) are **not
-built**.
+sentences with their offsets.
+
+**V7 (gated prose synthesis) — LANDED.** An OPTIONAL, gated LLM answer mode on top
+of V6 (ADR-0009, ARCHITECTURE §6) — **off by default**, so the core path stays free
+and deterministic. `graph_rag/query/synthesis.py` — `AnswerSynthesizer` (N17),
+constructor-injected with an `LLMClient`; `from_settings(settings, *, llm_client=None)`
+builds a `LiteLLMClient` pinned to its OWN `Settings.synthesis_model` (B6 — a fuller
+model reserved for synthesis, default `gpt-4o`) sharing the LLM cache/retry/key,
+mirroring `KgBuildStage.from_settings`. `synthesize(*, question, response)` assembles
+the prompt from the RETRIEVED EVIDENCE ONLY via the pure `build_synthesis_prompt`
+(question + subgraph nodes/edges with predicate + provenance + supporting sentences,
+with a strict "ground only in this evidence, no outside knowledge" instruction) and
+returns cached `complete()` prose. Wired as an OPTIONAL `QueryRetriever` collaborator
+(`synthesizer=` on `__init__`/`from_settings`): `retrieve` builds the V6
+`QueryResponse`, then IF `request.synthesize AND synthesizer is not None` sets
+`response.prose`; else `prose` stays `None`. `QueryResponse` gains an additive
+`prose: str | None = None` — the **default path (`synthesize=false`, or no
+synthesizer wired) makes NO LLM call and the response is byte-for-byte the V6 shape**.
+`main.py` builds `AnswerSynthesizer.from_settings(settings)` and passes it to the
+retriever. V8 (benchmark) is **not built**.
 
 > **Trust the code over the docs.** `docs/` (ARCHITECTURE, SLICES, TESTING, ADRs)
 > is the design intent; where code and docs disagree, the code on this branch is
