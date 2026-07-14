@@ -36,6 +36,7 @@ if TYPE_CHECKING:
     from graph_rag.config import Settings
     from graph_rag.models import QueryRequest, Subgraph
     from graph_rag.ports import DocumentStore, Embedder, EntityStore, GraphStore
+    from graph_rag.query.synthesis import AnswerSynthesizer
 
 __all__ = ["QueryRetriever"]
 
@@ -62,6 +63,7 @@ class QueryRetriever:
         khop_depth: int,
         rank_weight_seed: float,
         rank_weight_proximity: float,
+        synthesizer: AnswerSynthesizer | None = None,
     ) -> None:
         """Wire the ports and the pinned retrieval knobs.
 
@@ -75,6 +77,9 @@ class QueryRetriever:
             khop_depth: BFS expansion depth from the entity seeds (B3).
             rank_weight_seed: B4 seed-similarity weight (default ``0.7``).
             rank_weight_proximity: B4 graph-proximity weight (default ``0.3``).
+            synthesizer: OPTIONAL V7 prose synthesizer (N17). ``None`` (the default)
+                keeps the path deterministic and LLM-free; when wired, it runs ONLY
+                if a request sets ``synthesize=true`` (the gate defaults OFF).
         """
         self._embedder = embedder
         self._entity_store = entity_store
@@ -85,6 +90,7 @@ class QueryRetriever:
         self._khop_depth = khop_depth
         self._rank_weight_seed = rank_weight_seed
         self._rank_weight_proximity = rank_weight_proximity
+        self._synthesizer = synthesizer
 
     @classmethod
     def from_settings(
@@ -95,13 +101,16 @@ class QueryRetriever:
         entity_store: EntityStore,
         document_store: DocumentStore,
         graph_store: GraphStore,
+        synthesizer: AnswerSynthesizer | None = None,
     ) -> QueryRetriever:
         """Build a retriever from :class:`~graph_rag.config.Settings` + injected ports.
 
         Reads the B3/B4/B5 knobs (``seed_top_k_entities``, ``seed_top_k_sentences``,
         ``khop_depth``, ``rank_weight_seed``, ``rank_weight_proximity``) off
         ``settings``; the ports are injected so the caller reuses the SAME embedder
-        / stores it built for ingestion.
+        / stores it built for ingestion. ``synthesizer`` is the OPTIONAL V7 prose
+        synthesizer — pass one to enable gated ``synthesize=true`` synthesis; omit
+        it to keep the path deterministic and LLM-free.
         """
         return cls(
             embedder=embedder,
@@ -113,18 +122,26 @@ class QueryRetriever:
             khop_depth=settings.khop_depth,
             rank_weight_seed=settings.rank_weight_seed,
             rank_weight_proximity=settings.rank_weight_proximity,
+            synthesizer=synthesizer,
         )
 
     def retrieve(self, request: QueryRequest) -> QueryResponse:
-        """Answer ``request`` via the deterministic retrieval path (no LLM).
+        """Answer ``request`` via the deterministic retrieval path (+ optional V7 prose).
 
         Runs seed → expand → rank → answer over the injected ports and the B4
         ranker, returning the connected subgraph, the ranked candidate nodes, the
-        predicted entity answer and the supporting sentences with provenance. The
-        ``request.synthesize`` flag (V7) is ignored — this path never calls an LLM.
+        predicted entity answer and the supporting sentences with provenance — the
+        deterministic, ``$0`` V6 result, computed with NO LLM call.
+
+        The ``request.synthesize`` flag is the V7 gate (ADR-0009) and defaults OFF:
+        the LLM is touched ONLY when ``request.synthesize`` is true AND a
+        :class:`~graph_rag.query.synthesis.AnswerSynthesizer` is wired, in which
+        case the retrieved evidence is synthesized into ``response.prose``. With the
+        flag off (the default) or no synthesizer wired, ``prose`` stays ``None`` and
+        the response is byte-for-byte the V6 shape — no LLM call is made.
 
         Args:
-            request: The natural-language query (its ``question``).
+            request: The natural-language query (its ``question`` + ``synthesize``).
 
         Returns:
             The :class:`~graph_rag.models.QueryResponse` for the question.
@@ -181,14 +198,25 @@ class QueryRetriever:
 
         # 6. Supporting sentences already come back scored + ordered by the sentence
         #    kNN (SupportingSentence carries no vector to re-rank), so keep that
-        #    order and its provenance (doc_id + offsets). No LLM synthesis (V7).
-        return QueryResponse(
+        #    order and its provenance (doc_id + offsets).
+        response = QueryResponse(
             answer=answer,
             answer_entity=answer_entity,
             subgraph=subgraph,
             ranked_nodes=ranked_nodes,
             supporting_sentences=supporting_sentences,
         )
+
+        # 7. V7 GATE (default OFF): synthesize prose ONLY when the request asks for
+        #    it AND a synthesizer is wired. Otherwise prose stays None and no LLM is
+        #    touched — the response is byte-for-byte the V6 shape (ADR-0009).
+        if request.synthesize and self._synthesizer is not None:
+            response.prose = self._synthesizer.synthesize(
+                question=request.question, response=response
+            )
+            _logger.info("query synthesized prose (%d char(s))", len(response.prose))
+
+        return response
 
     @staticmethod
     def _hop_distances(subgraph: Subgraph, seed_scores: dict[str, float]) -> dict[str, float]:

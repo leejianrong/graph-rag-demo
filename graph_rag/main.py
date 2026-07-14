@@ -34,6 +34,7 @@ from graph_rag.logging import configure_logging, get_logger
 from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer, KafkaTriggerPublisher
 from graph_rag.orchestrator import Orchestrator
 from graph_rag.query.retriever import QueryRetriever
+from graph_rag.query.synthesis import AnswerSynthesizer
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.entity_linking import EntityLinkingStage
 from graph_rag.stages.kg_build import KgBuildStage
@@ -91,16 +92,25 @@ def main() -> None:
         kg_build_stage=kg_build_stage,
     )
 
+    # --- Prose synthesizer (N17, V7): the OPTIONAL gated LLM answer mode -----
+    #     Pinned to its own Settings.synthesis_model (B6 — a fuller model reserved
+    #     for synthesis), sharing the same LLM response cache/retry/key. Wired onto
+    #     the retriever but GATED OFF: it runs only when a request sets
+    #     synthesize=true (ADR-0009). The default /query path never calls it.
+    synthesizer = AnswerSynthesizer.from_settings(settings)
+
     # --- Query retriever (N16, V6): the synchronous /query read path --------
     #     Reuses the SAME embedder + entity/document/graph stores built for
     #     ingestion so query-side kNN + k-hop read exactly what was written. No
-    #     LLM in the default path (ADR-0007) — deterministic and $0.
+    #     LLM in the default path (ADR-0007) — deterministic and $0; the optional
+    #     V7 synthesizer above only fires on synthesize=true.
     retriever = QueryRetriever.from_settings(
         settings,
         embedder=embedder,
         entity_store=entity_store,
         document_store=document_store,
         graph_store=graph_store,
+        synthesizer=synthesizer,
     )
 
     # --- Messaging seam: publisher (for POST /ingest) + consumer driver -----

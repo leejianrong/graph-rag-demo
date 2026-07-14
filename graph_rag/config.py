@@ -81,6 +81,14 @@ class Settings(BaseSettings):
     # model is config: coref pins B6 (``gpt-4o-mini``); KG-build (V5) gets its own.
     coref_model: str = "gpt-4o-mini"
     kg_build_model: str = "gpt-4o-mini"
+    # V7 gated prose synthesis (N17, ADR-0009, ARCHITECTURE §6). A FULLER model is
+    # reserved for synthesis than for the extraction stages: coref/KG-build only
+    # need cheap structured extraction, whereas turning the retrieved evidence into
+    # faithful, grounded prose benefits from a stronger model. Pins B6 for the
+    # synthesis stage; swappable to any LiteLLM model string via ``SYNTHESIS_MODEL``
+    # (e.g. drop to ``gpt-4o-mini`` to keep it cheap). Only reached when a request
+    # sets ``synthesize=true`` — the default path never builds/calls this model.
+    synthesis_model: str = "gpt-4o"
     # Persistent response cache dir (gitignored). A cache hit costs $0 / no call.
     llm_cache_dir: str = ".cache/llm"
     # Structured-output retries on parse/validation failure before raising.

@@ -416,6 +416,12 @@ class QueryResponse(BaseModel):
     ``ranked_nodes`` (score-descending); and the ``supporting_sentences`` evidence
     with per-sentence provenance. Reusing :class:`Subgraph` means per-edge
     provenance rides along for traceable answers.
+
+    ``prose`` is the OPTIONAL V7 gated LLM synthesis (ADR-0009): ``None`` on the
+    default deterministic path (``synthesize=false``, no LLM call), and set to the
+    grounded prose answer only when ``POST /query`` was called with
+    ``synthesize=true`` and a synthesizer is wired. Defaulting it to ``None`` keeps
+    the V6 response shape byte-for-byte unchanged when synthesis is off.
     """
 
     answer: str | None
@@ -423,6 +429,8 @@ class QueryResponse(BaseModel):
     subgraph: Subgraph
     ranked_nodes: list[RankedNode] = Field(default_factory=list)
     supporting_sentences: list[SupportingSentence] = Field(default_factory=list)
+    # V7 gated synthesis: None unless ``synthesize=true`` produced grounded prose.
+    prose: str | None = None
 
     def to_json(self) -> str:
         """Serialize this response to a JSON string."""
