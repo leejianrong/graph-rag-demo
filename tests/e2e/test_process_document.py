@@ -26,6 +26,7 @@ from graph_rag.fakes import FakeNerStage, InMemoryDocumentStore, InMemoryObjectS
 from graph_rag.ids import document_id
 from graph_rag.models import IngestTrigger, Mention, Sentence
 from graph_rag.orchestrator import Orchestrator
+from graph_rag.stages.coref import FakeCorefStage
 
 BUCKET = "documents"
 KEY = "a.md"
@@ -36,12 +37,19 @@ def orchestrator(
     object_store: InMemoryObjectStore,
     document_store: InMemoryDocumentStore,
     ner_stage: FakeNerStage,
+    coref_stage: FakeCorefStage,
 ) -> Orchestrator:
-    """An orchestrator wired to the shared in-memory fakes + a canned NER stage."""
+    """An orchestrator wired to the shared in-memory fakes + canned NER/coref stages.
+
+    Injecting :class:`~graph_rag.stages.coref.FakeCorefStage` keeps the fast suite
+    LLM-free: without it the orchestrator would build the real ``LLMCorefStage``
+    default and try a provider call.
+    """
     return Orchestrator(
         object_store=object_store,
         document_store=document_store,
         ner_stage=ner_stage,
+        coref_stage=coref_stage,
     )
 
 
@@ -102,6 +110,7 @@ def test_result_carries_canned_mentions_and_sentences(
         object_store=object_store,
         document_store=document_store,
         ner_stage=ner_stage,
+        coref_stage=FakeCorefStage(),
     )
 
     result = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key=KEY))

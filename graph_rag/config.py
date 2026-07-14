@@ -53,6 +53,22 @@ class Settings(BaseSettings):
     # needs the ``trf`` optional extra (spacy-transformers + torch).
     ner_model: str = "en_core_web_trf"
 
+    # --- LLM client (V3, ADR-0008) ------------------------------------------
+    # Provider-agnostic via LiteLLM: the model is a LiteLLM model string, so any
+    # OpenAI-compatible endpoint (incl. DeepSeek) is swappable here. The per-stage
+    # model is config: coref pins B6 (``gpt-4o-mini``); KG-build (V5) gets its own.
+    coref_model: str = "gpt-4o-mini"
+    kg_build_model: str = "gpt-4o-mini"
+    # Persistent response cache dir (gitignored). A cache hit costs $0 / no call.
+    llm_cache_dir: str = ".cache/llm"
+    # Structured-output retries on parse/validation failure before raising.
+    llm_max_retries: int = 2
+    # API key STRICTLY from the environment — never hardcoded. Optional so import
+    # and the fakes-only fast suite never need a key; only a real provider call
+    # does. Read from ``OPENAI_API_KEY`` (LiteLLM's default for the gpt-4o-mini
+    # default); point ``coref_model`` at another provider + set its key to swap.
+    openai_api_key: str | None = None
+
     # --- Logging seam --------------------------------------------------------
     log_level: str = "INFO"
 

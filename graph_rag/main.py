@@ -23,12 +23,14 @@ import threading
 import uvicorn
 
 from graph_rag.adapters.es_document_store import EsDocumentStore
+from graph_rag.adapters.llm_client import LiteLLMClient
 from graph_rag.adapters.minio_object_store import MinioObjectStore
 from graph_rag.api import create_app
 from graph_rag.config import Settings
 from graph_rag.logging import configure_logging, get_logger
 from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer, KafkaTriggerPublisher
 from graph_rag.orchestrator import Orchestrator
+from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.ner import SpacyNerStage
 
 __all__ = ["main"]
@@ -51,11 +53,16 @@ def main() -> None:
     # --- NER stage (N6): real spaCy pipeline from Settings.ner_model --------
     ner_stage = SpacyNerStage.from_settings(settings)
 
+    # --- Coref stage (N7): LiteLLM client + response cache (V3) -------------
+    llm_client = LiteLLMClient.from_settings(settings)
+    coref_stage = LLMCorefStage(llm_client)
+
     # --- The pipeline shell over those ports + stages -----------------------
     orchestrator = Orchestrator(
         object_store=object_store,
         document_store=document_store,
         ner_stage=ner_stage,
+        coref_stage=coref_stage,
     )
 
     # --- Messaging seam: publisher (for POST /ingest) + consumer driver -----

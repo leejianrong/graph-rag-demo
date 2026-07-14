@@ -12,10 +12,15 @@ instantiate and plug them in; their unused stub methods raise
 
 from __future__ import annotations
 
-from typing import Any
+from typing import TYPE_CHECKING, Any, TypeVar
 
-from graph_rag.models import DocumentRecord, IngestTrigger, Mention, Sentence
+from graph_rag.models import CorefCluster, DocumentRecord, IngestTrigger, Mention, Sentence
 from graph_rag.stages.ner import NerResult
+
+if TYPE_CHECKING:
+    from pydantic import BaseModel
+
+_StructuredT = TypeVar("_StructuredT", bound="BaseModel")
 
 __all__ = [
     "InMemoryObjectStore",
@@ -132,15 +137,55 @@ class InMemoryGraphStore:
 
 
 class FakeLLMClient:
-    """Trivial :class:`~graph_rag.ports.LLMClient`.
+    """Canned :class:`~graph_rag.ports.LLMClient` for the fast suite (V3-active).
 
-    Stub for later slices (V3/V5/V7); not exercised in V1. A later fake will
-    return canned structured responses keyed by prompt hash (ADR-0008/ADR-0010).
+    Returns canned STRUCTURED responses so :class:`LLMCorefStage` runs against it
+    deterministically with no provider call, and counts every call on the public
+    :attr:`calls` counter so a test can assert how many LLM calls happened (e.g.
+    that a cached / re-run path did not recompute). Keeping the fast suite on this
+    fake makes the gate LLM-free and ``$0`` (ADR-0010): the canned response is the
+    fixture, standing in for the ``sha256`` response cache the real client uses.
     """
 
+    def __init__(
+        self,
+        clusters: list[CorefCluster] | None = None,
+        structured_response: Any = None,
+        completion: str = "",
+    ) -> None:
+        """Configure the canned output.
+
+        Args:
+            clusters: Canned coref clusters; wrapped into whatever schema
+                :meth:`structured` is asked for (a ``ClusterMap``-shaped payload).
+            structured_response: An explicit canned instance to return from
+                :meth:`structured`, overriding ``clusters`` (for other schemas).
+            completion: The canned string returned from :meth:`complete`.
+        """
+        self._clusters = clusters
+        self._structured_response = structured_response
+        self._completion = completion
+        self.calls = 0
+
     def complete(self, prompt: str, **params: Any) -> str:
-        """Not implemented in V1."""
-        raise NotImplementedError("LLMClient is a stub until V3")
+        """Return the canned completion string, counting the call."""
+        self.calls += 1
+        return self._completion
+
+    def structured(self, prompt: str, schema: type[_StructuredT], **params: Any) -> _StructuredT:
+        """Return a canned ``schema`` instance, counting the call.
+
+        Uses an explicit ``structured_response`` if configured, else builds a
+        ``ClusterMap``-shaped payload from the canned ``clusters``, else an empty
+        instance — so the fast suite is deterministic and offline.
+        """
+        self.calls += 1
+        if self._structured_response is not None:
+            return self._structured_response
+        if self._clusters is not None:
+            payload = {"clusters": [c.model_dump() for c in self._clusters]}
+            return schema.model_validate(payload)
+        return schema()
 
 
 class FakeEmbedder:
