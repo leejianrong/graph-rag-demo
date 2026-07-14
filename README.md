@@ -11,10 +11,22 @@ It runs entirely on one machine through Docker Compose. There's no external
 knowledge base, no cloud dependency beyond an optional LLM API, and the default
 query path never calls an LLM at all.
 
-**Status: design complete, implementation not started.** This repo currently
-holds the plan, not the code. The [PRD](docs/PRD.md) and nine
-[ADRs](docs/adr/) pin down every decision; the pipeline itself is the next step.
-Read [where the design lives](#where-the-design-lives) below to navigate it.
+There's a visual walkthrough of the whole idea at
+**<https://leejianrong.github.io/graph-rag-demo/>**.
+
+## Status
+
+The pipeline is built and runs end to end. It came together in eight vertical
+slices, from the ingest-and-store skeleton through NER, coreference, entity
+linking, graph building, and retrieval, to a small benchmark harness. All eight
+have landed. You can bring the whole stack up with one command, feed it
+documents, and query the resulting graph; jump to [Running it
+locally](#running-it-locally) for that.
+
+The design was written down before the code, and it's worth reading if you want
+the reasoning rather than just the moving parts. The [PRD](docs/PRD.md), the ten
+[ADRs](docs/adr/), and the [slice plan](docs/SLICES.md) cover it. Where a doc and
+the code disagree, trust the code.
 
 ## The problem
 
@@ -42,7 +54,8 @@ swappable module, so the microservices version stays possible later without a
 rewrite.
 
 1. **Read.** A Kafka message carries a bucket and object key, nothing more. The
-   stage fetches that file from MinIO.
+   stage fetches that file from MinIO. The raw text is stored in Elasticsearch
+   up front, keyed by a deterministic document ID, before any processing runs.
 2. **NER.** spaCy extracts typed mentions locally: people, organisations,
    locations, dates, events. This runs on your CPU and costs nothing per token,
    which matters because it touches every word of every document.
@@ -55,7 +68,8 @@ rewrite.
    similarity, then either merged into an existing entity or created as a new
    one. This is the step that lets "Angela Merkel" in one file and a later
    mention in another become a single graph node. There's no Wikidata, no
-   external KB. The corpus is its own authority.
+   external KB. The corpus is its own authority, and linking is order-sensitive:
+   the first document to mention an entity seeds its record.
 5. **Knowledge-graph build.** An LLM reads the document and its linked entities
    and emits subject–predicate–object triples grounded in canonical entity IDs.
    Predicates map to a closed set of about twelve relations (`LOCATED_IN`,
@@ -85,39 +99,101 @@ which is an honest limitation rather than a bug. When you want prose, an
 optional synthesis mode feeds the retrieved subgraph to an LLM. It's gated off
 by default.
 
-## The stack
+## Running it locally
 
-Everything comes up together under Docker Compose:
+You'll need Docker with Compose. For the LLM-backed stages you'll also need a key
+for any OpenAI-compatible provider; the query path itself runs without one.
 
-- **Kafka** — the ingestion trigger
-- **MinIO** — S3-compatible object storage for the source files
-- **Elasticsearch** — one cluster, two indices: documents (with their
-  processing results and passage vectors) and canonical entities (the dedup
-  store, which doubles as the vector index for entity linking and query anchoring)
-- **Neo4j** — the knowledge graph
-- **FastAPI service** — two endpoints: one to upload a file and publish the
-  Kafka trigger, one synchronous `/query` for read-only retrieval
+```bash
+git clone https://github.com/leejianrong/graph-rag-demo
+cd graph-rag-demo
+cp .env.example .env          # then set OPENAI_API_KEY — see below
+docker compose up --build     # or: make up
+```
 
-The LLM is reached through a provider-agnostic client, so the model is a config
-choice per stage. The default leans on `gpt-4o-mini` for the high-volume
-extraction work and reserves a fuller model for optional synthesis. Any
-OpenAI-compatible endpoint, DeepSeek included, swaps in through `.env`. Every
-call is cached by a hash of the model, prompt and parameters, which is what
-makes re-running the pipeline or the benchmark cost nothing the second time.
+The first build is large and slow. The image installs PyTorch and downloads
+spaCy's transformer model and the bge embedding model, which runs to a few
+gigabytes; after that it's cached. Compose brings up Kafka, MinIO, Elasticsearch,
+Neo4j, and the FastAPI service on port 8000. The MinIO console is on 9001 and the
+Neo4j browser on 7474 if you want to poke at the stores directly.
+
+Ingest a document with a multipart upload:
+
+```bash
+curl -F "file=@some-report.md" http://localhost:8000/ingest
+# {"document_id": "...", "bucket": "documents", "object_key": "some-report.md"}
+```
+
+Ingestion is asynchronous. `/ingest` writes the file to MinIO, publishes a Kafka
+trigger, and returns straight away; the consumer then runs the five stages. Follow
+it with `make logs` (which is `docker compose logs -f app`).
+
+Once a few documents are in, query the graph. This call makes no LLM request:
+
+```bash
+curl -X POST http://localhost:8000/query \
+  -H 'content-type: application/json' \
+  -d '{"question": "How is Supplier A connected to the German supply-chain law?"}'
+```
+
+You get back the connected subgraph, the supporting sentences with their
+provenance, and the top-ranked entity as the predicted answer. Add
+`"synthesize": true` to also get an LLM-written prose answer grounded in that same
+evidence; that one does call the model.
+
+### What to watch for
+
+A few things trip people up the first time:
+
+- **The graph needs an API key.** Coreference and graph-building go through an LLM.
+  With no key set, those stages raise, and the pipeline logs the error and drops
+  the document after its raw text is already stored. You end up with documents in
+  Elasticsearch and an empty graph, which looks like nothing happened. Set
+  `OPENAI_API_KEY` in `.env`, or point `COREF_MODEL` / `KG_BUILD_MODEL` at another
+  OpenAI-compatible endpoint (DeepSeek included) and set that provider's key.
+- **Multi-hop needs more than one document.** The whole point is connections that
+  cross documents, so feed it a handful of related files rather than one. And
+  because linking is order-sensitive, the ingestion order is part of the result.
+- **Re-running is free.** Every LLM call is cached by a hash of the model, prompt,
+  and parameters, so re-ingesting the same corpus or repeating a query costs
+  nothing the second time.
+- **Elasticsearch wants memory.** It runs single-node with security off for local
+  use. If the container keeps exiting, it usually needs more RAM given to Docker.
+
+### Tests
+
+The fast suite runs against in-memory fakes: no Docker, no model, no API key. It's
+the gate to run before pushing.
+
+```bash
+uv sync --frozen --extra dev
+uv run pytest -m "not contract and not model and not llm and not benchmark"  # make test
+```
+
+The slower layers are opt-in and split by pytest marker: `contract` proves each
+real adapter against a throwaway container (MinIO, Elasticsearch, Kafka, Neo4j),
+`model` loads real spaCy and embedding models, `llm` hits a real provider and skips
+cleanly without a key, and `benchmark` runs the whole pipeline over a fixture.
+[CLAUDE.md](CLAUDE.md) has the full command list and the reasoning behind the
+layering.
 
 ## Benchmarking
 
 The pipeline is evaluated on **2WikiMultihopQA**, whose evidence is expressed as
 `(entity, relation, entity)` reasoning paths. That's a close match for what the
-graph builds, which makes it a fair test of both construction and retrieval.
-A fixed subset of 100 to 200 questions keeps runs quick.
+graph builds, which makes it a fair test of both construction and retrieval. A
+fixed subset keeps runs quick, and the harness is a console command:
+
+```bash
+uv run benchmark run --subset small --dataset path/to/2wiki.json
+```
 
 The metrics are deliberately non-LLM: supporting-fact precision, recall and F1
 for whether retrieval surfaced the gold evidence, plus exact-match and token-F1
 on the answer, scored against each node's name and its aliases under standard
-normalisation. Corpus-local entity linking is order-sensitive, since the first
-document to mention an entity seeds its record, so benchmark runs fix the
-ingestion order and the linking thresholds to stay reproducible.
+normalisation. Corpus-local entity linking is order-sensitive, so benchmark runs
+fix the ingestion order and the linking thresholds to stay reproducible. A warm
+run reuses the pre-built graph and the response cache, so it costs about nothing.
 
 ## Where the design lives
 
@@ -125,14 +201,14 @@ The thinking is all written down, and it's worth reading before any code:
 
 - **[docs/PRD.md](docs/PRD.md)** — the product requirements: problem, user
   stories, implementation and testing decisions, scope.
-- **[docs/adr/](docs/adr/)** — nine architecture decision records, one per major
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — topology, the six ports, the
+  data model, and the stage/checkpoint flow, consolidated from the ADRs.
+- **[docs/adr/](docs/adr/)** — ten architecture decision records, one per major
   choice, each with the alternatives weighed and the reasoning kept.
+- **[docs/SLICES.md](docs/SLICES.md)** — the eight vertical slices the build
+  followed, each with its own test plan.
 - **[docs/CONTEXT.md](docs/CONTEXT.md)** — the glossary and decision register.
-  Start here if a term in the PRD is unfamiliar.
-- **[docs/REQS.md](docs/REQS.md)** — the original idea, before any grilling.
-- **[docs/QUESTIONS.md](docs/QUESTIONS.md)** and
-  **[docs/ANSWERS.md](docs/ANSWERS.md)** — the full interview log behind the
-  decisions.
+  Start here if a term is unfamiliar.
 
 ## Conventions
 
