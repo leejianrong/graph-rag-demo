@@ -70,6 +70,10 @@ __all__ = [
     "EdgeProvenance",
     "Triple",
     "Subgraph",
+    "QueryRequest",
+    "SupportingSentence",
+    "RankedNode",
+    "QueryResponse",
 ]
 
 # The curated NER type set (ADR-0002): spaCy's OntoNotes labels narrowed to the
@@ -134,6 +138,13 @@ class DocumentRecord(BaseModel):
     mentions: list[Mention] = Field(default_factory=list)  # NER (V2)
     coref_clusters: list[CorefCluster] = Field(default_factory=list)  # coref (V3)
     el_result: list[EntityLink] = Field(default_factory=list)  # per-doc EL (V4)
+    # Per-sentence text + char offsets (from the V2 spaCy segmentation), persisted
+    # so query-side passage/sentence kNN (V6, B5) can return the matched sentence
+    # with its provenance offsets. Positionally aligned with ``sentence_vectors``
+    # (``sentences[i]`` is embedded as ``sentence_vectors[i]``). Default-empty so a
+    # raw-only V1–V3 write validates unchanged; the EL checkpoint sets it alongside
+    # ``sentence_vectors``.
+    sentences: list[Sentence] = Field(default_factory=list)  # segmentation (V2→V6)
     # Passage/sentence dense vectors for query-side seeding (ARCHITECTURE §5, B5);
     # None until the EL checkpoint embeds the document's sentences.
     sentence_vectors: list[list[float]] | None = None
@@ -337,6 +348,92 @@ class Subgraph(BaseModel):
     edges: list[Triple] = Field(default_factory=list)
 
 
+# --- V6 (query) request/response schema (U3) --------------------------------
+
+
+class QueryRequest(BaseModel):
+    """The ``POST /query`` request body (U3, ADR-0007).
+
+    Carries the natural-language ``question`` and the ``synthesize`` flag. The
+    flag is the V7 gated-prose-synthesis switch; the field exists now so the
+    request schema is stable, but V6 retrieval **ignores** it (the default,
+    deterministic, ``$0`` retrieval path always runs).
+    """
+
+    question: str
+    synthesize: bool = False
+
+    def to_json(self) -> str:
+        """Serialize this request to a JSON string."""
+        return self.model_dump_json()
+
+    @classmethod
+    def from_json(cls, payload: str | bytes) -> QueryRequest:
+        """Deserialize a JSON ``str``/``bytes`` request body into a request."""
+        return cls.model_validate_json(payload)
+
+
+class SupportingSentence(BaseModel):
+    """One retrieved supporting sentence with its provenance (U3, ADR-0007).
+
+    The passage/sentence-anchored evidence for an answer: the sentence ``text``
+    with its half-open ``[char_start, char_end)`` offsets into the source
+    document's raw text, the document it came from, its zero-based
+    ``sentence_index`` and the cosine ``score`` of its vector against the query
+    vector. Returned by :meth:`graph_rag.ports.DocumentStore.search_sentences`.
+    """
+
+    document_id: str
+    text: str
+    char_start: int
+    char_end: int
+    sentence_index: int
+    score: float
+
+
+class RankedNode(BaseModel):
+    """One scored knowledge-graph node in the ranked query result (U3, B4).
+
+    A candidate answer entity: its ``canonical_id`` (graph node identity),
+    ``name``, curated ``type`` and the ranking ``score`` assigned by
+    :func:`graph_rag.query.ranking.rank_nodes`. The top-ranked node is the
+    predicted entity answer for entity-typed questions (ADR-0007).
+    """
+
+    canonical_id: str
+    name: str
+    type: CuratedType
+    score: float
+
+
+class QueryResponse(BaseModel):
+    """The ``POST /query`` response body (U3, ADR-0007).
+
+    The deterministic retrieval result: the predicted ``answer`` (the top-ranked
+    entity's name, or ``None`` when no entity was retrieved) and the same node as
+    ``answer_entity``; the connected ``subgraph`` (nodes + provenance-carrying
+    :class:`Triple` edges) the answer was read from; every candidate node in
+    ``ranked_nodes`` (score-descending); and the ``supporting_sentences`` evidence
+    with per-sentence provenance. Reusing :class:`Subgraph` means per-edge
+    provenance rides along for traceable answers.
+    """
+
+    answer: str | None
+    answer_entity: RankedNode | None
+    subgraph: Subgraph
+    ranked_nodes: list[RankedNode] = Field(default_factory=list)
+    supporting_sentences: list[SupportingSentence] = Field(default_factory=list)
+
+    def to_json(self) -> str:
+        """Serialize this response to a JSON string."""
+        return self.model_dump_json()
+
+    @classmethod
+    def from_json(cls, payload: str | bytes) -> QueryResponse:
+        """Deserialize a JSON ``str``/``bytes`` response into a response."""
+        return cls.model_validate_json(payload)
+
+
 # ``DocumentRecord`` and ``PipelineResult`` annotate fields with model types
 # defined later in this module (``from __future__ import annotations`` defers all
 # annotations to strings). Rebuild them now that every referenced name is in the
@@ -345,3 +442,4 @@ DocumentRecord.model_rebuild()
 PipelineResult.model_rebuild()
 Triple.model_rebuild()
 Subgraph.model_rebuild()
+QueryResponse.model_rebuild()

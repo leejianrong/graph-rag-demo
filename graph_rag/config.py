@@ -105,6 +105,19 @@ class Settings(BaseSettings):
     # multi-hop recall against subgraph noise.
     khop_depth: int = 2
 
+    # --- Query-side retrieval seeding + ranking (V6, ADR-0007) --------------
+    # B5: how many kNN seeds to pull per index before k-hop expansion. Entity
+    # seeds anchor the graph traversal; sentence seeds anchor the supporting
+    # evidence. Small for a demo corpus; tune for recall vs. subgraph noise.
+    seed_top_k_entities: int = 5
+    seed_top_k_sentences: int = 5
+    # B4: the subgraph ranking-function weights (graph_rag.query.ranking).
+    # ``score = rank_weight_seed * seed_similarity + rank_weight_proximity *
+    # 1/(1+hop_distance)``. Fixed for benchmark reproducibility (ADR-0009); tune
+    # via ``RANK_WEIGHT_SEED`` / ``RANK_WEIGHT_PROXIMITY``.
+    rank_weight_seed: float = 0.7
+    rank_weight_proximity: float = 0.3
+
     # --- Logging seam --------------------------------------------------------
     log_level: str = "INFO"
 

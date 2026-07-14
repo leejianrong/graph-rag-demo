@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import pytest
 
+from graph_rag.config import Settings
 from graph_rag.fakes import (
     FakeEmbedder,
     FakeLLMClient,
@@ -18,6 +19,7 @@ from graph_rag.fakes import (
     InMemoryObjectStore,
     InMemoryTriggerPublisher,
 )
+from graph_rag.query.retriever import QueryRetriever
 from graph_rag.stages.coref import FakeCorefStage
 from graph_rag.stages.entity_linking import EntityLinkingStage
 from graph_rag.stages.kg_build import KgBuildStage
@@ -123,3 +125,26 @@ def kg_build_stage(llm_client: FakeLLMClient) -> KgBuildStage:
     :class:`~graph_rag.stages.kg_build.KgBuildStage(FakeLLMClient(structured_response=...))`.
     """
     return KgBuildStage(llm_client)
+
+
+@pytest.fixture
+def retriever(
+    embedder: FakeEmbedder,
+    entity_store: InMemoryEntityStore,
+    document_store: InMemoryDocumentStore,
+    graph_store: InMemoryGraphStore,
+) -> QueryRetriever:
+    """A V6 :class:`~graph_rag.query.retriever.QueryRetriever` over the in-memory fakes.
+
+    Built from default :class:`~graph_rag.config.Settings` (the pinned B3/B4/B5
+    knobs) over the SAME store fixtures, so a test seeds those stores and then
+    drives the retriever (or ``POST /query``) against them — deterministic, ``$0``,
+    no Docker/model/LLM (ADR-0010). No LLM client is wired anywhere on this path.
+    """
+    return QueryRetriever.from_settings(
+        Settings(),
+        embedder=embedder,
+        entity_store=entity_store,
+        document_store=document_store,
+        graph_store=graph_store,
+    )

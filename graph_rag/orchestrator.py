@@ -184,6 +184,7 @@ class Orchestrator:
                 record.mentions = ner.mentions
                 record.coref_clusters = coref_clusters
                 record.el_result = el.links
+                record.sentences = ner.sentences  # per-sentence offsets for V6 passage search
                 record.sentence_vectors = el.sentence_vectors
                 self._document_store.upsert(record)
 

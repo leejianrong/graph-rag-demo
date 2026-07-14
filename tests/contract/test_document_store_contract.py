@@ -19,8 +19,9 @@ from typing import TYPE_CHECKING
 
 import pytest
 
+from graph_rag.fakes import FakeEmbedder, InMemoryDocumentStore
 from graph_rag.ids import document_id
-from graph_rag.models import DocumentRecord
+from graph_rag.models import DocumentRecord, Sentence
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -100,3 +101,71 @@ def test_reupsert_overwrites_single_doc(es_document_store: EsDocumentStore) -> N
     fetched = es_document_store.get(second.document_id)
     assert fetched is not None
     assert fetched.text == "second version"
+
+
+# --- V6: passage/sentence vector search (B5) --------------------------------
+
+
+def _enriched_record(key: str, sentence_texts: list[str], embedder: FakeEmbedder) -> DocumentRecord:
+    """Build a record with per-sentence offsets + FakeEmbedder sentence vectors."""
+    sentences: list[Sentence] = []
+    offset = 0
+    for index, text in enumerate(sentence_texts):
+        sentences.append(
+            Sentence(text=text, char_start=offset, char_end=offset + len(text), index=index)
+        )
+        offset += len(text) + 1  # +1 for a notional separator
+    return DocumentRecord(
+        document_id=document_id("documents", key),
+        bucket="documents",
+        object_key=key,
+        text=" ".join(sentence_texts),
+        sentences=sentences,
+        sentence_vectors=embedder.embed(sentence_texts),
+    )
+
+
+def test_search_sentences_matches_fake(es_document_store: EsDocumentStore) -> None:
+    """Real ``search_sentences`` returns the same ordering + offsets as the fake.
+
+    Seeds two records with FakeEmbedder sentence vectors into both the real store
+    and the in-memory fake, embeds a query, and asserts identical (document_id,
+    sentence_index, offsets) ordering — the passage-seed seam proven equivalent.
+    """
+    embedder = FakeEmbedder(dim=384)
+    records = [
+        _enriched_record("search-a.md", ["cats and dogs", "quantum physics"], embedder),
+        _enriched_record("search-b.md", ["feline animals", "the stock market"], embedder),
+    ]
+
+    fake = InMemoryDocumentStore()
+    for record in records:
+        fake.upsert(record)
+        es_document_store.upsert(record)
+
+    query = embedder.embed(["cats"])[0]
+    expected = fake.search_sentences(vector=query, top_k=3)
+    actual = es_document_store.search_sentences(vector=query, top_k=3)
+
+    assert [(s.document_id, s.sentence_index) for s in actual] == [
+        (s.document_id, s.sentence_index) for s in expected
+    ]
+    assert [(s.char_start, s.char_end, s.text) for s in actual] == [
+        (s.char_start, s.char_end, s.text) for s in expected
+    ]
+    # Scores match the fake's raw cosine within float32/float64 tolerance.
+    for a, e in zip(actual, expected, strict=True):
+        assert abs(a.score - e.score) < 1e-4
+
+
+def test_enriched_record_round_trips(es_document_store: EsDocumentStore) -> None:
+    """A record with sentences + vectors round-trips through upsert/get."""
+    embedder = FakeEmbedder(dim=384)
+    record = _enriched_record("search-roundtrip.md", ["alpha beta", "gamma"], embedder)
+    es_document_store.upsert(record)
+
+    fetched = es_document_store.get(record.document_id)
+    assert fetched is not None
+    assert fetched.sentences == record.sentences
+    assert fetched.sentence_vectors is not None
+    assert len(fetched.sentence_vectors) == 2
