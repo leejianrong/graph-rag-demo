@@ -11,6 +11,7 @@ import pytest
 from graph_rag.fakes import (
     FakeEmbedder,
     FakeLLMClient,
+    FakeNerStage,
     InMemoryDocumentStore,
     InMemoryEntityStore,
     InMemoryGraphStore,
@@ -59,3 +60,14 @@ def llm_client() -> FakeLLMClient:
 def embedder() -> FakeEmbedder:
     """A fresh Embedder fake (stub until V4)."""
     return FakeEmbedder()
+
+
+@pytest.fixture
+def ner_stage() -> FakeNerStage:
+    """A fresh NER-stage fake (V2-active); returns no canned output by default.
+
+    Injecting this into the orchestrator keeps the fast suite model-free: no
+    spaCy model is loaded. Tests that need canned mentions/sentences construct
+    their own :class:`~graph_rag.fakes.FakeNerStage` with the desired output.
+    """
+    return FakeNerStage()

@@ -14,7 +14,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from graph_rag.models import DocumentRecord, IngestTrigger
+from graph_rag.models import DocumentRecord, IngestTrigger, Mention, Sentence
+from graph_rag.stages.ner import NerResult
 
 __all__ = [
     "InMemoryObjectStore",
@@ -24,6 +25,7 @@ __all__ = [
     "InMemoryGraphStore",
     "FakeLLMClient",
     "FakeEmbedder",
+    "FakeNerStage",
 ]
 
 
@@ -150,3 +152,39 @@ class FakeEmbedder:
     def embed(self, texts: list[str]) -> list[list[float]]:
         """Not implemented in V1."""
         raise NotImplementedError("Embedder is a stub until V4")
+
+
+# --- V2-active fake ----------------------------------------------------------
+
+
+class FakeNerStage:
+    """Canned :class:`~graph_rag.stages.ner.NerStage` for the fast suite (V2-active).
+
+    Returns configurable canned mentions + sentences with NO model download, so
+    the fast E2E proves the wiring + the :class:`~graph_rag.models.PipelineResult`
+    carry (not spaCy quality) — deterministic, ``$0``, no Docker. The last text
+    passed to :meth:`analyze` is recorded on :attr:`last_text` for assertions.
+    """
+
+    def __init__(
+        self,
+        mentions: list[Mention] | None = None,
+        sentences: list[Sentence] | None = None,
+    ) -> None:
+        """Configure the canned output.
+
+        Args:
+            mentions: Canned mentions to return from every :meth:`analyze` call.
+            sentences: Canned sentences to return from every :meth:`analyze` call.
+        """
+        self._mentions = list(mentions or [])
+        self._sentences = list(sentences or [])
+        self.last_text: str | None = None
+
+    def analyze(self, text: str) -> NerResult:
+        """Return the canned mentions + sentences, ignoring ``text``'s content."""
+        self.last_text = text
+        return NerResult(
+            mentions=list(self._mentions),
+            sentences=list(self._sentences),
+        )

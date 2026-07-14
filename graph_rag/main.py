@@ -29,6 +29,7 @@ from graph_rag.config import Settings
 from graph_rag.logging import configure_logging, get_logger
 from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer, KafkaTriggerPublisher
 from graph_rag.orchestrator import Orchestrator
+from graph_rag.stages.ner import SpacyNerStage
 
 __all__ = ["main"]
 
@@ -47,10 +48,14 @@ def main() -> None:
     document_store = EsDocumentStore.from_settings(settings)
     document_store.ensure_index()
 
-    # --- The pipeline shell over those ports --------------------------------
+    # --- NER stage (N6): real spaCy pipeline from Settings.ner_model --------
+    ner_stage = SpacyNerStage.from_settings(settings)
+
+    # --- The pipeline shell over those ports + stages -----------------------
     orchestrator = Orchestrator(
         object_store=object_store,
         document_store=document_store,
+        ner_stage=ner_stage,
     )
 
     # --- Messaging seam: publisher (for POST /ingest) + consumer driver -----

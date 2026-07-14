@@ -13,6 +13,11 @@ dependencies = [
     "kafka-python",
     "pydantic>=2",
     "pydantic-settings",
+    # NER stage (V2, ADR-0002). spaCy itself is light; the transformer model and
+    # its runtime (spacy-transformers + torch) are HEAVY and live in the `trf`
+    # extra so the base install + fast CI/pre-push stay light. Models are fetched
+    # separately (`make models` / `make models-trf`), never installed as deps.
+    "spacy>=3.7,<4",
 ]
 
 [project.optional-dependencies]
@@ -21,6 +26,12 @@ dev = [
     "httpx",
     "testcontainers[minio,elasticsearch,kafka]",
     "ruff",
+]
+# Transformer NER runtime (ADR-0002). Only the real stack / a trf-backed run
+# needs these; the fast suite uses `en_core_web_sm` under plain spaCy.
+trf = [
+    "spacy-transformers",
+    "torch",
 ]
 
 [build-system]
@@ -42,4 +53,5 @@ testpaths = ["tests"]
 markers = [
     "contract: real-service tests via testcontainers (excluded from the fast suite)",
     "e2e: end-to-end tests driving an entry point through the port seam",
+    "model: tests that load a real spaCy model (needs `make models`; excluded from the fast pre-push gate)",
 ]

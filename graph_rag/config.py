@@ -46,6 +46,13 @@ class Settings(BaseSettings):
     kafka_bootstrap_servers: str = "kafka:9092"
     ingest_trigger_topic: str = "ingest-triggers"
 
+    # --- NER stage (V2, ADR-0002) -------------------------------------------
+    # The spaCy pipeline the real stack loads. Defaults to the transformer model
+    # for accuracy; ``SpacyNerStage`` falls back to ``en_core_web_lg`` then
+    # ``en_core_web_sm`` if a heavier model is not installed. The heavy trf model
+    # needs the ``trf`` optional extra (spacy-transformers + torch).
+    ner_model: str = "en_core_web_trf"
+
     # --- Logging seam --------------------------------------------------------
     log_level: str = "INFO"
 

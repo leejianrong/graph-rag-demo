@@ -2,8 +2,9 @@
 # Pre-push hook — the CHEAP mirror of the required CI jobs (dev-playbook #5).
 #
 # Runs only fast, no-infra checks so a push rarely lands red:
-#   1. ruff check .                         (lint)
-#   2. uv run pytest -m "not contract" -q   (fast $0 suite — fakes only, no Docker)
+#   1. ruff check .                                    (lint)
+#   2. uv run pytest -m "not contract and not model" -q (fast $0 suite — fakes
+#      only, no Docker, no spaCy model download)
 #
 # Contract/integration tests are CI-only; they stay out of this hook so it never
 # needs Docker (a hook that needs Docker is a hook people disable).
@@ -23,7 +24,7 @@ cd "$repo_root"
 echo "pre-push: ruff check ."
 uv run ruff check .
 
-echo "pre-push: fast suite (uv run pytest -m 'not contract')"
-uv run pytest -m "not contract" -q
+echo "pre-push: fast suite (uv run pytest -m 'not contract and not model')"
+uv run pytest -m "not contract and not model" -q
 
 echo "pre-push: OK"

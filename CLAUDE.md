@@ -7,11 +7,19 @@ Kafka-triggered (`POST /ingest` → MinIO + trigger → in-process consumer runs
 
 ## Build status (honest)
 
-**V1 (walking skeleton) — IN PROGRESS.** Delivered so far: the foundation contract
-(ports + fakes + models + config + logging + ids), the MinIO `ObjectStore` adapter,
-the Kafka trigger publisher/consumer, and the FastAPI `POST /ingest` + `GET /health`.
-The ES `DocumentStore`, orchestrator, `main.py` composition root, and
-`docker-compose.yml` land alongside this. V2–V8 (NER → benchmark) are **not built**.
+**V1 (walking skeleton) — DONE.** Foundation contract (ports + fakes + models +
+config + logging + ids), MinIO `ObjectStore`, ES `DocumentStore`, Kafka trigger
+publisher/consumer, FastAPI `POST /ingest` + `GET /health`, orchestrator, `main.py`
+composition root, `docker-compose.yml`.
+
+**V2 (NER) — LANDED.** First real enrichment: `graph_rag/stages/ner.py` — a
+constructor-injected `NerStage` seam with a real `SpacyNerStage` (one spaCy pass →
+curated-type mentions + char spans + sentence segmentation; `GPE`+`LOC`→`LOCATION`;
+model from `Settings.ner_model`, trf→lg→sm fallback) and a `FakeNerStage` for the
+fast suite. `Orchestrator.process_document` now returns a `PipelineResult` carrying
+the raw `DocumentRecord` plus in-memory `mentions`/`sentences` — **NOT persisted to
+ES** (that lands at the V4 EL checkpoint; the ES write model is unchanged, raw text
+only). V3–V8 (coref → benchmark) are **not built**.
 
 > **Trust the code over the docs.** `docs/` (ARCHITECTURE, SLICES, TESTING, ADRs)
 > is the design intent; where code and docs disagree, the code on this branch is
@@ -28,6 +36,10 @@ uv run pytest -m "not contract"
 
 # Contract suite — real adapters via testcontainers. Needs a running Docker daemon.
 uv run pytest -m contract
+
+# Model suite — real spaCy NER. Fetch the model once, then run (NOT in the fast gate).
+make models   # == python -m spacy download en_core_web_sm  (make models-trf for trf)
+uv run pytest -m model
 
 # Lint + format check
 uv run ruff check .
@@ -58,8 +70,14 @@ Run the whole stack in one command; a newcomer/agent runs `docker compose up` fi
 | Layer | Command | Where |
 |-------|---------|-------|
 | lint/format | `ruff check .` + `ruff format --check .` | pre-push + CI |
-| fast ($0, no infra) | `uv run pytest -m "not contract"` | pre-push + CI (**required gate**) |
+| fast ($0, no infra) | `uv run pytest -m "not contract and not model"` | pre-push + CI (**required gate**) |
+| model (spaCy, no Docker) | `make models` + `uv run pytest -m model` | CI only (separate job) |
 | contract (Docker) | `uv run pytest -m contract` | CI only (separate job) |
+
+The `model` marker gates the real `SpacyNerStage` (loads `en_core_web_sm`, incl. a
+model-availability smoke test). It needs a downloaded model, so it is **kept out of
+the fast pre-push gate** — CI runs it in its own job. The fast gate stays model-free
+because the orchestrator injects `FakeNerStage`.
 
 **Never let a slow check gate a local push.** The pre-push hook mirrors only the
 cheap CI jobs.
