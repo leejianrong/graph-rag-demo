@@ -137,6 +137,13 @@ Run the whole stack in one command; a newcomer/agent runs `docker compose up` fi
 | model (spaCy, no Docker) | `make models` + `uv run pytest -m model` | CI only (separate job) |
 | llm (real provider) | `uv run pytest -m llm` | CI only (opt-in, NOT required) |
 | contract (Docker) | `uv run pytest -m contract` | CI only (separate job) |
+| secret scan | gitleaks over full history | CI only (**blocking**) |
+| dep vuln scan | `uvx pip-audit` over locked deps | CI only (advisory) |
+
+Dependency hygiene: `uv.lock` is committed and CI installs `--frozen`; **Dependabot**
+(`.github/dependabot.yml`) opens weekly update PRs for the uv deps, GitHub Actions,
+and Docker base images; **gitleaks** blocks a merge on any committed secret and
+**pip-audit** surfaces dependency CVEs (advisory).
 
 The `model` marker gates the real `SpacyNerStage` (loads `en_core_web_sm`, incl. a
 model-availability smoke test). The `llm` marker gates the opt-in real-provider
