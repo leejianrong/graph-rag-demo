@@ -40,6 +40,14 @@ V4 (entity linking) adds the corpus-local canonical store + per-document result
   ``canonical_id``, with score + merge/create-new flag); :class:`PipelineResult`
   carries the list and it is persisted on the :class:`DocumentRecord` at the EL
   checkpoint.
+
+V5 (knowledge-graph build) adds the graph triple + provenance (ADR-0006):
+
+* :class:`EdgeProvenance` / :class:`Triple` — one graph edge
+  ``(subject_id, predicate, object_id)`` over **canonical entity IDs** with a
+  closed-set predicate, a DATE edge qualifier and per-edge provenance
+  (source doc/sentence/span). :class:`Subgraph` is the ``khop`` traversal result
+  (nodes + edges) V6 retrieval consumes.
 """
 
 from __future__ import annotations
@@ -59,6 +67,9 @@ __all__ = [
     "CanonicalEntity",
     "EntityLink",
     "PipelineResult",
+    "EdgeProvenance",
+    "Triple",
+    "Subgraph",
 ]
 
 # The curated NER type set (ADR-0002): spaCy's OntoNotes labels narrowed to the
@@ -255,8 +266,10 @@ class PipelineResult(BaseModel):
 
     V2 populates ``mentions`` and ``sentences``; V3 adds ``coref_clusters`` (the
     non-destructive within-document cluster map); V4 adds ``el_result`` (the
-    per-document entity-linking result). At the EL checkpoint the orchestrator
-    writes this enrichment back into ``record`` and persists it.
+    per-document entity-linking result); V5 adds ``triples`` (the knowledge-graph
+    edges built + written at the graph checkpoint). At the EL checkpoint the
+    orchestrator writes the enrichment back into ``record`` and persists it; the
+    triples are carried in-memory for callers/tests (they live in Neo4j, not ES).
     """
 
     record: DocumentRecord
@@ -264,6 +277,64 @@ class PipelineResult(BaseModel):
     sentences: list[Sentence] = Field(default_factory=list)
     coref_clusters: list[CorefCluster] = Field(default_factory=list)
     el_result: list[EntityLink] = Field(default_factory=list)
+    triples: list[Triple] = Field(default_factory=list)  # KG edges (V5, in-memory)
+
+
+# --- V5 (knowledge-graph build) triples + provenance ------------------------
+
+
+class EdgeProvenance(BaseModel):
+    """Per-edge provenance for one knowledge-graph triple (ADR-0006, §5c).
+
+    Load-bearing for traceable answers: every edge records which document,
+    sentence and exact span it came from, plus the model's original phrasing and
+    confidence. The KG-build LLM cites only ``sentence_index`` per triple; the
+    ``char_start``/``char_end`` offsets are resolved from **our own spaCy
+    sentence segmentation** (ADR-0002), not by the LLM. ``raw_predicate`` is set
+    only when the relation fell back to :attr:`~graph_rag.predicates.Predicate.RELATED_TO`
+    (it preserves the original phrase; ``None`` on a clean predicate map).
+    """
+
+    source_doc_id: str
+    sentence_index: int
+    source_sentence: str
+    raw_predicate: str | None = None
+    confidence: float | None = None
+    char_start: int | None = None
+    char_end: int | None = None
+
+
+class Triple(BaseModel):
+    """One knowledge-graph edge: ``(subject_id, predicate, object_id)`` (ADR-0006).
+
+    ``subject_id`` and ``object_id`` are **canonical entity IDs**
+    (:attr:`CanonicalEntity.canonical_id`), NOT raw surface strings — grounding
+    the graph in the EL store so the same entity across documents is one node and
+    multi-hop traversal is reliable. ``predicate`` is a member of the closed set
+    (:class:`graph_rag.predicates.Predicate`); when no primary relation fit it is
+    ``"RELATED_TO"`` and ``provenance.raw_predicate`` holds the original phrase.
+    ``date`` is the DATE **edge qualifier** (an ISO-ish date string) — dates are
+    modeled as an attribute on the edge, never as standalone nodes.
+    """
+
+    subject_id: str
+    predicate: str
+    object_id: str
+    provenance: EdgeProvenance
+    date: str | None = None  # DATE qualifier on the edge (not a node)
+
+
+class Subgraph(BaseModel):
+    """A connected slice of the knowledge graph — the k-hop traversal result.
+
+    Returned by :meth:`graph_rag.ports.GraphStore.khop`: the nodes reachable
+    within ``hops`` of the seed IDs and every edge whose endpoints are both in
+    that node set. V6 retrieval ranks over this (nodes + supporting-sentence
+    provenance on the edges).
+    """
+
+    nodes: list[CanonicalEntity] = Field(default_factory=list)
+    edges: list[Triple] = Field(default_factory=list)
 
 
 # ``DocumentRecord`` and ``PipelineResult`` annotate fields with model types
@@ -272,3 +343,5 @@ class PipelineResult(BaseModel):
 # module namespace so Pydantic resolves the forward references.
 DocumentRecord.model_rebuild()
 PipelineResult.model_rebuild()
+Triple.model_rebuild()
+Subgraph.model_rebuild()

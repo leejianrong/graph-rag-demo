@@ -20,6 +20,7 @@ from graph_rag.fakes import (
 )
 from graph_rag.stages.coref import FakeCorefStage
 from graph_rag.stages.entity_linking import EntityLinkingStage
+from graph_rag.stages.kg_build import KgBuildStage
 
 
 @pytest.fixture
@@ -48,7 +49,11 @@ def entity_store() -> InMemoryEntityStore:
 
 @pytest.fixture
 def graph_store() -> InMemoryGraphStore:
-    """A fresh in-memory GraphStore fake (stub until V5)."""
+    """A fresh in-memory GraphStore fake (V5-active).
+
+    Full-fidelity: idempotent node upsert, doc-scoped edge delete (re-ingest
+    overwrite) and BFS k-hop. Backs the KG-build fast E2E over the port seam.
+    """
     return InMemoryGraphStore()
 
 
@@ -104,3 +109,17 @@ def entity_linking_stage(
     tuned threshold or per-doc state construct their own instance.
     """
     return EntityLinkingStage(entity_store, embedder)
+
+
+@pytest.fixture
+def kg_build_stage(llm_client: FakeLLMClient) -> KgBuildStage:
+    """A real KG-build stage (V5-active) over the ``FakeLLMClient`` (no provider).
+
+    The stage itself is the real :class:`~graph_rag.stages.kg_build.KgBuildStage`
+    (fakes-first, ADR-0010): only its LLM port is faked, so the fast suite
+    exercises the actual predicate mapping + offset resolution + canonical-ID
+    validation — no Docker, no model, no LLM. The default ``FakeLLMClient`` returns
+    an empty ``TripleList``; tests that need canned triples construct their own
+    :class:`~graph_rag.stages.kg_build.KgBuildStage(FakeLLMClient(structured_response=...))`.
+    """
+    return KgBuildStage(llm_client)

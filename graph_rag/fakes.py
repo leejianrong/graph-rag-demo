@@ -6,9 +6,9 @@ matching ``Protocol`` in :mod:`graph_rag.ports`.
 
 V1 actively uses :class:`InMemoryObjectStore`, :class:`InMemoryDocumentStore` and
 :class:`InMemoryTriggerPublisher`; V3 adds :class:`FakeLLMClient`; V4 adds the
-full-fidelity :class:`FakeEmbedder` + :class:`InMemoryEntityStore`. Only
-:class:`InMemoryGraphStore` remains a construct-only stub whose methods raise
-``NotImplementedError`` until V5/V6.
+full-fidelity :class:`FakeEmbedder` + :class:`InMemoryEntityStore`; V5 adds the
+full-fidelity :class:`InMemoryGraphStore` (idempotent node upsert, doc-scoped edge
+delete, BFS k-hop).
 """
 
 from __future__ import annotations
@@ -25,6 +25,8 @@ from graph_rag.models import (
     IngestTrigger,
     Mention,
     Sentence,
+    Subgraph,
+    Triple,
 )
 from graph_rag.normalize import normalize_name
 from graph_rag.stages.ner import NerResult
@@ -181,21 +183,85 @@ class InMemoryEntityStore:
 
 
 class InMemoryGraphStore:
-    """Trivial in-memory :class:`~graph_rag.ports.GraphStore`.
+    """In-memory :class:`~graph_rag.ports.GraphStore` (V5-active).
 
-    Stub for later slices (V5/V6); not exercised in V1.
+    Full-fidelity fake backing the KG-build fast E2E: nodes in a dict keyed by
+    ``canonical_id`` (the multi-label ``:Entity:Type`` node is modeled by storing
+    the :class:`~graph_rag.models.CanonicalEntity`, whose ``type`` is the second
+    label) and edges as a list of :class:`~graph_rag.models.Triple`. The
+    load-bearing behaviours the tests rely on — idempotent node upsert, doc-scoped
+    edge delete (so re-ingest overwrites), and a real BFS ``khop`` — mirror the
+    external behaviour the real Neo4j adapter is proved against by its contract
+    test. Deterministic, ``$0``, no Docker.
     """
 
     def __init__(self) -> None:
-        self._triples: list[dict[str, Any]] = []
+        self._nodes: dict[str, CanonicalEntity] = {}
+        self._edges: list[Triple] = []
 
-    def write_triples(self, triples: list[dict[str, Any]]) -> None:
-        """Not implemented in V1."""
-        raise NotImplementedError("GraphStore is a stub until V5")
+    def upsert_entities(self, entities: list[CanonicalEntity]) -> None:
+        """Create/merge nodes keyed by ``canonical_id`` (idempotent overwrite)."""
+        for entity in entities:
+            self._nodes[entity.canonical_id] = entity
 
-    def khop(self, seed_ids: list[str], hops: int) -> dict[str, Any]:
-        """Not implemented in V1."""
-        raise NotImplementedError("GraphStore is a stub until V6")
+    def write_triples(self, triples: list[Triple]) -> None:
+        """Append each triple as a provenance-carrying edge."""
+        self._edges.extend(triples)
+
+    def delete_document_edges(self, source_doc_id: str) -> None:
+        """Remove every edge whose provenance ``source_doc_id`` matches (nodes kept).
+
+        Called before re-writing a document's triples so re-ingest overwrites
+        rather than duplicates (graph idempotency, TESTING.md gap #1).
+        """
+        self._edges = [
+            edge for edge in self._edges if edge.provenance.source_doc_id != source_doc_id
+        ]
+
+    def khop(self, seed_ids: list[str], hops: int) -> Subgraph:
+        """Return the connected subgraph within ``hops`` of ``seed_ids`` (BFS).
+
+        Edges are traversed undirected. Seeds present in the graph are hop 0;
+        each hop adds the nodes one edge further out. ``edges`` are every stored
+        edge whose endpoints are both in the reached node set. Unknown seed IDs
+        are ignored.
+        """
+        visited: set[str] = {sid for sid in seed_ids if sid in self._nodes}
+        frontier: set[str] = set(visited)
+        for _ in range(max(hops, 0)):
+            next_frontier: set[str] = set()
+            for edge in self._edges:
+                if edge.subject_id in frontier and edge.object_id in self._nodes:
+                    next_frontier.add(edge.object_id)
+                if edge.object_id in frontier and edge.subject_id in self._nodes:
+                    next_frontier.add(edge.subject_id)
+            next_frontier -= visited
+            if not next_frontier:
+                break
+            visited |= next_frontier
+            frontier = next_frontier
+        # Deterministic node order: node-insertion order, filtered to visited.
+        nodes = [node for cid, node in self._nodes.items() if cid in visited]
+        edges = [
+            edge for edge in self._edges if edge.subject_id in visited and edge.object_id in visited
+        ]
+        return Subgraph(nodes=nodes, edges=edges)
+
+    def node_count(self) -> int:
+        """Return the number of nodes stored."""
+        return len(self._nodes)
+
+    def edge_count(self) -> int:
+        """Return the number of edges stored."""
+        return len(self._edges)
+
+    def get_node(self, canonical_id: str) -> CanonicalEntity | None:
+        """Return the node for ``canonical_id``, or ``None`` if absent."""
+        return self._nodes.get(canonical_id)
+
+    def get_node_edges(self, canonical_id: str) -> list[Triple]:
+        """Return every edge incident to ``canonical_id`` (as subject or object)."""
+        return [edge for edge in self._edges if canonical_id in (edge.subject_id, edge.object_id)]
 
 
 class FakeLLMClient:
