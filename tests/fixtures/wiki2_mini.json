@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "mini-01",
+    "type": "compositional",
+    "question": "Who was the British mathematician that collaborated with Charles Babbage on the Analytical Engine?",
+    "answer": "Ada Lovelace",
+    "answer_aliases": ["Augusta Ada King", "Countess of Lovelace"],
+    "supporting_facts": [["Ada Lovelace", 0], ["Ada Lovelace", 1]],
+    "context": [
+      ["Ada Lovelace", [
+        "Ada Lovelace was a British mathematician.",
+        "Ada Lovelace collaborated with Charles Babbage on the Analytical Engine."
+      ]],
+      ["Charles Babbage", [
+        "Charles Babbage was a British inventor.",
+        "Charles Babbage designed the Analytical Engine in London."
+      ]]
+    ]
+  },
+  {
+    "_id": "mini-02",
+    "type": "bridge",
+    "question": "In which city did Charles Babbage design the Analytical Engine?",
+    "answer": "London",
+    "answer_aliases": ["City of London"],
+    "supporting_facts": [["Charles Babbage", 1]],
+    "context": [
+      ["Charles Babbage", [
+        "Charles Babbage was a British inventor.",
+        "Charles Babbage designed the Analytical Engine in London."
+      ]],
+      ["London", [
+        "London is the capital of the United Kingdom.",
+        "London was home to the Royal Society."
+      ]]
+    ]
+  },
+  {
+    "_id": "mini-03",
+    "type": "bridge",
+    "question": "What machine did Ada Lovelace collaborate on with Charles Babbage?",
+    "answer": "Analytical Engine",
+    "answer_aliases": ["The Analytical Engine"],
+    "supporting_facts": [["Ada Lovelace", 1]],
+    "context": [
+      ["Ada Lovelace", [
+        "Ada Lovelace was a British mathematician.",
+        "Ada Lovelace collaborated with Charles Babbage on the Analytical Engine."
+      ]],
+      ["Analytical Engine", [
+        "The Analytical Engine was a mechanical general-purpose computer.",
+        "The Analytical Engine was proposed by Charles Babbage."
+      ]]
+    ]
+  },
+  {
+    "_id": "mini-04",
+    "type": "bridge",
+    "question": "In which city is the Royal Society located?",
+    "answer": "London",
+    "answer_aliases": [],
+    "supporting_facts": [["Royal Society", 1]],
+    "context": [
+      ["Royal Society", [
+        "The Royal Society is a scientific institution.",
+        "The Royal Society is located in London."
+      ]],
+      ["London", [
+        "London is the capital of the United Kingdom.",
+        "London was home to the Royal Society."
+      ]]
+    ]
+  },
+  {
+    "_id": "mini-05",
+    "type": "comparison",
+    "question": "Which institution is located in London and is a scientific institution?",
+    "answer": "Royal Society",
+    "answer_aliases": ["The Royal Society"],
+    "supporting_facts": [["Royal Society", 0], ["Royal Society", 1]],
+    "context": [
+      ["Royal Society", [
+        "The Royal Society is a scientific institution.",
+        "The Royal Society is located in London."
+      ]],
+      ["London", [
+        "London is the capital of the United Kingdom.",
+        "London was home to the Royal Society."
+      ]]
+    ]
+  }
+]

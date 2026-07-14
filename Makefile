@@ -1,5 +1,5 @@
 # One-command dev loop (dev-playbook #16). See docs/ARCHITECTURE.md §8.
-.PHONY: up down logs test contract model models models-trf embed-model lint fmt
+.PHONY: up down logs test benchmark contract model models models-trf embed-model lint fmt
 
 # Bring up the whole local stack (Kafka/MinIO/ES/app), building the app image.
 up:
@@ -15,7 +15,11 @@ logs:
 
 # Fast suite — in-memory fakes, $0, no Docker, no model. The primary pre-push gate.
 test:
-	uv run pytest -m "not contract and not model"
+	uv run pytest -m "not contract and not model and not benchmark"
+
+# Opt-in whole-pipeline benchmark smoke over the real stack (V8; skips without infra).
+benchmark:
+	uv run pytest -m benchmark
 
 # Contract suite — real adapters via testcontainers (needs Docker).
 contract:
