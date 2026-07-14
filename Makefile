@@ -1,5 +1,5 @@
 # One-command dev loop (dev-playbook #16). See docs/ARCHITECTURE.md §8.
-.PHONY: up down logs test contract lint fmt
+.PHONY: up down logs test contract model models models-trf lint fmt
 
 # Bring up the whole local stack (Kafka/MinIO/ES/app), building the app image.
 up:
@@ -13,13 +13,26 @@ down:
 logs:
 	docker compose logs -f app
 
-# Fast suite — in-memory fakes, $0, no Docker. The primary pre-push gate.
+# Fast suite — in-memory fakes, $0, no Docker, no model. The primary pre-push gate.
 test:
-	uv run pytest -m "not contract"
+	uv run pytest -m "not contract and not model"
 
 # Contract suite — real adapters via testcontainers (needs Docker).
 contract:
 	uv run pytest -m contract
+
+# Model-backed NER suite — loads a real spaCy model (run `make models` first).
+# NOT part of the pre-push gate; runs in a dedicated CI job.
+model:
+	uv run pytest -m model
+
+# Fetch the small spaCy model used by the tests + trf fallback ($0, no extras).
+models:
+	uv run python -m spacy download en_core_web_sm
+
+# Fetch the transformer model for the real stack (needs the `trf` extra).
+models-trf:
+	uv run --extra trf python -m spacy download en_core_web_trf
 
 # Lint.
 lint:

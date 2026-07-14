@@ -47,8 +47,30 @@ jobs:
         run: uv python install 3.12
       - name: Sync (frozen)
         run: uv sync --frozen --extra dev
-      - name: Fast suite ($0, no infra)
-        run: uv run pytest -m "not contract" -q
+      - name: Fast suite ($0, no infra, no model)
+        run: uv run pytest -m "not contract and not model" -q
+
+  # --- Model gate: NER tests that load a real spaCy model (no Docker) -------
+  # Separate from the required fast gate: installs the small model, then runs the
+  # `model`-marked suite (real SpacyNerStage + the model-availability smoke test,
+  # TESTING §5). Uses en_core_web_sm — the heavy trf extra is NOT installed here.
+  model:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Sync (frozen)
+        run: uv sync --frozen --extra dev
+      - name: Download spaCy model (en_core_web_sm)
+        run: uv run python -m spacy download en_core_web_sm
+      - name: Model-backed NER suite
+        run: uv run pytest -m model -q
 
   # --- Expensive gate: contract suite via testcontainers (Docker runner) ----
   # Separate from the required fast gate (dev-playbook: layer by cost, gate by

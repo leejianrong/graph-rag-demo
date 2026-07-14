@@ -1,10 +1,18 @@
 """The pipeline shell (N4) — the in-process orchestrator (ADR-0001).
 
-V1 runs only the *read* stage (N5) and the ingestion checkpoint (N11): fetch the
+The shell runs the *read* stage (N5) and the ingestion checkpoint (N11): fetch the
 document bytes via :class:`~graph_rag.ports.ObjectStore`, create the bare
 ``ES-Documents`` record with **raw text at ingestion, before processing**, and
-persist it via :class:`~graph_rag.ports.DocumentStore`. Later slices add the
-NER/coref/EL/KG-build stages behind this same shell.
+persist it via :class:`~graph_rag.ports.DocumentStore`.
+
+V2 adds the first enrichment stage, NER (N6), behind this same shell. The NER
+stage is a constructor-injected collaborator (like the ports, ADR-0010) so the
+fast suite injects a canned fake and the real stack injects
+:class:`~graph_rag.stages.ner.SpacyNerStage`. Its output — typed mentions + char
+spans + sentences — is carried **in-memory** on the returned
+:class:`~graph_rag.models.PipelineResult` and is NOT persisted to ES in V2 (the ES
+record still stores raw text only); persistence lands at the V4 EL checkpoint
+(ARCHITECTURE §4). Later slices add coref/EL/KG-build to this shell.
 
 Error handling is **log-and-drop per document** (ADR-0001): any exception while
 processing one document is logged and swallowed (``process_document`` returns
@@ -19,11 +27,13 @@ from typing import TYPE_CHECKING
 
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
-from graph_rag.models import DocumentRecord
+from graph_rag.models import DocumentRecord, PipelineResult
+from graph_rag.stages.ner import SpacyNerStage
 
 if TYPE_CHECKING:
     from graph_rag.models import IngestTrigger
     from graph_rag.ports import DocumentStore, ObjectStore
+    from graph_rag.stages.ner import NerStage
 
 __all__ = ["Orchestrator"]
 
@@ -33,27 +43,39 @@ _logger = get_logger(__name__)
 class Orchestrator:
     """The single in-process pipeline shell, constructor-injected with its ports.
 
-    V1 uses only ``object_store`` (read stage) and ``document_store`` (ingestion
-    checkpoint). The remaining ports (EntityStore/GraphStore/LLMClient/Embedder)
-    plug into this same shell in later slices without changing the V1 contract.
+    Uses ``object_store`` (read stage), ``document_store`` (ingestion checkpoint)
+    and ``ner_stage`` (V2 enrichment). The remaining ports
+    (EntityStore/GraphStore/LLMClient/Embedder) plug into this same shell in later
+    slices without changing the contract.
     """
 
-    def __init__(self, object_store: ObjectStore, document_store: DocumentStore) -> None:
-        """Wire the V1-active ports.
+    def __init__(
+        self,
+        object_store: ObjectStore,
+        document_store: DocumentStore,
+        ner_stage: NerStage | None = None,
+    ) -> None:
+        """Wire the active ports and stages.
 
         Args:
             object_store: Reads a document's raw bytes (N5 / MinIO).
             document_store: Writes the ``ES-Documents`` record (N11 / Elasticsearch).
+            ner_stage: The NER stage (N6). Defaults to a real
+                :class:`~graph_rag.stages.ner.SpacyNerStage`; the fast suite
+                injects :class:`~graph_rag.fakes.FakeNerStage` so no model loads.
         """
         self._object_store = object_store
         self._document_store = document_store
+        self._ner_stage: NerStage = ner_stage if ner_stage is not None else SpacyNerStage()
 
-    def process_document(self, trigger: IngestTrigger) -> DocumentRecord | None:
+    def process_document(self, trigger: IngestTrigger) -> PipelineResult | None:
         """Process one ingest trigger end-to-end, log-and-drop on failure.
 
-        Steps (V1): read bytes (N5) → compute deterministic ``document_id`` →
-        decode to text → build the raw :class:`~graph_rag.models.DocumentRecord`
-        → upsert at the ingestion checkpoint (N11). No enrichment in V1.
+        Steps: read bytes (N5) → compute deterministic ``document_id`` → decode to
+        text → build the raw :class:`~graph_rag.models.DocumentRecord` → upsert at
+        the ingestion checkpoint (N11, raw text only) → run the NER stage (N6) and
+        carry its typed mentions + sentences **in-memory** on the returned
+        :class:`~graph_rag.models.PipelineResult` (NOT persisted until V4).
 
         Any exception is logged and swallowed so the consumer loop keeps going
         (ADR-0001); on failure this returns ``None`` instead of raising.
@@ -62,8 +84,8 @@ class Orchestrator:
             trigger: The ``{bucket, object_key}`` payload for one document.
 
         Returns:
-            The persisted :class:`~graph_rag.models.DocumentRecord` on success, or
-            ``None`` if processing this document failed (dropped).
+            The :class:`~graph_rag.models.PipelineResult` (raw record + in-memory
+            enrichment) on success, or ``None`` if this document failed (dropped).
         """
         try:
             # 1. Read stage (N5): fetch the raw bytes from the object store.
@@ -73,11 +95,12 @@ class Orchestrator:
             doc_id = document_id(trigger.bucket, trigger.object_key)
 
             # 3. Decode to text. errors="replace" keeps a malformed byte from
-            #    wedging the pipeline; the raw text is what V1 persists.
+            #    wedging the pipeline; the raw text is what we persist.
             text = data.decode("utf-8", errors="replace")
 
-            # 4. Build the bare record (raw text only — no enrichment in V1) and
-            #    persist it at the ingestion checkpoint (N11).
+            # 4. Build the bare record (raw text only — no enrichment persisted yet)
+            #    and upsert it at the ingestion checkpoint (N11). The ES write model
+            #    is unchanged from V1: NER output is NOT written here (ADR-0001).
             record = DocumentRecord(
                 document_id=doc_id,
                 bucket=trigger.bucket,
@@ -86,14 +109,24 @@ class Orchestrator:
             )
             self._document_store.upsert(record)
 
+            # 5. NER stage (N6): typed mentions + char spans + sentences in one
+            #    pass, carried in-memory on the result (persisted at V4, not here).
+            ner = self._ner_stage.analyze(text)
+
             _logger.info(
-                "ingested document %s (%s/%s)",
+                "ingested document %s (%s/%s): %d mention(s), %d sentence(s)",
                 doc_id,
                 trigger.bucket,
                 trigger.object_key,
+                len(ner.mentions),
+                len(ner.sentences),
             )
-            # 5. Return the record so callers/tests can assert on it.
-            return record
+            # 6. Return the in-memory carry so callers/tests can assert on it.
+            return PipelineResult(
+                record=record,
+                mentions=ner.mentions,
+                sentences=ner.sentences,
+            )
         except Exception:  # noqa: BLE001 — log-and-drop per document (ADR-0001).
             _logger.exception(
                 "dropping document %s/%s after processing error",

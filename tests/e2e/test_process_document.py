@@ -1,13 +1,18 @@
-"""Fast end-to-end suite for the V1 ingestion path (TESTING §2, primary gate).
+"""Fast end-to-end suite for the ingestion + NER path (TESTING §2, primary gate).
 
 Drives :meth:`~graph_rag.orchestrator.Orchestrator.process_document` through the
-port seam against the in-memory fakes — no Docker, deterministic, $0. This is the
-pattern every later slice follows: assert on the *external behavior at the seam*
-(the written ``ES-Documents`` record), not on internal call sequences.
+port seam against the in-memory fakes — no Docker, no spaCy model, deterministic,
+$0. The NER stage is injected as a :class:`~graph_rag.fakes.FakeNerStage` so the
+fast suite proves the *wiring* + the :class:`~graph_rag.models.PipelineResult`
+carry, not spaCy quality. This is the pattern every later slice follows: assert on
+the *external behavior at the seam*, not on internal call sequences.
 
-Covers the three V1 guarantees:
+Covers the V1 guarantees (still intact under V2) plus the V2 carry:
 
-* the raw record is written with the deterministic ``document_id`` and raw text;
+* the raw record is written with the deterministic ``document_id`` and raw text —
+  and NER output is NOT persisted to the record (raw text only until V4);
+* the returned ``PipelineResult`` carries the curated-type mentions (with char
+  offsets) + sentences computed in-memory;
 * idempotent overwrite — re-ingest updates in place, never duplicates (R1.5);
 * log-and-drop — a failing document returns ``None``, does not raise, and does not
   wedge the loop; the next good trigger still processes (ADR-0001).
@@ -17,9 +22,9 @@ from __future__ import annotations
 
 import pytest
 
-from graph_rag.fakes import InMemoryDocumentStore, InMemoryObjectStore
+from graph_rag.fakes import FakeNerStage, InMemoryDocumentStore, InMemoryObjectStore
 from graph_rag.ids import document_id
-from graph_rag.models import IngestTrigger
+from graph_rag.models import IngestTrigger, Mention, Sentence
 from graph_rag.orchestrator import Orchestrator
 
 BUCKET = "documents"
@@ -30,9 +35,14 @@ KEY = "a.md"
 def orchestrator(
     object_store: InMemoryObjectStore,
     document_store: InMemoryDocumentStore,
+    ner_stage: FakeNerStage,
 ) -> Orchestrator:
-    """An orchestrator wired to the shared in-memory fakes."""
-    return Orchestrator(object_store=object_store, document_store=document_store)
+    """An orchestrator wired to the shared in-memory fakes + a canned NER stage."""
+    return Orchestrator(
+        object_store=object_store,
+        document_store=document_store,
+        ner_stage=ner_stage,
+    )
 
 
 def test_writes_raw_record_with_deterministic_id(
@@ -44,10 +54,11 @@ def test_writes_raw_record_with_deterministic_id(
     object_store.put(BUCKET, KEY, b"hello graph rag")
     trigger = IngestTrigger(bucket=BUCKET, object_key=KEY)
 
-    record = orchestrator.process_document(trigger)
+    result = orchestrator.process_document(trigger)
 
     expected_id = document_id(BUCKET, KEY)
-    assert record is not None
+    assert result is not None
+    record = result.record
     assert record.document_id == expected_id
     assert record.bucket == BUCKET
     assert record.object_key == KEY
@@ -58,11 +69,56 @@ def test_writes_raw_record_with_deterministic_id(
     assert stored is not None
     assert stored.text == "hello graph rag"
 
-    # V1 writes RAW text only — no enrichment.
+    # V2 still writes RAW text only — NER output is carried in-memory, not
+    # persisted to the ES record until the V4 EL checkpoint.
     assert stored.mentions is None
     assert stored.coref_clusters is None
     assert stored.el_result is None
     assert stored.vectors is None
+
+
+def test_result_carries_canned_mentions_and_sentences(
+    object_store: InMemoryObjectStore,
+    document_store: InMemoryDocumentStore,
+) -> None:
+    """The returned PipelineResult carries the NER stage's mentions + sentences.
+
+    Proves the in-memory carry + wiring: curated-type mentions with char offsets
+    and segmented sentences flow through to the orchestrator's result, while the
+    stored ES record stays raw (not persisted until V4).
+    """
+    text = "Ada Lovelace worked in London."
+    object_store.put(BUCKET, KEY, text.encode())
+
+    canned_mentions = [
+        Mention(text="Ada Lovelace", type="PERSON", char_start=0, char_end=12),
+        Mention(text="London", type="LOCATION", char_start=22, char_end=28),
+    ]
+    canned_sentences = [
+        Sentence(text=text, char_start=0, char_end=len(text), index=0),
+    ]
+    ner_stage = FakeNerStage(mentions=canned_mentions, sentences=canned_sentences)
+    orchestrator = Orchestrator(
+        object_store=object_store,
+        document_store=document_store,
+        ner_stage=ner_stage,
+    )
+
+    result = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key=KEY))
+
+    assert result is not None
+    # The raw record is still written with raw text.
+    assert result.record.text == text
+    # Mentions carried in-memory, with curated types + char offsets.
+    assert result.mentions == canned_mentions
+    assert [m.type for m in result.mentions] == ["PERSON", "LOCATION"]
+    assert (result.mentions[0].char_start, result.mentions[0].char_end) == (0, 12)
+    # Sentences carried in-memory.
+    assert result.sentences == canned_sentences
+    # Not persisted to the ES record yet (raw-only write model).
+    stored = document_store.get(document_id(BUCKET, KEY))
+    assert stored is not None
+    assert stored.mentions is None
 
 
 def test_decodes_utf8_text(
@@ -71,9 +127,9 @@ def test_decodes_utf8_text(
 ) -> None:
     """Bytes are decoded as UTF-8 into the record text."""
     object_store.put(BUCKET, KEY, "café — déjà vu".encode())
-    record = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key=KEY))
-    assert record is not None
-    assert record.text == "café — déjà vu"
+    result = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key=KEY))
+    assert result is not None
+    assert result.record.text == "café — déjà vu"
 
 
 def test_reingest_overwrites_no_duplicate(
@@ -94,7 +150,7 @@ def test_reingest_overwrites_no_duplicate(
     assert first is not None
     assert second is not None
     # Same deterministic id both times.
-    assert first.document_id == second.document_id
+    assert first.record.document_id == second.record.document_id
 
     # Exactly ONE record, and its text is the latest.
     assert len(document_store._records) == 1  # noqa: SLF001 — asserting no duplication.
@@ -118,6 +174,7 @@ def test_missing_object_is_logged_and_dropped(
 
 def test_downstream_write_failure_is_logged_and_dropped(
     object_store: InMemoryObjectStore,
+    ner_stage: FakeNerStage,
 ) -> None:
     """A failing document-store write is dropped (returns None), not raised."""
 
@@ -127,7 +184,35 @@ def test_downstream_write_failure_is_logged_and_dropped(
         def upsert(self, record) -> None:  # type: ignore[no-untyped-def]
             raise RuntimeError("simulated ES write failure")
 
-    orchestrator = Orchestrator(object_store=object_store, document_store=ExplodingDocumentStore())
+    orchestrator = Orchestrator(
+        object_store=object_store,
+        document_store=ExplodingDocumentStore(),
+        ner_stage=ner_stage,
+    )
+    object_store.put(BUCKET, KEY, b"content")
+
+    result = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key=KEY))
+
+    assert result is None
+
+
+def test_ner_failure_is_logged_and_dropped(
+    object_store: InMemoryObjectStore,
+    document_store: InMemoryDocumentStore,
+) -> None:
+    """A failing NER stage is dropped (returns None), not raised (ADR-0001)."""
+
+    class ExplodingNerStage:
+        """NER stage whose analyze always fails, to exercise log-and-drop."""
+
+        def analyze(self, text: str):  # type: ignore[no-untyped-def]
+            raise RuntimeError("simulated spaCy failure")
+
+    orchestrator = Orchestrator(
+        object_store=object_store,
+        document_store=document_store,
+        ner_stage=ExplodingNerStage(),
+    )
     object_store.put(BUCKET, KEY, b"content")
 
     result = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key=KEY))
@@ -154,5 +239,5 @@ def test_failure_does_not_wedge_the_loop(
     good = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key="good.md"))
 
     assert good is not None
-    assert good.text == "good content"
+    assert good.record.text == "good content"
     assert document_store.get(document_id(BUCKET, "good.md")) is not None

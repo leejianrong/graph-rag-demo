@@ -3,7 +3,7 @@
 These models are part of the Slice V1 foundation contract. Adapters (Agent B) and
 the orchestrator/tests (Agent C) code against them.
 
-Two models matter in V1:
+V1 models:
 
 * :class:`IngestTrigger` — the Kafka trigger payload, carrying only
   ``{bucket, object_key}`` (ADR-0001).
@@ -11,15 +11,44 @@ Two models matter in V1:
   ingestion; the enrichment fields (``mentions``, ``coref_clusters``,
   ``el_result``, ``vectors``) are declared as optional now so later slices extend
   the record in place at the V4 entity-linking checkpoint without breaking V1.
+
+V2 (NER) adds the in-memory enrichment carry (ADR-0002, ARCHITECTURE §4):
+
+* :class:`Mention` / :class:`Sentence` — one NER mention (typed + char span) and
+  one segmented sentence.
+* :class:`PipelineResult` — the object the orchestrator RETURNS. It carries the
+  raw :class:`DocumentRecord` plus the enrichment computed so far, held
+  **in-memory** and NOT persisted to ES until the V4 EL checkpoint. Later slices
+  extend it in place (V3 ``coref_clusters``, V4 ``el_result``).
 """
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-__all__ = ["IngestTrigger", "DocumentRecord"]
+__all__ = [
+    "IngestTrigger",
+    "DocumentRecord",
+    "CuratedType",
+    "Mention",
+    "Sentence",
+    "PipelineResult",
+]
+
+# The curated NER type set (ADR-0002): spaCy's OntoNotes labels narrowed to the
+# types this graph needs. ``GPE`` and ``LOC`` both map to ``LOCATION``; labels
+# outside this set are dropped. ``PRODUCT`` is optional-but-included.
+CuratedType = Literal[
+    "PERSON",
+    "ORG",
+    "LOCATION",
+    "DATE",
+    "EVENT",
+    "NORP",
+    "PRODUCT",
+]
 
 
 class IngestTrigger(BaseModel):
@@ -78,3 +107,54 @@ class DocumentRecord(BaseModel):
     def from_json(cls, payload: str | bytes) -> DocumentRecord:
         """Deserialize a JSON ``str``/``bytes`` document into a record."""
         return cls.model_validate_json(payload)
+
+
+# --- V2 (NER) in-memory enrichment ------------------------------------------
+
+
+class Mention(BaseModel):
+    """One typed NER mention with character offsets into the raw document text.
+
+    The offsets are half-open ``[char_start, char_end)`` slices of the *raw*
+    ``DocumentRecord.text``, so ``text == raw[char_start:char_end]`` holds. They
+    align coref mentions (V3), attach provenance to triples (V5) and drive UI
+    highlighting (ADR-0002).
+    """
+
+    text: str
+    type: CuratedType
+    char_start: int
+    char_end: int
+
+
+class Sentence(BaseModel):
+    """One segmented sentence with character offsets into the raw document text.
+
+    Produced in the same spaCy pass as the mentions (ADR-0002). ``index`` is the
+    zero-based position of the sentence in the document. ``text`` equals
+    ``raw[char_start:char_end]``.
+    """
+
+    text: str
+    char_start: int
+    char_end: int
+    index: int
+
+
+class PipelineResult(BaseModel):
+    """The object the orchestrator RETURNS — the in-memory enrichment carry.
+
+    Bundles the raw :class:`DocumentRecord` (already persisted to ES at
+    ingestion) with the enrichment computed so far in the pipeline. Per the write
+    model (ARCHITECTURE §4, ADR-0001), this enrichment is held **in-memory** and
+    is NOT persisted to ``ES-Documents`` until the V4 entity-linking checkpoint —
+    in V2 the ES record still stores raw text only.
+
+    V2 populates ``mentions`` and ``sentences``. Later slices extend this object
+    in place: V3 adds a ``coref_clusters`` field, V4 adds an ``el_result`` field
+    and then writes the whole thing back into ``record`` at the EL checkpoint.
+    """
+
+    record: DocumentRecord
+    mentions: list[Mention] = Field(default_factory=list)
+    sentences: list[Sentence] = Field(default_factory=list)
