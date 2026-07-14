@@ -44,15 +44,16 @@ from typing import TYPE_CHECKING
 
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
-from graph_rag.models import DocumentRecord, EntityLink, PipelineResult
+from graph_rag.models import CanonicalEntity, DocumentRecord, EntityLink, PipelineResult, Triple
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.ner import SpacyNerStage
 
 if TYPE_CHECKING:
     from graph_rag.models import IngestTrigger
-    from graph_rag.ports import DocumentStore, ObjectStore
+    from graph_rag.ports import DocumentStore, GraphStore, ObjectStore
     from graph_rag.stages.coref import CorefStage
     from graph_rag.stages.entity_linking import ELStage
+    from graph_rag.stages.kg_build import KgStage
     from graph_rag.stages.ner import NerStage
 
 __all__ = ["Orchestrator"]
@@ -76,6 +77,8 @@ class Orchestrator:
         ner_stage: NerStage | None = None,
         coref_stage: CorefStage | None = None,
         entity_linking_stage: ELStage | None = None,
+        graph_store: GraphStore | None = None,
+        kg_build_stage: KgStage | None = None,
     ) -> None:
         """Wire the active ports and stages.
 
@@ -95,12 +98,24 @@ class Orchestrator:
                 the EL checkpoint. The real stack wires
                 :class:`~graph_rag.stages.entity_linking.EntityLinkingStage` in
                 ``main.py``; the fast suite injects it over in-memory fakes.
+            graph_store: The knowledge-graph store (N13, V5). **Opt-in**, paired
+                with ``kg_build_stage``: when either is ``None`` no graph is built
+                or written (V1–V4 behaviour is unaffected).
+            kg_build_stage: The KG-build stage (N9, V5). **Opt-in**: supplied
+                together with ``graph_store``, it builds triples over the doc's
+                canonical IDs and the shell runs the **graph checkpoint** (upsert
+                nodes → delete this doc's prior edges → write its edges, so
+                re-ingest replaces). The real stack wires
+                :class:`~graph_rag.stages.kg_build.KgBuildStage` in ``main.py``; the
+                fast suite injects it over a ``FakeLLMClient`` + ``InMemoryGraphStore``.
         """
         self._object_store = object_store
         self._document_store = document_store
         self._ner_stage: NerStage = ner_stage if ner_stage is not None else SpacyNerStage()
         self._coref_stage: CorefStage = coref_stage if coref_stage is not None else LLMCorefStage()
         self._entity_linking_stage: ELStage | None = entity_linking_stage
+        self._graph_store: GraphStore | None = graph_store
+        self._kg_build_stage: KgStage | None = kg_build_stage
 
     def process_document(self, trigger: IngestTrigger) -> PipelineResult | None:
         """Process one ingest trigger end-to-end, log-and-drop on failure.
@@ -160,6 +175,7 @@ class Orchestrator:
             #    ES-Documents record in place and re-upserts it (a 2nd idempotent
             #    write to the same document_id, overwriting the raw record).
             el_result: list[EntityLink] = []
+            triples: list[Triple] = []
             if self._entity_linking_stage is not None:
                 el = self._entity_linking_stage.link(
                     text, ner.mentions, ner.sentences, coref_clusters
@@ -171,9 +187,26 @@ class Orchestrator:
                 record.sentence_vectors = el.sentence_vectors
                 self._document_store.upsert(record)
 
+                # 8. KG-build stage (N9) + graph checkpoint (V5, ADR-0006). Opt-in,
+                #    paired: only when a graph store + KG-build stage are wired.
+                #    Derive this doc's canonical entities from the EL links (id +
+                #    surface + type), build triples over those canonical IDs, then
+                #    write the graph. The checkpoint DELETES this doc's prior edges
+                #    BEFORE writing its new ones so RE-INGESTING a document REPLACES
+                #    its edges rather than duplicating them (graph idempotency,
+                #    TESTING gap #1). Nodes are idempotent by canonical_id.
+                if self._kg_build_stage is not None and self._graph_store is not None:
+                    canonical_entities = self._doc_canonical_entities(el.links)
+                    triples = self._kg_build_stage.build(
+                        doc_id, text, ner.sentences, el, canonical_entities
+                    )
+                    self._graph_store.upsert_entities(canonical_entities)
+                    self._graph_store.delete_document_edges(doc_id)
+                    self._graph_store.write_triples(triples)
+
             _logger.info(
                 "ingested document %s (%s/%s): %d mention(s), %d sentence(s), "
-                "%d coref cluster(s), %d entity link(s)",
+                "%d coref cluster(s), %d entity link(s), %d triple(s)",
                 doc_id,
                 trigger.bucket,
                 trigger.object_key,
@@ -181,14 +214,16 @@ class Orchestrator:
                 len(ner.sentences),
                 len(coref_clusters),
                 len(el_result),
+                len(triples),
             )
-            # 8. Return the in-memory carry so callers/tests can assert on it.
+            # 9. Return the in-memory carry so callers/tests can assert on it.
             return PipelineResult(
                 record=record,
                 mentions=ner.mentions,
                 sentences=ner.sentences,
                 coref_clusters=coref_clusters,
                 el_result=el_result,
+                triples=triples,
             )
         except Exception:  # noqa: BLE001 — log-and-drop per document (ADR-0001).
             _logger.exception(
@@ -197,3 +232,27 @@ class Orchestrator:
                 trigger.object_key,
             )
             return None
+
+    @staticmethod
+    def _doc_canonical_entities(links: list[EntityLink]) -> list[CanonicalEntity]:
+        """Derive this document's canonical entities (graph nodes) from its EL links.
+
+        Each :class:`~graph_rag.models.EntityLink` carries the ``canonical_id`` the
+        doc-level entity resolved to plus its surface (``mention_text``) and
+        ``entity_type`` — enough to identify the node and hand the KG-build LLM the
+        id↔name/type map. Deduplicated by ``canonical_id`` (several links can
+        resolve to one canonical). These IDs are exactly the allowed subject/object
+        IDs for this document's triples, and the nodes upserted at the graph
+        checkpoint — so the graph stays grounded in the EL store (ADR-0006).
+        """
+        by_id: dict[str, CanonicalEntity] = {}
+        for link in links:
+            by_id.setdefault(
+                link.canonical_id,
+                CanonicalEntity(
+                    canonical_id=link.canonical_id,
+                    name=link.mention_text,
+                    type=link.entity_type,
+                ),
+            )
+        return list(by_id.values())

@@ -6,9 +6,9 @@ service. Real adapters (``graph_rag.adapters``) wrap live services; in-memory
 fakes (``graph_rag.fakes``) back the fast, $0, no-Docker suite.
 
 Six ports map to the architecture's N10–N15 affordances. ``ObjectStore`` +
-``DocumentStore`` are active from V1, ``LLMClient`` from V3, and ``EntityStore`` +
-``Embedder`` from V4 (entity linking). ``GraphStore`` stays a minimal stub until
-V5/V6. Signatures are fixed here so slices plug in without changing this contract.
+``DocumentStore`` are active from V1, ``LLMClient`` from V3, ``EntityStore`` +
+``Embedder`` from V4 (entity linking), and ``GraphStore`` from V5 (graph build).
+Signatures are fixed here so slices plug in without changing this contract.
 
 ``TriggerPublisher`` is the messaging seam: ``POST /ingest`` publishes through it
 so the endpoint and its test can inject the fake instead of a real Kafka producer.
@@ -20,7 +20,14 @@ from typing import Any, Protocol, TypeVar, runtime_checkable
 
 from pydantic import BaseModel
 
-from graph_rag.models import CanonicalEntity, CuratedType, DocumentRecord, IngestTrigger
+from graph_rag.models import (
+    CanonicalEntity,
+    CuratedType,
+    DocumentRecord,
+    IngestTrigger,
+    Subgraph,
+    Triple,
+)
 
 # Structured-output type variable: ``structured`` returns an instance of exactly
 # the Pydantic model type the caller asked for (ADR-0008).
@@ -142,17 +149,75 @@ class EntityStore(Protocol):
 
 @runtime_checkable
 class GraphStore(Protocol):
-    """Knowledge-graph store over Neo4j (write triples, k-hop traversal).
+    """Knowledge-graph store over Neo4j (nodes + provenance edges, k-hop).
 
-    Stub for later slices (V5/V6); not exercised in V1.
+    Active from V5 (ADR-0006, ARCHITECTURE §5c). The KG-build stage writes
+    canonical entities as multi-label ``:Entity:Type`` nodes and per-document
+    triples as provenance-carrying edges between them; V6 retrieval reads back
+    the connected subgraph via :meth:`khop`. The real adapter runs Cypher against
+    Neo4j; the fast suite injects :class:`~graph_rag.fakes.InMemoryGraphStore`,
+    proved equivalent by the adapter's contract test.
+
+    Node identity is :attr:`~graph_rag.models.CanonicalEntity.canonical_id`, and
+    edges reference those IDs (never raw strings) — grounding the graph in the EL
+    store so the same entity across documents is one node.
     """
 
-    def write_triples(self, triples: list[dict[str, Any]]) -> None:
-        """Write nodes + provenance-carrying edges for the given triples."""
+    def upsert_entities(self, entities: list[CanonicalEntity]) -> None:
+        """Create/merge multi-label ``:Entity:Type`` nodes, keyed by ``canonical_id``.
+
+        Idempotent by ``canonical_id``: re-upserting an entity overwrites its node
+        properties (``name``, ``type``, ``aliases``) instead of duplicating. The
+        ``type`` becomes the node's second label (``:Entity:Person``, …).
+        """
         ...
 
-    def khop(self, seed_ids: list[str], hops: int) -> dict[str, Any]:
-        """Expand ``hops`` hops from ``seed_ids`` and return the connected subgraph."""
+    def write_triples(self, triples: list[Triple]) -> None:
+        """Write provenance-carrying edges between canonical-ID nodes.
+
+        Each :class:`~graph_rag.models.Triple` becomes one edge labelled by its
+        ``predicate`` between the ``subject_id`` and ``object_id`` nodes, carrying
+        the edge provenance (source doc/sentence/span, ``raw_predicate``,
+        ``confidence``) and the optional DATE qualifier. Assumes the endpoint
+        nodes already exist (see :meth:`upsert_entities`).
+        """
+        ...
+
+    def delete_document_edges(self, source_doc_id: str) -> None:
+        """Remove every edge whose provenance ``source_doc_id`` matches.
+
+        The KG-build checkpoint calls this **before** writing a document's triples
+        so that RE-INGESTING a document REPLACES its edges rather than duplicating
+        them (the graph-idempotency requirement — TESTING.md gap #1). Nodes are
+        left intact (they are shared across documents and idempotent by ID).
+        """
+        ...
+
+    def khop(self, seed_ids: list[str], hops: int) -> Subgraph:
+        """Return the connected subgraph within ``hops`` of ``seed_ids``.
+
+        Breadth-first expansion treating edges as undirected: the result's
+        ``nodes`` are every node reachable within ``hops`` steps of any seed
+        (seeds themselves are hop 0), and ``edges`` are every edge whose endpoints
+        are both in that node set. Seed IDs with no node are ignored. V6 retrieval
+        ranks over the returned :class:`~graph_rag.models.Subgraph`.
+        """
+        ...
+
+    def node_count(self) -> int:
+        """Return the number of nodes currently stored (test/inspection helper)."""
+        ...
+
+    def edge_count(self) -> int:
+        """Return the number of edges currently stored (test/inspection helper)."""
+        ...
+
+    def get_node(self, canonical_id: str) -> CanonicalEntity | None:
+        """Return the node for ``canonical_id``, or ``None`` if absent (test helper)."""
+        ...
+
+    def get_node_edges(self, canonical_id: str) -> list[Triple]:
+        """Return every edge incident to ``canonical_id`` (as subject or object)."""
         ...
 
 

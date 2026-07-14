@@ -1,9 +1,11 @@
 # One-command local dev loop (ARCHITECTURE §8, dev-playbook #16).
 #
-# Brings up the V1 stack — Kafka, MinIO, a single-node Elasticsearch, and the
+# Brings up the stack — Kafka, MinIO, a single-node Elasticsearch, Neo4j, and the
 # pipeline/API `app` service — with healthchecks so `app` waits for its deps.
-# Service hostnames (minio / elasticsearch / kafka) match the Settings defaults
-# and .env.example. Neo4j is not needed until V5 and is omitted here.
+# Service hostnames (minio / elasticsearch / kafka / neo4j) match the Settings
+# defaults and .env.example. Neo4j (V5, the knowledge-graph store) exposes the
+# browser on 7474 and bolt on 7687; auth is neo4j/devpassword (a LOCAL-DEV default,
+# overridable via NEO4J_PASSWORD to match Settings).
 #
 #   make up      # build + start everything
 #   curl -F file=@a.md http://localhost:8000/ingest
@@ -69,6 +71,25 @@ services:
       retries: 12
       start_period: 20s
 
+  neo4j:
+    image: neo4j:5.20
+    environment:
+      # LOCAL-DEV auth only — override NEO4J_PASSWORD to match Settings.neo4j_password.
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-devpassword}
+    ports:
+      - "7474:7474"    # HTTP browser
+      - "7687:7687"    # Bolt (driver)
+    volumes:
+      - neo4j-data:/data
+    healthcheck:
+      # Wait for bolt: a trivial cypher over cypher-shell proves the DB is ready.
+      test:
+        ["CMD-SHELL", "cypher-shell -u neo4j -p ${NEO4J_PASSWORD:-devpassword} 'RETURN 1' || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+
   app:
     build:
       context: .
@@ -82,6 +103,9 @@ services:
       MINIO_ENDPOINT: minio:9000
       ELASTICSEARCH_URL: http://elasticsearch:9200
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:-devpassword}
     ports:
       - "8000:8000"    # FastAPI: /ingest + /query
     depends_on:
@@ -91,6 +115,9 @@ services:
         condition: service_healthy
       kafka:
         condition: service_healthy
+      neo4j:
+        condition: service_healthy
 
 volumes:
   minio-data:
+  neo4j-data:

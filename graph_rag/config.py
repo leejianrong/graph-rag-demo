@@ -91,6 +91,20 @@ class Settings(BaseSettings):
     # default); point ``coref_model`` at another provider + set its key to swap.
     openai_api_key: str | None = None
 
+    # --- Neo4j / GraphStore (V5, ADR-0006) ----------------------------------
+    # The knowledge-graph store. Defaults target the docker-compose ``neo4j``
+    # service (bolt on 7687); tests/local runs point ``NEO4J_URI`` at
+    # ``bolt://localhost:7687``. The password is a LOCAL-DEV default only — never
+    # a real secret; override via ``NEO4J_PASSWORD`` (and set ``NEO4J_AUTH`` on
+    # the compose service to match).
+    neo4j_uri: str = "bolt://neo4j:7687"
+    neo4j_user: str = "neo4j"
+    neo4j_password: str = "devpassword"
+    # Default k-hop expansion depth for query-side traversal (B3 is finalized in
+    # V6; a sensible default lives here so the GraphStore has one). 2 hops trades
+    # multi-hop recall against subgraph noise.
+    khop_depth: int = 2
+
     # --- Logging seam --------------------------------------------------------
     log_level: str = "INFO"
 

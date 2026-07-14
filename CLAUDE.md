@@ -54,7 +54,33 @@ read→NER→coref→**EL**, then enriches the SAME `DocumentRecord` in place (r
 entities to `ES-Entities`**. The EL stage is **opt-in via injection** (absent → the
 raw-only V1–V3 write model is preserved). The gated **LLM tie-breaker + NIL
 retention are wired but OFF by default** (`el_tiebreaker_enabled`/`el_nil_enabled`),
-so the default EL path is deterministic and `$0` (no LLM call). V5–V8 (KG-build →
+so the default EL path is deterministic and `$0` (no LLM call).
+
+**V5 (KG-build + graph checkpoint) — LANDED.** The knowledge graph is materialized
+(realizes R0 — the graph exists; ADR-0006). `graph_rag/stages/kg_build.py` — a
+constructor-injected `KgStage` seam with the real `KgBuildStage` over the
+`LLMClient` port: it hands the model the doc's **canonical id↔name/type map** and
+emits triples `(subject_id, predicate, object_id, sentence_index, date?, confidence?)`
+(structured output → `TripleList`/`LLMTriple`) whose subject/object are **canonical
+entity IDs**, never surface strings. Per triple: the raw predicate maps to the
+**closed ~12-predicate set** via `map_predicate`, falling back to `RELATED_TO` with
+the original phrase preserved on `EdgeProvenance.raw_predicate`; **char offsets are
+resolved from OUR spaCy sentence segmentation** (the LLM cites only a
+`sentence_index`; an out-of-range index is logged-and-skipped), filling
+`source_sentence` + `char_start`/`char_end`; **DATE is an edge qualifier**
+(`Triple.date`), never a node; a triple referencing an unknown canonical id is
+dropped. `KgBuildStage.from_settings` builds a `LiteLLMClient` on
+`Settings.kg_build_model` (own model, shared cache); the fast suite injects it over
+`FakeLLMClient` canned triples. `Orchestrator.__init__` gains opt-in
+`graph_store` + `kg_build_stage` (like EL — `None` skips, so V1–V4 tests are
+unaffected). After the EL checkpoint the shell runs the **graph checkpoint**:
+`upsert_entities` (multi-label `:Entity:Type` nodes, idempotent by `canonical_id`)
+→ `delete_document_edges(document_id)` → `write_triples` — the **delete-then-write**
+so RE-INGESTING a document REPLACES its edges rather than duplicating (closes the
+TESTING graph-idempotency gap; nodes stay shared/idempotent). Triples are carried
+in-memory on `PipelineResult.triples` (they live in **Neo4j**, not ES). Alongside
+the real `Neo4jGraphStore` adapter (Agent A). Whole body stays inside log-and-drop
+(a KG-build failure drops the doc, never wedges the loop). V6–V8 (retrieval →
 benchmark) are **not built**.
 
 > **Trust the code over the docs.** `docs/` (ARCHITECTURE, SLICES, TESTING, ADRs)
