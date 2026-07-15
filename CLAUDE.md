@@ -14,8 +14,9 @@ composition root, `docker-compose.yml`.
 
 **V2 (NER) — LANDED.** First real enrichment: `graph_rag/stages/ner.py` — a
 constructor-injected `NerStage` seam with a real `SpacyNerStage` (one spaCy pass →
-curated-type mentions + char spans + sentence segmentation; `GPE`+`LOC`→`LOCATION`;
-model from `Settings.ner_model`, trf→lg→sm fallback) and a `FakeNerStage` for the
+curated-type mentions + char spans + sentence segmentation; `GPE`+`LOC`→`LOCATION`,
+`LAW`→`LAW` (named statutes are first-class nodes); model from `Settings.ner_model`,
+trf→lg→sm fallback) and a `FakeNerStage` for the
 fast suite. `Orchestrator.process_document` now returns a `PipelineResult` carrying
 the raw `DocumentRecord` plus in-memory `mentions`/`sentences` — **NOT persisted to
 ES** (that lands at the V4 EL checkpoint; the ES write model is unchanged, raw text
@@ -42,6 +43,9 @@ ADR-0004/0005). `graph_rag/stages/entity_linking.py` — a constructor-injected
 ports; per doc-level entity (derived from coref clusters, else lone mentions) it
 **embeds mention-in-context → blocks (type + normalized name) + kNN → scores by
 cosine → merges** above `Settings.el_threshold` (B2 = 0.82) **or create-news**
+(an **exact type+normalized-name block match is decisive** — it unifies regardless
+of cosine, since mention-in-context embeddings of one entity drift across docs and
+would otherwise split it into duplicate nodes)
 (the always-on path). `canonical_id` is deterministic + stable
 (`e-sha256("el:{type}:{normalized_name}")`), so a re-ingest of the same corpus
 merges rather than duplicates; linking is **order-sensitive** (first doc seeds the

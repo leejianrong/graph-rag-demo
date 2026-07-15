@@ -245,9 +245,17 @@ class Orchestrator:
         resolve to one canonical). These IDs are exactly the allowed subject/object
         IDs for this document's triples, and the nodes upserted at the graph
         checkpoint — so the graph stays grounded in the EL store (ADR-0006).
+
+        ``DATE`` entities are excluded here: a date is an **edge qualifier**
+        (:attr:`~graph_rag.models.Triple.date`), never a standalone node (ADR-0006).
+        This is the single chokepoint feeding both the graph nodes and the KG-build
+        entity map, so filtering here keeps a spuriously-extracted ``DATE`` mention
+        (e.g. "2023") from ever becoming a node or a self-referential edge.
         """
         by_id: dict[str, CanonicalEntity] = {}
         for link in links:
+            if link.entity_type == "DATE":
+                continue
             by_id.setdefault(
                 link.canonical_id,
                 CanonicalEntity(

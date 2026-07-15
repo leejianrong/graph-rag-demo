@@ -15,15 +15,20 @@ algorithm, per doc-level entity, is **block → score → decide**:
    surface form plus the sentence(s) it appears in — context disambiguates
    ("Apple" the company vs. the fruit).
 3. **Block + kNN.** Candidates are gathered two ways: ``block_candidates`` (same
-   type + same :func:`~graph_rag.normalize.normalize_name` key) and ``knn`` (the
-   nearest entity vectors of the same type). Both feed one deduplicated candidate
-   set scored by cosine similarity against the mention vector.
-4. **Decide (fixed threshold B2, deterministic — R6.4).** If the best candidate
-   scores at or above ``el_threshold`` the doc-level entity **merges** into that
-   existing ``canonical_id`` (reusing it, growing its ``aliases``); otherwise a
-   **new** canonical entity is minted and upserted. The create-new path is the
-   normal always-on behaviour. Linking is **order-sensitive**: the first document
-   to mention an entity seeds its canonical record (name + vector).
+   type + same :func:`~graph_rag.normalize.normalize_name` key) — the corpus-local
+   identity key — and ``knn`` (the nearest entity vectors of the same type) for
+   fuzzy, differently-phrased surfaces.
+4. **Decide (deterministic — R6.4).** An **exact-key block match** is decisive: the
+   doc-level entity **merges** into that existing ``canonical_id`` (reusing it,
+   growing its ``aliases``) regardless of the context-cosine — so the same entity
+   named identically across documents stays ONE node even when its per-document
+   mention-in-context embeddings drift below the threshold. With no block match, the
+   fuzzy kNN candidates are scored by cosine and merge only if the best is at or
+   above the fixed ``el_threshold`` (B2); otherwise a **new** canonical entity is
+   minted and upserted (the normal always-on path). Genuine same-type/same-name
+   homonyms are the province of the gated LLM tie-breaker. Linking is
+   **order-sensitive**: the first document to mention an entity seeds its canonical
+   record (name + vector).
 
 Two credit-conserving refinements are **wired but gated OFF by default**
 (ADR-0004): an LLM tie-breaker for near-threshold decisions and NIL retention for
@@ -219,17 +224,39 @@ class EntityLinkingStage:
             context = self._build_context(entity, sentences)
             vector = self._embedder.embed([context])[0]
             normalized = normalize_name(entity.surface)
-            candidates = self._gather_candidates(entity.entity_type, normalized, vector)
-            best_entity, best_score = self._best_candidate(vector, candidates)
 
-            merge = best_entity is not None and best_score >= self._threshold
-            merge = self._maybe_tiebreak(
-                merge=merge,
-                score=best_score,
-                surface=entity.surface,
-                candidate=best_entity,
-                context=context,
+            # Exact-key block match (same curated type + same normalized name/alias)
+            # is the corpus-local identity key (ADR-0004): a hit is the SAME entity,
+            # so unify into it DETERMINISTICALLY, independent of the context-cosine.
+            # This is the fix for cross-document splitting: the mention-in-context
+            # embedding of, e.g., "Berlin" drifts to ~0.70 cosine between documents —
+            # below the 0.82 threshold — which used to mint a divergent duplicate
+            # node and break the multi-hop bridge. The lowest canonical_id is chosen
+            # for order-independent stability. Genuine same-type/same-name homonyms
+            # are left to the gated LLM tie-breaker on the fuzzy path below.
+            block = self._entity_store.block_candidates(
+                entity_type=entity.entity_type, normalized_name=normalized
             )
+            if block:
+                best_entity = min(block, key=lambda candidate: candidate.canonical_id)
+                scored, cosine = self._best_candidate(vector, [best_entity])
+                best_score = cosine if scored is not None else 1.0
+                merge = True
+            else:
+                # No exact-key match: fuzzy kNN candidates scored by cosine, merging
+                # only at/above the threshold (this is how a differently-phrased
+                # surface of one entity still merges). The gated tie-breaker
+                # arbitrates near-threshold decisions here.
+                candidates = self._knn_candidates(entity.entity_type, vector)
+                best_entity, best_score = self._best_candidate(vector, candidates)
+                merge = best_entity is not None and best_score >= self._threshold
+                merge = self._maybe_tiebreak(
+                    merge=merge,
+                    score=best_score,
+                    surface=entity.surface,
+                    candidate=best_entity,
+                    context=context,
+                )
 
             if merge and best_entity is not None:
                 self._merge(best_entity, entity.surface, vector)
@@ -339,7 +366,12 @@ class EntityLinkingStage:
         """Build the mention-in-context string: the surface + its sentence(s).
 
         A sentence is included if any of the entity's mention spans starts within
-        it. Falls back to the bare surface when there are no sentences/overlap.
+        it. Falls back to the bare surface when there are no sentences/overlap. This
+        vector is the entity's stored embedding — used for query-side seeding (B5) —
+        so keeping the sentence context makes it richer for retrieval. It is NOT the
+        sole basis for the merge decision: an exact type+normalized-name block match
+        unifies deterministically (see :meth:`link`), so a context that drifts
+        across documents no longer splits the same entity into duplicate nodes.
         """
         parts = [entity.surface]
         seen: set[int] = set()
@@ -354,21 +386,22 @@ class EntityLinkingStage:
 
     # --- candidate gathering + scoring --------------------------------------
 
-    def _gather_candidates(
-        self, entity_type: CuratedType, normalized_name: str, vector: list[float]
+    def _knn_candidates(
+        self, entity_type: CuratedType, vector: list[float]
     ) -> list[CanonicalEntity]:
-        """Union of block candidates (type + normalized name) and kNN neighbours."""
-        by_id: dict[str, CanonicalEntity] = {}
-        for candidate in self._entity_store.block_candidates(
-            entity_type=entity_type, normalized_name=normalized_name
-        ):
-            by_id[candidate.canonical_id] = candidate
-        if self._knn_top_k > 0:
+        """The fuzzy candidate set: nearest entities of the same type by vector kNN.
+
+        Used only when there is no exact-key block match (:meth:`link` handles that
+        decisively). Returns ``[]`` when kNN is disabled (``knn_top_k <= 0``).
+        """
+        if self._knn_top_k <= 0:
+            return []
+        return [
+            candidate
             for candidate, _score in self._entity_store.knn(
                 vector=vector, entity_type=entity_type, top_k=self._knn_top_k
-            ):
-                by_id.setdefault(candidate.canonical_id, candidate)
-        return list(by_id.values())
+            )
+        ]
 
     def _best_candidate(
         self, vector: list[float], candidates: list[CanonicalEntity]

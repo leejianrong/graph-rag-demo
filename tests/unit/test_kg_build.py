@@ -21,7 +21,7 @@ from graph_rag.fakes import FakeLLMClient
 from graph_rag.models import CanonicalEntity, Sentence
 from graph_rag.predicates import Predicate
 from graph_rag.stages.entity_linking import ELResult
-from graph_rag.stages.kg_build import KgBuildStage, LLMTriple, TripleList
+from graph_rag.stages.kg_build import KgBuildStage, LLMTriple, TripleList, build_kg_prompt
 
 DOC_ID = "doc-1"
 
@@ -49,6 +49,21 @@ def _stage(*triples: LLMTriple) -> KgBuildStage:
 def _build(stage: KgBuildStage):
     """Run the stage over the fixed doc + canonical entities."""
     return stage.build(DOC_ID, TEXT, SENTENCES, ELResult(links=[], sentence_vectors=[]), CANONICALS)
+
+
+def test_prompt_lists_the_closed_predicate_vocabulary() -> None:
+    """The prompt names the closed predicate set so the model prefers it (B7, E-fix).
+
+    Handing the model the vocabulary sharply reduces vague phrases that fall back to
+    the ``RELATED_TO`` open predicate, which was leaving the real-stack graph all
+    generic edges.
+    """
+    prompt = build_kg_prompt(TEXT, CANONICALS)
+    for predicate in Predicate:
+        if predicate is Predicate.RELATED_TO:
+            continue  # the reserved fallback, offered as a last resort not a menu item
+        assert predicate.value in prompt
+    assert "RELATED_TO only when" in prompt
 
 
 def test_known_predicate_maps_to_closed_set_no_raw_predicate() -> None:

@@ -71,6 +71,7 @@ _TYPE_LABELS: dict[str, str] = {
     "PERSON": "Person",
     "ORG": "Organization",
     "LOCATION": "Location",
+    "LAW": "Law",
     "DATE": "Date",
     "EVENT": "Event",
     "NORP": "Norp",

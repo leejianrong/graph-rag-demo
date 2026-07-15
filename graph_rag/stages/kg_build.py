@@ -39,7 +39,7 @@ from pydantic import BaseModel, Field
 
 from graph_rag.logging import get_logger
 from graph_rag.models import EdgeProvenance, Triple
-from graph_rag.predicates import map_predicate
+from graph_rag.predicates import Predicate, map_predicate
 
 if TYPE_CHECKING:
     from graph_rag.config import Settings
@@ -114,15 +114,23 @@ def build_kg_prompt(text: str, canonical_entities: list[CanonicalEntity]) -> str
         )
         or "- (none)"
     )
+    # Hand the model the closed predicate vocabulary so it labels each edge with a
+    # specific relation instead of a vague phrase that maps to the RELATED_TO
+    # fallback (B7). Anything it emits still passes through ``map_predicate``, so an
+    # off-list phrase is not fatal — but naming the preferred set sharply reduces
+    # generic edges and keeps the graph queryable.
+    predicates = ", ".join(p.value for p in Predicate if p is not Predicate.RELATED_TO)
     return (
         "You are building a knowledge graph from a single document. Extract the "
         "relations between the CANONICAL ENTITIES listed below and emit them as "
         "triples (subject_id, predicate, object_id). The subject_id and object_id "
-        "MUST be canonical entity IDs from the list — never surface strings. Use a "
-        "short predicate phrase for the relation. For each triple cite the "
-        "zero-based sentence_index of the sentence it came from. If a relation is "
-        "dated, put the date on the triple's `date` field (do NOT emit a date as "
-        "an entity). Only emit relations actually stated in the document.\n\n"
+        "MUST be canonical entity IDs from the list — never surface strings.\n"
+        "For the predicate, prefer the SINGLE best-fitting relation from this closed "
+        f"set: {predicates}. Use RELATED_TO only when none of those genuinely fit. "
+        "For each triple cite the zero-based sentence_index of the sentence it came "
+        "from. If a relation is dated, put the date on the triple's `date` field (do "
+        "NOT emit a date as an entity). Only emit relations actually stated in the "
+        "document.\n\n"
         f"Document text:\n{text}\n\n"
         f"Canonical entities (id: name (type)):\n{listed}"
     )
