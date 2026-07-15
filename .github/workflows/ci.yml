@@ -33,6 +33,18 @@ jobs:
       - name: Ruff format check
         run: uv run ruff format --check .
 
+  # --- Cheap gate: landing-page check (dev-playbook #15) --------------------
+  # site/index.html is a hand-authored, self-contained page published to GitHub
+  # Pages on merge (pages.yml). There is no docs BUILD to fail, so this is the
+  # PR-time safety net: the page parses and every in-page anchor resolves, caught
+  # here rather than on the live site. Stdlib only — no uv sync, no deps.
+  landing-page:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Check site/index.html (parses + anchors resolve)
+        run: python3 scripts/check_landing_page.py
+
   # --- Cheap gate: fast suite, fakes only, NO Docker (the required gate) ----
   fast:
     runs-on: ubuntu-latest

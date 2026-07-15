@@ -151,17 +151,28 @@ city they share.
 
 ```bash
 make demo-offline   # no Docker, no API key — deterministic, $0
-make demo           # the real stack over HTTP (needs `make up` + OPENAI_API_KEY)
+make demo-live      # one command: brings the stack up, then runs the real demo
+make demo           # the real stack over HTTP (needs a stack already up via `make up`)
 ```
 
-Both ingest the same files and answer *"How is Aurelia Components connected to the
-German Supply Chain Act?"*, then print the two-hop connection, the subgraph, and
+All three ingest the same files and answer *"How is Aurelia Components connected to
+the German Supply Chain Act?"*, then print the two-hop connection, the subgraph, and
 the supporting sentences. `make demo-offline` runs the whole pipeline in-process
 with heuristic stages instead of the LLM, so it needs nothing installed beyond the
-Python deps and every edge is a generic `RELATED_TO`. `make demo` drives the real
-service you brought up with `make up`, so the edges are typed and `make demo
-SYNTHESIZE=1` adds a prose answer. It's the fastest way to see what the pipeline is
-for before pointing it at your own documents.
+Python deps and every edge is a generic `RELATED_TO`.
+
+`make demo-live` is the self-sufficient real-stack path: it runs `docker compose up
+-d --build --wait`, blocking until every service — including the app's own
+healthcheck — is ready, then ingests and queries. You need Docker and an
+`OPENAI_API_KEY` in `.env` (coreference and graph-building call an LLM). It leaves
+the stack **up** afterwards, so you can browse Neo4j at `localhost:7474`, re-run the
+query cheaply with `make demo`, or stop everything with `make down`.
+
+`make demo` is the fast inner loop: it drives a stack you already brought up (via
+`make up` or `make demo-live`) without touching containers, so re-runs take seconds.
+Edges are typed on both real-stack paths, and `SYNTHESIZE=1` (e.g. `make demo-live
+SYNTHESIZE=1`) adds an LLM prose answer. It's the fastest way to see what the
+pipeline is for before pointing it at your own documents.
 
 ### What to watch for
 
