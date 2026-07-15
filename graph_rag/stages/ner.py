@@ -47,6 +47,7 @@ SPACY_LABEL_TO_CURATED: dict[str, CuratedType] = {
     "ORG": "ORG",
     "GPE": "LOCATION",
     "LOC": "LOCATION",
+    "LAW": "LAW",
     "DATE": "DATE",
     "EVENT": "EVENT",
     "NORP": "NORP",

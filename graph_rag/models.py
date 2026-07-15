@@ -78,11 +78,14 @@ __all__ = [
 
 # The curated NER type set (ADR-0002): spaCy's OntoNotes labels narrowed to the
 # types this graph needs. ``GPE`` and ``LOC`` both map to ``LOCATION``; labels
-# outside this set are dropped. ``PRODUCT`` is optional-but-included.
+# outside this set are dropped. ``PRODUCT`` is optional-but-included. ``LAW``
+# (named statutes/regulations, e.g. "the German Supply Chain Act") is a first-class
+# node type — laws are common multi-hop endpoints in the demo corpus.
 CuratedType = Literal[
     "PERSON",
     "ORG",
     "LOCATION",
+    "LAW",
     "DATE",
     "EVENT",
     "NORP",

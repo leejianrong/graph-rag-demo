@@ -286,16 +286,35 @@ def run_http(
         doc_labels[doc_id] = filename
         print(f"  ingested {filename}  (document_id={doc_id})")
 
-    # Ingestion is asynchronous. Poll /query until the graph has edges (or time out).
+    # Ingestion is asynchronous and each document is processed independently, so the
+    # graph fills in incrementally. Poll /query until it SETTLES rather than
+    # returning the first non-empty result — the latter would capture a partial,
+    # first-document-only graph and miss the cross-document connection this demo
+    # exists to show. "Settled" = every ingested document has contributed at least
+    # one edge; as a fallback for a document that legitimately yields no edges, also
+    # stop once the edge set has been non-empty and unchanged across consecutive
+    # polls (~9s).
     query_body = QueryRequest(question=question, synthesize=synthesize).to_json().encode("utf-8")
     print("Waiting for the pipeline to build the graph ...")
+    expected_docs = set(doc_labels)
     deadline = time.monotonic() + poll_timeout
     response: QueryResponse | None = None
+    last_edge_count = -1
+    stable_polls = 0
     while time.monotonic() < deadline:
         raw = _post(f"{base_url}/query", query_body, "application/json")
         response = QueryResponse.from_json(raw)
-        if response.subgraph.edges:
-            break
+        edges = response.subgraph.edges
+        contributing = {edge.provenance.source_doc_id for edge in edges}
+        if edges and expected_docs <= contributing:
+            break  # every ingested document is represented — the graph has settled
+        if edges and len(edges) == last_edge_count:
+            stable_polls += 1
+            if stable_polls >= 3:  # non-empty and unchanged for ~9s — accept it
+                break
+        else:
+            stable_polls = 0
+        last_edge_count = len(edges)
         time.sleep(3.0)
 
     if response is None or not response.subgraph.edges:

@@ -19,6 +19,7 @@ from graph_rag.stages.ner import curated_type
         ("ORG", "ORG"),
         ("GPE", "LOCATION"),  # geo-political entity -> LOCATION
         ("LOC", "LOCATION"),  # non-GPE location    -> LOCATION (merge, ADR-0002)
+        ("LAW", "LAW"),  # named statute/regulation -> LAW node type
         ("DATE", "DATE"),
         ("EVENT", "EVENT"),
         ("NORP", "NORP"),
