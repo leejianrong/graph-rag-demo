@@ -108,6 +108,18 @@ services:
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:-devpassword}
     ports:
       - "8000:8000"    # FastAPI: /ingest + /query
+    healthcheck:
+      # GET /health with the base-image python (this slim image ships no curl).
+      # A non-2xx or a connection error raises, so urlopen returning is the ready
+      # signal. Generous start_period: the real stack loads spaCy trf + the bge
+      # embedder into memory at boot. Lets `docker compose up --wait` (make demo-live)
+      # block until the API actually serves, not merely until the container starts.
+      test:
+        ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 60s
     depends_on:
       elasticsearch:
         condition: service_healthy

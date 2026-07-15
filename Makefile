@@ -1,5 +1,5 @@
 # One-command dev loop (dev-playbook #16). See docs/ARCHITECTURE.md §8.
-.PHONY: up down logs demo demo-offline test benchmark test-benchmark contract model models models-trf embed-model lint fmt
+.PHONY: up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint fmt
 
 # Bring up the whole local stack (Kafka/MinIO/ES/app), building the app image.
 up:
@@ -17,6 +17,16 @@ logs:
 # ingests the bundled supply-chain corpus, waits for the graph, runs the multi-hop
 # query and prints the connected subgraph. Add SYNTHESIZE=1 for a prose answer.
 demo:
+	uv run python -m graph_rag.demo --http http://localhost:8000 $(if $(SYNTHESIZE),--synthesize,)
+
+# Self-sufficient real-stack demo: bring the WHOLE stack up (build + start), block
+# on `--wait` until every service — including the app healthcheck — is healthy, then
+# ingest the bundled corpus, build the graph and run the multi-hop query. Needs
+# Docker + OPENAI_API_KEY in .env (coref + KG-build call an LLM). Leaves the stack UP
+# afterwards: explore Neo4j at http://localhost:7474, re-run the query cheaply with
+# `make demo`, or `make down` to stop. Add SYNTHESIZE=1 for a prose answer.
+demo-live:
+	docker compose up -d --build --wait
 	uv run python -m graph_rag.demo --http http://localhost:8000 $(if $(SYNTHESIZE),--synthesize,)
 
 # Same multi-hop demo with NO Docker, NO model, NO API key — the deterministic
@@ -60,6 +70,11 @@ models-trf:
 # Also warms it for the `model`-marked embedder test.
 embed-model:
 	uv run --extra embed python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5')"
+
+# Validate the GitHub Pages landing page (site/index.html parses + every in-page
+# anchor resolves) before it ships. Mirrors the landing-page CI job; stdlib only.
+check-site:
+	python scripts/check_landing_page.py
 
 # Lint.
 lint:
