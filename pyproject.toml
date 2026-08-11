@@ -17,7 +17,7 @@ dependencies = [
     # its runtime (spacy-transformers + torch) are HEAVY and live in the `trf`
     # extra so the base install + fast CI/pre-push stay light. Models are fetched
     # separately (`make models` / `make models-trf`), never installed as deps.
-    "spacy>=3.7,<4",
+    "spacy>=3.8.15,<4",
     # LLM client (V3, ADR-0008). Provider-agnostic via LiteLLM: coref (and later
     # KG-build) call the LLM through it; the provider/model is a per-stage config
     # choice. LiteLLM is imported lazily by the adapter so the fakes-only fast
