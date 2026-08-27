@@ -25,6 +25,7 @@ import uvicorn
 from graph_rag.adapters.embedder import SentenceTransformerEmbedder
 from graph_rag.adapters.es_document_store import EsDocumentStore
 from graph_rag.adapters.es_entity_store import EsEntityStore
+from graph_rag.adapters.eval_bench_export import EvalBenchExportStage
 from graph_rag.adapters.llm_client import LiteLLMClient
 from graph_rag.adapters.minio_object_store import MinioObjectStore
 from graph_rag.adapters.neo4j_graph_store import Neo4jGraphStore
@@ -81,6 +82,17 @@ def main() -> None:
     graph_store.init()
     kg_build_stage = KgBuildStage.from_settings(settings)
 
+    # --- Eval-bench export (opt-in, additive) --------------------------------
+    #     Dual-writes each document into a SEPARATE ES index + Neo4j shape
+    #     compatible with the external eval-bench project's existing client
+    #     contract (EvalBenchExportStage). OFF by default (Settings
+    #     .eval_bench_export_enabled): when false, nothing is built here and the
+    #     orchestrator's hook is a no-op, so V1-V5 behaviour is unaffected.
+    eval_bench_export = None
+    if settings.eval_bench_export_enabled:
+        eval_bench_export = EvalBenchExportStage.from_settings(settings)
+        eval_bench_export.ensure_index()
+
     # --- The pipeline shell over those ports + stages -----------------------
     orchestrator = Orchestrator(
         object_store=object_store,
@@ -90,6 +102,7 @@ def main() -> None:
         entity_linking_stage=entity_linking_stage,
         graph_store=graph_store,
         kg_build_stage=kg_build_stage,
+        eval_bench_export=eval_bench_export,
     )
 
     # --- Prose synthesizer (N17, V7): the OPTIONAL gated LLM answer mode -----

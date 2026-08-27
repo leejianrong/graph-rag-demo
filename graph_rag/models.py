@@ -94,7 +94,7 @@ CuratedType = Literal[
 
 
 class IngestTrigger(BaseModel):
-    """The Kafka trigger payload — carries ONLY ``bucket`` and ``object_key``.
+    """The Kafka trigger payload — carries ``bucket`` and ``object_key``.
 
     Published by ``POST /ingest`` after the bytes land in the object store; the
     thin Kafka consumer resolves it to a ``process_document({bucket, object_key})``
@@ -103,6 +103,16 @@ class IngestTrigger(BaseModel):
 
     bucket: str
     object_key: str
+    # OPTIONAL, additive (eval-bench export): the document's source URL, when the
+    # caller has one (e.g. the eval-bench bulk-import script — see
+    # ``scripts/import_eval_bench_corpus.py``). ``None`` for every existing caller
+    # (``POST /ingest``, the demo, the benchmark), so the trigger's shape and every
+    # existing publish/consume path is unaffected. Threaded through
+    # ``Orchestrator.process_document`` to the opt-in
+    # :class:`~graph_rag.adapters.eval_bench_export.EvalBenchExportStage`, which
+    # needs a real source URL to compute its ``sha256(url)`` document identity —
+    # decoupled from this project's own ``document_id`` (``graph_rag.ids``).
+    source_url: str | None = None
 
     def to_json(self) -> str:
         """Serialize this trigger to a JSON string (Kafka message value)."""

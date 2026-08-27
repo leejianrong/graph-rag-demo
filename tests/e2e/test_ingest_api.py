@@ -68,7 +68,9 @@ def test_ingest_does_not_run_pipeline() -> None:
 
     Proven structurally: the app is wired with ONLY an ObjectStore and a
     TriggerPublisher, so there is no path from /ingest into the pipeline here.
-    We assert the trigger carries just {bucket, object_key} (ADR-0001).
+    We assert the trigger carries just {bucket, object_key} (ADR-0001) plus the
+    optional, additive ``source_url`` (eval-bench export) left unset — ``POST
+    /ingest`` has no URL to give it, so it stays ``None``.
     """
     store = InMemoryObjectStore()
     publisher = InMemoryTriggerPublisher()
@@ -77,4 +79,5 @@ def test_ingest_does_not_run_pipeline() -> None:
     client.post("/ingest", files={"file": ("doc.txt", b"body", "text/plain")})
 
     trigger = publisher.published[0]
-    assert trigger.model_dump().keys() == {"bucket", "object_key"}
+    assert trigger.model_dump().keys() == {"bucket", "object_key", "source_url"}
+    assert trigger.source_url is None

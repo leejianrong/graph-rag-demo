@@ -126,6 +126,18 @@ class Settings(BaseSettings):
     rank_weight_seed: float = 0.7
     rank_weight_proximity: float = 0.3
 
+    # --- Eval-bench export (opt-in, additive) --------------------------------
+    # Dual-writes each ingested document into an ES index + Neo4j graph shape
+    # compatible with the separate `eval-bench` project's existing (unmodifiable)
+    # read-only client (`retrieval/backends.py`). OFF by default: when false
+    # nothing is built/wired and V1-V5 behaviour is byte-for-byte unchanged (see
+    # graph_rag.adapters.eval_bench_export.EvalBenchExportStage). Reuses the same
+    # Elasticsearch/Neo4j connection settings above; only the index name is
+    # separate so it never collides with this project's own `documents`/`entities`
+    # indices.
+    eval_bench_export_enabled: bool = False
+    eval_bench_export_index: str = "osint_reports"
+
     # --- Logging seam --------------------------------------------------------
     log_level: str = "INFO"
 
