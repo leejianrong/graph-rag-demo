@@ -49,6 +49,7 @@ from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.ner import SpacyNerStage
 
 if TYPE_CHECKING:
+    from graph_rag.adapters.eval_bench_export import EvalBenchExportStage
     from graph_rag.models import IngestTrigger
     from graph_rag.ports import DocumentStore, GraphStore, ObjectStore
     from graph_rag.stages.coref import CorefStage
@@ -79,6 +80,7 @@ class Orchestrator:
         entity_linking_stage: ELStage | None = None,
         graph_store: GraphStore | None = None,
         kg_build_stage: KgStage | None = None,
+        eval_bench_export: EvalBenchExportStage | None = None,
     ) -> None:
         """Wire the active ports and stages.
 
@@ -108,6 +110,17 @@ class Orchestrator:
                 re-ingest replaces). The real stack wires
                 :class:`~graph_rag.stages.kg_build.KgBuildStage` in ``main.py``; the
                 fast suite injects it over a ``FakeLLMClient`` + ``InMemoryGraphStore``.
+            eval_bench_export: The eval-bench export adapter (opt-in, additive).
+                **Opt-in**: when ``None`` (the default) nothing changes about
+                existing behaviour — no eval-bench write of any kind happens.
+                Supplied (and only reached when ``graph_store``/``kg_build_stage``
+                are ALSO wired, since it needs their ``canonical_entities``/
+                ``triples``), it dual-writes this document into a separate
+                Elasticsearch index + Neo4j shape compatible with the external
+                ``eval-bench`` project's existing client contract — see
+                :class:`~graph_rag.adapters.eval_bench_export.EvalBenchExportStage`.
+                The real stack wires it in ``main.py`` only when
+                ``Settings.eval_bench_export_enabled`` is true.
         """
         self._object_store = object_store
         self._document_store = document_store
@@ -116,6 +129,7 @@ class Orchestrator:
         self._entity_linking_stage: ELStage | None = entity_linking_stage
         self._graph_store: GraphStore | None = graph_store
         self._kg_build_stage: KgStage | None = kg_build_stage
+        self._eval_bench_export: EvalBenchExportStage | None = eval_bench_export
 
     def process_document(self, trigger: IngestTrigger) -> PipelineResult | None:
         """Process one ingest trigger end-to-end, log-and-drop on failure.
@@ -204,6 +218,21 @@ class Orchestrator:
                     self._graph_store.upsert_entities(canonical_entities)
                     self._graph_store.delete_document_edges(doc_id)
                     self._graph_store.write_triples(triples)
+
+                    # 8b. Eval-bench export (opt-in, additive — see
+                    #     EvalBenchExportStage's docstring). Only reached here
+                    #     because it needs this same doc's canonical_entities +
+                    #     triples; wired only when the real stack enables it
+                    #     (main.py, Settings.eval_bench_export_enabled). Omitted
+                    #     (the default), this is a no-op — V1-V5 behaviour is
+                    #     unaffected.
+                    if self._eval_bench_export is not None:
+                        self._eval_bench_export.write(
+                            record,
+                            canonical_entities,
+                            triples,
+                            source_url=trigger.source_url,
+                        )
 
             _logger.info(
                 "ingested document %s (%s/%s): %d mention(s), %d sentence(s), "
