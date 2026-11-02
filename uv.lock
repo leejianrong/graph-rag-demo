@@ -1245,10 +1245,16 @@ version = "0.1.0"
 source = { editable = "bench" }
 dependencies = [
     { name = "graph-rag-demo" },
+    { name = "pydantic" },
+    { name = "pyyaml" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "graph-rag-demo", editable = "." }]
+requires-dist = [
+    { name = "graph-rag-demo", editable = "." },
+    { name = "pydantic", specifier = ">=2" },
+    { name = "pyyaml" },
+]
 
 [[package]]
 name = "litellm"

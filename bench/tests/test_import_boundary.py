@@ -14,6 +14,7 @@ PACKAGE = Path(__file__).resolve().parents[1] / "kgbench"
 ALLOWED = {
     "graph_rag.ports",
     "graph_rag.models",
+    "graph_rag.predicates",
     "graph_rag.fakes",
     "graph_rag.config",
     "graph_rag.ids",
