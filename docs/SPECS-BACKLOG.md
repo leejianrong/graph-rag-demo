@@ -8,6 +8,11 @@
 
 ---
 
+> **Status (2026-11):** historical. B1–B8 were pinned while building V1–V8; the current values live in
+> `graph_rag/config.py` (for example `el_threshold` 0.82, `khop_depth` 2, the ranker weights and the
+> per-stage models), and the code is the truth. Tuning them against independent ground truth is
+> part of the evaluation-bench work on the board.
+
 ## ⚠️ Decide these first — deferred parameters & carried assumptions
 
 These are **not frozen decisions**. They were held open on purpose (tuning knobs

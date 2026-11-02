@@ -23,8 +23,14 @@ have landed. You can bring the whole stack up with one command, feed it
 documents, and query the resulting graph; jump to [Running it
 locally](#running-it-locally) for that.
 
+It's now being shaped toward a product: a memory and knowledge store that agents
+and developers can use through an API, an MCP server and a CLI, with a web UI to
+follow. The first piece of that work is an independent evaluation bench, described
+under [Benchmarking](#benchmarking). Today the demo is single-user and local; see
+[Conventions](#conventions) for what's not built yet.
+
 The design was written down before the code, and it's worth reading if you want
-the reasoning rather than just the moving parts. The [PRD](docs/PRD.md), the ten
+the reasoning rather than just the moving parts. The [PRD](docs/PRD.md), the eleven
 [ADRs](docs/adr/), and the [slice plan](docs/SLICES.md) cover it. Where a doc and
 the code disagree, trust the code.
 
@@ -207,8 +213,9 @@ The slower layers are opt-in and split by pytest marker: `contract` proves each
 real adapter against a throwaway container (MinIO, Elasticsearch, Kafka, Neo4j),
 `model` loads real spaCy and embedding models, `llm` hits a real provider and skips
 cleanly without a key, and `benchmark` runs the whole pipeline over a fixture.
-[CLAUDE.md](CLAUDE.md) has the full command list and the reasoning behind the
-layering.
+[AGENTS.md](AGENTS.md) has the full command list and the reasoning behind the
+layering. Tests for the evaluation bench live in `bench/tests` and run in the fast
+suite.
 
 ## Benchmarking
 
@@ -233,6 +240,29 @@ normalisation. Corpus-local entity linking is order-sensitive, so benchmark runs
 fix the ingestion order and the linking thresholds to stay reproducible. A warm
 run reuses the pre-built graph and the response cache, so it costs about nothing.
 
+### The evaluation bench (in progress)
+
+2WikiMultihopQA only tells you how the pipeline does on someone else's questions.
+To measure retrieval against ground truth we control, the repo is gaining its own
+bench in [`bench/`](bench/) (command `kgbench`, design in
+[ADR-0011](docs/adr/0011-in-repo-evaluation-bench.md)). Instead of grading against
+an extraction of our own, it generates a synthetic world graph from a seeded,
+declarative spec, then derives documents and questions from it, so the gold answer
+never depends on the pipeline under test.
+
+So far the generator exists. You can control how complex the graph is (size, type
+and relation mix, hub-heavy versus uniform degrees, communities, cycles) and the
+same spec and seed always give the same world:
+
+```bash
+uv run kgbench world generate --preset medium --out world.json
+uv run kgbench world generate --spec my-world.yaml --seed 7
+```
+
+Presets run from `tiny` to `stress` (50,000 entities). Not built yet: aliases and
+homonyms, document and question generation, extraction and retrieval scoring, and
+the BM25 and dense-retrieval baselines the comparison needs.
+
 ## Where the design lives
 
 The thinking is all written down, and it's worth reading before any code:
@@ -252,5 +282,6 @@ The thinking is all written down, and it's worth reading before any code:
 
 Python 3.12, dependencies managed with [uv](https://github.com/astral-sh/uv),
 modular layout with type hints and docstrings throughout. English-only corpus.
-No authentication and no multi-tenancy: this is built to run on your laptop, not
-to be deployed.
+No authentication and no multi-tenancy yet: this is built to run on your laptop, not
+to be deployed. Tenancy, API keys, incremental ingest and an MCP interface are the
+next planned work.

@@ -340,15 +340,10 @@ Nice-to-haves that are their own mechanism (R5.6, R8.5) land in V7 and V8. R3.6
 
 ---
 
-## Next process step
+## What came after V8
 
-Steps C (shaping) and E (consistency) are complete. **Step F is folded into this
-doc** — each slice above carries its **Implementation** notes and a three-tier
-**Test Plan** (End-to-End / Integration / Unit), so no separate `SLICE-V*.md`
-files are produced (streamlining, per WORKFLOW-PAINPOINTS #22). The technical
-architecture is in [`ARCHITECTURE.md`](./ARCHITECTURE.md) (Step G) and the
-test-strategy audit in [`TESTING.md`](./TESTING.md) (Step H).
-
-**Remaining:** Step I (to-issues) — turn these slices into epic + issue tickets
-on the Simple Kanban board via `/project-manager-kanban`. Then implementation,
-building V1→V6 (critical path) then V7/V8.
+V1–V8 are built and merged; this document is the plan they followed. Post-V8 work (the
+evaluation bench, tenancy, incremental ingest, the agent interface, a UI) is planned and tracked on the
+project board (epics `GRA-E4` to `GRA-E12`), with the bench's design in
+[ADR-0011](./adr/0011-in-repo-evaluation-bench.md). The technical architecture is in
+[`ARCHITECTURE.md`](./ARCHITECTURE.md) and the test-strategy audit in [`TESTING.md`](./TESTING.md).
