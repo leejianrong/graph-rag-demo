@@ -36,6 +36,9 @@ dev = [
     "httpx",
     "testcontainers[minio,elasticsearch,kafka,neo4j]",
     "ruff",
+    # The independent evaluation bench (ADR-0011) is a workspace member; listing it
+    # here makes `uv sync --extra dev` install it so `kgbench` and its tests work.
+    "kgbench",
 ]
 # Transformer NER runtime (ADR-0002). Only the real stack / a trf-backed run
 # needs these; the fast suite uses `en_core_web_sm` under plain spaCy.
@@ -56,6 +59,12 @@ embed = [
 # V8 benchmark CLI (U4): `benchmark run --subset small` (also `python -m graph_rag.benchmark`).
 benchmark = "graph_rag.benchmark.cli:main"
 
+[tool.uv.workspace]
+members = ["bench"]
+
+[tool.uv.sources]
+kgbench = { workspace = true }
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -71,7 +80,7 @@ target-version = "py312"
 select = ["E", "F", "I", "W", "UP", "B"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["tests", "bench/tests"]
 markers = [
     "contract: real-service tests via testcontainers (excluded from the fast suite)",
     "e2e: end-to-end tests driving an entry point through the port seam",

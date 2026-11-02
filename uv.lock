@@ -6,6 +6,12 @@ resolution-markers = [
     "python_full_version < '3.14'",
 ]
 
+[manifest]
+members = [
+    "graph-rag-demo",
+    "kgbench",
+]
+
 [[package]]
 name = "aiohappyeyeballs"
 version = "2.7.1"
@@ -872,6 +878,7 @@ dependencies = [
 [package.optional-dependencies]
 dev = [
     { name = "httpx" },
+    { name = "kgbench" },
     { name = "pytest" },
     { name = "ruff" },
     { name = "testcontainers", extra = ["minio", "neo4j"] },
@@ -890,6 +897,7 @@ requires-dist = [
     { name = "fastapi" },
     { name = "httpx", marker = "extra == 'dev'" },
     { name = "kafka-python" },
+    { name = "kgbench", marker = "extra == 'dev'", editable = "bench" },
     { name = "litellm" },
     { name = "minio" },
     { name = "neo4j", specifier = ">=6.2.0,<7" },
@@ -1230,6 +1238,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/bb/a9/e8b96f7f71aacd94f
 wheels = [
     { url = "https://files.pythonhosted.org/packages/41/ff/7b151e958d98cd6db252b1908f028e049744d26ec9373b1d01959e3bfb47/kafka_python-3.0.12-py3-none-any.whl", hash = "sha256:67add72052e3ad0c37ed9963ebe2b1696adc7f063c64eaf19862c21b69a64a18", size = 614268, upload-time = "2026-10-26T18:46:07.367Z" },
 ]
+
+[[package]]
+name = "kgbench"
+version = "0.1.0"
+source = { editable = "bench" }
+dependencies = [
+    { name = "graph-rag-demo" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "graph-rag-demo", editable = "." }]
 
 [[package]]
 name = "litellm"
