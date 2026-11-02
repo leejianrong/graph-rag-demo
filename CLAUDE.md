@@ -266,6 +266,10 @@ real gate.
 - `graph_rag/benchmark/` — V8: `metrics.py` (pure scoring), `dataset.py` (2Wiki loader
   + fixed subsets, B8), `harness.py`, `pipeline.py` (offline/real wiring), `cli.py`
   (console script `benchmark`).
+- `bench/` — the independent evaluation bench (ADR-0011): a uv workspace member with package
+  `kgbench`, CLI `kgbench`, tests in `bench/tests` (run by the fast suite). It may import
+  `graph_rag` only via ports and public entry points (`bench/tests/test_import_boundary.py`).
+  The V8 `graph_rag/benchmark/` folds into it (board GRA-E12).
 - `graph_rag/messaging/` — Kafka trigger publisher + thin consumer.
 - `graph_rag/api.py` — FastAPI `create_app(object_store, publisher, settings)`.
 - `tests/e2e/` fast E2E · `tests/contract/` real-adapter contract · `tests/unit/` units ·
