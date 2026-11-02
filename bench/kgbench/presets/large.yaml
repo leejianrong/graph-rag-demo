@@ -1,0 +1,8 @@
+# large: preset for kgbench world generation. Every key is a WorldSpec knob.
+seed: 0
+n_entities: 10000
+avg_degree: 6
+degree_skew: 1.0
+n_communities: 25
+community_mixing: 0.2
+cycle_rate: 0.05

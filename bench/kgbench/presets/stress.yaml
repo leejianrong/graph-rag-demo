@@ -1,0 +1,8 @@
+# stress: preset for kgbench world generation. Every key is a WorldSpec knob.
+seed: 0
+n_entities: 50000
+avg_degree: 8
+degree_skew: 1.2
+n_communities: 100
+community_mixing: 0.3
+cycle_rate: 0.1
