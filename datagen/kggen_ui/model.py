@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from kggen.export import export_archive
 from kggen.questions import MAX_HOPS, Question, QuestionSpec, generate_questions
 from kggen.render import Document, RenderSpec, Sentence, render_documents
 from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
@@ -281,6 +282,27 @@ def fact_note(index: WorldIndex | None, fact_id: str | None) -> str:
     return text
 
 
+# -- export ------------------------------------------------------------------------------------
+
+
+def export_name(world: World) -> str:
+    """The file name for a world's dataset: what and which, so downloads do not collide."""
+    return f"kggen-{world.spec.n_entities}-entities-seed{world.spec.seed}.zip"
+
+
+def export_dataset(
+    world: World, questions: QuestionSpec | None, render: RenderSpec | None
+) -> tuple[bytes, str]:
+    """The reproducible dataset zip for the world, with the question and render specs that made the
+    questions and documents on screen (their defaults when the form was not valid)."""
+    data = export_archive(world, questions or QuestionSpec(), render or RenderSpec())
+    return data, export_name(world)
+
+
+def export_summary(data: bytes, name: str) -> str:
+    return f"{name}: {len(data) / 1e6:.1f} MB. Re-run it with the command in its README."
+
+
 # What the graph view can hold (the indah Graph component's ceiling, ADR-0048).
 MAX_GRAPH_NODES = 20_000
 MAX_GRAPH_EDGES = 60_000
@@ -392,6 +414,9 @@ __all__ = [
     "Knob",
     "Summary",
     "answer_text",
+    "export_dataset",
+    "export_name",
+    "export_summary",
     "document_rows",
     "fact_highlight",
     "fact_note",

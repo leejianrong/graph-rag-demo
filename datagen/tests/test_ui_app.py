@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
 pytest.importorskip("indah")  # the UI is an optional extra; the fast gate runs without it
@@ -318,3 +320,102 @@ def test_clicking_a_sentence_about_a_fact_that_ended_does_not_break_the_graph() 
     ui.picked_fact.set(ended.id)  # an edge the graph does not draw: must not raise
     props = graph_props(ui)
     assert props["highlight"] == {"nodes": [ended.subject, ended.object], "edges": []}
+
+
+# -- export --------------------------------------------------------------------------------------
+
+import io  # noqa: E402
+import zipfile  # noqa: E402
+
+from kggen.export import Specs, reproduce, zip_bytes  # noqa: E402
+from kggen.questions import QuestionSpec  # noqa: E402
+from kggen.render import RenderSpec  # noqa: E402
+from kggen.spec import WorldSpec  # noqa: E402
+
+
+def exported_files(ui) -> dict[str, bytes]:
+    with zipfile.ZipFile(io.BytesIO(ui.export_file.value.data)) as archive:
+        return {name: archive.read(name) for name in archive.namelist()}
+
+
+def test_preparing_an_export_offers_a_zip_of_the_world_on_screen() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    assert ui.export_file.value is None
+    ui.prepare_export()
+    file = ui.export_file.value
+    assert file.filename == "kggen-150-entities-seed0.zip" and file.media_type == "application/zip"
+    files = exported_files(ui)
+    assert {"world.json", "questions.json", "documents.json", "spec.json", "README.md"} <= set(
+        files
+    )
+    assert file.filename in ui.export_note.value
+
+
+def test_exporting_before_a_world_exists_asks_for_one() -> None:
+    ui = build_ui()
+    ui.prepare_export()
+    assert ui.export_note.value == "Generate a world first." and ui.export_file.value is None
+
+
+def test_the_download_remakes_the_same_bytes_from_the_specs_inside_it() -> None:
+    """The card's promise, for the file the UI actually offers."""
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.values["alias_rate"].set(0.4)
+    ui.values["distractor_rate"].set(0.1)
+    ui.values["churn_rate"].set(0.1)
+    ui.question_values["n_questions"].set(12)
+    ui.doc_values["max_facts_per_doc"].set(4)
+    ui.generate()
+    ui.prepare_export()
+    files = exported_files(ui)
+    again = reproduce(
+        Specs(
+            world=WorldSpec.model_validate_json(files["spec.json"]),
+            questions=QuestionSpec.model_validate_json(files["questions_spec.json"]),
+            render=RenderSpec.model_validate_json(files["render_spec.json"]),
+        )
+    )
+    assert again == files
+    assert ui.export_file.value.data == zip_bytes(files)
+    assert len(json.loads(files["questions.json"])) == 12  # the form's settings, not the defaults
+
+
+def test_the_export_records_the_settings_the_questions_on_screen_were_made_with() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    for hop in (1, 2, 4):
+        ui.question_values[f"hops_{hop}"].set(0)
+    ui.derive()
+    ui.prepare_export()
+    spec = QuestionSpec.model_validate_json(exported_files(ui)["questions_spec.json"])
+    assert set(spec.hop_mix) == {3}
+    questions = json.loads(exported_files(ui)["questions.json"])
+    assert {q["hops"] for q in questions} == {3}
+
+
+def test_changing_the_world_the_questions_or_the_documents_drops_a_stale_export() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    for change in (ui.generate, ui.derive, ui.render):
+        ui.prepare_export()
+        assert ui.export_file.value is not None
+        change()
+        assert ui.export_file.value is None and ui.export_note.value == ""
+
+
+def test_the_export_card_is_in_the_page_with_a_download_link() -> None:
+    ui = build_ui()
+    kinds = []
+
+    def walk(node):
+        kinds.append(node.get("type"))
+        for child in node.get("children", []) or []:
+            walk(child)
+
+    walk(indah.Session(ui.root).snapshot())
+    assert "download" in kinds

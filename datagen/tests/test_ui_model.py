@@ -413,3 +413,18 @@ def test_rendering_needs_no_network() -> None:
         assert model.render_world(doc_world(), model.RENDER_DEFAULTS)
     finally:
         socket.socket = real
+
+
+# -- export ------------------------------------------------------------------------------------
+
+
+def test_the_export_name_says_what_and_which() -> None:
+    world = model.generate_world({**model.preset_values("tiny"), "seed": 9})
+    assert model.export_name(world) == "kggen-30-entities-seed9.zip"
+
+
+def test_export_falls_back_to_default_specs_when_a_form_was_not_valid() -> None:
+    world = model.generate_world(model.preset_values("small"))
+    data, name = model.export_dataset(world, None, None)
+    assert name.endswith(".zip") and data[:2] == b"PK"
+    assert "MB" in model.export_summary(data, name) and name in model.export_summary(data, name)
