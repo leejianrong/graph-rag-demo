@@ -42,6 +42,10 @@ class UI:
     sentences: indah.Signal  # fact id -> the sentence that expresses it
     picked_doc: indah.Signal  # the id of the document being read, or None
     picked_fact: indah.Signal  # the fact id of the sentence the viewer clicked, or None
+    question_spec: indah.Signal  # the QuestionSpec the questions on screen were derived with
+    render_spec: indah.Signal  # the RenderSpec the documents on screen were rendered with
+    export_file: indah.Signal  # a DownloadFile once the export is prepared, else None
+    export_note: indah.Signal  # how big the prepared export is, or why there is none
 
     def current_values(self) -> dict[str, float]:
         return {name: signal.value for name, signal in self.values.items()}
@@ -69,6 +73,11 @@ class UI:
         return documents, f"{len(documents):,} documents{more}."
 
     def _set_documents(self, documents: tuple, note: str) -> None:
+        self._drop_export()
+        try:
+            self.render_spec.set(model.render_spec_from_values(self.current_doc_values()))
+        except ValueError:
+            self.render_spec.set(None)
         self.picked_doc.set(None)  # old picks may name documents and sentences that are gone
         self.picked_fact.set(None)
         self.documents.set(documents)
@@ -83,7 +92,17 @@ class UI:
         except ValueError as exc:
             return (), str(exc)
 
+    def _drop_export(self) -> None:
+        """An export holds the world, questions and documents, so any change makes it stale."""
+        self.export_file.set(None)
+        self.export_note.set("")
+
     def _set_questions(self, questions: tuple, note: str) -> None:
+        self._drop_export()
+        try:
+            self.question_spec.set(model.question_spec_from_values(self.current_question_values()))
+        except ValueError:
+            self.question_spec.set(None)
         self.picked.set(None)  # an old pick may name a question that is gone
         self.questions.set(questions)
         self.question_rows.set(model.question_rows(questions))
@@ -135,6 +154,16 @@ class UI:
             return
         documents, note = self._render(world)
         indah.batch(lambda: self._set_documents(documents, note))
+
+    def prepare_export(self) -> None:
+        """Build the dataset zip for the world on screen and offer it for download."""
+        world = self.world.value
+        if world is None:
+            self.export_note.set("Generate a world first.")
+            return
+        data, name = model.export_dataset(world, self.question_spec.value, self.render_spec.value)
+        self.export_file.set(indah.DownloadFile(data, name, "application/zip"))
+        self.export_note.set(model.export_summary(data, name))
 
     def highlight(self) -> dict | None:
         """What the graph emphasises: the clicked sentence's fact, else the picked question's path.
@@ -194,6 +223,10 @@ def build_ui() -> UI:
         sentences=indah.Signal({}),
         picked_doc=indah.Signal(None),
         picked_fact=indah.Signal(None),
+        question_spec=indah.Signal(None),
+        render_spec=indah.Signal(None),
+        export_file=indah.Signal(None),
+        export_note=indah.Signal(""),
     )
 
     # One thing is emphasised on the graph at a time: picking a question clears the clicked
@@ -251,6 +284,7 @@ def build_ui() -> UI:
             world_card(ui),
             questions_card(ui),
             documents_card(ui),
+            export_card(ui),
             *entity_cards(ui),
             indah.Card(
                 title="Asked for vs. realized",
@@ -391,6 +425,23 @@ def documents_card(ui: UI) -> indah.Component:
                     ),
                 }
             ),
+        ],
+    )
+
+
+def export_card(ui: UI) -> indah.Component:
+    """Download the world, questions and documents as one dataset that can be made again."""
+    return indah.Card(
+        title="Export",
+        children=[
+            indah.Text(
+                "One zip with the world, the questions with their gold paths, the documents, "
+                "and the specs that made them. Run the command in its README on those specs and "
+                "you get the same bytes back."
+            ),
+            indah.Button("Prepare export", ui.prepare_export, variant="tonal"),
+            indah.Text(lambda: ui.export_note.value),
+            indah.Download(ui.export_file, label="Download the dataset (.zip)"),
         ],
     )
 
