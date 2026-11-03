@@ -61,3 +61,18 @@ def test_a_world_that_cannot_be_placed_is_a_readable_error() -> None:
     values = {**model.preset_values("tiny"), "n_entities": 4, "avg_degree": 20}
     with pytest.raises(ValueError, match="edges"):
         model.generate_world(values)
+
+
+def test_every_knob_belongs_to_a_known_group_and_the_form_covers_the_spec() -> None:
+    assert {k.group for k in model.KNOBS} <= set(model.GROUPS)
+    assert {"alias_rate", "homonym_rate", "distractor_rate", "noise_rate"} <= set(model.KNOB_NAMES)
+    assert {"churn_rate", "retraction_rate"} <= set(model.KNOB_NAMES)
+
+
+def test_check_rows_compare_what_was_asked_with_what_was_realized() -> None:
+    values = {**model.preset_values("small"), "alias_rate": 0.4, "churn_rate": 0.1}
+    rows = model.check_rows(model.generate_world(values))
+    by_knob = {r[0]: r for r in rows}
+    assert by_knob["alias_rate"][1] == "0.4"
+    assert by_knob["n_entities"][1:3] == ["150", "150"]
+    assert all(r[3] == "ok" for r in rows)

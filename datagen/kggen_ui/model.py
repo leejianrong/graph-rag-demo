@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
+from kggen.stats import check_against_spec
 from kggen.world import World, WorldGenerationError, generate
 from pydantic import ValidationError
 
@@ -19,9 +20,10 @@ class Knob:
     max: float
     step: float
     integer: bool = False
+    group: str = "shape"  # which card of the form it sits in
 
 
-# The structural knobs; ambiguity and churn knobs join them with the stats panel.
+GROUPS = {"shape": "Graph shape", "ambiguity": "Ambiguity", "churn": "Change over time"}
 KNOBS: tuple[Knob, ...] = (
     Knob("n_entities", "Entities", 2, MAX_ENTITIES, 10, integer=True),
     Knob("avg_degree", "Average degree", 0.5, 20, 0.5),
@@ -30,6 +32,12 @@ KNOBS: tuple[Knob, ...] = (
     Knob("community_mixing", "Community mixing", 0, 1, 0.05),
     Knob("cycle_rate", "Cycle rate", 0, 1, 0.01),
     Knob("seed", "Seed", 0, 1_000_000, 1, integer=True),
+    Knob("alias_rate", "Entities with aliases", 0, 1, 0.05, group="ambiguity"),
+    Knob("homonym_rate", "Homonyms (shared names)", 0, 1, 0.01, group="ambiguity"),
+    Knob("distractor_rate", "Distractor entities", 0, 1, 0.01, group="ambiguity"),
+    Knob("noise_rate", "Vague relations", 0, 1, 0.05, group="ambiguity"),
+    Knob("churn_rate", "Facts replaced later", 0, 1, 0.05, group="churn"),
+    Knob("retraction_rate", "Facts retracted later", 0, 1, 0.05, group="churn"),
 )
 KNOB_NAMES = tuple(k.name for k in KNOBS)
 DEFAULT_PRESET = "small"
@@ -73,6 +81,18 @@ def generate_world(values: dict[str, float], base: WorldSpec | None = None) -> W
         raise ValueError(str(exc)) from None
 
 
+def _fmt(value: float) -> str:
+    return f"{value:,.0f}" if abs(value) >= 100 else f"{value:.3g}"
+
+
+def check_rows(world: World) -> list[list[str]]:
+    """Each knob's target and realized value with a pass mark, for the stats panel."""
+    return [
+        [c.knob, _fmt(c.target), _fmt(c.realized), "ok" if c.ok else "off target"]
+        for c in check_against_spec(world)
+    ]
+
+
 @dataclass(frozen=True)
 class Summary:
     entities: int
@@ -86,12 +106,14 @@ def summarize(world: World) -> Summary:
 
 __all__ = [
     "DEFAULT_PRESET",
+    "GROUPS",
     "KNOBS",
     "KNOB_NAMES",
     "MAX_ENTITIES",
     "PRESET_NAMES",
     "Knob",
     "Summary",
+    "check_rows",
     "generate_world",
     "preset_values",
     "spec_from_values",

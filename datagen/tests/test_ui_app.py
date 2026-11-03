@@ -52,3 +52,18 @@ def test_two_viewers_do_not_share_state() -> None:
 
 def test_a_session_builds() -> None:
     assert build_session() is not None
+
+
+def test_generate_fills_the_stats_panel_and_says_everything_is_on_target() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    assert ui.checks.value == []
+    ui.values["alias_rate"].set(0.3)
+    ui.generate()
+    assert {r[0] for r in ui.checks.value} >= {"n_entities", "alias_rate", "avg_degree"}
+    assert all(r[3] == "ok" for r in ui.checks.value)
+
+
+def test_the_form_has_one_input_per_knob() -> None:
+    ui = build_ui()
+    assert set(ui.values) == set(model.KNOB_NAMES)
