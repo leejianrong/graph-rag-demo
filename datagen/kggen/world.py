@@ -13,8 +13,8 @@ import random
 from bisect import bisect_right
 from dataclasses import dataclass
 
-from kgbench.names import NameFactory
-from kgbench.spec import WorldSpec
+from kggen.names import NameFactory, alias_forms
+from kggen.spec import VAGUE_PREDICATE, WorldSpec
 
 
 class WorldGenerationError(ValueError):
@@ -27,6 +27,8 @@ class Entity:
     name: str
     type: str
     community: int
+    aliases: tuple[str, ...] = ()
+    distractor: bool = False
 
 
 @dataclass(frozen=True)
@@ -34,6 +36,8 @@ class Edge:
     subject: str
     predicate: str
     object: str
+    valid_from: int = 0
+    valid_to: int | None = None  # None: still true in the last year
 
 
 @dataclass(frozen=True)
@@ -43,6 +47,18 @@ class World:
     spec: WorldSpec
     entities: tuple[Entity, ...]
     edges: tuple[Edge, ...]
+
+    def edges_as_of(self, year: int) -> tuple[Edge, ...]:
+        """The facts true in ``year``: started by then and not yet ended."""
+        return tuple(
+            e
+            for e in self.edges
+            if e.valid_from <= year and (e.valid_to is None or year < e.valid_to)
+        )
+
+    def current_edges(self) -> tuple[Edge, ...]:
+        """The expected final state: every fact that was never ended."""
+        return tuple(e for e in self.edges if e.valid_to is None)
 
     def to_dict(self) -> dict:
         return {
@@ -92,13 +108,9 @@ def generate(spec: WorldSpec) -> World:
     rng.shuffle(community)
 
     names = NameFactory(rng)
-    width = len(str(n - 1))
-    entities = tuple(
-        Entity(
-            id=f"E{i:0{width}d}", name=names.new(types[i]), type=types[i], community=community[i]
-        )
-        for i in range(n)
-    )
+    n_distractors = round(spec.distractor_rate * n)
+    width = len(str(n + n_distractors - 1))
+    name_of = [names.new(types[i]) for i in range(n)]
 
     # Hub-ness: a random ranking turned into Zipf weights (skew 0 gives uniform weights).
     ranking = list(range(n))
@@ -181,22 +193,149 @@ def generate(spec: WorldSpec) -> World:
         return add(c, predicate, a)
 
     n_edges = max(1, round(n * spec.avg_degree / 2))
-    n_closing = round(spec.cycle_rate * n_edges)
+    n_noise = min(round(spec.noise_rate * n_edges), n_edges - 1)
+    n_core = n_edges - n_noise
+    n_closing = round(spec.cycle_rate * n_core)
     budget = 200 * n_edges + 1000
 
-    while len(edges) < n_edges - n_closing and budget > 0:
+    while len(edges) < n_core - n_closing and budget > 0:
         draw_base_edge()
         budget -= 1
-    while len(edges) < n_edges and n_closing and budget > 0:
+    while len(edges) < n_core and n_closing and budget > 0:
         draw_closing_edge()
         budget -= 1
-    while len(edges) < n_edges and budget > 0:  # closing edges that could not be placed
+    while len(edges) < n_core and budget > 0:  # closing edges that could not be placed
         draw_base_edge()
+        budget -= 1
+    while len(edges) < n_edges and budget > 0:  # vague links between any two entities
+        add(rng.randrange(n), VAGUE_PREDICATE, rng.randrange(n))
         budget -= 1
     if len(edges) < n_edges:
         raise WorldGenerationError(
             f"could only place {len(edges)} of {n_edges} edges; lower avg_degree or add entities"
         )
 
-    ordered = sorted((entities[s].id, p, entities[o].id) for s, p, o in edges)
+    dated = _churn(spec, edges, by_type, types)
+    ids = [f"E{i:0{width}d}" for i in range(n + n_distractors)]
+    entities = _entities(spec, ids, name_of, types, community, n_distractors)
+    distractor_edges = _distractor_edges(spec, entities[n:])
+    ordered = sorted(
+        [(ids[s], p, ids[o], vf, vt) for s, p, o, vf, vt in dated] + distractor_edges,
+        key=lambda e: (e[0], e[1], e[2], e[3]),
+    )
     return World(spec=spec, entities=entities, edges=tuple(Edge(*e) for e in ordered))
+
+
+def _churn(
+    spec: WorldSpec,
+    edges: list[tuple[int, str, int]],
+    by_type: dict[str, list[int]],
+    types: list[str],
+) -> list[tuple[int, str, int, int, int | None]]:
+    """Date every edge; some are replaced by a new object and some retracted."""
+    rng = random.Random(f"{spec.seed}:churn")
+    start = spec.start_year
+    dated: list[tuple[int, str, int, int, int | None]] = [
+        (s, p, o, start, None) for s, p, o in edges
+    ]
+    n_replace = round(spec.churn_rate * len(edges))
+    n_retract = round(spec.retraction_rate * len(edges))
+    if not n_replace + n_retract:
+        return dated
+    taken = {(s, p, o) for s, p, o in edges}
+    order = list(range(len(edges)))
+    rng.shuffle(order)
+    replaced = retracted = 0
+    for i in order:
+        if replaced >= n_replace and retracted >= n_retract:
+            break
+        s, p, o, _, _ = dated[i]
+        year = rng.randint(start + 1, spec.end_year)
+        if replaced < n_replace:
+            options = [c for c in by_type[types[o]] if c not in (s, o) and (s, p, c) not in taken]
+            if options:
+                new = rng.choice(options)
+                taken.add((s, p, new))
+                dated[i] = (s, p, o, start, year)
+                dated.append((s, p, new, year, None))
+                replaced += 1
+                continue
+        if retracted < n_retract:
+            dated[i] = (s, p, o, start, year)
+            retracted += 1
+    if replaced < n_replace or retracted < n_retract:
+        raise WorldGenerationError(
+            "could not place all churn and retractions; lower churn_rate or retraction_rate"
+        )
+    return dated
+
+
+def _entities(
+    spec: WorldSpec,
+    ids: list[str],
+    name_of: list[str],
+    types: list[str],
+    community: list[int],
+    n_distractors: int,
+) -> tuple[Entity, ...]:
+    """Build the entities, then apply homonyms, aliases and look-alike distractors."""
+    rng = random.Random(f"{spec.seed}:ambiguity")
+    n = len(types)
+    names = list(name_of)
+
+    # Homonyms: some entities take over another entity's exact name.
+    homonyms = rng.sample(range(n), round(spec.homonym_rate * n))
+    taken = set(homonyms)
+    twins = [i for i in range(n) if i not in taken]
+    for i in homonyms:
+        same = [t for t in twins if types[t] == types[i]]
+        other = [t for t in twins if types[t] != types[i]]
+        pool = same if (rng.random() < spec.homonym_same_type and same) or not other else other
+        names[i] = names[rng.choice(pool)]
+
+    # Aliases: a share of entities get alternative names that no entity already uses.
+    used_names = set(names)
+    aliases: dict[int, tuple[str, ...]] = {}
+    wanted = round(spec.alias_rate * n)
+    for i in rng.sample(range(n), n):
+        if len(aliases) >= wanted:
+            break
+        forms = [a for a in alias_forms(names[i], types[i]) if a not in used_names]
+        if forms:
+            aliases[i] = tuple(forms[: rng.randint(1, spec.aliases_per_entity)])
+
+    real = [Entity(ids[i], names[i], types[i], community[i], aliases.get(i, ())) for i in range(n)]
+
+    # Distractors: new entities whose names resemble real ones.
+    factory = NameFactory(rng, used_names)
+    out = list(real)
+    for k in range(n_distractors):
+        model = real[rng.randrange(n)]
+        name = factory.look_alike(model.name, model.type)
+        out.append(Entity(ids[n + k], name, model.type, model.community, (), True))
+    return tuple(out)
+
+
+def _distractor_edges(
+    spec: WorldSpec, distractors: tuple[Entity, ...]
+) -> list[tuple[str, str, str, int, int | None]]:
+    """One edge from each distractor to another, so distractor documents have facts."""
+    rng = random.Random(f"{spec.seed}:distractor-edges")
+    feasible = spec.feasible_pairs()
+    out: list[tuple[str, str, str, int, int | None]] = []
+    seen: set[tuple[str, str, str]] = set()
+    for d in distractors:
+        options = [
+            (p, o)
+            for o in distractors
+            if o.id != d.id
+            for p, pairs in feasible.items()
+            if (d.type, o.type) in pairs
+        ]
+        if not options:
+            continue
+        p, o = rng.choice(options)
+        if (d.id, p, o.id) not in seen:
+            seen.add((d.id, p, o.id))
+            out.append((d.id, p, o.id, spec.start_year, None))
+    return out

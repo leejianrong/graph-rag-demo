@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import pytest
-from kgbench.spec import PRESET_NAMES, WorldSpec, load_preset, load_spec
+from kggen.spec import PRESET_NAMES, WorldSpec, load_preset, load_spec
 from pydantic import ValidationError
 
 

@@ -1,4 +1,4 @@
-# medium: preset for kgbench world generation. Every key is a WorldSpec knob.
+# medium: preset for kggen world generation. Every key is a WorldSpec knob.
 seed: 0
 n_entities: 1000
 avg_degree: 5
