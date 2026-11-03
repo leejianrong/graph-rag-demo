@@ -121,3 +121,99 @@ def test_the_focus_size_is_a_signal_the_graph_reads() -> None:
     assert ui.window.value == 300
     ui.window.set(50)
     assert ui.window.value == 50
+
+
+# -- questions and gold paths ------------------------------------------------------------------
+
+
+def graph_props(ui):
+    """The props the Graph component sends right now, read from a live session snapshot."""
+    snap = indah.Session(ui.root).snapshot()
+
+    def find(node):
+        if node.get("type") == "graph":
+            return node["props"]
+        for child in node.get("children", []) or []:
+            found = find(child)
+            if found is not None:
+                return found
+
+    return find(snap)
+
+
+def test_generate_derives_questions_and_fills_the_table() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    assert ui.questions.value == ()
+    ui.generate()
+    assert len(ui.questions.value) == 20
+    assert [r["id"] for r in ui.question_rows.value] == [q.id for q in ui.questions.value]
+    assert ui.question_note.value == "20 questions."
+
+
+def test_the_hop_mix_control_changes_the_derived_questions() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    for hop in (1, 2, 4):
+        ui.question_values[f"hops_{hop}"].set(0)
+    ui.derive()  # re-derive from the same world, with the new mix
+    assert {q.hops for q in ui.questions.value} == {3}
+    assert ui.world.value is not None
+
+
+def test_a_bad_question_form_says_why_and_keeps_the_world() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    ui.question_values["n_questions"].set(0)
+    ui.derive()
+    assert "Questions must be between" in ui.question_note.value
+    assert ui.questions.value == () and ui.entities.value == "150"
+
+
+def test_deriving_before_a_world_exists_asks_for_one() -> None:
+    ui = build_ui()
+    ui.derive()
+    assert ui.question_note.value == "Generate a world first."
+
+
+def test_regenerating_clears_the_picked_question() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    ui.picked.set(ui.questions.value[0].id)
+    ui.values["seed"].set(ui.values["seed"].value + 1)
+    ui.generate()
+    assert ui.picked.value is None and ui.picked_question() is None
+
+
+@needs_graph
+def test_picking_a_question_highlights_its_gold_path_and_centres_on_its_start() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    q = next(q for q in ui.questions.value if q.hops == 3)
+    assert graph_props(ui)["highlight"] == {"nodes": [], "edges": []}
+    ui.picked.set(q.id)
+    nodes, edges = model.gold_path(ui.index.value, q)
+    props = graph_props(ui)
+    assert props["highlight"] == {"nodes": nodes, "edges": edges}
+    assert props["focus"] == q.start
+    ui.picked.set(None)
+    assert graph_props(ui)["highlight"] == {"nodes": [], "edges": []}
+
+
+@needs_graph
+def test_an_oversize_world_lists_questions_but_does_not_highlight() -> None:
+    ui = build_ui()
+    ui.preset.set("tiny")
+    # Sparse, so unique-answer questions exist, but past the graph view's 20,000-node limit.
+    for knob, value in {"n_entities": 20_000, "avg_degree": 2, "distractor_rate": 0.2}.items():
+        ui.values[knob].set(value)
+    ui.values["n_communities"].set(8)
+    ui.generate()
+    assert ui.graph_note.value and ui.questions.value
+    ui.picked.set(ui.questions.value[0].id)
+    assert ui.highlight() is None and ui.focus() is None
+    assert graph_props(ui)["highlight"] == {"nodes": [], "edges": []}

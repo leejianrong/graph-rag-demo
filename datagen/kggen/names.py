@@ -44,12 +44,16 @@ class NameFactory:
         raise ValueError(f"no name pattern for entity type {entity_type!r}")
 
     def look_alike(self, name: str, entity_type: str) -> str:
-        """A fresh unique name that shares its first word with ``name`` (a retrieval distractor)."""
+        """A fresh unique name that resembles ``name`` (a retrieval distractor): it keeps the first
+        word and changes the rest. A type with few endings (seven organisation suffixes) runs out
+        of those when many distractors imitate the same name, so after a few tries the first word
+        is varied slightly too, which always leaves more candidates."""
         first, *rest = name.split()
         for attempt in range(1, 10_000):
             if rest:
+                lead = first if attempt <= 12 else first[:-2] + self._word(1 + attempt // 60)
                 tail = self._candidate(entity_type, 2).split(maxsplit=1)
-                candidate = f"{first} {tail[-1]}"
+                candidate = f"{lead} {tail[-1]}"
             else:
                 candidate = first[:-2] + self._word(1 + attempt // 8)
             if candidate not in self._used:

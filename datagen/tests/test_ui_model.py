@@ -161,3 +161,122 @@ def test_the_summary_names_the_entity_and_prompts_when_nothing_is_selected() -> 
         assert model.entity_summary(index, nothing) == "Click a node to see its facts."
         assert model.fact_rows(index, nothing) == []
     assert model.entity_summary(None, aliased.id) == "Click a node to see its facts."
+
+
+# -- questions ---------------------------------------------------------------------------------
+
+
+def question_world():
+    values = {**model.preset_values("small"), "alias_rate": 0.5, "churn_rate": 0.1}
+    return model.generate_world(values)
+
+
+def test_the_question_form_defaults_to_twenty_questions_across_all_hop_counts() -> None:
+    spec = model.question_spec_from_values(model.QUESTION_DEFAULTS)
+    assert spec.n_questions == 20 and set(spec.hop_mix) == {1, 2, 3, 4}
+
+
+def test_a_hop_weight_of_zero_drops_that_hop_count() -> None:
+    values = {**model.QUESTION_DEFAULTS, "hops_1": 0, "hops_2": 0, "hops_4": 0}
+    assert set(model.question_spec_from_values(values).hop_mix) == {3}
+    questions = model.derive_questions(question_world(), values)
+    assert {q.hops for q in questions} == {3} and len(questions) == 20
+
+
+def test_the_hop_mix_sets_the_distribution_of_derived_questions() -> None:
+    values = {
+        **model.QUESTION_DEFAULTS,
+        "n_questions": 40,
+        "hops_1": 1,
+        "hops_2": 3,
+        "hops_3": 0,
+        "hops_4": 0,
+    }
+    counts = {}
+    for q in model.derive_questions(question_world(), values):
+        counts[q.hops] = counts.get(q.hops, 0) + 1
+    assert counts == {1: 10, 2: 30}
+
+
+@pytest.mark.parametrize(
+    ("change", "message"),
+    [
+        ({"n_questions": 0}, "Questions must be between"),
+        ({"n_questions": ""}, "Questions needs a value"),
+        ({"hops_2": 11}, "2-hop weight must be between"),
+        ({"hops_1": 0, "hops_2": 0, "hops_3": 0, "hops_4": 0}, "at least one hop count"),
+    ],
+)
+def test_a_bad_question_form_gives_a_readable_error(change: dict, message: str) -> None:
+    with pytest.raises(ValueError, match=message):
+        model.question_spec_from_values({**model.QUESTION_DEFAULTS, **change})
+
+
+def test_questions_a_world_cannot_supply_are_a_readable_error() -> None:
+    tiny = model.generate_world({**model.preset_values("tiny"), "n_entities": 6, "avg_degree": 1})
+    with pytest.raises(ValueError, match="could only derive"):
+        model.derive_questions(
+            tiny,
+            {**model.QUESTION_DEFAULTS, "n_questions": 500, "hops_1": 0, "hops_2": 0, "hops_3": 0},
+        )
+
+
+def test_question_rows_carry_the_columns_the_table_shows() -> None:
+    questions = model.derive_questions(question_world(), model.QUESTION_DEFAULTS)
+    rows = model.question_rows(questions)
+    assert [set(r) for r in rows] == [set(model.QUESTION_COLUMNS)] * len(questions)
+    assert [r["id"] for r in rows] == [q.id for q in questions]
+    assert all(r["question"].startswith("Name the ") for r in rows)
+
+
+def test_the_gold_path_is_the_chain_from_the_start_to_the_answer() -> None:
+    world = question_world()
+    index = model.index_world(world)
+    for q in model.derive_questions(world, model.QUESTION_DEFAULTS):
+        nodes, edges = model.gold_path(index, q)
+        assert nodes[0] == q.start and nodes[-1] == q.answer
+        assert len(nodes) == q.hops + 1 and edges == list(q.supporting_facts)
+        for hop, fid in enumerate(edges):
+            fact = index.facts[fid]
+            assert {fact.subject, fact.object} == {nodes[hop], nodes[hop + 1]}
+
+
+def test_the_highlight_names_only_what_the_graph_draws() -> None:
+    world = question_world()
+    index = model.index_world(world)
+    _, edges = model.graph_data(world)
+    drawn_edges = {e["id"] for e in edges}
+    drawn_nodes = {n["id"] for n in model.graph_data(world)[0]}
+    for q in model.derive_questions(world, model.QUESTION_DEFAULTS):
+        highlight = model.highlight_for(index, q)
+        assert set(highlight["edges"]) <= drawn_edges and set(highlight["nodes"]) <= drawn_nodes
+    assert model.highlight_for(index, None) is None and model.highlight_for(None, q) is None
+
+
+def test_the_gold_rows_read_each_fact_and_when_it_held() -> None:
+    world = question_world()
+    index = model.index_world(world)
+    q = next(q for q in model.derive_questions(world, model.QUESTION_DEFAULTS) if q.hops == 3)
+    rows = model.gold_rows(index, q)
+    assert [r[0] for r in rows] == ["1", "2", "3"] and [r[1] for r in rows] == list(
+        q.supporting_facts
+    )
+    for row, fid in zip(rows, q.supporting_facts, strict=True):
+        fact = index.facts[fid]
+        subject, obj = index.entities[fact.subject].name, index.entities[fact.object].name
+        assert row[2] == f"{subject} {fact.predicate} {obj}"
+        assert row[3].startswith(str(fact.valid_from))
+    assert model.gold_rows(index, None) == [] and model.gold_rows(None, q) == []
+
+
+def test_the_answer_text_lists_accepted_aliases_and_prompts_when_nothing_is_picked() -> None:
+    world = question_world()
+    questions = model.derive_questions(world, {**model.QUESTION_DEFAULTS, "n_questions": 100})
+    aliased = next(q for q in questions if len(q.accepted_answers) > 1)
+    text = model.answer_text(aliased)
+    assert aliased.answer_name in text and aliased.accepted_answers[1] in text
+    assert model.answer_text(None) == "Pick a question to see its answer and its gold path."
+    assert (
+        model.find_question(questions, aliased.id) is aliased
+        and model.find_question(questions, None) is None
+    )

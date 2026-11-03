@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from kggen.questions import MAX_HOPS, Question, QuestionSpec, generate_questions
 from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
 from kggen.stats import check_against_spec
 from kggen.world import Edge, Entity, World, WorldGenerationError, generate
@@ -52,21 +53,23 @@ def preset_values(name: str) -> dict[str, float]:
     return values_from_spec(load_preset(name))
 
 
+def read_knob(knob: Knob, raw: object) -> float:
+    """One form value as a number, or a ``ValueError`` that says what is wrong with it."""
+    if raw is None or raw == "":
+        raise ValueError(f"{knob.label} needs a value")
+    try:
+        number = float(raw)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        raise ValueError(f"{knob.label} must be a number") from None
+    if not knob.min <= number <= knob.max:
+        raise ValueError(f"{knob.label} must be between {knob.min:g} and {knob.max:g}")
+    return int(round(number)) if knob.integer else number
+
+
 def spec_from_values(values: dict[str, float], base: WorldSpec | None = None) -> WorldSpec:
     """Build a validated spec from form values; a ``ValueError`` explains what is wrong."""
     base = base or load_preset(DEFAULT_PRESET)
-    clean: dict[str, float] = {}
-    for knob in KNOBS:
-        raw = values.get(knob.name)
-        if raw is None or raw == "":
-            raise ValueError(f"{knob.label} needs a value")
-        try:
-            number = float(raw)
-        except (TypeError, ValueError):
-            raise ValueError(f"{knob.label} must be a number") from None
-        if not knob.min <= number <= knob.max:
-            raise ValueError(f"{knob.label} must be between {knob.min:g} and {knob.max:g}")
-        clean[knob.name] = int(round(number)) if knob.integer else number
+    clean = {knob.name: read_knob(knob, values.get(knob.name)) for knob in KNOBS}
     try:
         return base.with_overrides(**clean)
     except ValidationError as exc:
@@ -91,6 +94,100 @@ def check_rows(world: World) -> list[list[str]]:
         [c.knob, _fmt(c.target), _fmt(c.realized), "ok" if c.ok else "off target"]
         for c in check_against_spec(world)
     ]
+
+
+# The question form: how many, and the relative weight of each hop count.
+QUESTION_KNOBS: tuple[Knob, ...] = (
+    Knob("n_questions", "Questions", 1, 500, 1, integer=True, group="questions"),
+    *(
+        Knob(f"hops_{h}", f"{h}-hop weight", 0, 10, 1, integer=True, group="questions")
+        for h in range(1, MAX_HOPS + 1)
+    ),
+)
+QUESTION_DEFAULTS: dict[str, float] = {
+    "n_questions": 20,
+    **{f"hops_{h}": 1 for h in range(1, MAX_HOPS + 1)},
+}
+
+
+def question_spec_from_values(values: dict[str, float]) -> QuestionSpec:
+    """Build the question spec from the form; a ``ValueError`` explains what is wrong."""
+    read = {k.name: read_knob(k, values.get(k.name)) for k in QUESTION_KNOBS}
+    mix = {h: float(read[f"hops_{h}"]) for h in range(1, MAX_HOPS + 1) if read[f"hops_{h}"] > 0}
+    if not mix:
+        raise ValueError("Give at least one hop count a weight above 0")
+    return QuestionSpec(n_questions=int(read["n_questions"]), hop_mix=mix)
+
+
+def derive_questions(world: World, values: dict[str, float]) -> tuple[Question, ...]:
+    """Questions from the world, or a ``ValueError`` saying why it cannot (for example, too few
+    chains with a unique answer in a small world)."""
+    try:
+        return generate_questions(world, question_spec_from_values(values))
+    except WorldGenerationError as exc:
+        raise ValueError(str(exc)) from None
+
+
+QUESTION_COLUMNS = ("id", "hops", "question", "answer")
+
+
+def question_rows(questions: tuple[Question, ...] | list[Question]) -> list[dict]:
+    """The question list as table rows."""
+    return [
+        {"id": q.id, "hops": q.hops, "question": q.question, "answer": q.answer_name}
+        for q in questions
+    ]
+
+
+def find_question(questions: tuple[Question, ...] | list[Question], qid: str | None):
+    return next((q for q in questions if q.id == qid), None)
+
+
+def gold_path(index: WorldIndex, q: Question) -> tuple[list[str], list[str]]:
+    """The entities along a question's chain, start to answer, and the facts that link them."""
+    nodes, facts = [q.start], list(q.supporting_facts)
+    for fid in facts:
+        f = index.facts[fid]
+        nodes.append(f.object if f.subject == nodes[-1] else f.subject)
+    return nodes, facts
+
+
+def gold_rows(index: WorldIndex | None, q: Question | None) -> list[list[str]]:
+    """The gold path as rows: hop, fact id, the fact read out, and when it held."""
+    if index is None or q is None:
+        return []
+    rows = []
+    for hop, fid in enumerate(q.supporting_facts, start=1):
+        f = index.facts[fid]
+        until = "now" if f.valid_to is None else str(f.valid_to)
+        rows.append(
+            [
+                str(hop),
+                fid,
+                f"{index.entities[f.subject].name} {f.predicate} {index.entities[f.object].name}",
+                f"{f.valid_from} to {until}",
+            ]
+        )
+    return rows
+
+
+def answer_text(q: Question | None) -> str:
+    if q is None:
+        return "Pick a question to see its answer and its gold path."
+    also = (
+        f" (also accepted: {', '.join(q.accepted_answers[1:])})"
+        if len(q.accepted_answers) > 1
+        else ""
+    )
+    return f"Answer: {q.answer_name}{also}"
+
+
+def highlight_for(index: WorldIndex | None, q: Question | None) -> dict | None:
+    """What to emphasise on the graph for a question: its entities and its facts."""
+    if index is None or q is None:
+        return None
+    nodes, edges = gold_path(index, q)
+    return {"nodes": nodes, "edges": edges}
 
 
 # What the graph view can hold (the indah Graph component's ceiling, ADR-0048).
@@ -128,6 +225,7 @@ class WorldIndex:
 
     entities: dict[str, Entity]
     touching: dict[str, list[Edge]]
+    facts: dict[str, Edge]
 
 
 def index_world(world: World) -> WorldIndex:
@@ -135,7 +233,7 @@ def index_world(world: World) -> WorldIndex:
     for fact in world.edges:
         touching.setdefault(fact.subject, []).append(fact)
         touching.setdefault(fact.object, []).append(fact)
-    return WorldIndex({e.id: e for e in world.entities}, touching)
+    return WorldIndex({e.id: e for e in world.entities}, touching, {f.id: f for f in world.edges})
 
 
 def entity_summary(index: WorldIndex | None, entity_id: str | None) -> str:
@@ -189,6 +287,9 @@ __all__ = [
     "GROUPS",
     "KNOBS",
     "KNOB_NAMES",
+    "QUESTION_COLUMNS",
+    "QUESTION_DEFAULTS",
+    "QUESTION_KNOBS",
     "FACT_COLUMNS",
     "MAX_GRAPH_EDGES",
     "MAX_GRAPH_NODES",
@@ -196,7 +297,16 @@ __all__ = [
     "PRESET_NAMES",
     "Knob",
     "Summary",
+    "answer_text",
     "check_rows",
+    "derive_questions",
+    "find_question",
+    "gold_path",
+    "gold_rows",
+    "highlight_for",
+    "question_rows",
+    "question_spec_from_values",
+    "read_knob",
     "entity_summary",
     "fact_rows",
     "graph_data",

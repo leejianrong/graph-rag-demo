@@ -262,7 +262,8 @@ uv run kggen world stats --preset medium                       # realized stats 
 uv run kggen questions generate --preset small --n 50 --hops 1:1,2:2,3:1 --out questions.json
 uv run kggen docs generate --preset small --out docs.json      # template text, no LLM
 uv run --with indah kggen ui                                   # web UI (or install kggen[ui]);
-                                                               # the graph view needs indah 0.12+
+                                                               # the graph view needs indah 0.12+; the UI also
+                                                               # lists questions and shows each one's gold path
 ```
 
 Presets run from `tiny` to `stress` (50,000 entities). Beyond graph shape, a spec can add

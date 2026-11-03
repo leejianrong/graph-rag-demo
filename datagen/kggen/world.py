@@ -324,23 +324,40 @@ def _entities(
 def _distractor_edges(
     spec: WorldSpec, distractors: tuple[Entity, ...]
 ) -> list[tuple[str, str, str, int, int | None]]:
-    """One edge from each distractor to another, so distractor documents have facts."""
+    """One edge from each distractor to another, so distractor documents have facts.
+
+    Distractors are grouped by type so a partner is found without scanning them all (a scan per
+    distractor was quadratic and took 15 s at 4,000 distractors). The pick is uniform over every
+    (relation, partner) pair that fits, as before: a type is chosen in proportion to how many
+    partners it offers."""
     rng = random.Random(f"{spec.seed}:distractor-edges")
-    feasible = spec.feasible_pairs()
+    by_type: dict[str, list[Entity]] = {}
+    for d in distractors:
+        by_type.setdefault(d.type, []).append(d)
+    # For each type: the (relation, partner type) choices that exist among the distractors.
+    choices: dict[str, list[tuple[str, str]]] = {t: [] for t in by_type}
+    for predicate, pairs in spec.feasible_pairs().items():
+        for subject_type, object_type in pairs:
+            if subject_type in by_type and object_type in by_type:
+                choices[subject_type].append((predicate, object_type))
     out: list[tuple[str, str, str, int, int | None]] = []
     seen: set[tuple[str, str, str]] = set()
     for d in distractors:
-        options = [
-            (p, o)
-            for o in distractors
-            if o.id != d.id
-            for p, pairs in feasible.items()
-            if (d.type, o.type) in pairs
-        ]
+        options = []
+        weights = []
+        for predicate, object_type in choices[d.type]:
+            partners = len(by_type[object_type]) - (1 if object_type == d.type else 0)
+            if partners > 0:
+                options.append((predicate, object_type))
+                weights.append(partners)
         if not options:
             continue
-        p, o = rng.choice(options)
-        if (d.id, p, o.id) not in seen:
-            seen.add((d.id, p, o.id))
-            out.append((d.id, p, o.id, spec.start_year, None))
+        predicate, object_type = rng.choices(options, weights=weights)[0]
+        pool = by_type[object_type]
+        partner = pool[rng.randrange(len(pool))]
+        while partner.id == d.id:
+            partner = pool[rng.randrange(len(pool))]
+        if (d.id, predicate, partner.id) not in seen:
+            seen.add((d.id, predicate, partner.id))
+            out.append((d.id, predicate, partner.id, spec.start_year, None))
     return out

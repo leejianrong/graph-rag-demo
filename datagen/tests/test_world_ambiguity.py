@@ -149,3 +149,20 @@ def test_churn_that_cannot_be_placed_is_an_error() -> None:
 def test_invalid_ambiguity_and_churn_values_are_rejected(bad: dict[str, object]) -> None:
     with pytest.raises(ValueError):
         make(**bad)
+
+
+def test_a_world_with_thousands_of_distractors_generates_quickly() -> None:
+    """Finding a partner for each distractor used to scan all of them: 15 s at 4,000. It is now
+    close to linear, so this takes a second or two; the bound is generous for slow runners."""
+    import time
+
+    spec = make(n_entities=20_000, avg_degree=2, distractor_rate=0.2, seed=9)
+    start = time.perf_counter()
+    world = generate(spec)
+    elapsed = time.perf_counter() - start
+    distractors = {e.id for e in world.entities if e.distractor}
+    assert len(distractors) == 4_000
+    linked = [e for e in world.edges if e.subject in distractors]
+    assert len(linked) > 3_000  # nearly every distractor still gets a fact
+    assert all(e.object in distractors for e in linked)
+    assert elapsed < 6, f"took {elapsed:.1f}s"
