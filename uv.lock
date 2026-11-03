@@ -1100,6 +1100,21 @@ wheels = [
 ]
 
 [[package]]
+name = "indah"
+version = "0.11.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "python-multipart" },
+    { name = "starlette" },
+    { name = "uvicorn" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/60/c5/b44ce89944491a646122c04f3af2537b03e0e877eb71dc0395ecfb0bffe8/indah-0.11.0.tar.gz", hash = "sha256:d43def866bfe58812cf94bae403c93d2832b0b52cb9cbd34a1ff9ba9ef5774de", size = 1733742, upload-time = "2026-10-31T18:33:43.834Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/40/2d/89c0616475f11efeadbb9d49274840ebbb0d3f3b00da0cbbbab6df2c4eb0/indah-0.11.0-py3-none-any.whl", hash = "sha256:cb254f9d3cdad602fffca35ac5a64aa7a3774b1e370b553da3432d53699a3b15", size = 591701, upload-time = "2026-10-31T18:33:41.758Z" },
+]
+
+[[package]]
 name = "iniconfig"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1270,11 +1285,18 @@ dependencies = [
     { name = "pyyaml" },
 ]
 
+[package.optional-dependencies]
+ui = [
+    { name = "indah" },
+]
+
 [package.metadata]
 requires-dist = [
+    { name = "indah", marker = "extra == 'ui'", specifier = ">=0.11" },
     { name = "pydantic", specifier = ">=2" },
     { name = "pyyaml" },
 ]
+provides-extras = ["ui"]
 
 [[package]]
 name = "litellm"
