@@ -166,3 +166,14 @@ def test_a_world_with_thousands_of_distractors_generates_quickly() -> None:
     assert len(linked) > 3_000  # nearly every distractor still gets a fact
     assert all(e.object in distractors for e in linked)
     assert elapsed < 6, f"took {elapsed:.1f}s"
+
+
+def test_the_order_a_specs_mixes_are_written_in_does_not_change_the_world() -> None:
+    """A spec saved with sorted keys (as the export does) must remake the same world."""
+    base = make(distractor_rate=0.15, alias_rate=0.3, churn_rate=0.1, seed=12)
+    data = base.model_dump()
+    shuffled = dict(data)
+    shuffled["predicate_mix"] = dict(reversed(list(data["predicate_mix"].items())))
+    shuffled["type_mix"] = dict(reversed(list(data["type_mix"].items())))
+    assert list(shuffled["predicate_mix"]) != list(data["predicate_mix"])
+    assert generate(WorldSpec.model_validate(shuffled)).to_json() == generate(base).to_json()

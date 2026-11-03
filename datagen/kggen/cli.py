@@ -8,6 +8,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from kggen import __version__
+from kggen.export import export_archive
 from kggen.questions import QuestionSpec, generate_questions
 from kggen.render import RenderSpec, render_documents
 from kggen.spec import PRESET_NAMES, load_preset, load_spec
@@ -53,6 +54,14 @@ def build_parser() -> argparse.ArgumentParser:
         "--alias-rate", type=float, default=0.5, help="Chance a mention is an alias."
     )
     d_gen.add_argument("--out", type=Path, help="Write here instead of stdout.")
+    export = commands.add_parser(
+        "export", help="Write a reproducible dataset zip: world, questions, documents and specs."
+    )
+    export.add_argument("--spec", type=Path, required=True, help="A WorldSpec file (JSON or YAML).")
+    export.add_argument("--questions-spec", type=Path, help="A QuestionSpec JSON file.")
+    export.add_argument("--render-spec", type=Path, help="A RenderSpec JSON file.")
+    export.add_argument("--seed", type=int, help="Override the world spec's seed.")
+    export.add_argument("--out", type=Path, required=True, help="The zip to write.")
     ui = commands.add_parser("ui", help="Start the web UI (needs the kggen[ui] extra).")
     ui.add_argument("--port", type=int, help="Port to serve on (default: first free).")
     ui.add_argument("--host", default="127.0.0.1", help="Address to bind.")
@@ -109,6 +118,22 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.out.write_text(text)
         else:
             print(text, end="")
+        return 0
+    if args.command == "export":
+        world_spec = load_spec(args.spec)
+        if args.seed is not None:
+            world_spec = world_spec.with_overrides(seed=args.seed)
+        questions = (
+            QuestionSpec.model_validate_json(args.questions_spec.read_text())
+            if args.questions_spec
+            else QuestionSpec()
+        )
+        render = (
+            RenderSpec.model_validate_json(args.render_spec.read_text())
+            if args.render_spec
+            else RenderSpec()
+        )
+        args.out.write_bytes(export_archive(generate(world_spec), questions, render))
         return 0
     if args.command == "ui":
         try:

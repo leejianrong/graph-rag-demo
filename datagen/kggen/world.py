@@ -336,8 +336,9 @@ def _distractor_edges(
         by_type.setdefault(d.type, []).append(d)
     # For each type: the (relation, partner type) choices that exist among the distractors.
     choices: dict[str, list[tuple[str, str]]] = {t: [] for t in by_type}
-    for predicate, pairs in spec.feasible_pairs().items():
-        for subject_type, object_type in pairs:
+    # Sorted, so the world does not depend on the order the spec's mixes were written in.
+    for predicate, pairs in sorted(spec.feasible_pairs().items()):
+        for subject_type, object_type in sorted(pairs):
             if subject_type in by_type and object_type in by_type:
                 choices[subject_type].append((predicate, object_type))
     out: list[tuple[str, str, str, int, int | None]] = []

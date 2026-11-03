@@ -48,6 +48,7 @@ docker compose up                                             # whole stack (or:
 make demo-offline | demo-live | demo | benchmark              # see `make` targets
 uv run kggen world generate --preset medium                   # a ground-truth world + stats (datagen)
 uv run kggen questions generate --preset small | docs generate --preset small   # questions / template documents
+uv run kggen export --spec spec.json --out dataset.zip   # the whole dataset as one reproducible zip
 ```
 
 Run the fast gate and ruff before every push. Install the hook once:
