@@ -280,3 +280,136 @@ def test_the_answer_text_lists_accepted_aliases_and_prompts_when_nothing_is_pick
         model.find_question(questions, aliased.id) is aliased
         and model.find_question(questions, None) is None
     )
+
+
+# -- documents ---------------------------------------------------------------------------------
+
+
+def doc_world():
+    values = {
+        **model.preset_values("small"),
+        "alias_rate": 0.5,
+        "churn_rate": 0.2,
+        "distractor_rate": 0.1,
+    }
+    return model.generate_world(values)
+
+
+def test_render_form_defaults_and_validation() -> None:
+    spec = model.render_spec_from_values(model.RENDER_DEFAULTS)
+    assert (spec.alias_use_rate, spec.max_facts_per_doc) == (0.5, 6)
+    for bad, message in (
+        ({"alias_use_rate": 2}, "Mentions that use an alias must be between"),
+        ({"max_facts_per_doc": 0}, "Most facts in a document must be between"),
+        ({"max_facts_per_doc": ""}, "needs a value"),
+    ):
+        with pytest.raises(ValueError, match=message):
+            model.render_spec_from_values({**model.RENDER_DEFAULTS, **bad})
+
+
+def test_every_fact_has_exactly_one_sentence_in_the_lookup() -> None:
+    world = doc_world()
+    docs = model.render_world(world, model.RENDER_DEFAULTS)
+    lookup = model.sentence_lookup(docs)
+    assert set(lookup) == {f.id for f in world.edges}
+    assert sum(len(d.sentences) for d in docs) == len(lookup)
+
+
+def test_document_rows_flag_distractors_and_count_sentences() -> None:
+    docs = model.render_world(doc_world(), model.RENDER_DEFAULTS)
+    rows = model.document_rows(docs)
+    assert [r["id"] for r in rows] == [d.id for d in docs]
+    assert {r["kind"] for r in rows} == {"", "distractor"}
+    assert [r["sentences"] for r in rows] == [len(d.sentences) for d in docs]
+
+
+def test_the_document_list_is_capped_but_every_document_is_still_rendered() -> None:
+    docs = model.render_world(doc_world(), {**model.RENDER_DEFAULTS, "max_facts_per_doc": 1})
+    assert len(docs) > 100
+    assert len(model.document_rows(docs)) == min(len(docs), model.MAX_DOCUMENT_ROWS)
+
+
+def test_sentence_rows_are_keyed_by_the_fact_they_express() -> None:
+    docs = model.render_world(doc_world(), model.RENDER_DEFAULTS)
+    doc = docs[0]
+    rows = model.sentence_rows(doc)
+    assert [r["fact"] for r in rows] == [s.fact_ids[0] for s in doc.sentences]
+    assert [r["sentence"] for r in rows] == [s.text for s in doc.sentences]
+    assert model.sentence_rows(None) == [] and model.find_document(docs, doc.id) is doc
+
+
+def test_a_fact_that_still_holds_highlights_its_entities_and_its_edge() -> None:
+    world = doc_world()
+    index = model.index_world(world)
+    fact = world.current_edges()[0]
+    assert model.fact_highlight(index, fact.id) == {
+        "nodes": [fact.subject, fact.object],
+        "edges": [fact.id],
+    }
+
+
+def test_a_fact_that_ended_highlights_its_entities_but_not_an_edge_the_graph_lacks() -> None:
+    world = doc_world()
+    index = model.index_world(world)
+    _, drawn = model.graph_data(world)
+    drawn_ids = {e["id"] for e in drawn}
+    ended = [f for f in world.edges if f.valid_to is not None]
+    assert ended
+    for fact in ended:
+        highlight = model.fact_highlight(index, fact.id)
+        assert highlight["edges"] == [] and fact.id not in drawn_ids
+        assert highlight["nodes"] == [fact.subject, fact.object]
+    assert "ended" in model.fact_note(index, ended[0].id)
+
+
+def test_every_fact_highlight_names_only_what_the_graph_draws() -> None:
+    world = doc_world()
+    index = model.index_world(world)
+    nodes, edges = model.graph_data(world)
+    node_ids, edge_ids = {n["id"] for n in nodes}, {e["id"] for e in edges}
+    for fact in world.edges:
+        highlight = model.fact_highlight(index, fact.id)
+        assert set(highlight["nodes"]) <= node_ids and set(highlight["edges"]) <= edge_ids
+
+
+def test_the_mentions_of_a_sentence_say_how_each_was_written_and_who_it_is() -> None:
+    world = doc_world()
+    index = model.index_world(world)
+    lookup = model.sentence_lookup(
+        model.render_world(world, {**model.RENDER_DEFAULTS, "alias_use_rate": 1})
+    )
+    aliased = [
+        f
+        for f in world.edges
+        if index.entities[f.subject].aliases or index.entities[f.object].aliases
+    ]
+    rows = model.mention_rows(index, lookup, aliased[0].id)
+    assert [r[2] for r in rows] == [aliased[0].subject, aliased[0].object]
+    assert any(r[0] != r[1] for r in rows)  # at least one written as an alias
+    assert (
+        model.mention_rows(index, lookup, None) == []
+        and model.mention_rows(None, lookup, "F0") == []
+    )
+
+
+def test_the_fact_note_prompts_until_a_sentence_is_picked() -> None:
+    index = model.index_world(doc_world())
+    for nothing in (None, "no-such-fact"):
+        assert model.fact_note(index, nothing).startswith("Click a sentence")
+        assert model.fact_highlight(index, nothing) is None
+    assert model.fact_highlight(None, "F000") is None
+
+
+def test_rendering_needs_no_network() -> None:
+    import socket
+
+    real = socket.socket
+
+    def refuse(*args, **kwargs):
+        raise AssertionError("rendering opened a socket")
+
+    socket.socket = refuse
+    try:
+        assert model.render_world(doc_world(), model.RENDER_DEFAULTS)
+    finally:
+        socket.socket = real

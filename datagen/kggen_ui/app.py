@@ -35,6 +35,13 @@ class UI:
     question_rows: indah.Signal  # the same, as table rows
     question_note: indah.Signal  # why there are no questions, when there are none
     picked: indah.Signal  # the id of the question the viewer chose, or None
+    doc_values: dict[str, indah.Signal]  # the render form: alias rate, facts per document
+    documents: indah.Signal  # the rendered documents
+    doc_rows: indah.Signal  # the same, as table rows
+    doc_note: indah.Signal  # a note about the documents (how many, or why none)
+    sentences: indah.Signal  # fact id -> the sentence that expresses it
+    picked_doc: indah.Signal  # the id of the document being read, or None
+    picked_fact: indah.Signal  # the fact id of the sentence the viewer clicked, or None
 
     def current_values(self) -> dict[str, float]:
         return {name: signal.value for name, signal in self.values.items()}
@@ -42,8 +49,32 @@ class UI:
     def current_question_values(self) -> dict[str, float]:
         return {name: signal.value for name, signal in self.question_values.items()}
 
+    def current_doc_values(self) -> dict[str, float]:
+        return {name: signal.value for name, signal in self.doc_values.items()}
+
     def picked_question(self):
         return model.find_question(self.questions.value, self.picked.value)
+
+    def picked_document(self):
+        return model.find_document(self.documents.value, self.picked_doc.value)
+
+    def _render(self, world) -> tuple[tuple, str]:
+        """Template documents for ``world`` from the current form, or none and the reason."""
+        try:
+            documents = model.render_world(world, self.current_doc_values())
+        except ValueError as exc:
+            return (), str(exc)
+        shown = min(len(documents), model.MAX_DOCUMENT_ROWS)
+        more = f" (the first {shown:,} are listed)" if shown < len(documents) else ""
+        return documents, f"{len(documents):,} documents{more}."
+
+    def _set_documents(self, documents: tuple, note: str) -> None:
+        self.picked_doc.set(None)  # old picks may name documents and sentences that are gone
+        self.picked_fact.set(None)
+        self.documents.set(documents)
+        self.doc_rows.set(model.document_rows(documents))
+        self.sentences.set(model.sentence_lookup(documents))
+        self.doc_note.set(note)
 
     def _derive(self, world) -> tuple[tuple, str]:
         """Questions for ``world`` from the current form, or none and the reason."""
@@ -68,6 +99,7 @@ class UI:
         note = model.graph_limits_message(world)
         shown = ([], []) if note else model.graph_data(world)
         questions, question_note = self._derive(world)
+        documents, doc_note = self._render(world)
 
         def apply() -> None:
             # The old selection and pick name things that may not exist in the new world, so they
@@ -78,6 +110,7 @@ class UI:
             self.graph.set(shown)
             self.graph_note.set(note or "")
             self._set_questions(questions, question_note)
+            self._set_documents(documents, doc_note)
             self.checks.set(model.check_rows(world))
             self.entities.set(f"{summary.entities:,}")
             self.facts.set(f"{summary.facts:,}")
@@ -94,16 +127,30 @@ class UI:
         questions, note = self._derive(world)
         indah.batch(lambda: self._set_questions(questions, note))
 
+    def render(self) -> None:
+        """Render the current world's facts as documents again, with the current form."""
+        world = self.world.value
+        if world is None:
+            self.doc_note.set("Generate a world first.")
+            return
+        documents, note = self._render(world)
+        indah.batch(lambda: self._set_documents(documents, note))
+
     def highlight(self) -> dict | None:
-        """What the graph emphasises: the picked question's entities and facts, if it is drawn."""
+        """What the graph emphasises: the clicked sentence's fact, else the picked question's path.
+        Nothing when the world is too big to draw."""
         if self.graph_note.value:
             return None
-        return model.highlight_for(self.index.value, self.picked_question())
+        fact = model.fact_highlight(self.index.value, self.picked_fact.value)
+        return fact or model.highlight_for(self.index.value, self.picked_question())
 
     def focus(self) -> str | None:
-        """Where the graph centres: the picked question's start entity."""
+        """Where the graph centres: the clicked fact's subject, else the picked question's start."""
         if self.graph_note.value:
             return None
+        index = self.index.value
+        if index is not None and self.picked_fact.value in index.facts:
+            return index.facts[self.picked_fact.value].subject
         question = self.picked_question()
         return question.start if question else None
 
@@ -140,7 +187,32 @@ def build_ui() -> UI:
         question_rows=indah.Signal([]),
         question_note=indah.Signal(""),
         picked=indah.Signal(None),
+        doc_values={k: indah.Signal(v) for k, v in model.RENDER_DEFAULTS.items()},
+        documents=indah.Signal(()),
+        doc_rows=indah.Signal([]),
+        doc_note=indah.Signal(""),
+        sentences=indah.Signal({}),
+        picked_doc=indah.Signal(None),
+        picked_fact=indah.Signal(None),
     )
+
+    # One thing is emphasised on the graph at a time: picking a question clears the clicked
+    # sentence and the reverse, and opening another document clears its sentence. Each effect acts
+    # only on a real pick, so they cannot undo each other.
+    def question_picked() -> None:
+        if ui.picked.value is not None:
+            ui.picked_fact.set(None)
+
+    def fact_picked() -> None:
+        if ui.picked_fact.value is not None:
+            ui.picked.set(None)
+
+    def document_opened() -> None:
+        ui.picked_doc.value  # noqa: B018 (read to subscribe)
+        ui.picked_fact.set(None)
+
+    for effect in (question_picked, fact_picked, document_opened):
+        indah.effect(effect)
 
     def group_inputs(group: str) -> list[indah.Component]:
         return [
@@ -178,6 +250,7 @@ def build_ui() -> UI:
             ),
             world_card(ui),
             questions_card(ui),
+            documents_card(ui),
             *entity_cards(ui),
             indah.Card(
                 title="Asked for vs. realized",
@@ -263,6 +336,75 @@ def questions_card(ui: UI) -> indah.Component:
             ),
         ],
     )
+
+
+def documents_card(ui: UI) -> indah.Component:
+    """Documents rendered from the world's facts, and the sentences of the one being read."""
+    inputs = [
+        indah.Number(ui.doc_values[k.name], min=k.min, max=k.max, step=k.step, label=k.label)
+        for k in model.RENDER_KNOBS
+    ]
+    documents = indah.Table(
+        rows=ui.doc_rows,
+        columns=[
+            indah.Col("id", "ID", kind="mono"),
+            indah.Col("title", "About"),
+            indah.Col("sentences", "Sentences", kind="number"),
+            indah.Col("kind", "Kind"),
+        ],
+        key="id",
+        selected=ui.picked_doc,
+        height="260px",
+        search=True,
+        label="Documents",
+    )
+    sentence_rows = indah.computed(lambda: model.sentence_rows(ui.picked_document()))
+    sentences = indah.Table(
+        rows=sentence_rows,
+        columns=[
+            indah.Col("fact", "Fact", kind="mono"),
+            indah.Col("sentence", "Sentence", wrap=True),
+        ],
+        key="fact",
+        selected=ui.picked_fact,
+        label="Sentences (click one)",
+    )
+    return indah.Card(
+        title="Documents",
+        children=[
+            indah.Text(
+                "Documents are written from the world's facts by templates: deterministic, no "
+                "network, no LLM. Every sentence knows which fact it expresses."
+            ),
+            indah.Grid(inputs),
+            indah.Button("Render documents", ui.render, variant="tonal"),
+            indah.Text(lambda: ui.doc_note.value),
+            documents,
+            indah.Text(lambda: doc_heading(ui)),
+            sentences,
+            indah.Text(lambda: model.fact_note(ui.index.value, ui.picked_fact.value)),
+            indah.DataFrame(
+                lambda: {
+                    "columns": ["Written as", "Entity", "Id"],
+                    "rows": model.mention_rows(
+                        ui.index.value, ui.sentences.value, ui.picked_fact.value
+                    ),
+                }
+            ),
+        ],
+    )
+
+
+def doc_heading(ui: UI) -> str:
+    document = ui.picked_document()
+    if document is None:
+        return "Pick a document to read it."
+    kind = (
+        " (a distractor document: it is about entities no question uses)"
+        if document.distractor
+        else ""
+    )
+    return f"{document.id}: about {document.title}{kind}"
 
 
 def entity_cards(ui: UI) -> list[indah.Component]:
