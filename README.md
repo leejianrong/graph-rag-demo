@@ -214,7 +214,7 @@ real adapter against a throwaway container (MinIO, Elasticsearch, Kafka, Neo4j),
 `model` loads real spaCy and embedding models, `llm` hits a real provider and skips
 cleanly without a key, and `benchmark` runs the whole pipeline over a fixture.
 [AGENTS.md](AGENTS.md) has the full command list and the reasoning behind the
-layering. Tests for the evaluation bench live in `bench/tests` and run in the fast
+layering. Tests for the generator and the evaluation bench live in `datagen/tests` and `bench/tests` and run in the fast
 suite.
 
 ## Benchmarking
@@ -246,17 +246,19 @@ run reuses the pre-built graph and the response cache, so it costs about nothing
 To measure retrieval against ground truth we control, the repo is gaining its own
 bench in [`bench/`](bench/) (command `kgbench`, design in
 [ADR-0011](docs/adr/0011-in-repo-evaluation-bench.md)). Instead of grading against
-an extraction of our own, it generates a synthetic world graph from a seeded,
-declarative spec, then derives documents and questions from it, so the gold answer
-never depends on the pipeline under test.
+an extraction of our own, it scores the pipeline on a synthetic world graph made by a
+standalone generator, [`datagen/`](datagen/) (command `kggen`,
+[ADR-0012](docs/adr/0012-standalone-data-generator.md)). The generator knows nothing about
+graph-rag: it builds a graph from a seeded, declarative spec and derives documents and
+questions from it, so the gold answer never depends on the pipeline under test.
 
 So far the generator exists. You can control how complex the graph is (size, type
 and relation mix, hub-heavy versus uniform degrees, communities, cycles) and the
 same spec and seed always give the same world:
 
 ```bash
-uv run kgbench world generate --preset medium --out world.json
-uv run kgbench world generate --spec my-world.yaml --seed 7
+uv run kggen world generate --preset medium --out world.json
+uv run kggen world generate --spec my-world.yaml --seed 7
 ```
 
 Presets run from `tiny` to `stress` (50,000 entities). Beyond graph shape, a spec can add

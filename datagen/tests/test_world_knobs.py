@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from collections import Counter
 
-from kgbench.spec import WorldSpec
-from kgbench.world import World, generate
+from kggen.spec import WorldSpec
+from kggen.world import World, generate
 
 
 def make(**overrides: object) -> WorldSpec:

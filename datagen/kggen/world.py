@@ -13,9 +13,8 @@ import random
 from bisect import bisect_right
 from dataclasses import dataclass
 
-from graph_rag.predicates import Predicate
-from kgbench.names import NameFactory, alias_forms
-from kgbench.spec import WorldSpec
+from kggen.names import NameFactory, alias_forms
+from kggen.spec import VAGUE_PREDICATE, WorldSpec
 
 
 class WorldGenerationError(ValueError):
@@ -209,7 +208,7 @@ def generate(spec: WorldSpec) -> World:
         draw_base_edge()
         budget -= 1
     while len(edges) < n_edges and budget > 0:  # vague links between any two entities
-        add(rng.randrange(n), Predicate.RELATED_TO, rng.randrange(n))
+        add(rng.randrange(n), VAGUE_PREDICATE, rng.randrange(n))
         budget -= 1
     if len(edges) < n_edges:
         raise WorldGenerationError(

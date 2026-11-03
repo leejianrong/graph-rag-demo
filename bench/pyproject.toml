@@ -1,9 +1,9 @@
 [project]
 name = "kgbench"
 version = "0.1.0"
-description = "Independent, reproducible knowledge graph evaluation bench for graph-rag (ADR-0011)."
+description = "Evaluation bench for graph-rag (ADR-0011): scores a pipeline on data from kggen."
 requires-python = ">=3.12"
-dependencies = ["graph-rag-demo", "pydantic>=2", "pyyaml"]
+dependencies = ["graph-rag-demo", "kggen", "pydantic>=2", "pyyaml"]
 
 [project.scripts]
 kgbench = "kgbench.cli:main"
@@ -17,3 +17,4 @@ packages = ["kgbench"]
 
 [tool.uv.sources]
 graph-rag-demo = { workspace = true }
+kggen = { workspace = true }

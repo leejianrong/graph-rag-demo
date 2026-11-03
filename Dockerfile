@@ -35,9 +35,10 @@ RUN uv run --no-sync python -c \
 # are already present, leaving the models in place.
 COPY graph_rag ./graph_rag
 COPY README.md ./
-# bench/ is a uv workspace member (the root pyproject lists it); uv needs its manifest
-# present to parse the project, but the bench itself is not shipped in the image.
+# bench/ and datagen/ are uv workspace members (the root pyproject lists them); uv needs
+# their manifests present to parse the project, but neither is shipped in the image.
 COPY bench/pyproject.toml ./bench/pyproject.toml
+COPY datagen/pyproject.toml ./datagen/pyproject.toml
 RUN uv pip install --no-deps .
 
 EXPOSE 8000

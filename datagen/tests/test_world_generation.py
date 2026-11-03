@@ -6,10 +6,8 @@ import json
 from collections import Counter
 
 import pytest
-from kgbench.spec import PREDICATE_SIGNATURES, PRESET_NAMES, WorldSpec, load_preset
-from kgbench.world import WorldGenerationError, apportion, generate
-
-from graph_rag.predicates import CLOSED_PREDICATES
+from kggen.spec import PREDICATE_SIGNATURES, PRESET_NAMES, WorldSpec, load_preset
+from kggen.world import WorldGenerationError, apportion, generate
 
 FAST_PRESETS = ("tiny", "small", "medium")
 
@@ -67,7 +65,7 @@ def test_edges_are_valid_typed_unique_and_not_self_loops() -> None:
     assert len(triples) == len(set(triples))
     for subject, predicate, obj in triples:
         assert subject != obj
-        assert predicate in CLOSED_PREDICATES
+        assert predicate in PREDICATE_SIGNATURES
         assert (kind[subject], kind[obj]) in dict.fromkeys(PREDICATE_SIGNATURES[predicate])
 
 

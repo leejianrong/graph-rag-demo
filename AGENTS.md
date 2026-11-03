@@ -11,12 +11,11 @@ KG-build`); querying is a synchronous REST `/query` with a **$0, deterministic, 
 Python 3.12, `uv`, type hints + docstrings, everything constructor-injected at the port seam.
 
 Direction (2026-11): turning the demo into a product — a memory/knowledge store for agents and developers
-(API, MCP, CLI, then a Vite + Svelte UI), with an independent in-repo evaluation bench. The roadmap lives on
+(API, MCP, CLI, then a Vite + Svelte UI), with a standalone synthetic data generator (`datagen/`, ADR-0012) and an in-repo evaluation bench. The roadmap lives on
 **pandan board 9 (`GRA-*`)**, not in the docs; use the `pandan` skill, refer to cards by ref (`GRA-85`).
 
 **Build status:** V1–V8 are done and the pipeline is feature-complete. Slice-by-slice detail is in
-[`agent_docs/build-status.md`](agent_docs/build-status.md). The bench (`bench/`, ADR-0011) has the scaffold and
-the seeded world generator; extraction/retrieval scoring and baselines are still to build.
+[`agent_docs/build-status.md`](agent_docs/build-status.md). The generator (`datagen/`, `kggen`) makes seeded worlds with ambiguity and churn knobs; the bench (`bench/`, ADR-0011) has the scaffold; extraction/retrieval scoring and baselines are still to build.
 
 > **Trust the code over the docs.** `docs/` is design intent; where they disagree, the code is the truth and
 > the doc should be fixed in the same PR. Read `graph_rag/ports.py` before coding against a port.
@@ -28,17 +27,18 @@ the seeded world generator; extraction/retrieval scoring and baselines are still
 - **`main` is protected and PR-only.** Merge (squash) once the required checks `lint`, `fast`, `contract`,
   `secret-scan` are green. `dep-audit` is advisory but should be green too. Never merge on stale green checks.
 - **Never let a slow check gate a local push.** The pre-push hook is the cheap mirror of CI only.
-- **`bench/` may import `graph_rag` only via ports and public entry points** (enforced by
-  `bench/tests/test_import_boundary.py`). Gold must never come from graph-rag's own extraction.
+- **`datagen/` (`kggen`) must never import `graph_rag`, `kgbench` or `litellm`** (enforced by
+  `datagen/tests/test_isolation.py`); it owns its vocabulary. **`bench/` may import `graph_rag` only via ports
+  and public entry points** (`bench/tests/test_import_boundary.py`). Gold must never come from graph-rag's own extraction.
 - **Plain `uv sync` prunes the heavy extras** (torch, sentence-transformers). Use
   `uv sync --frozen --extra dev --extra embed` locally if you run the model suite.
-- **`bench/` is a uv workspace member**, so the Dockerfile must `COPY bench/pyproject.toml` before
-  `uv pip install --no-deps .` (uv parses the workspace). Keep it when touching the image.
+- **`bench/` and `datagen/` are uv workspace members**, so the Dockerfile must `COPY` both `pyproject.toml`
+  files before `uv pip install --no-deps .` (uv parses the workspace). Keep them when touching the image.
 
 ## Commands
 
 ```bash
-uv sync --frozen --extra dev                                  # install (frozen; installs kgbench too)
+uv sync --frozen --extra dev                                  # install (frozen; installs kggen and kgbench too)
 uv run pytest -m "not contract and not model and not llm"     # FAST gate: fakes only, no Docker/model/LLM
 uv run ruff check . && uv run ruff format --check .           # lint + format
 uv run pytest -m contract                                     # real adapters via testcontainers (Docker)
@@ -46,7 +46,7 @@ make models && uv run pytest -m model                         # real spaCy NER (
 uv run pytest -m llm                                          # opt-in real provider; skips without a key
 docker compose up                                             # whole stack (or: make up)
 make demo-offline | demo-live | demo | benchmark              # see `make` targets
-uv run kgbench world generate --preset medium                 # generate a ground-truth world (bench)
+uv run kggen world generate --preset medium                   # generate a ground-truth world (datagen)
 ```
 
 Run the fast gate and ruff before every push. Install the hook once:
@@ -58,7 +58,7 @@ Fakes-first at the port seam (ADR-0010): the six ports in `graph_rag/ports.py` (
 `EntityStore`, `GraphStore`, `LLMClient`, `Embedder`) plus `TriggerPublisher`. The fast suite uses the in-memory
 fakes in `graph_rag/fakes.py`; contract tests prove each real adapter behaves like its fake. Assert external
 behaviour at the seam, never internal call order. See `docs/TESTING.md`. Markers: `contract`, `model`, `llm`,
-`benchmark`, `e2e`. `bench/tests` run in the fast suite.
+`benchmark`, `e2e`. `bench/tests` and `datagen/tests` run in the fast suite.
 
 ## Workflow
 
@@ -68,7 +68,7 @@ behaviour at the seam, never internal call order. See `docs/TESTING.md`. Markers
 
 ## Where things are (only the non-obvious)
 
-- `graph_rag/` — the pipeline; `bench/kgbench/` — the evaluation bench (CLI `kgbench`).
-- `docs/adr/` — the "why" (ADR-0011 is the bench); `docs/ARCHITECTURE.md`, `docs/TESTING.md`.
+- `graph_rag/` — the pipeline; `datagen/kggen/` — the standalone data generator (CLI `kggen`); `bench/kgbench/` — the evaluation bench (CLI `kgbench`).
+- `docs/adr/` — the "why" (ADR-0011 is the bench, ADR-0012 the standalone generator); `docs/ARCHITECTURE.md`, `docs/TESTING.md`.
 - `agent_docs/build-status.md` — how each V1–V8 slice works in detail.
 - Real corpus lives under gitignored `datasets/`; the LLM response cache is `.cache/llm/` (gitignored).

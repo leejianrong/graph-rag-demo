@@ -1,4 +1,4 @@
-# stress: preset for kgbench world generation. Every key is a WorldSpec knob.
+# stress: preset for kggen world generation. Every key is a WorldSpec knob.
 seed: 0
 n_entities: 50000
 avg_degree: 8

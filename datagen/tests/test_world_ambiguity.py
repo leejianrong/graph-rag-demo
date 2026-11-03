@@ -5,10 +5,8 @@ from __future__ import annotations
 from collections import Counter
 
 import pytest
-from kgbench.spec import WorldSpec
-from kgbench.world import WorldGenerationError, generate
-
-from graph_rag.predicates import Predicate
+from kggen.spec import VAGUE_PREDICATE, WorldSpec
+from kggen.world import WorldGenerationError, generate
 
 N = 400
 
@@ -86,7 +84,7 @@ def test_distractors_are_extra_look_alike_entities_linked_only_to_each_other() -
 @pytest.mark.parametrize("rate", [0.1, 0.4])
 def test_noise_rate_sets_the_share_of_vague_edges(rate: float) -> None:
     world = generate(make(noise_rate=rate))
-    vague = sum(e.predicate == Predicate.RELATED_TO for e in world.edges)
+    vague = sum(e.predicate == VAGUE_PREDICATE for e in world.edges)
     assert vague == round(rate * len(world.edges))
     assert len(world.edges) == round(N * 4 / 2)
 

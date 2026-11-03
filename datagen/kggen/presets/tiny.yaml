@@ -1,4 +1,4 @@
-# tiny: preset for kgbench world generation. Every key is a WorldSpec knob.
+# tiny: preset for kggen world generation. Every key is a WorldSpec knob.
 seed: 0
 n_entities: 30
 avg_degree: 3

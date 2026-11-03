@@ -36,8 +36,10 @@ dev = [
     "httpx",
     "testcontainers[minio,elasticsearch,kafka,neo4j]",
     "ruff",
-    # The independent evaluation bench (ADR-0011) is a workspace member; listing it
-    # here makes `uv sync --extra dev` install it so `kgbench` and its tests work.
+    # The standalone generator (kggen) and the evaluation bench (ADR-0011) are workspace
+    # members; listing them here makes `uv sync --extra dev` install them so their
+    # commands and tests work. graph_rag itself never imports either.
+    "kggen",
     "kgbench",
 ]
 # Transformer NER runtime (ADR-0002). Only the real stack / a trf-backed run
@@ -60,10 +62,11 @@ embed = [
 benchmark = "graph_rag.benchmark.cli:main"
 
 [tool.uv.workspace]
-members = ["bench"]
+members = ["bench", "datagen"]
 
 [tool.uv.sources]
 kgbench = { workspace = true }
+kggen = { workspace = true }
 
 [build-system]
 requires = ["hatchling"]
@@ -80,7 +83,7 @@ target-version = "py312"
 select = ["E", "F", "I", "W", "UP", "B"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "bench/tests"]
+testpaths = ["tests", "bench/tests", "datagen/tests"]
 markers = [
     "contract: real-service tests via testcontainers (excluded from the fast suite)",
     "e2e: end-to-end tests driving an entry point through the port seam",
