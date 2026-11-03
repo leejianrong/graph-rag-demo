@@ -15,9 +15,9 @@ _DEMONYM_SUFFIX = ("ian", "ese", "ish")
 class NameFactory:
     """Hands out names that are unique across the whole world."""
 
-    def __init__(self, rng: random.Random) -> None:
+    def __init__(self, rng: random.Random, used: set[str] | None = None) -> None:
         self._rng = rng
-        self._used: set[str] = set()
+        self._used: set[str] = set(used or ())
 
     def _word(self, syllables: int) -> str:
         rng = self._rng
@@ -43,6 +43,20 @@ class NameFactory:
             return f"{self._word(syllables)} Act"
         raise ValueError(f"no name pattern for entity type {entity_type!r}")
 
+    def look_alike(self, name: str, entity_type: str) -> str:
+        """A fresh unique name that shares its first word with ``name`` (a retrieval distractor)."""
+        first, *rest = name.split()
+        for attempt in range(1, 10_000):
+            if rest:
+                tail = self._candidate(entity_type, 2).split(maxsplit=1)
+                candidate = f"{first} {tail[-1]}"
+            else:
+                candidate = first[:-2] + self._word(1 + attempt // 8)
+            if candidate not in self._used:
+                self._used.add(candidate)
+                return candidate
+        raise RuntimeError("could not generate a look-alike name")
+
     def new(self, entity_type: str) -> str:
         """A fresh unique name; a collision lengthens the name until it is unique."""
         syllables = 2
@@ -54,3 +68,20 @@ class NameFactory:
             if attempt % 8 == 0:
                 syllables += 1
         raise RuntimeError("could not generate a unique name")
+
+
+def alias_forms(name: str, entity_type: str) -> list[str]:
+    """Plausible alternative names for an entity, most natural first."""
+    parts = name.split()
+    first, last = parts[0], parts[-1]
+    if entity_type == "PERSON" and len(parts) == 2:
+        return [f"{first[0]}. {last}", last]
+    if entity_type == "PRODUCT" and len(parts) == 2:
+        return [f"{first}-{last}", f"{first}{last}"]
+    if entity_type == "LOCATION":
+        return [f"Greater {name}", name.upper()]
+    if entity_type == "NORP":
+        return [f"{name}s", name.upper()]
+    if len(parts) >= 2:  # ORG, EVENT, LAW: drop the suffix, or use initials
+        return [first, "".join(p[0] for p in parts).upper()]
+    return [name.upper()]

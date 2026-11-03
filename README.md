@@ -259,9 +259,11 @@ uv run kgbench world generate --preset medium --out world.json
 uv run kgbench world generate --spec my-world.yaml --seed 7
 ```
 
-Presets run from `tiny` to `stress` (50,000 entities). Not built yet: aliases and
-homonyms, document and question generation, extraction and retrieval scoring, and
-the BM25 and dense-retrieval baselines the comparison needs.
+Presets run from `tiny` to `stress` (50,000 entities). Beyond graph shape, a spec can add
+ambiguity (`alias_rate`, `homonym_rate`, `distractor_rate`, `noise_rate`) and temporal churn
+(`churn_rate`, `retraction_rate`, with `start_year` and `end_year`); all default to off. Not
+built yet: document and question generation, extraction and retrieval scoring, and the BM25
+and dense-retrieval baselines the comparison needs.
 
 ## Where the design lives
 
