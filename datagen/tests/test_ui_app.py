@@ -67,3 +67,57 @@ def test_generate_fills_the_stats_panel_and_says_everything_is_on_target() -> No
 def test_the_form_has_one_input_per_knob() -> None:
     ui = build_ui()
     assert set(ui.values) == set(model.KNOB_NAMES)
+
+
+# -- the graph view (needs an indah with Graph, 0.12 or newer) ---------------------------------
+
+import indah  # noqa: E402
+
+needs_graph = pytest.mark.skipif(not hasattr(indah, "Graph"), reason="this indah has no Graph")
+
+
+@needs_graph
+def test_generate_fills_the_graph_with_the_worlds_entities_and_current_facts() -> None:
+    ui = build_ui()
+    assert ui.graph.value == ([], [])
+    ui.preset.set("tiny")
+    ui.generate()
+    nodes, edges = ui.graph.value
+    assert len(nodes) == len(ui.world.value.entities)
+    assert len(edges) == len(ui.world.value.current_edges())
+    assert ui.graph_note.value == ""
+
+
+@needs_graph
+def test_selecting_a_node_shows_its_facts_and_regenerating_clears_the_selection() -> None:
+    ui = build_ui()
+    ui.preset.set("tiny")
+    ui.generate()
+    entity = ui.graph.value[1][0]["source"]
+    ui.selected.set(entity)
+    assert entity in model.entity_summary(ui.index.value, ui.selected.value)
+    assert model.fact_rows(ui.index.value, ui.selected.value)
+    ui.values["seed"].set(ui.values["seed"].value + 1)
+    ui.generate()  # a new world: the old id must not survive into it
+    assert ui.selected.value is None
+
+
+@needs_graph
+def test_an_oversize_world_is_generated_but_not_drawn_and_says_why() -> None:
+    ui = build_ui()
+    ui.preset.set("tiny")
+    ui.values["n_entities"].set(8000)
+    ui.values["avg_degree"].set(20)
+    ui.generate()
+    assert ui.graph.value == ([], [])
+    assert "average degree" in ui.graph_note.value
+    assert ui.entities.value == "8,000"  # the world still exists and its stats are shown
+    assert ui.checks.value
+
+
+@needs_graph
+def test_the_focus_size_is_a_signal_the_graph_reads() -> None:
+    ui = build_ui()
+    assert ui.window.value == 300
+    ui.window.set(50)
+    assert ui.window.value == 50

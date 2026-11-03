@@ -8,6 +8,9 @@ import indah
 
 from kggen_ui import model
 
+# The Graph component arrived in indah 0.12; an older indah still gets the form and the stats.
+HAS_GRAPH = hasattr(indah, "Graph")
+
 
 @dataclass
 class UI:
@@ -21,6 +24,11 @@ class UI:
     facts: indah.Signal
     world: indah.Signal
     checks: indah.Signal
+    graph: indah.Signal  # (nodes, edges) as the Graph component takes them
+    graph_note: indah.Signal  # why there is no graph to draw, when there is not
+    selected: indah.Signal  # the entity id the viewer clicked, or None
+    window: indah.Signal  # how many nodes are drawn in full
+    index: indah.Signal  # a model.WorldIndex for the detail panel
 
     def current_values(self) -> dict[str, float]:
         return {name: signal.value for name, signal in self.values.items()}
@@ -32,11 +40,23 @@ class UI:
             self.status.set(str(exc))
             return
         summary = model.summarize(world)
-        self.world.set(world)
-        self.checks.set(model.check_rows(world))
-        self.entities.set(f"{summary.entities:,}")
-        self.facts.set(f"{summary.facts:,}")
-        self.status.set(f"Generated with seed {summary.seed}.")
+        note = model.graph_limits_message(world)
+        shown = ([], []) if note else model.graph_data(world)
+
+        def apply() -> None:
+            # The old selection names an entity that may not exist in the new world, so it goes
+            # first; one batch means the graph never sees the new data with the old selection.
+            self.selected.set(None)
+            self.world.set(world)
+            self.index.set(model.index_world(world))
+            self.graph.set(shown)
+            self.graph_note.set(note or "")
+            self.checks.set(model.check_rows(world))
+            self.entities.set(f"{summary.entities:,}")
+            self.facts.set(f"{summary.facts:,}")
+            self.status.set(f"Generated with seed {summary.seed}.")
+
+        indah.batch(apply)
 
 
 def build_ui() -> UI:
@@ -48,6 +68,11 @@ def build_ui() -> UI:
     entities, facts = indah.Signal("-"), indah.Signal("-")
     world = indah.Signal(None)
     checks = indah.Signal([])
+    graph = indah.Signal(([], []))
+    graph_note = indah.Signal("")
+    selected = indah.Signal(None)
+    window = indah.Signal(300)
+    index = indah.Signal(None)
 
     def apply_preset() -> None:
         for name, value in model.preset_values(preset.value).items():
@@ -55,7 +80,21 @@ def build_ui() -> UI:
 
     indah.effect(apply_preset)  # also runs once now, which fills the form from the first preset
 
-    ui = UI(None, preset, values, status, entities, facts, world, checks)  # type: ignore[arg-type]
+    ui = UI(
+        None,
+        preset,
+        values,
+        status,
+        entities,
+        facts,
+        world,
+        checks,
+        graph,
+        graph_note,
+        selected,
+        window,
+        index,
+    )  # type: ignore[arg-type]
 
     def group_inputs(group: str) -> list[indah.Component]:
         return [
@@ -91,6 +130,7 @@ def build_ui() -> UI:
                     indah.Stat(lambda: facts.value, label="Facts"),
                 ]
             ),
+            *graph_cards(ui),
             indah.Card(
                 title="Asked for vs. realized",
                 children=[
@@ -106,6 +146,51 @@ def build_ui() -> UI:
         ]
     )
     return ui
+
+
+def graph_cards(ui: UI) -> list[indah.Component]:
+    """The graph and the detail of the clicked entity, or a note when indah has no Graph yet."""
+    if not HAS_GRAPH:
+        return [
+            indah.Card(
+                title="Graph",
+                children=[
+                    indah.Text("The graph view needs indah 0.12 or newer; yours has no Graph.")
+                ],
+            )
+        ]
+    graph = indah.Graph(
+        lambda: ui.graph.value[0],
+        lambda: ui.graph.value[1],
+        selected=ui.selected,
+        focus_size=ui.window,
+        height=520,
+        max_nodes=model.MAX_GRAPH_NODES,
+        label="The generated world: entities coloured by type",
+    )
+    facts = indah.DataFrame(
+        lambda: {
+            "columns": model.FACT_COLUMNS,
+            "rows": model.fact_rows(ui.index.value, ui.selected.value),
+        }
+    )
+    return [
+        indah.Card(
+            title="The world",
+            children=[
+                indah.Text(lambda: ui.graph_note.value or ""),
+                graph,
+                indah.Slider(ui.window, min=20, max=2000, step=10, label="Nodes drawn in full"),
+            ],
+        ),
+        indah.Card(
+            title="Selected entity",
+            children=[
+                indah.Text(lambda: model.entity_summary(ui.index.value, ui.selected.value)),
+                facts,
+            ],
+        ),
+    ]
 
 
 def build_session() -> indah.Session:
