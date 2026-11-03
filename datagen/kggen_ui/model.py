@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
 from kggen.stats import check_against_spec
-from kggen.world import World, WorldGenerationError, generate
+from kggen.world import Edge, Entity, World, WorldGenerationError, generate
 from pydantic import ValidationError
 
 MAX_ENTITIES = 20_000  # what the graph view can hold (ADR-0048); larger worlds go through the CLI
@@ -93,6 +93,86 @@ def check_rows(world: World) -> list[list[str]]:
     ]
 
 
+# What the graph view can hold (the indah Graph component's ceiling, ADR-0048).
+MAX_GRAPH_NODES = 20_000
+MAX_GRAPH_EDGES = 60_000
+DISTRACTOR_GROUP = "Distractor"
+
+
+def graph_limits_message(world: World) -> str | None:
+    """Why this world is too big to draw, or ``None`` when it fits the graph view."""
+    edges = len(world.current_edges())
+    if len(world.entities) > MAX_GRAPH_NODES or edges > MAX_GRAPH_EDGES:
+        return (
+            f"This world has {len(world.entities):,} entities and {edges:,} facts; the graph view "
+            f"draws up to {MAX_GRAPH_NODES:,} and {MAX_GRAPH_EDGES:,}. Lower the entities or the "
+            "average degree to see it."
+        )
+    return None
+
+
+def graph_data(world: World) -> tuple[list[dict], list[dict]]:
+    """The world as the Graph component wants it: nodes coloured by type (distractors apart) and
+    the facts still true at the end, each edge carrying its fact id."""
+    nodes = [
+        {"id": e.id, "label": e.name, "group": DISTRACTOR_GROUP if e.distractor else e.type}
+        for e in world.entities
+    ]
+    edges = [{"source": f.subject, "target": f.object, "id": f.id} for f in world.current_edges()]
+    return nodes, edges
+
+
+@dataclass(frozen=True)
+class WorldIndex:
+    """Look-ups for the detail panel: an entity by id, and every fact that touches it."""
+
+    entities: dict[str, Entity]
+    touching: dict[str, list[Edge]]
+
+
+def index_world(world: World) -> WorldIndex:
+    touching: dict[str, list[Edge]] = {}
+    for fact in world.edges:
+        touching.setdefault(fact.subject, []).append(fact)
+        touching.setdefault(fact.object, []).append(fact)
+    return WorldIndex({e.id: e for e in world.entities}, touching)
+
+
+def entity_summary(index: WorldIndex | None, entity_id: str | None) -> str:
+    """One line about the selected entity, or a prompt when nothing is selected."""
+    if index is None or entity_id is None or entity_id not in index.entities:
+        return "Click a node to see its facts."
+    e = index.entities[entity_id]
+    parts = [f"{e.name} ({e.id})", "a distractor" if e.distractor else e.type.lower()]
+    parts.append(f"community {e.community}")
+    if e.aliases:
+        parts.append("also written " + ", ".join(e.aliases))
+    return ", ".join(parts)
+
+
+FACT_COLUMNS = ["Relation", "", "Other entity", "From", "Until"]
+
+
+def fact_rows(index: WorldIndex | None, entity_id: str | None) -> list[list[str]]:
+    """Every fact that touches the entity, historical ones included, oldest first."""
+    if index is None or entity_id is None or entity_id not in index.touching:
+        return []
+    rows = []
+    for f in sorted(index.touching[entity_id], key=lambda f: (f.valid_from, f.id)):
+        outgoing = f.subject == entity_id
+        other = index.entities[f.object if outgoing else f.subject]
+        rows.append(
+            [
+                f.predicate,
+                "to" if outgoing else "from",
+                f"{other.name} ({other.id})",
+                str(f.valid_from),
+                "now" if f.valid_to is None else str(f.valid_to),
+            ]
+        )
+    return rows
+
+
 @dataclass(frozen=True)
 class Summary:
     entities: int
@@ -109,11 +189,19 @@ __all__ = [
     "GROUPS",
     "KNOBS",
     "KNOB_NAMES",
+    "FACT_COLUMNS",
+    "MAX_GRAPH_EDGES",
+    "MAX_GRAPH_NODES",
     "MAX_ENTITIES",
     "PRESET_NAMES",
     "Knob",
     "Summary",
     "check_rows",
+    "entity_summary",
+    "fact_rows",
+    "graph_data",
+    "graph_limits_message",
+    "index_world",
     "generate_world",
     "preset_values",
     "spec_from_values",

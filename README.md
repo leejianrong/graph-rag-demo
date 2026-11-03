@@ -261,7 +261,8 @@ uv run kggen world generate --preset medium --out world.json   # also writes wor
 uv run kggen world stats --preset medium                       # realized stats vs. the spec
 uv run kggen questions generate --preset small --n 50 --hops 1:1,2:2,3:1 --out questions.json
 uv run kggen docs generate --preset small --out docs.json      # template text, no LLM
-uv run --with indah kggen ui                                   # web UI (or install kggen[ui])
+uv run --with indah kggen ui                                   # web UI (or install kggen[ui]);
+                                                               # the graph view needs indah 0.12+
 ```
 
 Presets run from `tiny` to `stress` (50,000 entities). Beyond graph shape, a spec can add
