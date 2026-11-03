@@ -53,6 +53,9 @@ def build_parser() -> argparse.ArgumentParser:
         "--alias-rate", type=float, default=0.5, help="Chance a mention is an alias."
     )
     d_gen.add_argument("--out", type=Path, help="Write here instead of stdout.")
+    ui = commands.add_parser("ui", help="Start the web UI (needs the kggen[ui] extra).")
+    ui.add_argument("--port", type=int, help="Port to serve on (default: first free).")
+    ui.add_argument("--host", default="127.0.0.1", help="Address to bind.")
     return parser
 
 
@@ -106,6 +109,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.out.write_text(text)
         else:
             print(text, end="")
+        return 0
+    if args.command == "ui":
+        try:
+            from kggen_ui.app import serve
+        except ImportError:
+            print("The UI needs indah: install it with `pip install 'kggen[ui]'`.")
+            return 1
+        serve(port=args.port, host=args.host)
         return 0
     parser.print_help()
     return 0

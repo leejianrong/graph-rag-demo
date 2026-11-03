@@ -10,9 +10,9 @@ ROOT = Path(__file__).resolve().parents[1]
 FORBIDDEN = {"graph_rag", "kgbench", "litellm"}
 
 
-def test_kggen_imports_nothing_from_graph_rag_or_the_bench() -> None:
+def test_kggen_and_its_ui_import_nothing_from_graph_rag_or_the_bench() -> None:
     offenders: dict[str, set[str]] = {}
-    for path in (ROOT / "kggen").rglob("*.py"):
+    for path in [*(ROOT / "kggen").rglob("*.py"), *(ROOT / "kggen_ui").rglob("*.py")]:
         tree = ast.parse(path.read_text())
         roots = set()
         for node in ast.walk(tree):
