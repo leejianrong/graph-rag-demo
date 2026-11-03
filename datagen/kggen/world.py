@@ -33,6 +33,9 @@ class Entity:
 
 @dataclass(frozen=True)
 class Edge:
+    """One fact. ``id`` is the stable world-model id that questions and documents cite."""
+
+    id: str
     subject: str
     predicate: str
     object: str
@@ -223,7 +226,9 @@ def generate(spec: WorldSpec) -> World:
         [(ids[s], p, ids[o], vf, vt) for s, p, o, vf, vt in dated] + distractor_edges,
         key=lambda e: (e[0], e[1], e[2], e[3]),
     )
-    return World(spec=spec, entities=entities, edges=tuple(Edge(*e) for e in ordered))
+    fact_width = len(str(len(ordered) - 1))
+    facts = tuple(Edge(f"F{i:0{fact_width}d}", *e) for i, e in enumerate(ordered))
+    return World(spec=spec, entities=entities, edges=facts)
 
 
 def _churn(
