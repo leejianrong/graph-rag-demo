@@ -252,20 +252,25 @@ standalone generator, [`datagen/`](datagen/) (command `kggen`,
 graph-rag: it builds a graph from a seeded, declarative spec and derives documents and
 questions from it, so the gold answer never depends on the pipeline under test.
 
-So far the generator exists. You can control how complex the graph is (size, type
-and relation mix, hub-heavy versus uniform degrees, communities, cycles) and the
-same spec and seed always give the same world:
+So far the generator makes worlds, questions and documents. You can control how complex the
+graph is (size, type and relation mix, hub-heavy versus uniform degrees, communities, cycles)
+and the same spec and seed always give the same output:
 
 ```bash
-uv run kggen world generate --preset medium --out world.json
-uv run kggen world generate --spec my-world.yaml --seed 7
+uv run kggen world generate --preset medium --out world.json   # also writes world.stats.json
+uv run kggen world stats --preset medium                       # realized stats vs. the spec
+uv run kggen questions generate --preset small --n 50 --hops 1:1,2:2,3:1 --out questions.json
+uv run kggen docs generate --preset small --out docs.json      # template text, no LLM
 ```
 
 Presets run from `tiny` to `stress` (50,000 entities). Beyond graph shape, a spec can add
 ambiguity (`alias_rate`, `homonym_rate`, `distractor_rate`, `noise_rate`) and temporal churn
-(`churn_rate`, `retraction_rate`, with `start_year` and `end_year`); all default to off. Not
-built yet: document and question generation, extraction and retrieval scoring, and the BM25
-and dense-retrieval baselines the comparison needs.
+(`churn_rate`, `retraction_rate`, with `start_year` and `end_year`); all default to off. Every
+generated world is checked against its spec in the stats report. Questions run 1 to 4 hops and
+carry the ids of the facts that answer them; documents record which sentence expresses which
+fact and where each entity is mentioned, so scoring has exact gold. Not built yet: the LLM
+renderer, extraction and retrieval scoring, and the BM25 and dense-retrieval baselines the
+comparison needs.
 
 ## Where the design lives
 

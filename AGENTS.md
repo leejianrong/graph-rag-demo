@@ -15,7 +15,7 @@ Direction (2026-11): turning the demo into a product — a memory/knowledge stor
 **pandan board 9 (`GRA-*`)**, not in the docs; use the `pandan` skill, refer to cards by ref (`GRA-85`).
 
 **Build status:** V1–V8 are done and the pipeline is feature-complete. Slice-by-slice detail is in
-[`agent_docs/build-status.md`](agent_docs/build-status.md). The generator (`datagen/`, `kggen`) makes seeded worlds with ambiguity and churn knobs; the bench (`bench/`, ADR-0011) has the scaffold; extraction/retrieval scoring and baselines are still to build.
+[`agent_docs/build-status.md`](agent_docs/build-status.md). The generator (`datagen/`, `kggen`) makes seeded worlds (ambiguity and churn knobs, a stats report), multi-hop questions with gold paths, and template documents with sentence-to-fact and mention gold; the LLM renderer is still to build; the bench (`bench/`, ADR-0011) has the scaffold; extraction/retrieval scoring and baselines are still to build.
 
 > **Trust the code over the docs.** `docs/` is design intent; where they disagree, the code is the truth and
 > the doc should be fixed in the same PR. Read `graph_rag/ports.py` before coding against a port.
@@ -46,7 +46,8 @@ make models && uv run pytest -m model                         # real spaCy NER (
 uv run pytest -m llm                                          # opt-in real provider; skips without a key
 docker compose up                                             # whole stack (or: make up)
 make demo-offline | demo-live | demo | benchmark              # see `make` targets
-uv run kggen world generate --preset medium                   # generate a ground-truth world (datagen)
+uv run kggen world generate --preset medium                   # a ground-truth world + stats (datagen)
+uv run kggen questions generate --preset small | docs generate --preset small   # questions / template documents
 ```
 
 Run the fast gate and ruff before every push. Install the hook once:
