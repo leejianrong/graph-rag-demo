@@ -217,3 +217,104 @@ def test_an_oversize_world_lists_questions_but_does_not_highlight() -> None:
     ui.picked.set(ui.questions.value[0].id)
     assert ui.highlight() is None and ui.focus() is None
     assert graph_props(ui)["highlight"] == {"nodes": [], "edges": []}
+
+
+# -- documents -----------------------------------------------------------------------------------
+
+
+def test_generate_renders_documents_and_the_list_matches() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    assert ui.documents.value == ()
+    ui.generate()
+    assert ui.documents.value
+    assert [r["id"] for r in ui.doc_rows.value] == [d.id for d in ui.documents.value]
+    assert ui.doc_note.value.endswith("documents.") and set(ui.sentences.value) == {
+        f.id for f in ui.world.value.edges
+    }
+
+
+def test_the_render_form_changes_the_documents_without_regenerating_the_world() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    world = ui.world.value
+    before = len(ui.documents.value)
+    ui.doc_values["max_facts_per_doc"].set(1)
+    ui.render()
+    assert len(ui.documents.value) > before and ui.world.value is world
+
+
+def test_a_bad_render_form_says_why_and_keeps_the_world() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    ui.doc_values["alias_use_rate"].set(5)
+    ui.render()
+    assert "between" in ui.doc_note.value and ui.documents.value == ()
+    assert ui.entities.value == "150"
+
+
+def test_rendering_before_a_world_exists_asks_for_one() -> None:
+    ui = build_ui()
+    ui.render()
+    assert ui.doc_note.value == "Generate a world first."
+
+
+def test_opening_another_document_clears_the_clicked_sentence() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    first, second = ui.documents.value[0], ui.documents.value[1]
+    ui.picked_doc.set(first.id)
+    ui.picked_fact.set(first.sentences[0].fact_ids[0])
+    ui.picked_doc.set(second.id)
+    assert ui.picked_fact.value is None
+
+
+def test_a_question_and_a_sentence_never_highlight_at_once() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    ui.picked_doc.set(ui.documents.value[0].id)
+    fact = ui.documents.value[0].sentences[0].fact_ids[0]
+    ui.picked.set(ui.questions.value[0].id)
+    ui.picked_fact.set(fact)
+    assert ui.picked.value is None and ui.picked_fact.value == fact
+    ui.picked.set(ui.questions.value[0].id)
+    assert ui.picked_fact.value is None and ui.picked.value == ui.questions.value[0].id
+
+
+def test_regenerating_clears_the_open_document_and_sentence() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    ui.picked_doc.set(ui.documents.value[0].id)
+    ui.picked_fact.set(ui.documents.value[0].sentences[0].fact_ids[0])
+    ui.values["seed"].set(ui.values["seed"].value + 1)
+    ui.generate()
+    assert ui.picked_doc.value is None and ui.picked_fact.value is None
+
+
+@needs_graph
+def test_clicking_a_sentence_highlights_its_fact_and_centres_on_its_subject() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.generate()
+    fact = ui.world.value.current_edges()[0]
+    ui.picked_fact.set(fact.id)
+    props = graph_props(ui)
+    assert props["highlight"] == {"nodes": [fact.subject, fact.object], "edges": [fact.id]}
+    assert props["focus"] == fact.subject
+
+
+@needs_graph
+def test_clicking_a_sentence_about_a_fact_that_ended_does_not_break_the_graph() -> None:
+    ui = build_ui()
+    ui.preset.set("small")
+    ui.values["churn_rate"].set(0.3)
+    ui.generate()
+    ended = next(f for f in ui.world.value.edges if f.valid_to is not None)
+    ui.picked_fact.set(ended.id)  # an edge the graph does not draw: must not raise
+    props = graph_props(ui)
+    assert props["highlight"] == {"nodes": [ended.subject, ended.object], "edges": []}

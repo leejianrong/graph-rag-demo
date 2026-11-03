@@ -263,7 +263,8 @@ uv run kggen questions generate --preset small --n 50 --hops 1:1,2:2,3:1 --out q
 uv run kggen docs generate --preset small --out docs.json      # template text, no LLM
 uv run --with indah kggen ui                                   # web UI (or install kggen[ui]);
                                                                # the graph view needs indah 0.12+; the UI also
-                                                               # lists questions and shows each one's gold path
+                                                               # lists questions and shows each one's gold path,
+                                                               # and renders documents whose sentences you can click
 ```
 
 Presets run from `tiny` to `stress` (50,000 entities). Beyond graph shape, a spec can add

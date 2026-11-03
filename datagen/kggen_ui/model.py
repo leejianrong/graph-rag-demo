@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from kggen.questions import MAX_HOPS, Question, QuestionSpec, generate_questions
+from kggen.render import Document, RenderSpec, Sentence, render_documents
 from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
 from kggen.stats import check_against_spec
 from kggen.world import Edge, Entity, World, WorldGenerationError, generate
@@ -190,6 +191,96 @@ def highlight_for(index: WorldIndex | None, q: Question | None) -> dict | None:
     return {"nodes": nodes, "edges": edges}
 
 
+# -- documents ---------------------------------------------------------------------------------
+
+# The template renderer's two knobs: how often a mention uses an alias, and the facts per document.
+RENDER_KNOBS: tuple[Knob, ...] = (
+    Knob("alias_use_rate", "Mentions that use an alias", 0, 1, 0.05, group="documents"),
+    Knob(
+        "max_facts_per_doc", "Most facts in a document", 1, 20, 1, integer=True, group="documents"
+    ),
+)
+RENDER_DEFAULTS: dict[str, float] = {"alias_use_rate": 0.5, "max_facts_per_doc": 6}
+MAX_DOCUMENT_ROWS = 5_000  # the table shows this many; a bigger world still renders them all
+
+
+def render_spec_from_values(values: dict[str, float]) -> RenderSpec:
+    read = {k.name: read_knob(k, values.get(k.name)) for k in RENDER_KNOBS}
+    return RenderSpec(
+        alias_use_rate=float(read["alias_use_rate"]),
+        max_facts_per_doc=int(read["max_facts_per_doc"]),
+    )
+
+
+def render_world(world: World, values: dict[str, float]) -> tuple[Document, ...]:
+    """The world's facts as template documents: deterministic, offline, no LLM."""
+    return render_documents(world, render_spec_from_values(values))
+
+
+def document_rows(documents: tuple[Document, ...] | list[Document]) -> list[dict]:
+    """The document list as table rows (the first ``MAX_DOCUMENT_ROWS``)."""
+    return [
+        {
+            "id": d.id,
+            "title": d.title,
+            "sentences": len(d.sentences),
+            "kind": "distractor" if d.distractor else "",
+        }
+        for d in documents[:MAX_DOCUMENT_ROWS]
+    ]
+
+
+def find_document(documents: tuple[Document, ...] | list[Document], doc_id: str | None):
+    return next((d for d in documents if d.id == doc_id), None)
+
+
+def sentence_rows(document: Document | None) -> list[dict]:
+    """One row per sentence, keyed by the fact it expresses (each fact has exactly one sentence)."""
+    if document is None:
+        return []
+    return [{"fact": s.fact_ids[0], "sentence": s.text} for s in document.sentences]
+
+
+def sentence_lookup(documents: tuple[Document, ...] | list[Document]) -> dict[str, Sentence]:
+    """The sentence that expresses each fact."""
+    return {f: s for d in documents for s in d.sentences for f in s.fact_ids}
+
+
+def mention_rows(
+    index: WorldIndex | None, lookup: dict[str, Sentence], fact_id: str | None
+) -> list[list[str]]:
+    """The entity mentions in a sentence: the surface form, who it is, and the id."""
+    sentence = lookup.get(fact_id) if fact_id else None
+    if index is None or sentence is None:
+        return []
+    return [[m.surface, index.entities[m.entity_id].name, m.entity_id] for m in sentence.mentions]
+
+
+def fact_highlight(index: WorldIndex | None, fact_id: str | None) -> dict | None:
+    """Emphasise a fact on the graph: both its entities, and the edge when the graph draws it. The
+    graph holds only facts still true at the end, so a fact that ended has no edge to show."""
+    if index is None or fact_id is None or fact_id not in index.facts:
+        return None
+    fact = index.facts[fact_id]
+    return {
+        "nodes": [fact.subject, fact.object],
+        "edges": [fact.id] if fact.valid_to is None else [],
+    }
+
+
+def fact_note(index: WorldIndex | None, fact_id: str | None) -> str:
+    """What the picked sentence says, as a fact, and whether the graph can show its edge."""
+    if index is None or fact_id is None or fact_id not in index.facts:
+        return "Click a sentence to see the fact it expresses on the graph."
+    f = index.facts[fact_id]
+    subject, obj = index.entities[f.subject].name, index.entities[f.object].name
+    held = f"{f.valid_from} to {'now' if f.valid_to is None else f.valid_to}"
+    text = f"{fact_id}: {subject} {f.predicate} {obj}, held {held}."
+    if f.valid_to is not None:
+        text += " It ended, so the graph (the final state) draws its two entities but no edge."
+    return text
+
+
 # What the graph view can hold (the indah Graph component's ceiling, ADR-0048).
 MAX_GRAPH_NODES = 20_000
 MAX_GRAPH_EDGES = 60_000
@@ -287,6 +378,9 @@ __all__ = [
     "GROUPS",
     "KNOBS",
     "KNOB_NAMES",
+    "MAX_DOCUMENT_ROWS",
+    "RENDER_DEFAULTS",
+    "RENDER_KNOBS",
     "QUESTION_COLUMNS",
     "QUESTION_DEFAULTS",
     "QUESTION_KNOBS",
@@ -298,6 +392,15 @@ __all__ = [
     "Knob",
     "Summary",
     "answer_text",
+    "document_rows",
+    "fact_highlight",
+    "fact_note",
+    "find_document",
+    "mention_rows",
+    "render_spec_from_values",
+    "render_world",
+    "sentence_lookup",
+    "sentence_rows",
     "check_rows",
     "derive_questions",
     "find_question",
