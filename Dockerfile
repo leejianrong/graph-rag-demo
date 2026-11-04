@@ -37,6 +37,7 @@ COPY graph_rag ./graph_rag
 COPY README.md ./
 # bench/ and datagen/ are uv workspace members (the root pyproject lists them); uv needs
 # their manifests present to parse the project, but neither is shipped in the image.
+COPY bench/pyproject.toml ./bench/pyproject.toml
 COPY datagen/pyproject.toml ./datagen/pyproject.toml
 RUN uv pip install --no-deps .
 
