@@ -15,7 +15,7 @@ Direction (2026-11): turning the demo into a product — a memory/knowledge stor
 **pandan board 9 (`GRA-*`)**, not in the docs; use the `pandan` skill, refer to cards by ref (`GRA-85`).
 
 **Build status:** V1–V8 are done and the pipeline is feature-complete. Slice-by-slice detail is in
-[`agent_docs/build-status.md`](agent_docs/build-status.md). The generator (`datagen/`, `kggen`) makes seeded worlds (ambiguity and churn knobs, a stats report), multi-hop questions with gold paths, and documents (templates, or an LLM-written set cached on disk, `kggen/render_llm.py`); `kggen ui` (extra `kggen[ui]`, package `kggen_ui`) is an indah app on top with sentence-to-fact and mention gold; the UI's LLM toggle (GRA-100) is still to build; the bench (`bench/`, ADR-0011) has the scaffold; extraction/retrieval scoring and baselines are still to build.
+[`agent_docs/build-status.md`](agent_docs/build-status.md). The generator (`datagen/`, `kggen`) makes seeded worlds (ambiguity and churn knobs, a stats report), multi-hop questions with gold paths, update/delete/reorder scenarios (`kggen/scenarios.py`), and documents (templates, or an LLM-written set cached on disk, `kggen/render_llm.py`); `kggen ui` (extra `kggen[ui]`, package `kggen_ui`) is an indah app on top with sentence-to-fact and mention gold; the UI's LLM toggle (GRA-100) is still to build; the bench (`bench/`, ADR-0011) has the scaffold; extraction/retrieval scoring and baselines are still to build.
 
 > **Trust the code over the docs.** `docs/` is design intent; where they disagree, the code is the truth and
 > the doc should be fixed in the same PR. Read `graph_rag/ports.py` before coding against a port.
@@ -48,6 +48,7 @@ docker compose up                                             # whole stack (or:
 make demo-offline | demo-live | demo | benchmark              # see `make` targets
 uv run kggen world generate --preset medium                   # a ground-truth world + stats (datagen)
 uv run kggen questions generate --preset small | docs generate --preset small   # questions / template documents
+uv run kggen scenario generate --preset small   # update/delete/reorder events + the expected final graph
 uv run kggen export --spec spec.json --out dataset.zip   # the whole dataset as one reproducible zip
 ```
 
