@@ -309,8 +309,9 @@ It reports mentions (exact span), entities (distinct gold entities recovered per
 triples, strictly and by entity pair only, so you can see a relation found but not named. Entity
 linking is scored with B-cubed (merged homonyms cost precision, split aliases cost recall), on a clean,
 an alias-heavy and an ambiguous version of the world. Retrieval scoring (recall@k and
-whole-path@k per hop count, `kgbench.retrieval`) is built, but there is nothing to point it at yet: the
-BM25 and dense-retrieval baselines and a graph-rag adapter the comparison needs are still to build.
+whole-path@k per hop count, `kgbench.retrieval`) is built, and a BM25 baseline (`kgbench.baselines`) sits behind the same interface. On the small set it
+finds every 1-hop path in the top 5 and almost no 3-hop or 4-hop path: the headroom a graph is meant to
+close. The dense baseline and a graph-rag adapter the comparison needs are still to build.
 
 ## Where the design lives
 

@@ -17,7 +17,7 @@ Direction (2026-11): turning the demo into a product — a memory/knowledge stor
 **Build status:** V1–V8 are done and the pipeline is feature-complete ([`agent_docs/build-status.md`](agent_docs/build-status.md)).
 The generator (`datagen/`, `kggen`) and its indah UI (`kggen ui`, extra `kggen[ui]`) are done; the UI's graph view needs
 indah 0.12, unreleased, so it runs against the local indah checkout (`make ui` picks it up). The bench (`bench/`, ADR-0011) is
-partly built: extraction and linking scoring (`kgbench extract`, `kgbench linking`) are done, and retrieval scoring (`kgbench.retrieval`, defines the `Retriever` interface) is built; the baselines and a graph-rag adapter are still to build.
+partly built: extraction and linking scoring (`kgbench extract`, `kgbench linking`) are done, and retrieval scoring (`kgbench.retrieval`, defines the `Retriever` interface) is built; a BM25 baseline (`kgbench.baselines`) is built; the dense baseline and a graph-rag adapter are still to build.
 
 > **Trust the code over the docs.** `docs/` is design intent; where they disagree, the code is the truth and
 > the doc should be fixed in the same PR. Read `graph_rag/ports.py` before coding against a port.
