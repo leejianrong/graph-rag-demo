@@ -1,7 +1,7 @@
 """Fast E2E for the V8 benchmark harness + CLI — fakes only, no Docker ($0 gate).
 
 Drives the whole benchmark over the offline, deterministic pipeline
-(:func:`~graph_rag.benchmark.pipeline.build_offline_components`: heuristic
+(:func:`~graph_rag.wiring.build_offline_components`: heuristic
 text-driven NER + KG, a :class:`~graph_rag.fakes.FakeLLMClient` coref, real EL over
 in-memory ports + :class:`~graph_rag.fakes.FakeEmbedder`) against the in-repo mini
 2Wiki fixture. Proves: it ingests → queries → produces metrics; the scores are
@@ -17,15 +17,15 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+from kgbench.cli import main as cli_main
+from kgbench.dataset import load_examples, select_subset
+from kgbench.harness import BenchmarkHarness
 
-from graph_rag.benchmark.cli import main as cli_main
-from graph_rag.benchmark.dataset import load_examples, select_subset
-from graph_rag.benchmark.harness import BenchmarkHarness
-from graph_rag.benchmark.pipeline import build_offline_components
+from graph_rag.wiring import build_offline_components
 
 pytestmark = pytest.mark.e2e
 
-_FIXTURE = Path(__file__).resolve().parents[1] / "fixtures" / "wiki2_mini.json"
+_FIXTURE = Path(__file__).resolve().parents[1] / "kgbench" / "data" / "wiki2_mini.json"
 
 
 @pytest.fixture

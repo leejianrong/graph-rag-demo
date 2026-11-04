@@ -57,10 +57,6 @@ embed = [
     "sentence-transformers",
 ]
 
-[project.scripts]
-# V8 benchmark CLI (U4): `benchmark run --subset small` (also `python -m graph_rag.benchmark`).
-benchmark = "graph_rag.benchmark.cli:main"
-
 [tool.uv.workspace]
 members = ["bench", "datagen"]
 

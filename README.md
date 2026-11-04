@@ -275,7 +275,7 @@ graph builds, which makes it a fair test of both construction and retrieval. A
 fixed subset keeps runs quick, and the harness is a console command:
 
 ```bash
-uv run benchmark run --subset small --dataset path/to/2wiki.json
+uv run kgbench run --subset small --dataset path/to/2wiki.json
 # or, over the in-repo mini fixture: make benchmark
 ```
 

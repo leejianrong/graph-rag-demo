@@ -8,7 +8,7 @@ of ``[title, sentence_index]``) — into typed :class:`BenchmarkExample` records
 The real corpus lives **outside git** (``datasets/`` is gitignored, B8): the
 loader takes a file path (a JSON array, or newline-delimited JSON) or a directory
 (the first ``*.json``/``*.jsonl`` in it). A TINY hand-authored fixture ships in
-``tests/fixtures/wiki2_mini.json`` so the fast suite + CLI run with NO download.
+``kgbench/data/wiki2_mini.json`` so the fast suite + CLI run with NO download.
 
 **Named subsets are FIXED and deterministic (B8, reproducibility — ADR-0009):**
 :func:`select_subset` sorts the examples by ``id`` and takes a fixed prefix, so
@@ -124,7 +124,7 @@ def load_examples(path: str | Path) -> list[BenchmarkExample]:
         path: A ``.json`` (array) / ``.jsonl`` file, or a directory whose first
             ``*.json`` / ``*.jsonl`` file (sorted by name) is read. The real
             dataset lives outside git (``datasets/``, B8); the shipped fixture is
-            ``tests/fixtures/wiki2_mini.json``.
+            ``kgbench/data/wiki2_mini.json``.
 
     Returns:
         The parsed examples in FILE order (call :func:`select_subset` to pick a
