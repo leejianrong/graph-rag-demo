@@ -127,12 +127,17 @@ Ingest a document with a multipart upload:
 
 ```bash
 curl -F "file=@some-report.md" http://localhost:8000/ingest
-# {"document_id": "...", "bucket": "documents", "object_key": "some-report.md"}
+# {"document_id": "...", "bucket": "documents", "object_key": "some-report.md", "status": "accepted"}
 ```
 
 Ingestion is asynchronous. `/ingest` writes the file to MinIO, publishes a Kafka
 trigger, and returns straight away; the consumer then runs the five stages. Follow
 it with `make logs` (which is `docker compose logs -f app`).
+
+A source is keyed by its filename, or by `-F source_url=https://...` when you give one. Posting the
+same source with the same bytes again returns `"status": "unchanged"` and does nothing: no write, no
+trigger, so no pipeline run and no LLM call. Changed bytes are ingested again; add `?force=true` to
+push identical bytes through anyway (for a source whose first attempt failed).
 
 Once a few documents are in, query the graph. This call makes no LLM request:
 
