@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -23,6 +24,7 @@ from kggen.world import generate
 
 from graph_rag.wiring import build_offline_components, build_real_components
 from kgbench import __version__, gate
+from kgbench import order as orders
 from kgbench.compare import compare
 from kgbench.cost import Meter
 from kgbench.dataset import SUBSETS, load_examples, select_subset
@@ -84,6 +86,20 @@ def build_parser() -> argparse.ArgumentParser:
     cmp.add_argument("--k", type=int, default=5, help="The k for the headline table.")
     cmp.add_argument("--out", type=Path, help="Write the markdown report here.")
     cmp.add_argument("--json", type=Path, help="Write every number as JSON here.")
+    order = commands.add_parser(
+        "order", help="Ingest the same corpus in several shuffled orders and report the spread."
+    )
+    order.add_argument("--preset", choices=PRESET_NAMES, default="small", help="Base world.")
+    order.add_argument(
+        "--difficulty",
+        choices=sorted(DIFFICULTY),
+        default="ambiguous",
+        help="Ambiguity setting layered over the preset (default: ambiguous).",
+    )
+    order.add_argument("--orders", type=int, default=6, help="Shuffled orders (at least 5).")
+    order.add_argument("--real", action="store_true", help="Run the real adapter stack.")
+    order.add_argument("--out", type=Path, help="Write the markdown report here.")
+    order.add_argument("--json", type=Path, help="Write every number as JSON here.")
     gate_cmd = commands.add_parser(
         "gate", help="Fail if graph-rag scores below the stored floors (offline, no provider)."
     )
@@ -132,6 +148,39 @@ def _compare(args: argparse.Namespace) -> int:
         args.out.write_text(result.to_markdown(k=args.k, command=command))
     if args.json:
         args.json.write_text(json.dumps(result.to_dict(), indent=1) + "\n")
+    return 0
+
+
+def _order(args: argparse.Namespace) -> int:
+    if args.orders < 5:
+        print("--orders must be at least 5, or the spread means little", file=sys.stderr)
+        return 2
+    spec = WorldSpec.model_validate(
+        {**load_preset(args.preset).model_dump(), **DIFFICULTY[args.difficulty]}
+    )
+    world = generate(spec)
+    report = orders.run_orders(
+        world,
+        render_documents(world),
+        range(1, args.orders + 1),
+        build_real_components if args.real else build_offline_components,
+    )
+    print(report.format_table())
+    if args.out:
+        command = (
+            f"uv run kgbench order --preset {args.preset} --difficulty {args.difficulty} "
+            f"--orders {args.orders}{' --real' if args.real else ''} --out {args.out}"
+            + (f" --json {args.json}" if args.json else "")
+        )
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(
+            orders.to_markdown(
+                report, preset=args.preset, difficulty=args.difficulty, command=command
+            )
+        )
+    if args.json:
+        args.json.parent.mkdir(parents=True, exist_ok=True)
+        args.json.write_text(json.dumps(report.to_dict(), indent=1) + "\n")
     return 0
 
 
@@ -215,6 +264,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _linking(args)
     if args.command == "compare":
         return _compare(args)
+    if args.command == "order":
+        return _order(args)
     if args.command == "gate":
         return _gate(args)
     parser.print_help()

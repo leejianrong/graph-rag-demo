@@ -167,13 +167,14 @@ def oracle(gold: Gold) -> Extraction:
 
 
 def align(gold: Gold, extraction: Extraction) -> dict[str, str]:
-    """Canonical id -> the gold entity most of its span-matched mentions refer to."""
+    """Canonical id -> the gold entity most of its span-matched mentions refer to (a tie goes to
+    the lower entity id, so the scores do not depend on the order mentions arrive in)."""
     votes: dict[str, Counter[str]] = defaultdict(Counter)
     for m in extraction.mentions:
         entity = gold.mentions.get((m.doc, m.start, m.end))
         if m.canonical_id is not None and entity is not None:
             votes[m.canonical_id][entity] += 1
-    return {c: counts.most_common(1)[0][0] for c, counts in votes.items()}
+    return {c: min(counts, key=lambda e: (-counts[e], e)) for c, counts in votes.items()}
 
 
 def _pair(s: str | None, o: str | None) -> frozenset[str] | None:
