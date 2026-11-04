@@ -305,7 +305,10 @@ pipeline under test. Extraction scoring is built; try it with no Docker or key:
 ```bash
 make extract PRESET=small        # kgbench extract: P/R/F1 for mentions, entities and triples, per predicate
 make linking PRESET=small        # kgbench linking: B-cubed precision/recall per difficulty setting
+make order PRESET=small          # kgbench order: ingest one corpus in shuffled orders, report the spread
 ```
+
+`kgbench order` ingests the same corpus as generated and in shuffled orders, each into a fresh pipeline, and reports how much each score moves. The offline pipeline shows none ([docs/results/order-medium.md](docs/results/order-medium.md)); merging by name cannot depend on order, so the question stays open for the real stack (`--real`).
 
 It reports mentions (exact span), entities (distinct gold entities recovered per canonical made) and
 triples, strictly and by entity pair only, so you can see a relation found but not named. Entity
