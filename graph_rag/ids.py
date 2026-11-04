@@ -28,3 +28,6 @@ def document_id(bucket: str, object_key: str) -> str:
     """
     canonical = f"{bucket}/{object_key}"
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+_BREAK: int = "not an int"  # TEMPORARY type error for GRA-62
