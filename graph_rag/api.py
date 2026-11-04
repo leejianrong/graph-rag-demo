@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Annotated
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
 from graph_rag.config import Settings, get_settings
 from graph_rag.ids import document_id
@@ -35,6 +35,14 @@ if TYPE_CHECKING:
 __all__ = ["create_app"]
 
 _logger = get_logger(__name__)
+
+
+def _holds(store: ObjectStore, bucket: str, object_key: str, data: bytes) -> bool:
+    """Whether ``(bucket, object_key)`` already holds exactly ``data``."""
+    try:
+        return store.get(bucket, object_key) == data
+    except FileNotFoundError:
+        return False
 
 
 def create_app(
@@ -69,18 +77,35 @@ def create_app(
         return {"status": "ok"}
 
     @app.post("/ingest")
-    async def ingest(file: Annotated[UploadFile, File()]) -> dict[str, str]:
+    async def ingest(
+        file: Annotated[UploadFile, File()],
+        source_url: Annotated[str | None, Form()] = None,
+        force: bool = False,
+    ) -> dict[str, str]:
         """Store an uploaded document and publish its ingest trigger.
 
-        The object key is the uploaded filename; the bucket comes from settings.
-        Returns the deterministic ``document_id`` plus the resolved location. Does
-        NOT run the pipeline — that happens downstream off the published trigger.
+        The source is keyed by ``source_url`` when given, else by the uploaded filename;
+        the bucket comes from settings. Returns the deterministic ``document_id``, the
+        resolved location and a ``status``: ``accepted`` when the bytes were stored and a
+        trigger published, or ``unchanged`` when this source already holds exactly these
+        bytes, in which case nothing is stored or published, so the pipeline (and any LLM
+        behind it) does not run again. ``force=true`` ingests it anyway, for a source whose
+        first attempt failed. Does NOT run the pipeline — that happens downstream.
         """
-        object_key = file.filename or "upload"
+        object_key = source_url or file.filename or "upload"
         data = await file.read()
+        doc_id = document_id(bucket, object_key)
+
+        if not force and _holds(object_store, bucket, object_key, data):
+            _logger.info("unchanged document_id=%s object_key=%s", doc_id, object_key)
+            return {
+                "document_id": doc_id,
+                "bucket": bucket,
+                "object_key": object_key,
+                "status": "unchanged",
+            }
 
         object_store.put(bucket, object_key, data)
-        doc_id = document_id(bucket, object_key)
         publisher.publish(IngestTrigger(bucket=bucket, object_key=object_key))
 
         _logger.info(
@@ -90,7 +115,12 @@ def create_app(
             object_key,
             len(data),
         )
-        return {"document_id": doc_id, "bucket": bucket, "object_key": object_key}
+        return {
+            "document_id": doc_id,
+            "bucket": bucket,
+            "object_key": object_key,
+            "status": "accepted",
+        }
 
     @app.post("/query")
     def query(request: QueryRequest) -> QueryResponse:
