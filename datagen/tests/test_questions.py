@@ -403,3 +403,27 @@ def test_a_path_question_is_dropped_when_too_many_chains_link_the_pair() -> None
     dense = generate(make(n_entities=300, avg_degree=14, seed=8))
     qs = generate_questions(dense, QuestionSpec(n_questions=40, type_mix={"path": 1.0}))
     assert qs and all(len(q.gold_paths) <= MAX_PATHS for q in qs)
+
+
+def test_a_plural_subject_gets_a_plural_verb(world) -> None:
+    from kggen.questions import PLURAL, _plural_verb
+
+    assert {v: _plural_verb(v) for v in VERB.values()} == {
+        "is located in": "are located in",
+        "is part of": "are part of",
+        "is a member of": "are members of",
+        "works for": "work for",
+        "founded": "founded",
+        "owns": "own",
+        "produces": "produce",
+        "participated in": "participated in",
+        "is affiliated with": "are affiliated with",
+    }
+    qs = generate_questions(
+        world, QuestionSpec(n_questions=40, type_mix={"compare": 1.0, "superlative": 1.0})
+    )
+    plurals = tuple(PLURAL.values())
+    for q in qs:
+        assert not any(
+            f"{p} that is " in q.question or f"{p} that owns" in q.question for p in plurals
+        )

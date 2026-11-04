@@ -143,6 +143,16 @@ class Question:
         }
 
 
+def _plural_verb(verb: str) -> str:
+    """The relation's wording for a plural subject: "is part of" becomes "are part of"."""
+    if verb == "is a member of":
+        return "are members of"
+    if verb.startswith("is "):
+        return "are " + verb[3:]
+    first, _, rest = verb.partition(" ")
+    return (first.removesuffix("s") + (" " + rest if rest else "")) if first.endswith("s") else verb
+
+
 def _noun_phrase(world_names: dict[str, str], types: dict[str, str], start: str, steps) -> str:
     """The nested phrase naming the entity reached after ``steps`` from ``start``."""
     phrase = world_names[start]
@@ -350,7 +360,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
 
     def phrase_of(predicate: str, forward: bool, plural: str) -> str:
         verb = VERB[predicate]
-        return f"{plural} that it {verb}" if forward else f"{plural} that {verb} it"
+        return f"{plural} that it {verb}" if forward else f"{plural} that {_plural_verb(verb)} it"
 
     by_id = {e.id: e for e in live}
 
