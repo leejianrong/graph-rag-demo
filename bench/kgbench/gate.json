@@ -1,0 +1,32 @@
+{
+ "setup": {
+  "preset": "small",
+  "seed": 0,
+  "questions": 100,
+  "k": 5,
+  "margin": 0.02
+ },
+ "floors": {
+  "extraction/edges/f1": 0.98,
+  "extraction/entities/f1": 0.98,
+  "extraction/mentions/f1": 0.98,
+  "linking/aliases/f1": 0.8252,
+  "linking/ambiguous/f1": 0.8232,
+  "linking/clean/f1": 0.98,
+  "retrieval/graph-rag graph/hops=1/path@5": 0.86,
+  "retrieval/graph-rag graph/hops=1/recall@5": 0.86,
+  "retrieval/graph-rag graph/hops=2/path@5": 0.06,
+  "retrieval/graph-rag graph/hops=2/recall@5": 0.32,
+  "retrieval/graph-rag graph/hops=3/recall@5": 0.0333,
+  "retrieval/graph-rag graph/hops=4/recall@5": 0.04,
+  "retrieval/graph-rag graph/hops=all/path@5": 0.22,
+  "retrieval/graph-rag graph/hops=all/recall@5": 0.3133,
+  "retrieval/graph-rag passages/hops=1/path@5": 0.7,
+  "retrieval/graph-rag passages/hops=1/recall@5": 0.7,
+  "retrieval/graph-rag passages/hops=2/recall@5": 0.26,
+  "retrieval/graph-rag passages/hops=3/recall@5": 0.1133,
+  "retrieval/graph-rag passages/hops=4/recall@5": 0.06,
+  "retrieval/graph-rag passages/hops=all/path@5": 0.16,
+  "retrieval/graph-rag passages/hops=all/recall@5": 0.2833
+ }
+}
