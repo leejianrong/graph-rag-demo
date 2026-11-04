@@ -458,3 +458,14 @@ def test_llm_render_says_what_is_wrong_instead_of_raising(endpoint, tmp_path) ->
     nonsense = endpoint(lambda prompt: "not json")
     with pytest.raises(ValueError, match="stopped"):
         model.render_world_llm(world, values, nonsense.base_url, "m", tmp_path)
+
+
+def test_every_setting_has_an_info_tip() -> None:
+    knobs = (*model.KNOBS, *model.QUESTION_KNOBS, *model.RENDER_KNOBS)
+    missing = [k.name for k in knobs if k.name != "hops_1" and not model.knob_help(k)]
+    assert [m for m in missing if not m.startswith("hops_")] == []
+
+
+def test_the_form_accepts_the_stress_preset_size() -> None:
+    assert model.MAX_ENTITIES >= 50_000
+    model.read_knob(model.KNOBS[0], 50_000)
