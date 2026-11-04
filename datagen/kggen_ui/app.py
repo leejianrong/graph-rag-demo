@@ -412,6 +412,7 @@ def documents_card(ui: UI) -> indah.Component:
             indah.Col("id", "ID", kind="mono"),
             indah.Col("title", "About"),
             indah.Col("sentences", "Sentences", kind="number"),
+            indah.Col("words", "Words", kind="number"),
             indah.Col("kind", "Kind"),
         ],
         key="id",
@@ -461,6 +462,7 @@ def documents_card(ui: UI) -> indah.Component:
             indah.Text(lambda: ui.doc_note.value),
             documents,
             indah.Text(lambda: doc_heading(ui)),
+            indah.Text(lambda: model.document_text(ui.picked_document())),
             sentences,
             indah.Text(lambda: model.fact_note(ui.index.value, ui.picked_fact.value)),
             indah.DataFrame(

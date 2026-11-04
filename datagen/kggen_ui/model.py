@@ -122,6 +122,16 @@ HELP: dict[str, str] = {
     "alias_use_rate": (
         "How often a document mentions an entity by one of its aliases instead of its main name."
     ),
+    "target_words": (
+        "How long each document is, in words. 0 gives short fact-only documents; 500 reads like a "
+        "short article; 5,000 like a long report. Facts are spread through background prose that "
+        "states nothing, so a long document is mostly noise around few facts. The LLM writer "
+        "ignores this."
+    ),
+    "neighbour_facts": (
+        "Facts about connected entities added to each long document as context, so one document "
+        "mentions several entities. 0 keeps a document to its own subject's facts."
+    ),
     "max_facts_per_doc": (
         "The most facts one document states. Higher gives longer documents with fewer "
         "files; lower gives many short ones."
@@ -355,8 +365,16 @@ RENDER_KNOBS: tuple[Knob, ...] = (
     Knob(
         "max_facts_per_doc", "Most facts in a document", 1, 20, 1, integer=True, group="documents"
     ),
+    Knob("target_words", "Words per document", 0, 10_000, 100, integer=True, group="documents"),
+    Knob("neighbour_facts", "Context facts", 0, 50, 1, integer=True, group="documents"),
 )
-RENDER_DEFAULTS: dict[str, float] = {"alias_use_rate": 0.5, "max_facts_per_doc": 6}
+RENDER_DEFAULTS: dict[str, float] = {
+    "alias_use_rate": 0.5,
+    "max_facts_per_doc": 6,
+    "target_words": 500,
+    "neighbour_facts": 3,
+}
+MAX_RENDER_WORDS = 10_000_000  # most words the UI will render at once; the CLI has no limit
 MAX_DOCUMENT_ROWS = 5_000  # the table shows this many; a bigger world still renders them all
 
 
@@ -365,12 +383,21 @@ def render_spec_from_values(values: dict[str, float]) -> RenderSpec:
     return RenderSpec(
         alias_use_rate=float(read["alias_use_rate"]),
         max_facts_per_doc=int(read["max_facts_per_doc"]),
+        target_words=int(read["target_words"]),
+        neighbour_facts=int(read["neighbour_facts"]),
     )
 
 
 def render_world(world: World, values: dict[str, float]) -> tuple[Document, ...]:
     """The world's facts as template documents: deterministic, offline, no LLM."""
-    return render_documents(world, render_spec_from_values(values))
+    spec = render_spec_from_values(values)
+    if len(world.entities) * spec.target_words > MAX_RENDER_WORDS:
+        raise ValueError(
+            f"{len(world.entities):,} entities at {spec.target_words:,} words each is more than "
+            f"the {MAX_RENDER_WORDS:,} words the UI renders at once. Lower the words per document "
+            "or use `kggen docs generate --words` from the command line."
+        )
+    return render_documents(world, spec)
 
 
 LLM_DEFAULT_MODEL = "claude-haiku"
@@ -433,6 +460,7 @@ def document_rows(documents: tuple[Document, ...] | list[Document]) -> list[dict
             "id": d.id,
             "title": d.title,
             "sentences": len(d.sentences),
+            "words": len(d.text.split()),
             "kind": "distractor" if d.distractor else "",
         }
         for d in documents[:MAX_DOCUMENT_ROWS]
@@ -444,15 +472,31 @@ def find_document(documents: tuple[Document, ...] | list[Document], doc_id: str 
 
 
 def sentence_rows(document: Document | None) -> list[dict]:
-    """One row per sentence, keyed by the fact it expresses (each fact has exactly one sentence)."""
+    """One row per fact sentence of a document, keyed by the fact it expresses. Filler sentences
+    state no fact, so they are not rows (the document text shows them)."""
     if document is None:
         return []
-    return [{"fact": s.fact_ids[0], "sentence": s.text} for s in document.sentences]
+    return [{"fact": s.fact_ids[0], "sentence": s.text} for s in document.sentences if s.fact_ids]
+
+
+def document_text(document: Document | None) -> str:
+    return "" if document is None else document.text
 
 
 def sentence_lookup(documents: tuple[Document, ...] | list[Document]) -> dict[str, Sentence]:
-    """The sentence that expresses each fact."""
-    return {f: s for d in documents for s in d.sentences for f in s.fact_ids}
+    """The sentence that expresses each fact: the one in the document about the fact's subject, or
+    else the first. A long document also states a few facts about connected entities as context."""
+    found: dict[str, Sentence] = {}
+    own: set[str] = set()
+    for d in documents:
+        for s in d.sentences:
+            about_subject = bool(s.mentions) and s.mentions[0].entity_id == d.subject
+            for f in s.fact_ids:
+                if f not in found or (about_subject and f not in own):
+                    found[f] = s
+                    if about_subject:
+                        own.add(f)
+    return found
 
 
 def mention_rows(

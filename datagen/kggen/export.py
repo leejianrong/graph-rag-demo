@@ -102,8 +102,10 @@ _FILES: tuple[tuple[str, str], ...] = (
     ),
     (
         "documents.json",
-        "Template documents. Each has `sentences`; each sentence names the `fact_ids` it expresses "
-        "and its entity `mentions` (character offsets into the document `text`).",
+        "Template documents (`subject` is the entity a document is about). Each has `sentences`; "
+        "each sentence names the `fact_ids` it expresses (none for background prose) and its "
+        "entity `mentions` (character offsets into the document `text`). Long documents "
+        "(`target_words` in render_spec.json) spread those facts through background prose.",
     ),
     ("world.stats.json", "What the world realised against each knob in the spec."),
     (
