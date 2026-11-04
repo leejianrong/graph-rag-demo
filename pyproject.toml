@@ -41,6 +41,7 @@ dev = [
     # commands and tests work. graph_rag itself never imports either.
     "kggen",
     "kgbench",
+    "openapi-spec-validator>=0.9.0",
 ]
 # Transformer NER runtime (ADR-0002). Only the real stack / a trf-backed run
 # needs these; the fast suite uses `en_core_web_sm` under plain spaCy.
