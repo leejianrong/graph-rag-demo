@@ -262,7 +262,9 @@ class BenchmarkComponents:
     llm_calls: Callable[[], int]
 
 
-def build_offline_components(*, settings: Settings | None = None) -> BenchmarkComponents:
+def build_offline_components(
+    *, settings: Settings | None = None, embedder: Embedder | None = None
+) -> BenchmarkComponents:
     """Wire the fully offline, deterministic benchmark pipeline (fakes + heuristics).
 
     Shares ONE :class:`~graph_rag.fakes.FakeEmbedder` and ONE set of in-memory
@@ -273,6 +275,9 @@ def build_offline_components(*, settings: Settings | None = None) -> BenchmarkCo
     Args:
         settings: Optional settings for the retrieval knobs (seeding depths, k-hop,
             ranking weights). Defaults to :class:`~graph_rag.config.Settings`.
+        embedder: Optional embedder shared by linking and retrieval (default: the
+            deterministic :class:`~graph_rag.fakes.FakeEmbedder`); pass a real one to
+            measure retrieval with real vectors while the stages stay offline.
 
     Returns:
         The wired :class:`BenchmarkComponents`.
@@ -283,7 +288,7 @@ def build_offline_components(*, settings: Settings | None = None) -> BenchmarkCo
     document_store = InMemoryDocumentStore()
     entity_store = InMemoryEntityStore()
     graph_store = InMemoryGraphStore()
-    embedder = FakeEmbedder(dim=settings.embed_dim)
+    embedder = embedder or FakeEmbedder(dim=settings.embed_dim)
     llm_client = FakeLLMClient()  # empty coref clusters; counts one call per document.
 
     orchestrator = Orchestrator(

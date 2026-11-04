@@ -312,8 +312,20 @@ an alias-heavy and an ambiguous version of the world. Retrieval scoring (recall@
 whole-path@k per hop count, `kgbench.retrieval`) is built, and a BM25 baseline (`kgbench.baselines`) sits behind the same interface. On the small set it
 finds every 1-hop path in the top 5 and almost no 3-hop or 4-hop path: the headroom a graph is meant to
 close. A dense baseline (`DenseRetriever`) uses the project's own embedder port: the fake in tests and
-bge-small for published numbers (`pip install` the `embed` extra and run `make embed-model`). A graph-rag
-adapter, and the comparison itself, are still to build.
+bge-small for published numbers (`pip install` the `embed` extra and run `make embed-model`). graph-rag itself is wrapped as a retriever too, in two views: its
+passages, and the sentences behind its retrieved subgraph's edges. The first comparison, on `medium`
+worlds over three seeds, is in [docs/results/retrieval-medium.md](docs/results/retrieval-medium.md):
+
+```bash
+make compare                     # kgbench compare: path@k and recall@k per hop count, every system
+```
+
+It takes about half an hour on CPU with bge (`EMBEDDER=fake` is quick and only for checking). What it
+shows so far: every system finds 1-hop answers (whole-path@5 of 0.94 to 0.99). At 2 hops only the
+graph view recovers any whole path (0.11, against 0.00 to 0.01 for BM25 and dense), and at 3 and 4
+hops no system recovers one in the top 5. The offline graph-rag does not yet beat the baselines, and
+its graph view costs about 4 points at 1 hop. That is the offline heuristic graph, a floor; whether
+the real stack's LLM-built graph closes the gap is the open question.
 
 ## Where the design lives
 
