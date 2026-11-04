@@ -48,6 +48,7 @@ docker compose up                                             # whole stack (or:
 make demo-offline | demo-live | demo | benchmark              # see `make` targets
 uv run kggen world generate --preset medium                   # a ground-truth world + stats (datagen)
 uv run kggen questions generate --preset small | docs generate --preset small   # questions / template documents
+uv run kggen fixtures write   # regenerate the committed small/medium sets (datagen/fixtures)
 uv run kggen scenario generate --preset small   # update/delete/reorder events + the expected final graph
 uv run kggen export --spec spec.json --out dataset.zip   # the whole dataset as one reproducible zip
 ```

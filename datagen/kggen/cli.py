@@ -11,6 +11,7 @@ from pathlib import Path
 
 from kggen import __version__
 from kggen.export import export_archive
+from kggen.fixtures import write as write_fixtures
 from kggen.llm import CachedChat, CacheMiss, OpenAICompatible, ResponseCache
 from kggen.questions import QuestionSpec, generate_questions
 from kggen.render import RenderSpec, render_documents
@@ -86,6 +87,10 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("--render-spec", type=Path, help="A RenderSpec JSON file.")
     export.add_argument("--seed", type=int, help="Override the world spec's seed.")
     export.add_argument("--out", type=Path, required=True, help="The zip to write.")
+    fixtures = commands.add_parser("fixtures", help="The committed small and medium fixture sets.")
+    f_commands = fixtures.add_subparsers(dest="fixtures_command", required=True)
+    f_write = f_commands.add_parser("write", help="(Re)generate the fixture files.")
+    f_write.add_argument("--out", type=Path, help="Directory to write (default: datagen/fixtures).")
     ui = commands.add_parser("ui", help="Start the web UI (needs the kggen[ui] extra).")
     ui.add_argument("--port", type=int, help="Port to serve on (default: first free).")
     ui.add_argument("--host", default="127.0.0.1", help="Address to bind.")
@@ -149,6 +154,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.out.write_text(text)
         else:
             print(text, end="")
+        return 0
+    if args.command == "fixtures":
+        write_fixtures(args.out) if args.out else write_fixtures()
         return 0
     if args.command == "scenario":
         spec = ScenarioSpec(

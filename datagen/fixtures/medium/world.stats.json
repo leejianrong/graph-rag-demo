@@ -1,0 +1,186 @@
+{
+ "checks": [
+  {
+   "knob": "n_entities",
+   "ok": true,
+   "realized": 1000,
+   "target": 1000,
+   "tolerance": 0
+  },
+  {
+   "knob": "avg_degree",
+   "ok": true,
+   "realized": 5.0,
+   "target": 5.0,
+   "tolerance": 0.252
+  },
+  {
+   "knob": "type_mix",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.001000001
+  },
+  {
+   "knob": "community_mixing",
+   "ok": true,
+   "realized": 0.1852,
+   "target": 0.15,
+   "tolerance": 0.07142428528562855
+  },
+  {
+   "knob": "alias_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.001
+  },
+  {
+   "knob": "homonym_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.001
+  },
+  {
+   "knob": "distractor_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.001
+  },
+  {
+   "knob": "noise_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.0004
+  },
+  {
+   "knob": "churn_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.0004
+  },
+  {
+   "knob": "retraction_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.0004
+  }
+ ],
+ "stats": {
+  "ambiguity": {
+   "aliased_entities": 0,
+   "aliases": 0,
+   "shared_names": 0,
+   "vague_facts": 0
+  },
+  "churn": {
+   "replaced": 0,
+   "retracted": 0
+  },
+  "communities": {
+   "0": 125,
+   "1": 125,
+   "2": 125,
+   "3": 125,
+   "4": 125,
+   "5": 125,
+   "6": 125,
+   "7": 125
+  },
+  "components": {
+   "count": 149,
+   "largest": 846,
+   "sizes": [
+    846,
+    3,
+    3,
+    2,
+    2,
+    1,
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "current_facts": 2500,
+  "degree": {
+   "histogram": {
+    "0": 144,
+    "1": 158,
+    "2": 165,
+    "3": 114,
+    "4": 86,
+    "5": 81,
+    "6": 53,
+    "7": 34,
+    "8": 30,
+    "9": 20,
+    "10": 20,
+    "11": 10,
+    "12": 8,
+    "13": 6,
+    "14": 11,
+    "15": 5,
+    "16": 8,
+    "17": 4,
+    "18": 4,
+    "19": 2,
+    "20": 1,
+    "21": 5,
+    "22": 1,
+    "24": 2,
+    "25": 2,
+    "26": 2,
+    "27": 1,
+    "28": 2,
+    "29": 3,
+    "30": 1,
+    "31": 2,
+    "33": 1,
+    "34": 1,
+    "38": 1,
+    "39": 1,
+    "42": 1,
+    "47": 2,
+    "54": 1,
+    "56": 1,
+    "58": 1,
+    "59": 1,
+    "67": 1,
+    "73": 1,
+    "101": 1,
+    "119": 1
+   },
+   "max": 119,
+   "mean": 5.0
+  },
+  "distractors": 0,
+  "entities": 1000,
+  "facts": 2500,
+  "original_facts": 2500,
+  "path_lengths": {
+   "1": 239,
+   "2": 2372,
+   "3": 10219,
+   "4": 15752,
+   "5": 7377,
+   "6": 1137,
+   "7": 81,
+   "8": 4
+  },
+  "type_counts": {
+   "EVENT": 100,
+   "LOCATION": 150,
+   "NORP": 50,
+   "ORG": 250,
+   "PERSON": 350,
+   "PRODUCT": 100
+  }
+ }
+}
