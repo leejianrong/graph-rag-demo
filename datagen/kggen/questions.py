@@ -27,6 +27,8 @@ from kggen.world import Edge, World, WorldGenerationError, apportion
 
 MAX_HOPS = 4
 MIN_SET = 2
+MAX_BFS_NODES = 30_000  # a path search that grows past this many entities is dropped
+MAX_PATHS = 4  # a path question is kept when at most this many shortest chains link the pair
 MAX_FRONTIER = 2000  # a path fanning out past this many entities is dropped as not unique
 MAX_SET = 25  # a set question is kept only when it has this many answers or fewer
 QUESTION_TYPES = (
@@ -40,6 +42,7 @@ QUESTION_TYPES = (
     "as_of",
     "latest",
     "retracted",
+    "path",
 )
 
 # How each relation reads in a question (the same wording whichever side is the answer).
@@ -122,7 +125,7 @@ class Question:
     gold_paths: tuple[tuple[str, ...], ...] = ()  # one chain of fact ids per correct answer
     ordered: bool = False
     tie_rule: str = ""
-    grading: str = "exact"  # exact | set_f1 | numeric | abstain
+    grading: str = "exact"  # exact | set_f1 | numeric | abstain | path
     abstain: dict | None = None  # {expected, reason}: the right reply is to decline
     # A false premise: {asserted_fact, contradicting_fact_ids, correction}.
     premise: dict | None = None
@@ -648,13 +651,84 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             )
         return found
 
+    def path_questions(hops: int, target: int) -> list[Question]:
+        """ "How is A connected to B?" where the shortest chain of facts is ``hops`` long."""
+        found: list[Question] = []
+        budget = 40 * target + 200
+        while len(found) < target and budget > 0:
+            budget -= 1
+            start = rng.choice(starts)
+            steps = walker.walk(rng, hops, start)
+            if len(steps) < hops:
+                continue
+            end = steps[-1][0].object if steps[-1][1] else steps[-1][0].subject
+            if name_count[names[end]] != 1 or end == start or ("path", start, end) in seen:
+                continue
+            layers = {start: 0}
+            parents: dict[str, list[tuple[str, Edge]]] = {}
+            frontier = [start]
+            for depth in range(1, hops + 1):
+                nxt: list[str] = []
+                for node in frontier:
+                    for e in (*out_edges.get(node, ()), *in_edges.get(node, ())):
+                        other = e.object if e.subject == node else e.subject
+                        if layers.setdefault(other, depth) == depth:
+                            parents.setdefault(other, []).append((node, e))
+                            if len(parents[other]) == 1:
+                                nxt.append(other)
+                frontier = nxt
+                if len(layers) > MAX_BFS_NODES:
+                    break
+            if layers.get(end) != hops:
+                continue  # a shorter chain exists, or the search was cut off
+            walked: list[tuple[Edge, ...]] = []
+            stack: list[tuple[str, tuple[Edge, ...]]] = [(end, ())]
+            while stack and len(walked) <= MAX_PATHS:
+                node, tail = stack.pop()
+                if node == start:
+                    walked.append(tail)
+                    continue
+                stack += [(prev, (e, *tail)) for prev, e in parents.get(node, ())]
+            if not 1 <= len(walked) <= MAX_PATHS:
+                continue
+            seen.add(("path", start, end))
+            paths = tuple(sorted(tuple(e.id for e in chain) for chain in walked))
+            first = {e.id: e for chain in walked for e in chain}
+            at, readout = start, []
+            for fid in paths[0]:
+                e = first[fid]
+                nxt_id = e.object if e.subject == at else e.subject
+                readout.append(f"{names[e.subject]} {VERB[e.predicate]} {names[e.object]}")
+                at = nxt_id
+            found.append(
+                Question(
+                    id="",
+                    question=f"How is {names[start]} connected to {names[end]}? "
+                    "Give the chain of facts.",
+                    hops=hops,
+                    start=start,
+                    answer="",
+                    answer_name="; ".join(readout),
+                    accepted_answers=(),
+                    supporting_facts=paths[0],
+                    type="path",
+                    answer_kind="path",
+                    answers=(end,),
+                    gold_paths=paths,
+                    ordered=True,
+                    grading="path",
+                )
+            )
+        return found
+
     quota = apportion(spec.n_questions, spec.type_mix)
     questions: list[Question] = []
     short = 0  # questions another type could not supply; plain entity questions make them up
-    for kind in ("set", "count"):
+    for kind in ("set", "count", "path"):
         wanted = apportion(quota.get(kind, 0), {str(h): w for h, w in spec.hop_mix.items()})
         for hops_key in sorted(wanted):
-            got = set_questions(int(hops_key), wanted[hops_key], kind)
+            hops, n = int(hops_key), wanted[hops_key]
+            got = path_questions(hops, n) if kind == "path" else set_questions(hops, n, kind)
             questions += got
             short += wanted[hops_key] - len(got)
     for kind, make in (

@@ -140,6 +140,7 @@ _TYPE_HELP = {
     "as_of": "Questions about the value in a past year. Needs facts replaced later (churn).",
     "latest": "Questions about the current value of a fact that was replaced (needs churn).",
     "retracted": "Questions about a fact that was withdrawn and has no current answer.",
+    "path": "Questions asking how two entities are connected; the answer is the chain of facts.",
 }
 
 
@@ -328,6 +329,8 @@ def answer_text(q: Question | None) -> str:
         return f"Answers ({len(q.answers)}): {q.answer_name}"
     if q.type == "count":
         return f"Answer: {q.number}"
+    if q.type == "path":
+        return f"Chain ({q.hops} facts): {q.answer_name}"
     if q.type in ("as_of", "latest"):
         stale = f" (not {', '.join(q.stale_values)}, which held at another time)"
         return f"Answer: {q.answer_name}{stale}"

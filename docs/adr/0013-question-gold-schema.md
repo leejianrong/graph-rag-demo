@@ -20,7 +20,7 @@ plain entity question is unchanged.
 | Field | Meaning |
 |---|---|
 | `type` | The question family: `entity`, `set`, `count`, `compare`, `superlative`, `unanswerable`, `false_premise`, `as_of`, `latest`, `retracted`, `path`, `open_ended` |
-| `answer_kind` | How to grade: `entity`, `set`, `number`, `abstain`, `false_premise`, `open_ended` |
+| `answer_kind` | How to grade: `entity`, `set`, `number`, `path`, `abstain`, `false_premise`, `open_ended` |
 | `answers` | Entity ids that are correct (all of them, for a set); `number` holds a count |
 | `answer_names` | Every accepted surface form of every correct answer |
 | `ordered`, `tie_rule` | Whether order matters; how ties are handled for a superlative |
@@ -30,7 +30,7 @@ plain entity question is unchanged.
 | `as_of` | The date a temporal question asks about |
 | `stale_values` | Names that were true earlier and must not be given as current |
 | `required_facts`, `forbidden_claims` | For open-ended questions: fact ids an answer must cover (weighted), and claims it must not make |
-| `grading` | `{primary: exact|set_f1|numeric|abstain|nugget, judge: null|llm}` |
+| `grading` | `{primary: exact|set_f1|numeric|path|abstain|nugget, judge: null|llm}` |
 
 Rules that keep gold honest:
 
@@ -44,5 +44,7 @@ Rules that keep gold honest:
 ## Consequences
 
 - Set-valued answers let large skewed worlds supply questions, because multi-answer paths stop being discarded.
+- A `path` question ("How is A connected to B?") has every shortest chain of facts as `gold_paths`, in order; a
+  scorer credits a chain that matches one of them.
 - `questions.json` gains fields; old readers that only use the original fields keep working.
 - The bench gains scorers per `answer_kind`; they are added with each question family, not up front.
