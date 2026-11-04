@@ -55,9 +55,10 @@ def test_invalid_specs_are_rejected(bad: dict[str, object]) -> None:
 
 
 def test_type_that_no_relation_can_reach_is_rejected() -> None:
-    # LAW has no usable predicate in the closed set, so it would be an isolated node.
+    # With only WORKS_FOR selected, nothing can reach a LAW, so it would be an isolated node.
     with pytest.raises(ValidationError, match="isolated"):
-        make(type_mix={"PERSON": 1.0, "ORG": 1.0, "LAW": 1.0})
+        make(type_mix={"PERSON": 1.0, "ORG": 1.0, "LAW": 1.0}, predicate_mix={"WORKS_FOR": 1.0})
+    make(type_mix={"PERSON": 1.0, "ORG": 1.0, "LAW": 1.0})  # GOVERNED_BY reaches it (GRA-94)
 
 
 def test_with_overrides_revalidates() -> None:

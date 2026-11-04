@@ -11,8 +11,8 @@ from __future__ import annotations
 from graph_rag.predicates import CLOSED_PREDICATES, Predicate, map_predicate
 
 
-def test_closed_set_is_the_expected_twelve() -> None:
-    """The closed set is exactly the ~12 members from ADR-0006 / ARCHITECTURE §5c."""
+def test_closed_set_is_the_expected_thirteen() -> None:
+    """The closed set is the ADR-0006 starter set plus GOVERNED_BY (GRA-94)."""
     assert CLOSED_PREDICATES == {
         "LOCATED_IN",
         "PART_OF",
@@ -25,6 +25,7 @@ def test_closed_set_is_the_expected_twelve() -> None:
         "PARTICIPATED_IN",
         "OCCURRED_ON",
         "AFFILIATED_WITH",
+        "GOVERNED_BY",
         "RELATED_TO",
     }
 
@@ -44,6 +45,13 @@ def test_synonym_maps_to_primary_member() -> None:
     assert map_predicate("acquired") == ("OWNS", None)
     assert map_predicate("subsidiary of") == ("PART_OF", None)
     assert map_predicate("took part in") == ("PARTICIPATED_IN", None)
+
+
+def test_law_phrasing_maps_to_governed_by() -> None:
+    """A subject under a law maps to GOVERNED_BY; "governs" reads the other way, so it does not."""
+    for phrase in ("governed by", "Regulated-By", "subject to", "bound_by", "complies with"):
+        assert map_predicate(phrase) == ("GOVERNED_BY", None), phrase
+    assert map_predicate("governs") == ("RELATED_TO", "governs")
 
 
 def test_unknown_predicate_falls_back_to_related_to_preserving_raw() -> None:

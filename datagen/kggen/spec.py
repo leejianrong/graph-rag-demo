@@ -40,6 +40,7 @@ PREDICATE_SIGNATURES: dict[str, tuple[tuple[str, str], ...]] = {
     "PRODUCES": (("ORG", "PRODUCT"),),
     "PARTICIPATED_IN": (("PERSON", "EVENT"), ("ORG", "EVENT")),
     "AFFILIATED_WITH": (("PERSON", "ORG"), ("ORG", "ORG"), ("PERSON", "NORP")),
+    "GOVERNED_BY": (("ORG", "LAW"), ("PRODUCT", "LAW"), ("LOCATION", "LAW")),
 }
 PREDICATES: tuple[str, ...] = tuple(PREDICATE_SIGNATURES)
 

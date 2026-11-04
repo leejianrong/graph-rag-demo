@@ -28021,6 +28021,7 @@
   "predicate_mix": {
    "AFFILIATED_WITH": 1.0,
    "FOUNDED": 1.0,
+   "GOVERNED_BY": 1.0,
    "LOCATED_IN": 1.0,
    "MEMBER_OF": 1.0,
    "OWNS": 1.0,

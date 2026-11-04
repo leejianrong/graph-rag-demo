@@ -62,6 +62,10 @@ TEMPLATES: dict[str, tuple[tuple[str, str], ...]] = {
         ("{S} is affiliated with {O}", "{S} was affiliated with {O}"),
         ("{S} is associated with {O}", "{S} was associated with {O}"),
     ),
+    "GOVERNED_BY": (
+        ("{S} is governed by {O}", "{S} was governed by {O}"),
+        ("{S} is regulated by {O}", "{S} was regulated by {O}"),
+    ),
     VAGUE_PREDICATE: (
         ("{S} is connected to {O}", "{S} was connected to {O}"),
         ("{S} has ties to {O}", "{S} had ties to {O}"),

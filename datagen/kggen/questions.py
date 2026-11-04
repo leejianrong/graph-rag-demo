@@ -59,6 +59,7 @@ VERB = {
     "PRODUCES": "produces",
     "PARTICIPATED_IN": "participated in",
     "AFFILIATED_WITH": "is affiliated with",
+    "GOVERNED_BY": "is governed by",
 }
 PLURAL = {
     "PERSON": "people",

@@ -418,6 +418,7 @@ def test_a_plural_subject_gets_a_plural_verb(world) -> None:
         "produces": "produce",
         "participated in": "participated in",
         "is affiliated with": "are affiliated with",
+        "is governed by": "are governed by",
     }
     qs = generate_questions(
         world, QuestionSpec(n_questions=40, type_mix={"compare": 1.0, "superlative": 1.0})
