@@ -123,7 +123,7 @@ class UI:
         self.picked.set(None)  # an old pick may name a question that is gone
         self.questions.set(questions)
         self.question_rows.set(model.question_rows(questions))
-        self.question_note.set(note or (f"{len(questions)} questions." if questions else ""))
+        self.question_note.set(note or model.question_summary(questions))
 
     def generate(self) -> None:
         try:

@@ -37,6 +37,9 @@ QUESTION_TYPES = (
     "superlative",
     "unanswerable",
     "false_premise",
+    "as_of",
+    "latest",
+    "retracted",
 )
 
 # How each relation reads in a question (the same wording whichever side is the answer).
@@ -121,9 +124,10 @@ class Question:
     tie_rule: str = ""
     grading: str = "exact"  # exact | set_f1 | numeric | abstain
     abstain: dict | None = None  # {expected, reason}: the right reply is to decline
-    premise: dict | None = (
-        None  # a false premise: {asserted_fact, contradicting_fact_ids, correction}
-    )
+    # A false premise: {asserted_fact, contradicting_fact_ids, correction}.
+    premise: dict | None = None
+    as_of: int | None = None  # the year a temporal question asks about
+    stale_values: tuple[str, ...] = ()  # names that held earlier and must not be given as current
 
     def to_dict(self) -> dict:
         return {
@@ -132,6 +136,7 @@ class Question:
             "supporting_facts": list(self.supporting_facts),
             "answers": list(self.answers),
             "gold_paths": [list(p) for p in self.gold_paths],
+            "stale_values": list(self.stale_values),
         }
 
 
@@ -547,6 +552,102 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             )
         return found
 
+    # Each (subject, relation, kind of object) over time, for the questions about change. Grouping
+    # by the kind of object keeps "the organization that X owns" apart from "the product X owns".
+    history: dict[tuple[str, str, str], list[Edge]] = {}
+    for e in sorted(world.edges, key=lambda e: (e.valid_from, e.id)):
+        if (
+            e.predicate != VAGUE_PREDICATE
+            and not entities[e.subject].distractor
+            and not entities[e.object].distractor
+            and name_count[names[e.subject]] == 1
+        ):
+            history.setdefault((e.subject, e.predicate, types[e.object]), []).append(e)
+    changed = sorted(
+        k
+        for k, v in history.items()
+        if any(a.valid_to == b.valid_from for a in v for b in v if a is not b)
+    )
+    withdrawn = sorted(k for k, v in history.items() if all(e.valid_to is not None for e in v))
+    last_year = world.spec.end_year
+
+    def asked(subject: str, predicate: str, kind: str, prefix: str = "") -> str:
+        return f"{prefix}name the {TYPE_LABEL[kind]} that {names[subject]} {VERB[predicate]}"
+
+    def temporal_questions(kind: str, target: int) -> list[Question]:
+        found: list[Question] = []
+        keys = {"as_of": changed, "latest": changed, "retracted": withdrawn}[kind]
+        budget = 200 * target + 500
+        while len(found) < target and budget > 0 and keys:
+            budget -= 1
+            subject, predicate, kind_of = rng.choice(keys)
+            versions = history[(subject, predicate, kind_of)]
+            if kind == "retracted":
+                gone = rng.choice(versions)
+                last_end = max(e.valid_to or 0 for e in versions)
+                key = (kind, subject, predicate, kind_of)
+                answers: tuple[str, ...] = ()
+                stale = tuple(dict.fromkeys(names[e.object] for e in versions))
+                text = asked(subject, predicate, kind_of, "Currently, ")
+                gold = ((gone.id,),)
+                shown = f"no current answer: the fact was withdrawn in {last_end}"
+                year = None
+            elif kind == "latest":
+                now = [e for e in versions if e.valid_to is None]
+                if len(now) != 1 or len(versions) < 2:
+                    continue
+                key = (kind, subject, predicate, kind_of)
+                answers = (now[0].object,)
+                stale = tuple(dict.fromkeys(names[e.object] for e in versions if e is not now[0]))
+                text = asked(subject, predicate, kind_of, "Currently, ")
+                gold = ((now[0].id,),)
+                shown, year = names[now[0].object], None
+            else:
+                pick = rng.choice(versions)
+                year = rng.randint(pick.valid_from, (pick.valid_to or last_year + 1) - 1)
+                holding = {
+                    e.object
+                    for e in versions
+                    if e.valid_from <= year and (e.valid_to is None or year < e.valid_to)
+                }
+                if holding != {pick.object}:
+                    continue
+                key = (kind, subject, predicate, kind_of, year)
+                answers = (pick.object,)
+                stale = tuple(
+                    dict.fromkeys(names[e.object] for e in versions if e.object != pick.object)
+                )
+                text = asked(subject, predicate, kind_of, f"As of {year}, ")
+                gold = ((pick.id,),)
+                shown = names[pick.object]
+            if key in seen:
+                continue
+            seen.add(key)
+            text = text[0].upper() + text[1:] + "."
+            found.append(
+                Question(
+                    id="",
+                    question=text,
+                    hops=1,
+                    start=subject,
+                    answer=answers[0] if answers else "",
+                    answer_name=shown,
+                    accepted_answers=names_of(answers),
+                    supporting_facts=gold[0],
+                    type=kind,
+                    answer_kind="abstain" if kind == "retracted" else "entity",
+                    answers=answers,
+                    gold_paths=gold,
+                    grading="abstain" if kind == "retracted" else "exact",
+                    abstain=(
+                        {"expected": True, "reason": "retracted"} if kind == "retracted" else None
+                    ),
+                    as_of=year,
+                    stale_values=stale,
+                )
+            )
+        return found
+
     quota = apportion(spec.n_questions, spec.type_mix)
     questions: list[Question] = []
     short = 0  # questions another type could not supply; plain entity questions make them up
@@ -561,6 +662,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
         ("superlative", superlative_questions),
         ("unanswerable", unanswerable_questions),
         ("false_premise", false_premise_questions),
+        *((t, lambda n, t=t: temporal_questions(t, n)) for t in ("as_of", "latest", "retracted")),
     ):
         got = make(quota.get(kind, 0))
         questions += got

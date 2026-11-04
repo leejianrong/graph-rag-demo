@@ -294,3 +294,62 @@ def test_unanswerable_and_false_premise_avoid_facts_that_held_in_the_past() -> N
                 for e in churny.edges
             )
     assert {q.type for q in qs} == {"unanswerable", "false_premise"}
+
+
+@pytest.fixture(scope="module")
+def churned():
+    return generate(
+        make(n_entities=300, avg_degree=5, churn_rate=0.2, retraction_rate=0.1, alias_rate=0.3)
+    )
+
+
+def _versions(world, q):
+    """Every fact of the question's subject, relation and kind of object, in time order."""
+    ents = {e.id: e for e in world.entities}
+    facts = {e.id: e for e in world.edges}
+    gold = facts[q.gold_paths[0][0]]
+    return [
+        e
+        for e in sorted(world.edges, key=lambda e: (e.valid_from, e.id))
+        if e.subject == gold.subject
+        and e.predicate == gold.predicate
+        and ents[e.object].type == ents[gold.object].type
+    ]
+
+
+def test_an_as_of_question_gives_the_value_that_held_in_that_year(churned) -> None:
+    qs = generate_questions(churned, QuestionSpec(n_questions=20, type_mix={"as_of": 1.0}))
+    names = {e.id: e.name for e in churned.entities}
+    assert {q.type for q in qs} == {"as_of"}
+    for q in qs:
+        held = {e.object for e in _versions(churned, q) if e in churned.edges_as_of(q.as_of)}
+        assert held == set(q.answers) and len(held) == 1
+        assert q.as_of is not None and str(q.as_of) in q.question
+        assert q.stale_values and names[q.answers[0]] not in q.stale_values
+
+
+def test_a_latest_question_has_the_current_value_and_lists_the_replaced_ones(churned) -> None:
+    qs = generate_questions(churned, QuestionSpec(n_questions=20, type_mix={"latest": 1.0}))
+    names = {e.id: e.name for e in churned.entities}
+    for q in qs:
+        versions = _versions(churned, q)
+        now = {e.object for e in versions if e.valid_to is None}
+        assert now == set(q.answers) and q.question.startswith("Currently")
+        ended = {names[e.object] for e in versions if e.valid_to is not None}
+        assert q.stale_values and set(q.stale_values) <= ended
+        assert not set(q.stale_values) & {names[i] for i in now}
+
+
+def test_a_retracted_question_has_no_current_answer(churned) -> None:
+    qs = generate_questions(churned, QuestionSpec(n_questions=15, type_mix={"retracted": 1.0}))
+    for q in qs:
+        versions = _versions(churned, q)
+        assert versions and all(e.valid_to is not None for e in versions)
+        assert q.answers == () and q.abstain == {"expected": True, "reason": "retracted"}
+        assert q.stale_values and q.answer_kind == "abstain"
+
+
+def test_temporal_types_fall_back_when_the_world_never_changes(world) -> None:
+    still = generate(make(n_entities=100, avg_degree=4, seed=4))
+    qs = generate_questions(still, QuestionSpec(n_questions=5, type_mix={"as_of": 1.0}))
+    assert len(qs) == 5 and {q.type for q in qs} == {"entity"}

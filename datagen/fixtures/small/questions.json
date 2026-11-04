@@ -10,6 +10,7 @@
   "answers": [
    "E024"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F058",
@@ -25,6 +26,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that produces the product that is part of the product that is part of the product that Gebi Boleve owns.",
+  "stale_values": [],
   "start": "E030",
   "supporting_facts": [
    "F058",
@@ -46,6 +48,7 @@
   "answers": [
    "E103"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F004",
@@ -60,6 +63,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that founded the organization that the person that is a member of Mado Systems is affiliated with.",
+  "stale_values": [],
   "start": "E126",
   "supporting_facts": [
    "F004",
@@ -80,6 +84,7 @@
   "answers": [
    "E117"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F161",
@@ -94,6 +99,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that the person that is affiliated with Keme Group founded is affiliated with.",
+  "stale_values": [],
   "start": "E062",
   "supporting_facts": [
    "F161",
@@ -114,6 +120,7 @@
   "answers": [
    "E045"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F198"
@@ -126,6 +133,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the group that Buga Lomazu is a member of.",
+  "stale_values": [],
   "start": "E091",
   "supporting_facts": [
    "F198"
@@ -144,6 +152,7 @@
   "answers": [
    "E042"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F120",
@@ -159,6 +168,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the person that is a member of the organization that the person that founded Gora Works founded owns.",
+  "stale_values": [],
   "start": "E116",
   "supporting_facts": [
    "F120",
@@ -180,6 +190,7 @@
   "answers": [
    "E117"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F153",
@@ -193,6 +204,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that Kazo Robeka founded is affiliated with.",
+  "stale_values": [],
   "start": "E073",
   "supporting_facts": [
    "F153",
@@ -212,6 +224,7 @@
   "answers": [
    "E037"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F264",
@@ -227,6 +240,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that founded the organization that the organization that the organization that Rave Industries is affiliated with owns is affiliated with.",
+  "stale_values": [],
   "start": "E131",
   "supporting_facts": [
    "F264",
@@ -248,6 +262,7 @@
   "answers": [
    "E052"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F239",
@@ -263,6 +278,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that the organization that the person that participated in the event that is located in Takomere works for participated in.",
+  "stale_values": [],
   "start": "E012",
   "supporting_facts": [
    "F239",
@@ -284,6 +300,7 @@
   "answers": [
    "E051"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F017"
@@ -296,6 +313,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the group that Fido Tebifu is a member of.",
+  "stale_values": [],
   "start": "E011",
   "supporting_facts": [
    "F017"
@@ -314,6 +332,7 @@
   "answers": [
    "E073"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F241",
@@ -327,6 +346,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is affiliated with the organization that Libu Belagu works for.",
+  "stale_values": [],
   "start": "E109",
   "supporting_facts": [
    "F241",
@@ -346,6 +366,7 @@
   "answers": [
    "E079"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F096",
@@ -359,6 +380,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that the organization that Gedu Tumuka works for participated in.",
+  "stale_values": [],
   "start": "E049",
   "supporting_facts": [
    "F096",
@@ -378,6 +400,7 @@
   "answers": [
    "E024"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F233",
@@ -391,6 +414,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the person that is located in Buriton founded.",
+  "stale_values": [],
   "start": "E137",
   "supporting_facts": [
    "F233",
@@ -410,6 +434,7 @@
   "answers": [
    "E101"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F235",
@@ -423,6 +448,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that produces Golu Q17 is affiliated with.",
+  "stale_values": [],
   "start": "E135",
   "supporting_facts": [
    "F235",
@@ -442,6 +468,7 @@
   "answers": [
    "E042"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F145",
@@ -456,6 +483,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the person that works for the organization that Fumi Sideni founded owns.",
+  "stale_values": [],
   "start": "E067",
   "supporting_facts": [
    "F145",
@@ -476,6 +504,7 @@
   "answers": [
    "E135"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F296",
@@ -489,6 +518,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that produces Nato Z5 owns.",
+  "stale_values": [],
   "start": "E015",
   "supporting_facts": [
    "F296",
@@ -508,6 +538,7 @@
   "answers": [
    "E012"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F180",
@@ -523,6 +554,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that is part of the location that the event that the organization that is part of Gebo Holdings participated in is located in.",
+  "stale_values": [],
   "start": "E017",
   "supporting_facts": [
    "F180",
@@ -544,6 +576,7 @@
   "answers": [
    "E028"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F075"
@@ -556,6 +589,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that Segi Tibano participated in.",
+  "stale_values": [],
   "start": "E037",
   "supporting_facts": [
    "F075"
@@ -574,6 +608,7 @@
   "answers": [
    "E009"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F082",
@@ -588,6 +623,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the location that the organization that Bure Sidusi founded is located in is part of.",
+  "stale_values": [],
   "start": "E041",
   "supporting_facts": [
    "F082",
@@ -608,6 +644,7 @@
   "answers": [
    "E101"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F008",
@@ -623,6 +660,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that is part of the organization that produces the product that Mizu Group owns is a member of.",
+  "stale_values": [],
   "start": "E006",
   "supporting_facts": [
    "F008",
@@ -644,6 +682,7 @@
   "answers": [
    "E099"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F214"
@@ -656,6 +695,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is a member of Lomo Industries.",
+  "stale_values": [],
   "start": "E098",
   "supporting_facts": [
    "F214"
@@ -674,6 +714,7 @@
   "answers": [
    "E024"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F009",
@@ -689,6 +730,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that is a member of the organization that is affiliated with the organization that produces the product that Mizu Group produces.",
+  "stale_values": [],
   "start": "E006",
   "supporting_facts": [
    "F009",
@@ -710,6 +752,7 @@
   "answers": [
    "E147"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F159",
@@ -723,6 +766,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that the person that works for Dune Partners participated in.",
+  "stale_values": [],
   "start": "E024",
   "supporting_facts": [
    "F159",
@@ -742,6 +786,7 @@
   "answers": [
    "E016"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F025"
@@ -754,6 +799,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that founded Keme Group.",
+  "stale_values": [],
   "start": "E062",
   "supporting_facts": [
    "F025"
@@ -772,6 +818,7 @@
   "answers": [
    "E016"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F240",
@@ -787,6 +834,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that founded the organization that the organization that the person that owns Gori X18 works for is affiliated with.",
+  "stale_values": [],
   "start": "E007",
   "supporting_facts": [
    "F240",
@@ -808,6 +856,7 @@
   "answers": [
    "E083"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F184",
@@ -821,6 +870,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that is part of the product that is part of Nato Z5.",
+  "stale_values": [],
   "start": "E015",
   "supporting_facts": [
    "F184",
@@ -840,6 +890,7 @@
   "answers": [
    "E139"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F292",
@@ -854,6 +905,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the person that is a member of the organization that Bagi Dalofe works for is affiliated with.",
+  "stale_values": [],
   "start": "E144",
   "supporting_facts": [
    "F292",
@@ -874,6 +926,7 @@
   "answers": [
    "E012"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F098",
@@ -888,6 +941,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that is part of the location that the event that is located in Vapa is located in.",
+  "stale_values": [],
   "start": "E029",
   "supporting_facts": [
    "F098",
@@ -908,6 +962,7 @@
   "answers": [
    "E053"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F244"
@@ -920,6 +975,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that Tobo Nonada participated in.",
+  "stale_values": [],
   "start": "E114",
   "supporting_facts": [
    "F244"
@@ -938,6 +994,7 @@
   "answers": [
    "E033"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F064"
@@ -950,6 +1007,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is located in Kole.",
+  "stale_values": [],
   "start": "E112",
   "supporting_facts": [
    "F064"
@@ -968,6 +1026,7 @@
   "answers": [
    "E030"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F214",
@@ -983,6 +1042,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that owns the product that is part of the product that the person that is a member of Lomo Industries owns.",
+  "stale_values": [],
   "start": "E098",
   "supporting_facts": [
    "F214",
@@ -1004,6 +1064,7 @@
   "answers": [
    "E007"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F152",
@@ -1019,6 +1080,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that is part of the organization that the person that is affiliated with Pita Labs is a member of produces.",
+  "stale_values": [],
   "start": "E139",
   "supporting_facts": [
    "F152",
@@ -1040,6 +1102,7 @@
   "answers": [
    "E008"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F013"
@@ -1052,6 +1115,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that works for Gilo Labs.",
+  "stale_values": [],
   "start": "E060",
   "supporting_facts": [
    "F013"
@@ -1070,6 +1134,7 @@
   "answers": [
    "E129"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F263"
@@ -1082,6 +1147,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that is part of Bane.",
+  "stale_values": [],
   "start": "E040",
   "supporting_facts": [
    "F263"
@@ -1100,6 +1166,7 @@
   "answers": [
    "E065"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F151"
@@ -1112,6 +1179,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that Golu Finane founded.",
+  "stale_values": [],
   "start": "E072",
   "supporting_facts": [
    "F151"
@@ -1130,6 +1198,7 @@
   "answers": [
    "E082"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F004",
@@ -1144,6 +1213,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that is part of the organization that Suzi Dekaba is a member of produces.",
+  "stale_values": [],
   "start": "E003",
   "supporting_facts": [
    "F004",
@@ -1164,6 +1234,7 @@
   "answers": [
    "E070"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F037"
@@ -1176,6 +1247,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that Lada Povedo works for.",
+  "stale_values": [],
   "start": "E021",
   "supporting_facts": [
    "F037"
@@ -1194,6 +1266,7 @@
   "answers": [
    "E081"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F179"
@@ -1206,6 +1279,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that participated in Satu Festival.",
+  "stale_values": [],
   "start": "E125",
   "supporting_facts": [
    "F179"
@@ -1224,6 +1298,7 @@
   "answers": [
    "E131"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F046",
@@ -1237,6 +1312,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that participated in Pova Festival owns.",
+  "stale_values": [],
   "start": "E147",
   "supporting_facts": [
    "F046",
@@ -1256,6 +1332,7 @@
   "answers": [
    "E019"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F282",
@@ -1271,6 +1348,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that the organization that is a member of the organization that Fume Zivima is a member of is affiliated with owns.",
+  "stale_values": [],
   "start": "E140",
   "supporting_facts": [
    "F282",
@@ -1292,6 +1370,7 @@
   "answers": [
    "E012"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F263",
@@ -1305,6 +1384,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that is part of the location that is part of Bane.",
+  "stale_values": [],
   "start": "E040",
   "supporting_facts": [
    "F263",
@@ -1324,6 +1404,7 @@
   "answers": [
    "E007"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F096",
@@ -1338,6 +1419,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that the person that works for Seka Labs founded produces.",
+  "stale_values": [],
   "start": "E142",
   "supporting_facts": [
    "F096",
@@ -1358,6 +1440,7 @@
   "answers": [
    "E019"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F089",
@@ -1371,6 +1454,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that Saba Industries is affiliated with owns.",
+  "stale_values": [],
   "start": "E047",
   "supporting_facts": [
    "F089",
@@ -1390,6 +1474,7 @@
   "answers": [
    "E055"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F007"
@@ -1402,6 +1487,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that Soto Forum is located in.",
+  "stale_values": [],
   "start": "E005",
   "supporting_facts": [
    "F007"
@@ -1420,6 +1506,7 @@
   "answers": [
    "E070"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F001",
@@ -1434,6 +1521,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the person that founded the organization that is located in Vegemere works for.",
+  "stale_values": [],
   "start": "E134",
   "supporting_facts": [
    "F001",
@@ -1454,6 +1542,7 @@
   "answers": [
    "E069"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F006",
@@ -1468,6 +1557,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the location that the location that Gipi Luzazu is located in is located in is located in.",
+  "stale_values": [],
   "start": "E004",
   "supporting_facts": [
    "F006",
@@ -1488,6 +1578,7 @@
   "answers": [
    "E117"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F058",
@@ -1503,6 +1594,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that is part of the organization that the person that owns Poti Z57 founded is affiliated with.",
+  "stale_values": [],
   "start": "E084",
   "supporting_facts": [
    "F058",
@@ -1524,6 +1616,7 @@
   "answers": [
    "E015"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F142",
@@ -1538,6 +1631,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that is part of the product that the person that works for Mado Systems owns.",
+  "stale_values": [],
   "start": "E126",
   "supporting_facts": [
    "F142",
@@ -1558,6 +1652,7 @@
   "answers": [
    "E007"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F041",
@@ -1572,6 +1667,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that participated in the event that is located in Lina produces.",
+  "stale_values": [],
   "start": "E069",
   "supporting_facts": [
    "F041",
@@ -1592,6 +1688,7 @@
   "answers": [
    "E038"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F292",
@@ -1605,6 +1702,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that Bagi Dalofe works for is a member of.",
+  "stale_values": [],
   "start": "E144",
   "supporting_facts": [
    "F292",
@@ -1624,6 +1722,7 @@
   "answers": [
    "E054"
   ],
+  "as_of": null,
   "gold_paths": [
    [
     "F145",
@@ -1637,6 +1736,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is affiliated with the organization that Fumi Sideni founded.",
+  "stale_values": [],
   "start": "E067",
   "supporting_facts": [
    "F145",

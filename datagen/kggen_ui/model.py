@@ -137,6 +137,9 @@ _TYPE_HELP = {
     "superlative": "Questions asking which entity has the most of some relation. Few exist.",
     "unanswerable": "Questions about a fact the data never held; the right reply is to decline",
     "false_premise": "Questions that state a fact the data contradicts; the reply should fix it",
+    "as_of": "Questions about the value in a past year. Needs facts replaced later (churn).",
+    "latest": "Questions about the current value of a fact that was replaced (needs churn).",
+    "retracted": "Questions about a fact that was withdrawn and has no current answer.",
 }
 
 
@@ -250,6 +253,17 @@ def derive_questions(world: World, values: dict[str, float]) -> tuple[Question, 
 QUESTION_COLUMNS = ("id", "hops", "question", "answer")
 
 
+def question_summary(questions: tuple[Question, ...] | list[Question]) -> str:
+    """How many questions there are and of which types, so a type that fell back is visible."""
+    if not questions:
+        return ""
+    counts: dict[str, int] = {}
+    for q in questions:
+        counts[q.type] = counts.get(q.type, 0) + 1
+    parts = ", ".join(f"{n} {t}" for t, n in sorted(counts.items(), key=lambda kv: -kv[1]))
+    return f"{len(questions)} questions: {parts}."
+
+
 def question_rows(questions: tuple[Question, ...] | list[Question]) -> list[dict]:
     """The question list as table rows."""
     return [
@@ -314,7 +328,10 @@ def answer_text(q: Question | None) -> str:
         return f"Answers ({len(q.answers)}): {q.answer_name}"
     if q.type == "count":
         return f"Answer: {q.number}"
-    if q.type in ("unanswerable", "false_premise"):
+    if q.type in ("as_of", "latest"):
+        stale = f" (not {', '.join(q.stale_values)}, which held at another time)"
+        return f"Answer: {q.answer_name}{stale}"
+    if q.type in ("unanswerable", "false_premise", "retracted"):
         return f"Expected reply: decline or correct ({q.answer_name})"
     return f"Answer: {q.answer_name}{also}"
 
