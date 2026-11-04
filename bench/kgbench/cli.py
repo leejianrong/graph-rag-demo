@@ -24,6 +24,7 @@ from kggen.world import generate
 from graph_rag.wiring import build_offline_components, build_real_components
 from kgbench import __version__
 from kgbench.compare import compare
+from kgbench.cost import Meter
 from kgbench.dataset import SUBSETS, load_examples, select_subset
 from kgbench.extraction import gold_from, run_pipeline, score
 from kgbench.harness import BenchmarkHarness
@@ -60,6 +61,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Wire the real adapter stack (Docker + models + API key) instead of offline fakes.",
     )
     run.add_argument("--per-question", action="store_true", help="Also print per-question scores.")
+    run.add_argument("--json", type=Path, help="Write scores, cost and latency as JSON here.")
     extract = commands.add_parser(
         "extract", help="Score extraction (mentions, entities, triples) against generated gold."
     )
@@ -124,18 +126,25 @@ def _compare(args: argparse.Namespace) -> int:
 
 def _linking(args: argparse.Namespace) -> int:
     base = load_preset(args.preset).model_dump()
-    reports = {}
+    reports, costs = {}, {}
     for name in args.difficulty:
         world = generate(WorldSpec.model_validate({**base, **DIFFICULTY[name]}))
         documents = render_documents(world)
         components = build_real_components() if args.real else build_offline_components()
-        extraction = run_pipeline(components, documents)
+        with Meter(components) as meter:
+            extraction = run_pipeline(components, documents)
         reports[name] = score_linking(linking_gold(world, documents), extraction)
+        costs[name] = meter.cost
     if args.json:
-        print(json.dumps({n: r.to_dict() for n, r in reports.items()}, indent=1))
+        print(
+            json.dumps(
+                {n: {**r.to_dict(), "cost": costs[n].to_dict()} for n, r in reports.items()},
+                indent=1,
+            )
+        )
     else:
         for name, report in reports.items():
-            print(f"[{name}] {report.format_table()}\n")
+            print(f"[{name}] {report.format_table()}\n  cost: {costs[name].format_line()}\n")
     return 0
 
 
@@ -144,8 +153,13 @@ def _extract(args: argparse.Namespace) -> int:
     world = generate(spec.model_copy(update={"seed": args.seed}) if args.seed is not None else spec)
     documents = render_documents(world)
     components = build_real_components() if args.real else build_offline_components()
-    report = score(gold_from(world, documents), run_pipeline(components, documents))
-    print(json.dumps(report.to_dict(), indent=1) if args.json else report.format_table())
+    with Meter(components) as meter:
+        extraction = run_pipeline(components, documents)
+    report = score(gold_from(world, documents), extraction)
+    if args.json:
+        print(json.dumps({**report.to_dict(), "cost": meter.cost.to_dict()}, indent=1))
+    else:
+        print(report.format_table() + f"\n\ncost: {meter.cost.format_line()}")
     return 0
 
 
@@ -157,6 +171,8 @@ def _run(args: argparse.Namespace) -> int:
     components = build_real_components() if args.real else build_offline_components()
     result = BenchmarkHarness(components).run(examples, subset=args.subset)
     print(result.format_table(per_question=args.per_question))
+    if args.json:
+        args.json.write_text(json.dumps(result.to_dict(), indent=1) + "\n")
     return 0
 
 

@@ -279,6 +279,8 @@ uv run kgbench run --subset small --dataset path/to/2wiki.json
 # or, over the in-repo mini fixture: make benchmark
 ```
 
+Every result, the table and the JSON alike, carries its wall time and the LLM calls and dollars behind it.
+
 `make benchmark` runs the same thing against a small bundled fixture with no
 arguments, so you can see the scorecard immediately; pass `DATASET=path/to/2wiki.json`
 for the real corpus or `REAL=1` for the real adapter stack.

@@ -32,6 +32,7 @@ from typing import TYPE_CHECKING
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
 from graph_rag.models import IngestTrigger, QueryRequest
+from kgbench.cost import Cost, Meter
 from kgbench.metrics import aggregate, exact_match, supporting_fact_prf, token_f1
 
 if TYPE_CHECKING:
@@ -83,6 +84,16 @@ class BenchmarkResult:
     llm_calls: int
     aggregate: dict[str, float]
     per_question: list[QuestionScore] = field(default_factory=list)
+    cost: Cost = field(default_factory=Cost)  # ingest plus every query, during this run
+
+    def to_dict(self) -> dict:
+        return {
+            "subset": self.subset,
+            "questions": self.num_questions,
+            "documents": self.num_documents,
+            "cost": self.cost.to_dict(),
+            "aggregate": self.aggregate,
+        }
 
     def format_table(self, *, per_question: bool = False) -> str:
         """Render a clean metrics table for the CLI (aggregate, optionally per-question)."""
@@ -94,6 +105,7 @@ class BenchmarkResult:
             f"questions         : {self.num_questions}",
             f"documents ingested: {self.num_documents}",
             f"llm calls (run)   : {self.llm_calls}",
+            f"cost (run)        : {self.cost.format_line()}",
             "",
             "Supporting-fact retrieval",
             "-------------------------",
@@ -174,11 +186,9 @@ class BenchmarkHarness:
             LLM-call count made during THIS run.
         """
         calls_before = self._components.llm_calls()
-        num_documents = self.ingest_corpus(examples)
-
-        scores: list[QuestionScore] = []
-        for example in examples:
-            scores.append(self._score_example(example))
+        with Meter(self._components) as meter:
+            num_documents = self.ingest_corpus(examples)
+            scores = [self._score_example(example) for example in examples]
 
         calls_after = self._components.llm_calls()
         return BenchmarkResult(
@@ -188,6 +198,7 @@ class BenchmarkHarness:
             llm_calls=calls_after - calls_before,
             aggregate=aggregate([s.as_metrics() for s in scores]),
             per_question=scores,
+            cost=meter.cost,
         )
 
     def _score_example(self, example: BenchmarkExample) -> QuestionScore:

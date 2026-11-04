@@ -144,3 +144,39 @@ def test_malformed_response_is_not_cached(tmp_path) -> None:
     good_client = LiteLLMClient(model="test-model", cache_dir=tmp_path, completion_fn=good)
     assert good_client.structured("extract", _Shape) == _Shape(value=1)
     assert good.calls == 1
+
+
+# --- Usage counters (GRA-87) -------------------------------------------------
+
+
+def test_usage_counts_provider_calls_and_cache_hits(tmp_path) -> None:
+    """A cold call is one provider call; the same call again is a hit and no new call."""
+    client = LiteLLMClient("m", cache_dir=tmp_path, completion_fn=_CountingBackend('{"value": 1}'))
+    client.structured("p", _Shape)
+    client.structured("p", _Shape)
+    assert (client.calls, client.cache_hits) == (1, 1)
+    client.complete("free text")
+    assert (client.calls, client.cache_hits) == (2, 1)
+
+
+def test_usage_counts_every_retry_as_a_provider_call(tmp_path) -> None:
+    """Retries are paid for, so they count: bad, bad, good is three calls."""
+    backend = _CountingBackend("nope", "still nope", '{"value": 2}')
+    client = LiteLLMClient("m", cache_dir=tmp_path, completion_fn=backend)
+    client.structured("p", _Shape)
+    assert client.calls == backend.calls == 3
+
+
+def test_usage_times_the_provider_and_counts_a_failed_call(tmp_path) -> None:
+    """Time spent in the provider is recorded, and a call that raised still counts."""
+    import time
+
+    def slow(*, model: str, prompt: str, **params: object) -> str:
+        time.sleep(0.02)
+        raise RuntimeError("provider down")
+
+    client = LiteLLMClient("m", cache_dir=tmp_path, completion_fn=slow)
+    with pytest.raises(RuntimeError):
+        client.complete("p")
+    assert client.calls == 1 and client.seconds >= 0.02
+    assert client.cost_usd == 0.0  # an injected backend reports no price
