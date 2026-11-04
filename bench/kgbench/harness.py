@@ -1,7 +1,7 @@
 """The benchmark harness (N18) — build the graph once, query the subset, score (ADR-0009).
 
 Drives the capability measurement end-to-end over injected
-:class:`~graph_rag.benchmark.pipeline.BenchmarkComponents`:
+:class:`~graph_rag.wiring.BenchmarkComponents`:
 
 1. **Ingest** every example's context paragraphs through the V1 ingestion path
    (:meth:`~graph_rag.orchestrator.Orchestrator.process_document`) in a **FIXED
@@ -29,14 +29,14 @@ import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
-from graph_rag.benchmark.metrics import aggregate, exact_match, supporting_fact_prf, token_f1
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
 from graph_rag.models import IngestTrigger, QueryRequest
+from kgbench.metrics import aggregate, exact_match, supporting_fact_prf, token_f1
 
 if TYPE_CHECKING:
-    from graph_rag.benchmark.dataset import BenchmarkExample
-    from graph_rag.benchmark.pipeline import BenchmarkComponents
+    from graph_rag.wiring import BenchmarkComponents
+    from kgbench.dataset import BenchmarkExample
 
 __all__ = ["QuestionScore", "BenchmarkResult", "BenchmarkHarness"]
 
@@ -58,7 +58,7 @@ class QuestionScore:
     supporting_fact_f1: float
 
     def as_metrics(self) -> dict[str, float]:
-        """Return just the numeric metrics (for :func:`~graph_rag.benchmark.metrics.aggregate`)."""
+        """Return just the numeric metrics (for :func:`~kgbench.metrics.aggregate`)."""
         return {
             "exact_match": self.exact_match,
             "token_f1": self.token_f1,

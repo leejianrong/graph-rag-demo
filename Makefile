@@ -53,7 +53,7 @@ test: ## Fast suite: fakes only, no Docker/model/key (the pre-push gate).
 # supporting-fact P·R·F1). Offline by default: no Docker, no model, no key ($0).
 # Point at the real corpus with DATASET=..., or add REAL=1 for the real stack.
 benchmark: ## V8 benchmark scorecard, offline (DATASET=... or REAL=1).
-	uv run benchmark run --subset small $(if $(DATASET),--dataset $(DATASET),) $(if $(REAL),--real,)
+	uv run kgbench run --subset small $(if $(DATASET),--dataset $(DATASET),) $(if $(REAL),--real,)
 
 # Opt-in whole-pipeline benchmark SMOKE TEST over the real stack (V8 pytest
 # marker; skips cleanly without infra). This is the test, not the scorecard.

@@ -10,8 +10,7 @@ partial). No LLM is involved — scoring is string/set comparison (ADR-0009, Q32
 from __future__ import annotations
 
 import pytest
-
-from graph_rag.benchmark.metrics import (
+from kgbench.metrics import (
     aggregate,
     exact_match,
     normalize_answer,

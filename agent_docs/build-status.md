@@ -126,7 +126,8 @@ synthesizer wired) makes NO LLM call and the response is byte-for-byte the V6 sh
 retriever.
 
 **V8 (benchmark harness + metrics) — LANDED. The pipeline is now feature-complete
-V1–V8.** `graph_rag/benchmark/` — the final slice, measuring the multi-hop
+V1–V8.** The final slice (its code now lives in `bench/kgbench/`, moved in GRA-79; the pipeline
+wiring is `graph_rag/wiring.py`), measuring the multi-hop
 capability reproducibly at ~$0 with **non-LLM scoring** (ADR-0009).
 `metrics.py` is the PURE, unit-testable scoring core: `normalize_answer` (the
 standard SQuAD/2Wiki normalization — lowercase, strip punctuation, strip articles
@@ -143,16 +144,16 @@ the V1 path (`process_document`) in a **fixed order** (order-sensitive EL, ADR-0
 building the graph **ONCE**, runs each question through the V6 `QueryRetriever`, and
 scores answer EM/token-F1 (vs the answer_entity's `name`+`aliases`) + supporting-fact
 P/R/F1 — returning per-question + aggregate metrics and an `llm_calls` count for the
-run. `pipeline.py` wires an OFFLINE deterministic pipeline (in-memory stores +
+run. `graph_rag/wiring.py` (a public entry point the offline demo and the bench both use) wires an OFFLINE deterministic pipeline (in-memory stores +
 `FakeEmbedder` + text-driven `HeuristicNerStage`/`HeuristicKgBuildStage` +
 `LLMCorefStage` over `FakeLLMClient` + real EL pinned to merge-by-name) so the
 benchmark + CLI run with **no Docker/model/LLM**, plus `build_real_components` for the
-real stack. `cli.py` — `benchmark run --subset small [--dataset PATH] [--limit N]
-[--real] [--per-question]` (console script `benchmark`, or `python -m graph_rag.benchmark`)
+real stack. `kgbench/cli.py` — `kgbench run --subset small [--dataset PATH] [--limit N]
+[--real] [--per-question]` (`make benchmark`, or `python -m kgbench`)
 prints a clean metrics table. A warm re-run reuses the pre-built graph + LLM cache
 and makes **0 LLM calls** — the observable ~$0 signal. Mini in-repo fixture:
-`tests/fixtures/wiki2_mini.json`. Whole-pipeline real-stack smoke:
-`tests/integration/test_benchmark_real_stack.py` (new `benchmark` marker, opt-in,
+`bench/kgbench/data/wiki2_mini.json`. Whole-pipeline real-stack smoke:
+`bench/tests/test_real_stack.py` (new `benchmark` marker, opt-in,
 skips cleanly without infra; excluded from the fast gate).
 
 > **Trust the code over the docs.** `docs/` (ARCHITECTURE, SLICES, TESTING, ADRs)

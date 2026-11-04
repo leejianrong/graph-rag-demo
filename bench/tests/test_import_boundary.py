@@ -1,7 +1,8 @@
 """kgbench may use graph_rag only through its ports and public entry points (ADR-0011).
 
-Ground truth must not depend on our extraction, so the extraction stages, adapters and
-the retiring ``graph_rag.benchmark`` package are off limits to the bench.
+Ground truth must not depend on our extraction, so the extraction stages and adapters are off
+limits to the bench. ``graph_rag.wiring`` is the public entry point that assembles a pipeline
+(offline fakes or the real stack); the bench drives it, it does not reach inside it.
 """
 
 from __future__ import annotations
@@ -22,6 +23,7 @@ ALLOWED = {
     "graph_rag.orchestrator",
     "graph_rag.query",
     "graph_rag.main",
+    "graph_rag.wiring",
 }
 
 

@@ -1,4 +1,7 @@
-"""Offline, deterministic pipeline wiring for the benchmark (fakes-first, ADR-0010).
+"""Pipeline wiring: offline and deterministic (fakes-first, ADR-0010), or the real stack.
+
+A public entry point: the offline demo (``graph_rag.demo``) and the evaluation bench
+(``kgbench``, ADR-0011) both assemble a pipeline through it.
 
 The benchmark harness (N18) is agnostic to which stages are wired — it drives the
 V1 ingestion path (:meth:`~graph_rag.orchestrator.Orchestrator.process_document`)
@@ -242,7 +245,7 @@ class HeuristicKgBuildStage:
 
 @dataclass
 class BenchmarkComponents:
-    """The wired pieces the :class:`~graph_rag.benchmark.harness.BenchmarkHarness` drives.
+    """The wired pieces the :class:`~kgbench.harness.BenchmarkHarness` drives.
 
     Bundles the object store to write the corpus into, the ingestion orchestrator,
     the query retriever, the corpus bucket name and a ``llm_calls`` probe returning

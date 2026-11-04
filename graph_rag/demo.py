@@ -5,7 +5,7 @@ Two ways to run it, both over the SAME bundled corpus
 
 * **offline** (default) — builds a real graph and answers a real multi-hop query
   with **no Docker, no model, no API key**, using the deterministic offline
-  pipeline (:func:`graph_rag.benchmark.pipeline.build_offline_components`):
+  pipeline (:func:`graph_rag.wiring.build_offline_components`):
   Title-Case-heuristic NER + co-occurrence KG-build + merge-by-name entity
   linking + the real V6 retriever over a :class:`~graph_rag.fakes.FakeEmbedder`.
   Every edge is a generic ``RELATED_TO``, but the cross-document connection is
@@ -38,10 +38,10 @@ import urllib.request
 from collections import deque
 from pathlib import Path
 
-from graph_rag.benchmark.pipeline import build_offline_components
 from graph_rag.ids import document_id
 from graph_rag.models import IngestTrigger, QueryRequest, QueryResponse, Triple
 from graph_rag.normalize import normalize_name
+from graph_rag.wiring import build_offline_components
 
 __all__ = ["main", "build_parser"]
 
