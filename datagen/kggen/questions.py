@@ -465,7 +465,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
     for s_, p_, o_ in ever:
         held[(s_, p_, True)] = held[(o_, p_, False)] = True
     holders: dict[tuple[str, bool], set[str]] = {
-        k: {t for t in map(types.get, m)} for k, m in counts.items()
+        k: {types[t] for t in m} for k, m in counts.items()
     }
 
     def unanswerable_questions(target: int) -> list[Question]:
@@ -606,6 +606,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             budget -= 1
             subject, predicate, kind_of = rng.choice(keys)
             versions = history[(subject, predicate, kind_of)]
+            key: tuple
             if kind == "retracted":
                 gone = rng.choice(versions)
                 last_end = max(e.valid_to or 0 for e in versions)

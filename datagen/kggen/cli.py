@@ -173,20 +173,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         write_fixtures(args.out) if args.out else write_fixtures()
         return 0
     if args.command == "scenario":
-        spec = ScenarioSpec(
+        scenario_spec = ScenarioSpec(
             seed=args.scenario_seed,
             n_updates=args.updates,
             n_deletes=args.deletes,
             n_orders=args.orders,
         )
-        text = json.dumps(generate_scenario(_world(args), spec).to_dict(), sort_keys=True, indent=1)
+        text = json.dumps(
+            generate_scenario(_world(args), scenario_spec).to_dict(), sort_keys=True, indent=1
+        )
         if args.out:
             args.out.write_text(text + "\n")
         else:
             print(text)
         return 0
     if args.command == "docs":
-        spec = RenderSpec(
+        render_spec = RenderSpec(
             seed=args.render_seed,
             max_facts_per_doc=args.max_facts,
             alias_use_rate=args.alias_rate,
@@ -194,9 +196,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             neighbour_facts=args.context_facts,
         )
         if args.renderer == "llm":
-            docs = _render_llm(args, spec)
+            docs = _render_llm(args, render_spec)
         else:
-            docs = render_documents(_world(args), spec)
+            docs = render_documents(_world(args), render_spec)
         data = [d.to_dict() for d in docs]
         text = json.dumps(data, sort_keys=True, indent=1) + "\n"
         if args.out:

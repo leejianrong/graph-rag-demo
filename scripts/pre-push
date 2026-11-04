@@ -3,7 +3,8 @@
 #
 # Runs only fast, no-infra checks so a push rarely lands red:
 #   1. ruff check .                                    (lint)
-#   2. uv run pytest -m "not contract and not model and not llm" -q (fast $0
+#   2. uv run mypy                                     (types, about 3 s)
+#   3. uv run pytest -m "not contract and not model and not llm" -q (fast $0
 #      suite — fakes only, no Docker, no spaCy model, no LLM provider)
 #
 # Contract/integration tests are CI-only; they stay out of this hook so it never
@@ -23,6 +24,9 @@ cd "$repo_root"
 
 echo "pre-push: ruff check ."
 uv run ruff check .
+
+echo "pre-push: mypy"
+uv run mypy
 
 echo "pre-push: fast suite (uv run pytest -m 'not contract and not model and not llm')"
 uv run pytest -m "not contract and not model and not llm" -q

@@ -1,0 +1,1104 @@
+[
+ {
+  "knob": "n_entities",
+  "preset": "small",
+  "overrides": {
+   "n_entities": "500"
+  },
+  "k": 5,
+  "seeds": [
+   0,
+   1
+  ],
+  "verdict": "graph-rag beat the baselines on path@5 only at 1000, 2000 of n_entities.",
+  "points": [
+   {
+    "value": 100,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.25,
+     "Dense": 0.26,
+     "graph-rag passages": 0.26,
+     "graph-rag graph": 0.265
+    },
+    "recall": {
+     "BM25": 0.4975,
+     "Dense": 0.5208,
+     "graph-rag passages": 0.5208,
+     "graph-rag graph": 0.4988
+    },
+    "margin": 0.005,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 100,
+      "facts": 200,
+      "current_facts": 200,
+      "degree_mean": 4.0,
+      "degree_max": 15,
+      "largest_component": 97,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 100,
+      "facts": 200,
+      "current_facts": 200,
+      "degree_mean": 4.0,
+      "degree_max": 25,
+      "largest_component": 90,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 300,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.235,
+     "Dense": 0.255,
+     "graph-rag passages": 0.255,
+     "graph-rag graph": 0.25
+    },
+    "recall": {
+     "BM25": 0.4912,
+     "Dense": 0.5083,
+     "graph-rag passages": 0.5083,
+     "graph-rag graph": 0.5004
+    },
+    "margin": -0.005,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 300,
+      "facts": 600,
+      "current_facts": 600,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 271,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 300,
+      "facts": 600,
+      "current_facts": 600,
+      "degree_mean": 4.0,
+      "degree_max": 31,
+      "largest_component": 278,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 1000,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.25,
+     "Dense": 0.255,
+     "graph-rag passages": 0.255,
+     "graph-rag graph": 0.28
+    },
+    "recall": {
+     "BM25": 0.515,
+     "Dense": 0.5042,
+     "graph-rag passages": 0.5042,
+     "graph-rag graph": 0.5388
+    },
+    "margin": 0.025,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 1000,
+      "facts": 2000,
+      "current_facts": 2000,
+      "degree_mean": 4.0,
+      "degree_max": 44,
+      "largest_component": 905,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 1000,
+      "facts": 2000,
+      "current_facts": 2000,
+      "degree_mean": 4.0,
+      "degree_max": 90,
+      "largest_component": 910,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 2000,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.245,
+     "Dense": 0.25,
+     "graph-rag passages": 0.25,
+     "graph-rag graph": 0.285
+    },
+    "recall": {
+     "BM25": 0.5004,
+     "Dense": 0.4917,
+     "graph-rag passages": 0.4917,
+     "graph-rag graph": 0.5042
+    },
+    "margin": 0.035,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 2000,
+      "facts": 4000,
+      "current_facts": 4000,
+      "degree_mean": 4.0,
+      "degree_max": 132,
+      "largest_component": 1814,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 2000,
+      "facts": 4000,
+      "current_facts": 4000,
+      "degree_mean": 4.0,
+      "degree_max": 59,
+      "largest_component": 1773,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "knob": "avg_degree",
+  "preset": "small",
+  "overrides": {
+   "n_entities": "500"
+  },
+  "k": 5,
+  "seeds": [
+   0,
+   1
+  ],
+  "verdict": "graph-rag beat the baselines on path@5 up to 4 and stopped beating them from 6 on.",
+  "points": [
+   {
+    "value": 2,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.25,
+     "Dense": 0.25,
+     "graph-rag passages": 0.25,
+     "graph-rag graph": 0.325
+    },
+    "recall": {
+     "BM25": 0.5029,
+     "Dense": 0.5179,
+     "graph-rag passages": 0.5179,
+     "graph-rag graph": 0.5754
+    },
+    "margin": 0.075,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 500,
+      "current_facts": 500,
+      "degree_mean": 2.0,
+      "degree_max": 23,
+      "largest_component": 332,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 500,
+      "current_facts": 500,
+      "degree_mean": 2.0,
+      "degree_max": 23,
+      "largest_component": 341,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 4,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.235,
+     "Dense": 0.245,
+     "graph-rag passages": 0.245,
+     "graph-rag graph": 0.275
+    },
+    "recall": {
+     "BM25": 0.4942,
+     "Dense": 0.5108,
+     "graph-rag passages": 0.5108,
+     "graph-rag graph": 0.5096
+    },
+    "margin": 0.03,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 6,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.24,
+     "Dense": 0.235,
+     "graph-rag passages": 0.235,
+     "graph-rag graph": 0.23
+    },
+    "recall": {
+     "BM25": 0.4892,
+     "Dense": 0.4696,
+     "graph-rag passages": 0.4696,
+     "graph-rag graph": 0.4471
+    },
+    "margin": -0.01,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1500,
+      "current_facts": 1500,
+      "degree_mean": 6.0,
+      "degree_max": 55,
+      "largest_component": 477,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1500,
+      "current_facts": 1500,
+      "degree_mean": 6.0,
+      "degree_max": 46,
+      "largest_component": 483,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 10,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.21,
+     "Dense": 0.23,
+     "graph-rag passages": 0.23,
+     "graph-rag graph": 0.205
+    },
+    "recall": {
+     "BM25": 0.4521,
+     "Dense": 0.4546,
+     "graph-rag passages": 0.4546,
+     "graph-rag graph": 0.4071
+    },
+    "margin": -0.025,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 2500,
+      "current_facts": 2500,
+      "degree_mean": 10.0,
+      "degree_max": 82,
+      "largest_component": 496,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 2500,
+      "current_facts": 2500,
+      "degree_mean": 10.0,
+      "degree_max": 64,
+      "largest_component": 499,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "knob": "degree_skew",
+  "preset": "small",
+  "overrides": {
+   "n_entities": "500"
+  },
+  "k": 5,
+  "seeds": [
+   0,
+   1
+  ],
+  "verdict": "graph-rag beat the baselines on path@5 up to 1 and stopped beating them from 1.5 on.",
+  "points": [
+   {
+    "value": 0,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.235,
+     "Dense": 0.245,
+     "graph-rag passages": 0.245,
+     "graph-rag graph": 0.275
+    },
+    "recall": {
+     "BM25": 0.4808,
+     "Dense": 0.4954,
+     "graph-rag passages": 0.4954,
+     "graph-rag graph": 0.5121
+    },
+    "margin": 0.03,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 14,
+      "largest_component": 471,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 18,
+      "largest_component": 478,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 0.5,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.235,
+     "Dense": 0.245,
+     "graph-rag passages": 0.245,
+     "graph-rag graph": 0.275
+    },
+    "recall": {
+     "BM25": 0.4942,
+     "Dense": 0.5108,
+     "graph-rag passages": 0.5108,
+     "graph-rag graph": 0.5096
+    },
+    "margin": 0.03,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 1.0,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.25,
+     "Dense": 0.25,
+     "graph-rag passages": 0.25,
+     "graph-rag graph": 0.28
+    },
+    "recall": {
+     "BM25": 0.51,
+     "Dense": 0.5208,
+     "graph-rag passages": 0.5208,
+     "graph-rag graph": 0.5417
+    },
+    "margin": 0.03,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 92,
+      "largest_component": 388,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 99,
+      "largest_component": 374,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 1.5,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.255,
+     "Dense": 0.25,
+     "graph-rag passages": 0.25,
+     "graph-rag graph": 0.265
+    },
+    "recall": {
+     "BM25": 0.5171,
+     "Dense": 0.5196,
+     "graph-rag passages": 0.5196,
+     "graph-rag graph": 0.5096
+    },
+    "margin": 0.01,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 138,
+      "largest_component": 307,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 118,
+      "largest_component": 291,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "knob": "homonym_rate",
+  "preset": "small",
+  "overrides": {
+   "n_entities": "500"
+  },
+  "k": 5,
+  "seeds": [
+   0,
+   1
+  ],
+  "verdict": "graph-rag beat the baselines on path@5 only at 0, 0.3 of homonym_rate.",
+  "points": [
+   {
+    "value": 0,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.235,
+     "Dense": 0.245,
+     "graph-rag passages": 0.245,
+     "graph-rag graph": 0.275
+    },
+    "recall": {
+     "BM25": 0.4942,
+     "Dense": 0.5108,
+     "graph-rag passages": 0.5108,
+     "graph-rag graph": 0.5096
+    },
+    "margin": 0.03,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 0.1,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.225,
+     "Dense": 0.245,
+     "graph-rag passages": 0.245,
+     "graph-rag graph": 0.255
+    },
+    "recall": {
+     "BM25": 0.4737,
+     "Dense": 0.4996,
+     "graph-rag passages": 0.4996,
+     "graph-rag graph": 0.4987
+    },
+    "margin": 0.01,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 50,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 50,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 0.3,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.25,
+     "Dense": 0.25,
+     "graph-rag passages": 0.25,
+     "graph-rag graph": 0.27
+    },
+    "recall": {
+     "BM25": 0.5046,
+     "Dense": 0.5067,
+     "graph-rag passages": 0.5067,
+     "graph-rag graph": 0.4929
+    },
+    "margin": 0.02,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 150,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 150,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 0.5,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.255,
+     "Dense": 0.245,
+     "graph-rag passages": 0.245,
+     "graph-rag graph": 0.235
+    },
+    "recall": {
+     "BM25": 0.4962,
+     "Dense": 0.4967,
+     "graph-rag passages": 0.4967,
+     "graph-rag graph": 0.4833
+    },
+    "margin": -0.02,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 250,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 250,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "knob": "churn_rate",
+  "preset": "small",
+  "overrides": {
+   "n_entities": "500"
+  },
+  "k": 5,
+  "seeds": [
+   0,
+   1
+  ],
+  "verdict": "graph-rag beat the baselines on path@5 up to 0 and stopped beating them from 0.1 on.",
+  "points": [
+   {
+    "value": 0,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.235,
+     "Dense": 0.245,
+     "graph-rag passages": 0.245,
+     "graph-rag graph": 0.275
+    },
+    "recall": {
+     "BM25": 0.4942,
+     "Dense": 0.5108,
+     "graph-rag passages": 0.5108,
+     "graph-rag graph": 0.5096
+    },
+    "margin": 0.03,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 0.1,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.245,
+     "Dense": 0.245,
+     "graph-rag passages": 0.245,
+     "graph-rag graph": 0.26
+    },
+    "recall": {
+     "BM25": 0.4996,
+     "Dense": 0.4983,
+     "graph-rag passages": 0.4983,
+     "graph-rag graph": 0.4929
+    },
+    "margin": 0.015,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1100,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 0,
+      "replaced_facts": 100,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1100,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 100,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 0.3,
+    "hops": null,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.24,
+     "Dense": 0.23,
+     "graph-rag passages": 0.23,
+     "graph-rag graph": 0.25
+    },
+    "recall": {
+     "BM25": 0.48,
+     "Dense": 0.4754,
+     "graph-rag passages": 0.4754,
+     "graph-rag graph": 0.4754
+    },
+    "margin": 0.01,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1300,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 0,
+      "replaced_facts": 300,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1300,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 300,
+      "retracted_facts": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "knob": "hops",
+  "preset": "small",
+  "overrides": {
+   "n_entities": "500"
+  },
+  "k": 5,
+  "seeds": [
+   0,
+   1
+  ],
+  "verdict": "graph-rag beat the baselines on path@5 only at 2 of hops.",
+  "points": [
+   {
+    "value": 1,
+    "hops": 1,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.94,
+     "Dense": 0.98,
+     "graph-rag passages": 0.98,
+     "graph-rag graph": 0.9
+    },
+    "recall": {
+     "BM25": 0.94,
+     "Dense": 0.98,
+     "graph-rag passages": 0.98,
+     "graph-rag graph": 0.9
+    },
+    "margin": -0.08,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 2,
+    "hops": 2,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.0,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.2
+    },
+    "recall": {
+     "BM25": 0.48,
+     "Dense": 0.5,
+     "graph-rag passages": 0.5,
+     "graph-rag graph": 0.59
+    },
+    "margin": 0.2,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 3,
+    "hops": 3,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.0,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.0
+    },
+    "recall": {
+     "BM25": 0.3067,
+     "Dense": 0.3333,
+     "graph-rag passages": 0.3333,
+     "graph-rag graph": 0.3133
+    },
+    "margin": 0.0,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   },
+   {
+    "value": 4,
+    "hops": 4,
+    "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "path": {
+     "BM25": 0.0,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.0
+    },
+    "recall": {
+     "BM25": 0.25,
+     "Dense": 0.23,
+     "graph-rag passages": 0.23,
+     "graph-rag graph": 0.235
+    },
+    "margin": 0.0,
+    "worlds": [
+     {
+      "seed": 0,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 34,
+      "largest_component": 453,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 1,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 35,
+      "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     }
+    ]
+   }
+  ]
+ }
+]

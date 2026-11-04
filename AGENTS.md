@@ -45,7 +45,7 @@ Bare `make` lists every target (`make check` = lint + format check + fast suite;
 ```bash
 uv sync --frozen --extra dev                                  # install (frozen; installs kggen and kgbench too)
 uv run pytest -m "not contract and not model and not llm"     # FAST gate: fakes only, no Docker/model/LLM
-uv run ruff check . && uv run ruff format --check .           # lint + format
+uv run ruff check . && uv run ruff format --check . && uv run mypy   # lint + format + types
 uv run pytest -m contract                                     # real adapters via testcontainers (Docker)
 make models && uv run pytest -m model                         # real spaCy NER (not in the fast gate)
 uv run pytest -m llm                                          # opt-in real provider; skips without a key
