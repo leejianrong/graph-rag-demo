@@ -339,6 +339,7 @@ def build_offline_components(
         ),
         graph_store=graph_store,
         kg_build_stage=HeuristicKgBuildStage(),
+        entity_store=entity_store,
     )
     retriever = QueryRetriever.from_settings(
         settings,
@@ -408,6 +409,7 @@ def build_real_components(settings: Settings | None = None) -> BenchmarkComponen
         entity_linking_stage=EntityLinkingStage.from_settings(settings, entity_store, embedder),
         graph_store=graph_store,
         kg_build_stage=KgBuildStage(kg_llm),
+        entity_store=entity_store,
     )
     retriever = QueryRetriever.from_settings(
         settings,

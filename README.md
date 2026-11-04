@@ -139,6 +139,20 @@ same source with the same bytes again returns `"status": "unchanged"` and does n
 trigger, so no pipeline run and no LLM call. Changed bytes are ingested again; add `?force=true` to
 push identical bytes through anyway (for a source whose first attempt failed).
 
+To forget a document, delete it by the `document_id` that ingest returned:
+
+```bash
+curl -X DELETE http://localhost:8000/documents/<document_id>
+# {"document_id": "...", "bucket": "documents", "object_key": "some-report.md",
+#  "entities_removed": ["..."], "entities_kept": ["..."]}
+```
+
+It removes the document's edges, its record (so recall stops returning its sentences) and its
+raw bytes. An entity that another document still mentions is kept; one that no other document
+mentions is removed from the entity store and the graph. An unknown id is a 404. It runs in the
+API process rather than through Kafka, and it does not guard against a delete racing the
+consumer's processing of the same document.
+
 Once a few documents are in, query the graph. This call makes no LLM request:
 
 ```bash

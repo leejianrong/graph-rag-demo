@@ -269,6 +269,16 @@ class EntityLink(BaseModel):
     is_new: bool
 
 
+class DeletedDocument(BaseModel):
+    """What deleting a document removed (``Orchestrator.delete_document``)."""
+
+    document_id: str
+    bucket: str
+    object_key: str
+    entities_removed: list[str] = Field(default_factory=list)  # no other document mentions them
+    entities_kept: list[str] = Field(default_factory=list)  # another document still does
+
+
 class PipelineResult(BaseModel):
     """The object the orchestrator RETURNS — the in-memory enrichment carry.
 

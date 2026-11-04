@@ -169,3 +169,64 @@ def test_enriched_record_round_trips(es_document_store: EsDocumentStore) -> None
     assert fetched.sentences == record.sentences
     assert fetched.sentence_vectors is not None
     assert len(fetched.sentence_vectors) == 2
+
+
+# --- Deleting a document, and which entities the others still use (GRA-28) ----------------
+
+
+def _linked(key: str, *canonical_ids: str) -> DocumentRecord:
+    """A record whose entity-linking result names ``canonical_ids``."""
+    from graph_rag.models import EntityLink
+
+    record = _record(f"text of {key}", key=key)
+    return record.model_copy(
+        update={
+            "el_result": [
+                EntityLink(
+                    mention_text=cid, canonical_id=cid, entity_type="ORG", score=1.0, is_new=True
+                )
+                for cid in canonical_ids
+            ]
+        }
+    )
+
+
+def _assert_delete_and_use_like_the_fake(store: object) -> None:
+    fake = InMemoryDocumentStore()
+    a, b = _linked("use-a.md", "org:x", "org:y"), _linked("use-b.md", "org:y", "org:z")
+    for s in (store, fake):
+        s.upsert(a)
+        s.upsert(b)
+        everything = {"org:x", "org:y", "org:z", "org:nobody"}
+        assert s.entities_in_use(everything) == {"org:x", "org:y", "org:z"}
+        # without document a, x is no longer used by anything else
+        assert s.entities_in_use(everything, excluding=a.document_id) == {"org:y", "org:z"}
+        assert s.entities_in_use(set()) == set()
+        assert s.delete(a.document_id) is True
+        assert s.get(a.document_id) is None and s.get(b.document_id) is not None
+        assert s.delete(a.document_id) is False  # already gone
+        assert s.entities_in_use(everything) == {"org:y", "org:z"}
+
+
+def test_delete_and_entities_in_use_behave_like_the_fake(
+    es_document_store: EsDocumentStore,
+) -> None:
+    """delete says whether there was a record; entities_in_use reports ids the other stored
+    records still link to, optionally leaving one document out."""
+    _assert_delete_and_use_like_the_fake(es_document_store)
+
+
+def test_entities_in_use_also_works_on_an_index_made_before_the_el_mapping(
+    es_document_store: EsDocumentStore,
+) -> None:
+    """An older index maps ``el_result.canonical_id`` dynamically (text plus a keyword
+    sub-field); a miss there would let a delete prune an entity still in use."""
+    from graph_rag.adapters.es_document_store import EsDocumentStore, _documents_mapping
+
+    client = es_document_store._client  # noqa: SLF001 - the same cluster, another index
+    mapping = _documents_mapping(384)
+    mapping["properties"].pop("el_result")
+    client.indices.create(index="documents-before-el-mapping", mappings=mapping)
+    _assert_delete_and_use_like_the_fake(
+        EsDocumentStore(client=client, index="documents-before-el-mapping")
+    )

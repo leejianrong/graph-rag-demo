@@ -44,13 +44,20 @@ from typing import TYPE_CHECKING
 
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
-from graph_rag.models import CanonicalEntity, DocumentRecord, EntityLink, PipelineResult, Triple
+from graph_rag.models import (
+    CanonicalEntity,
+    DeletedDocument,
+    DocumentRecord,
+    EntityLink,
+    PipelineResult,
+    Triple,
+)
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.ner import SpacyNerStage
 
 if TYPE_CHECKING:
     from graph_rag.models import IngestTrigger
-    from graph_rag.ports import DocumentStore, GraphStore, ObjectStore
+    from graph_rag.ports import DocumentStore, EntityStore, GraphStore, ObjectStore
     from graph_rag.stages.coref import CorefStage
     from graph_rag.stages.entity_linking import ELStage
     from graph_rag.stages.kg_build import KgStage
@@ -79,6 +86,7 @@ class Orchestrator:
         entity_linking_stage: ELStage | None = None,
         graph_store: GraphStore | None = None,
         kg_build_stage: KgStage | None = None,
+        entity_store: EntityStore | None = None,
     ) -> None:
         """Wire the active ports and stages.
 
@@ -108,6 +116,9 @@ class Orchestrator:
                 re-ingest replaces). The real stack wires
                 :class:`~graph_rag.stages.kg_build.KgBuildStage` in ``main.py``; the
                 fast suite injects it over a ``FakeLLMClient`` + ``InMemoryGraphStore``.
+            entity_store: The canonical-entity store. **Opt-in**: only
+                :meth:`delete_document` uses it, to drop entities that no remaining document
+                mentions.
         """
         self._object_store = object_store
         self._document_store = document_store
@@ -116,6 +127,45 @@ class Orchestrator:
         self._entity_linking_stage: ELStage | None = entity_linking_stage
         self._graph_store: GraphStore | None = graph_store
         self._kg_build_stage: KgStage | None = kg_build_stage
+        self._entity_store: EntityStore | None = entity_store
+
+    def delete_document(self, doc_id: str) -> DeletedDocument | None:
+        """Forget one document: its edges, its record, its raw bytes, and entities only it used.
+
+        An entity the document linked to is kept when another stored document still links
+        to it, and removed (from the entity store and the graph) when none does. The
+        record goes last, so a call that failed part-way can be repeated and finish the
+        job. Returns ``None`` when no such document is stored.
+        """
+        record = self._document_store.get(doc_id)
+        if record is None:
+            return None
+        linked = {link.canonical_id for link in record.el_result}
+        if self._graph_store is not None:
+            self._graph_store.delete_document_edges(doc_id)
+        self._object_store.delete(record.bucket, record.object_key)
+        used = self._document_store.entities_in_use(linked, excluding=doc_id)
+        orphans = sorted(linked - used)
+        if orphans:
+            if self._graph_store is not None:
+                self._graph_store.delete_nodes(orphans)
+            if self._entity_store is not None:
+                for canonical_id in orphans:
+                    self._entity_store.delete(canonical_id)
+        self._document_store.delete(doc_id)
+        _logger.info(
+            "deleted document_id=%s entities_removed=%d entities_kept=%d",
+            doc_id,
+            len(orphans),
+            len(used),
+        )
+        return DeletedDocument(
+            document_id=doc_id,
+            bucket=record.bucket,
+            object_key=record.object_key,
+            entities_removed=orphans,
+            entities_kept=sorted(used),
+        )
 
     def process_document(self, trigger: IngestTrigger) -> PipelineResult | None:
         """Process one ingest trigger end-to-end, log-and-drop on failure.

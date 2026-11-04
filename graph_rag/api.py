@@ -19,6 +19,7 @@ constructs an adapter itself (ADR-0010).
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
@@ -26,7 +27,7 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from graph_rag.config import Settings, get_settings
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
-from graph_rag.models import IngestTrigger, QueryRequest, QueryResponse
+from graph_rag.models import DeletedDocument, IngestTrigger, QueryRequest, QueryResponse
 from graph_rag.ports import ObjectStore, TriggerPublisher
 
 if TYPE_CHECKING:
@@ -51,6 +52,7 @@ def create_app(
     settings: Settings | None = None,
     *,
     retriever: QueryRetriever | None = None,
+    eraser: Callable[[str], DeletedDocument | None] | None = None,
 ) -> FastAPI:
     """Build the FastAPI app with its ports injected.
 
@@ -61,6 +63,9 @@ def create_app(
         retriever: The V6 query retriever backing ``POST /query`` (real ports in
             prod, fakes in tests). **Optional**: when ``None`` the query endpoint
             responds ``503`` — ``/ingest`` + ``/health`` are unaffected.
+        eraser: Forgets one document by id (``Orchestrator.delete_document``) and returns
+            what it removed, or ``None`` for an unknown id. **Optional**: when ``None``
+            ``DELETE /documents/{id}`` responds ``503``.
 
     Returns:
         A configured :class:`fastapi.FastAPI` app exposing ``POST /ingest``,
@@ -121,6 +126,21 @@ def create_app(
             "object_key": object_key,
             "status": "accepted",
         }
+
+    @app.delete("/documents/{doc_id}")
+    def delete_document(doc_id: str) -> DeletedDocument:
+        """Forget a document: its edges, its record, its raw bytes, and entities only it used.
+
+        Runs in this process, not through Kafka, so the answer says what was removed. A
+        document that is not stored is a 404. Entities that another document still
+        mentions are kept.
+        """
+        if eraser is None:
+            raise HTTPException(status_code=503, detail="Delete is not configured on this service.")
+        result = eraser(doc_id)
+        if result is None:
+            raise HTTPException(status_code=404, detail=f"No document {doc_id}.")
+        return result
 
     @app.post("/query")
     def query(request: QueryRequest) -> QueryResponse:

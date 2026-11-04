@@ -47,6 +47,7 @@ def _documents_mapping(dims: int) -> dict[str, Any]:
             "bucket": {"type": "keyword"},
             "object_key": {"type": "keyword"},
             "text": {"type": "text"},
+            "el_result": {"properties": {"canonical_id": {"type": "keyword"}}},
             "sentences": {
                 "type": "nested",
                 "properties": {
@@ -152,6 +153,51 @@ class EsDocumentStore:
         except NotFoundError:
             return None
         return self._to_record(response["_source"])
+
+    def delete(self, document_id: str) -> bool:
+        """Remove the record; ``True`` if there was one."""
+        try:
+            self._client.delete(index=self._index, id=document_id, refresh=True)
+        except NotFoundError:
+            return False
+        return True
+
+    def entities_in_use(self, canonical_ids: set[str], *, excluding: str | None = None) -> set[str]:
+        """The ids some stored record (other than ``excluding``) links to.
+
+        One search with a ``filters`` aggregation, a bucket per id. A record's
+        ``el_result.canonical_id`` is a keyword in an index made by this version and a
+        text field with a ``.keyword`` sub-field in one made by an older one, so both are
+        asked and either match counts.
+        """
+        if not canonical_ids:
+            return set()
+        buckets = {
+            cid: {
+                "bool": {
+                    "should": [
+                        {"term": {"el_result.canonical_id": cid}},
+                        {"term": {"el_result.canonical_id.keyword": cid}},
+                    ],
+                    "minimum_should_match": 1,
+                }
+            }
+            for cid in sorted(canonical_ids)
+        }
+        query: dict[str, Any] = {"match_all": {}}
+        if excluding is not None:
+            query = {"bool": {"must_not": [{"ids": {"values": [excluding]}}]}}
+        try:
+            response = self._client.search(
+                index=self._index,
+                size=0,
+                query=query,
+                aggs={"in_use": {"filters": {"filters": buckets}}},
+            )
+        except NotFoundError:
+            return set()
+        found = response["aggregations"]["in_use"]["buckets"]
+        return {cid for cid, bucket in found.items() if bucket["doc_count"] > 0}
 
     def search_sentences(self, *, vector: list[float], top_k: int) -> list[SupportingSentence]:
         """Return the ``top_k`` sentences nearest ``vector`` by cosine (V6, B5).

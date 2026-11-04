@@ -92,6 +92,16 @@ class MinioObjectStore:
         )
         _logger.info("put %s/%s (%d bytes)", bucket, object_key, len(data))
 
+    def delete(self, bucket: str, object_key: str) -> None:
+        """Remove the object; a no-op if it (or its bucket) is not there."""
+        try:
+            self._client.remove_object(bucket, object_key)
+        except S3Error as exc:
+            if exc.code not in _MISSING_CODES:
+                raise
+            return
+        _logger.info("deleted %s/%s", bucket, object_key)
+
     def get(self, bucket: str, object_key: str) -> bytes:
         """Return the bytes at ``(bucket, object_key)``.
 

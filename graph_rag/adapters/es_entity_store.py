@@ -143,6 +143,13 @@ class EsEntityStore:
         )
         _logger.debug("upserted canonical entity %s", entity.canonical_id)
 
+    def delete(self, canonical_id: str) -> None:
+        """Remove the entity; a no-op if it is not there."""
+        try:
+            self._client.delete(index=self._index, id=canonical_id, refresh=True)
+        except NotFoundError:
+            return
+
     def get(self, canonical_id: str) -> CanonicalEntity | None:
         """Return the canonical entity for ``canonical_id``, or ``None`` if absent."""
         try:

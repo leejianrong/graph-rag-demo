@@ -219,6 +219,16 @@ class Neo4jGraphStore:
         )
         _logger.debug("deleted edges for source_doc_id=%s", source_doc_id)
 
+    def delete_nodes(self, canonical_ids: list[str]) -> None:
+        """Remove these nodes and every edge that touches them; unknown ids are ignored."""
+        if not canonical_ids:
+            return
+        self._run(
+            "UNWIND $ids AS id MATCH (n:Entity {canonical_id: id}) DETACH DELETE n",
+            ids=list(canonical_ids),
+        )
+        _logger.debug("deleted %d graph nodes", len(canonical_ids))
+
     # --- Reads --------------------------------------------------------------
 
     def khop(self, seed_ids: list[str], hops: int) -> Subgraph:
