@@ -428,3 +428,33 @@ def test_export_falls_back_to_default_specs_when_a_form_was_not_valid() -> None:
     data, name = model.export_dataset(world, None, None)
     assert name.endswith(".zip") and data[:2] == b"PK"
     assert "MB" in model.export_summary(data, name) and name in model.export_summary(data, name)
+
+
+# --- the opt-in LLM renderer -------------------------------------------------------------------
+
+
+def test_llm_render_counts_calls_then_serves_the_cache(endpoint, tmp_path) -> None:
+    world = model.generate_world(model.preset_values("tiny"))
+    client = endpoint()
+    cold = model.render_world_llm(
+        world, model.RENDER_DEFAULTS, client.base_url, "test-model", tmp_path
+    )
+    assert cold.calls == len(cold.documents) > 0 and cold.hits == 0
+    warm = model.render_world_llm(world, model.RENDER_DEFAULTS, "", "test-model", tmp_path)
+    assert (warm.calls, warm.hits) == (0, len(cold.documents))
+    assert warm.documents == cold.documents
+    assert f"{cold.calls} endpoint calls, 0 answered" in model.llm_note(cold, "test-model")
+
+
+def test_llm_render_says_what_is_wrong_instead_of_raising(endpoint, tmp_path) -> None:
+    world = model.generate_world(model.preset_values("tiny"))
+    values = model.RENDER_DEFAULTS
+    with pytest.raises(ValueError, match="model name"):
+        model.render_world_llm(world, values, "", " ", tmp_path)
+    with pytest.raises(ValueError, match="cache"):
+        model.render_world_llm(world, values, "", "m", tmp_path)
+    with pytest.raises(ValueError, match="stopped"):
+        model.render_world_llm(world, values, "http://127.0.0.1:9/v1", "m", tmp_path)
+    nonsense = endpoint(lambda prompt: "not json")
+    with pytest.raises(ValueError, match="stopped"):
+        model.render_world_llm(world, values, nonsense.base_url, "m", tmp_path)

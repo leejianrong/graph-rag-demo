@@ -39,6 +39,10 @@ class UI:
     documents: indah.Signal  # the rendered documents
     doc_rows: indah.Signal  # the same, as table rows
     doc_note: indah.Signal  # a note about the documents (how many, or why none)
+    llm_on: indah.Signal  # the opt-in switch: Render documents may call the LLM (off by default)
+    llm_endpoint: indah.Signal  # an OpenAI-compatible base URL; blank means the cache only
+    llm_model: indah.Signal  # the model name sent to the endpoint and used as the cache key
+    doc_source: indah.Signal  # "templates" or "llm": who wrote the documents on screen
     sentences: indah.Signal  # fact id -> the sentence that expresses it
     picked_doc: indah.Signal  # the id of the document being read, or None
     picked_fact: indah.Signal  # the fact id of the sentence the viewer clicked, or None
@@ -62,9 +66,21 @@ class UI:
     def picked_document(self):
         return model.find_document(self.documents.value, self.picked_doc.value)
 
-    def _render(self, world) -> tuple[tuple, str]:
-        """Template documents for ``world`` from the current form, or none and the reason."""
+    def _render(self, world, llm: bool = False) -> tuple[tuple, str]:
+        """Documents for ``world`` from the current form, or none and the reason.
+
+        Templates unless ``llm``; only the Render button passes it, so generating a world never
+        makes a provider call.
+        """
         try:
+            if llm:
+                rendered = model.render_world_llm(
+                    world,
+                    self.current_doc_values(),
+                    self.llm_endpoint.value,
+                    self.llm_model.value,
+                )
+                return rendered.documents, model.llm_note(rendered, self.llm_model.value)
             documents = model.render_world(world, self.current_doc_values())
         except ValueError as exc:
             return (), str(exc)
@@ -72,8 +88,9 @@ class UI:
         more = f" (the first {shown:,} are listed)" if shown < len(documents) else ""
         return documents, f"{len(documents):,} documents{more}."
 
-    def _set_documents(self, documents: tuple, note: str) -> None:
+    def _set_documents(self, documents: tuple, note: str, source: str = "templates") -> None:
         self._drop_export()
+        self.doc_source.set(source)
         try:
             self.render_spec.set(model.render_spec_from_values(self.current_doc_values()))
         except ValueError:
@@ -152,8 +169,13 @@ class UI:
         if world is None:
             self.doc_note.set("Generate a world first.")
             return
-        documents, note = self._render(world)
-        indah.batch(lambda: self._set_documents(documents, note))
+        llm = bool(self.llm_on.value)
+        documents, note = self._render(world, llm)
+        if llm and not documents:  # a failed LLM render must not wipe the documents on screen
+            self.doc_note.set(note)
+            return
+        source = "llm" if llm else "templates"
+        indah.batch(lambda: self._set_documents(documents, note, source))
 
     def prepare_export(self) -> None:
         """Build the dataset zip for the world on screen and offer it for download."""
@@ -163,7 +185,10 @@ class UI:
             return
         data, name = model.export_dataset(world, self.question_spec.value, self.render_spec.value)
         self.export_file.set(indah.DownloadFile(data, name, "application/zip"))
-        self.export_note.set(model.export_summary(data, name))
+        note = model.export_summary(data, name)
+        if self.doc_source.value == "llm":
+            note += " Its documents.json is template text: the LLM-written set is not exported."
+        self.export_note.set(note)
 
     def highlight(self) -> dict | None:
         """What the graph emphasises: the clicked sentence's fact, else the picked question's path.
@@ -220,6 +245,10 @@ def build_ui() -> UI:
         documents=indah.Signal(()),
         doc_rows=indah.Signal([]),
         doc_note=indah.Signal(""),
+        llm_on=indah.Signal(False),
+        llm_endpoint=indah.Signal(""),
+        llm_model=indah.Signal(model.LLM_DEFAULT_MODEL),
+        doc_source=indah.Signal("templates"),
         sentences=indah.Signal({}),
         picked_doc=indah.Signal(None),
         picked_fact=indah.Signal(None),
@@ -411,6 +440,24 @@ def documents_card(ui: UI) -> indah.Component:
                 "network, no LLM. Every sentence knows which fact it expresses."
             ),
             indah.Grid(inputs),
+            indah.Switch(
+                ui.llm_on, label="Write with an LLM instead (opt-in; may call a provider)"
+            ),
+            indah.Text(
+                "Only Render documents uses it, never Generate. Answers are cached in "
+                f"{model.LLM_CACHE_DIR}, so the same world again calls nothing. A blank endpoint "
+                "uses the cache only. The key is read from KGGEN_LLM_API_KEY."
+            ),
+            indah.Grid(
+                [
+                    indah.TextInput(
+                        ui.llm_endpoint,
+                        label="Endpoint (OpenAI-compatible base URL)",
+                        placeholder="http://127.0.0.1:8080/v1",
+                    ),
+                    indah.TextInput(ui.llm_model, label="Model"),
+                ]
+            ),
             indah.Button("Render documents", ui.render, variant="tonal"),
             indah.Text(lambda: ui.doc_note.value),
             documents,

@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
+from pathlib import Path
 
 from kggen.export import export_archive
+from kggen.llm import CachedChat, CacheMiss, OpenAICompatible, ResponseCache
 from kggen.questions import MAX_HOPS, Question, QuestionSpec, generate_questions
 from kggen.render import Document, RenderSpec, Sentence, render_documents
+from kggen.render_llm import InvalidRendering, render_documents_llm
 from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
 from kggen.stats import check_against_spec
 from kggen.world import Edge, Entity, World, WorldGenerationError, generate
@@ -218,6 +222,59 @@ def render_world(world: World, values: dict[str, float]) -> tuple[Document, ...]
     return render_documents(world, render_spec_from_values(values))
 
 
+LLM_DEFAULT_MODEL = "claude-haiku"
+# Answers are cached here, so rendering the same world again calls nothing. Not user-editable: the
+# server writes into it. The API key is read from KGGEN_LLM_API_KEY only, never typed into the UI.
+LLM_CACHE_DIR = Path(os.environ.get("KGGEN_LLM_CACHE", ".cache/kggen-llm"))
+
+
+@dataclass(frozen=True)
+class LLMRendered:
+    documents: tuple[Document, ...]
+    calls: int  # requests that went to the endpoint
+    hits: int  # requests answered from the cache
+
+
+def render_world_llm(
+    world: World,
+    values: dict[str, float],
+    base_url: str,
+    model_name: str,
+    cache_dir: Path | None = None,
+) -> LLMRendered:
+    """The world's facts as LLM-written documents. A blank ``base_url`` uses the cache only.
+
+    Answers that were already valid stay cached, so after an error a retry carries on from there.
+    """
+    if not model_name.strip():
+        raise ValueError("Give the model name the endpoint (or the cache) was built with.")
+    base_url = base_url.strip()
+    client = (
+        OpenAICompatible(base_url, model_name.strip(), os.environ.get("KGGEN_LLM_API_KEY"))
+        if base_url
+        else None
+    )
+    chat = CachedChat(ResponseCache(cache_dir or LLM_CACHE_DIR), client, model_name.strip())
+    try:
+        documents = render_documents_llm(world, chat, render_spec_from_values(values))
+    except CacheMiss:
+        raise ValueError(
+            "Not everything is in the cache yet. Enter an endpoint to write the rest."
+        ) from None
+    except (InvalidRendering, OSError, KeyError, IndexError) as exc:
+        raise ValueError(
+            f"The LLM renderer stopped: {exc}. Valid answers so far are cached."
+        ) from exc
+    return LLMRendered(documents, chat.calls, chat.hits)
+
+
+def llm_note(rendered: LLMRendered, model_name: str) -> str:
+    return (
+        f"{len(rendered.documents):,} documents written by {model_name.strip()}: "
+        f"{rendered.calls:,} endpoint calls, {rendered.hits:,} answered from the cache."
+    )
+
+
 def document_rows(documents: tuple[Document, ...] | list[Document]) -> list[dict]:
     """The document list as table rows (the first ``MAX_DOCUMENT_ROWS``)."""
     return [
@@ -403,6 +460,11 @@ __all__ = [
     "MAX_DOCUMENT_ROWS",
     "RENDER_DEFAULTS",
     "RENDER_KNOBS",
+    "LLM_DEFAULT_MODEL",
+    "LLM_CACHE_DIR",
+    "LLMRendered",
+    "render_world_llm",
+    "llm_note",
     "QUESTION_COLUMNS",
     "QUESTION_DEFAULTS",
     "QUESTION_KNOBS",

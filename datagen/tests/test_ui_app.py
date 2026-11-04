@@ -419,3 +419,64 @@ def test_the_export_card_is_in_the_page_with_a_download_link() -> None:
 
     walk(indah.Session(ui.root).snapshot())
     assert "download" in kinds
+
+
+# --- the opt-in LLM renderer -------------------------------------------------------------------
+
+
+@pytest.fixture
+def llm_ui(endpoint, tmp_path, monkeypatch):
+    monkeypatch.setattr(model, "LLM_CACHE_DIR", tmp_path)
+    ui = build_ui()
+    ui.preset.set("tiny")
+    ui.llm_endpoint.set(endpoint().base_url)
+    ui.llm_model.set("test-model")
+    return ui
+
+
+def test_the_llm_renderer_is_off_by_default_and_a_default_render_calls_nothing(
+    llm_ui, endpoint
+) -> None:
+    assert llm_ui.llm_on.value is False
+    llm_ui.generate()
+    llm_ui.render()
+    assert endpoint.served == []
+    assert llm_ui.doc_source.value == "templates" and llm_ui.documents.value
+
+
+def test_generating_a_world_never_calls_the_llm_even_with_the_switch_on(llm_ui, endpoint) -> None:
+    llm_ui.llm_on.set(True)
+    llm_ui.generate()
+    assert endpoint.served == []
+    assert llm_ui.doc_source.value == "templates"
+
+
+def test_enabling_it_shows_calls_made_versus_cached(llm_ui, endpoint) -> None:
+    llm_ui.generate()
+    llm_ui.llm_on.set(True)
+    llm_ui.render()
+    n = len(llm_ui.documents.value)
+    assert llm_ui.doc_source.value == "llm"
+    assert f"{n} endpoint calls, 0 answered from the cache" in llm_ui.doc_note.value
+    assert len(endpoint.served) == n
+    llm_ui.render()
+    assert f"0 endpoint calls, {n} answered from the cache" in llm_ui.doc_note.value
+    assert len(endpoint.served) == n
+
+
+def test_a_failed_llm_render_says_why_and_keeps_the_documents(llm_ui) -> None:
+    llm_ui.generate()
+    templates = llm_ui.documents.value
+    llm_ui.llm_on.set(True)
+    llm_ui.llm_endpoint.set("")  # cache only, and the cache is empty
+    llm_ui.render()
+    assert "cache" in llm_ui.doc_note.value
+    assert llm_ui.documents.value == templates and llm_ui.doc_source.value == "templates"
+
+
+def test_exporting_llm_documents_says_the_zip_holds_template_text(llm_ui) -> None:
+    llm_ui.generate()
+    llm_ui.llm_on.set(True)
+    llm_ui.render()
+    llm_ui.prepare_export()
+    assert "template text" in llm_ui.export_note.value
