@@ -76,6 +76,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--alias-rate", type=float, default=0.5, help="Chance a mention is an alias."
     )
     d_gen.add_argument(
+        "--words", type=int, default=0, help="Words per document (e.g. 500 or 5000); 0 is short."
+    )
+    d_gen.add_argument(
+        "--context-facts", type=int, default=3, help="Long documents: facts about neighbours."
+    )
+    d_gen.add_argument(
         "--renderer", choices=("template", "llm"), default="template", help="Who writes the text."
     )
     d_gen.add_argument("--cache-dir", type=Path, help="llm: where answers are cached (required).")
@@ -181,7 +187,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
     if args.command == "docs":
         spec = RenderSpec(
-            seed=args.render_seed, max_facts_per_doc=args.max_facts, alias_use_rate=args.alias_rate
+            seed=args.render_seed,
+            max_facts_per_doc=args.max_facts,
+            alias_use_rate=args.alias_rate,
+            target_words=args.words,
+            neighbour_facts=args.context_facts,
         )
         if args.renderer == "llm":
             docs = _render_llm(args, spec)

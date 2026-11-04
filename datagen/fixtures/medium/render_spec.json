@@ -1,5 +1,7 @@
 {
  "alias_use_rate": 0.5,
  "max_facts_per_doc": 6,
- "seed": 0
+ "neighbour_facts": 3,
+ "seed": 0,
+ "target_words": 0
 }

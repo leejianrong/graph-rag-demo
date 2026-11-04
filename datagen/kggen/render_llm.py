@@ -154,6 +154,7 @@ def render_documents_llm(
                     text=" ".join(s.text for s in sentences),
                     sentences=tuple(sentences),
                     distractor=entities[subject].distractor,
+                    subject=subject,
                 )
             )
     return tuple(documents)

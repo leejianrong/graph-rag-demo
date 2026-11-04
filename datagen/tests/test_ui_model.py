@@ -314,9 +314,12 @@ def test_render_form_defaults_and_validation() -> None:
             model.render_spec_from_values({**model.RENDER_DEFAULTS, **bad})
 
 
+SHORT = {**model.RENDER_DEFAULTS, "target_words": 0}
+
+
 def test_every_fact_has_exactly_one_sentence_in_the_lookup() -> None:
     world = doc_world()
-    docs = model.render_world(world, model.RENDER_DEFAULTS)
+    docs = model.render_world(world, SHORT)
     lookup = model.sentence_lookup(docs)
     assert set(lookup) == {f.id for f in world.edges}
     assert sum(len(d.sentences) for d in docs) == len(lookup)
@@ -337,7 +340,7 @@ def test_the_document_list_is_capped_but_every_document_is_still_rendered() -> N
 
 
 def test_sentence_rows_are_keyed_by_the_fact_they_express() -> None:
-    docs = model.render_world(doc_world(), model.RENDER_DEFAULTS)
+    docs = model.render_world(doc_world(), SHORT)
     doc = docs[0]
     rows = model.sentence_rows(doc)
     assert [r["fact"] for r in rows] == [s.fact_ids[0] for s in doc.sentences]
@@ -502,3 +505,37 @@ def test_the_question_summary_names_the_types_so_a_fallback_is_visible() -> None
     assert text.startswith(f"{len(qs)} questions: ") and "entity" in text
     assert "as_of" not in text  # the small world never changes, so those fell back
     assert model.question_summary([]) == ""
+
+
+def test_a_long_document_lists_only_fact_sentences_and_shows_its_text() -> None:
+    world = doc_world()
+    docs = model.render_world(world, {**model.RENDER_DEFAULTS, "target_words": 500})
+    doc = docs[0]
+    rows = model.sentence_rows(doc)
+    assert rows and len(rows) < len(doc.sentences)
+    assert [r["fact"] for r in rows] == [s.fact_ids[0] for s in doc.sentences if s.fact_ids]
+    assert model.document_text(doc) == doc.text and model.document_text(None) == ""
+    assert model.document_rows(docs)[0]["words"] == len(doc.text.split()) >= 500
+
+
+def test_the_lookup_prefers_the_sentence_in_the_facts_own_document() -> None:
+    world = doc_world()
+    docs = model.render_world(world, {**model.RENDER_DEFAULTS, "target_words": 300})
+    lookup = model.sentence_lookup(docs)
+    assert set(lookup) == {f.id for f in world.edges}
+    subject_of = {f.id: f.subject for f in world.edges}
+    for d in docs:
+        for s in d.sentences:
+            for f in s.fact_ids:
+                if subject_of[f] == d.subject:
+                    assert lookup[f] is s
+
+
+def test_the_ui_refuses_to_render_more_words_than_it_can_hold() -> None:
+    world = doc_world()
+    huge = {**model.RENDER_DEFAULTS, "target_words": 10_000}
+    with pytest.raises(ValueError, match="words the UI renders"):
+        model.render_world(
+            type("W", (), {"entities": range(model.MAX_RENDER_WORDS // 10_000 + 1)})(), huge
+        )
+    assert model.render_world(world, {**model.RENDER_DEFAULTS, "target_words": 100})
