@@ -29,6 +29,17 @@ Can a graph beat keyword and dense retrieval on multi-hop questions? Every syste
 | 3 | 0.00 to 0.00 | 0.00 to 0.00 | 0.00 to 0.00 | 0.00 to 0.00 |
 | 4 | 0.00 to 0.00 | 0.00 to 0.00 | 0.00 to 0.00 | 0.00 to 0.00 |
 
+## Cost and latency
+
+Wall time covers building the index and answering every question, on CPU with no GPU. The systems share one embedding cache, so the times are not a like-for-like speed comparison. LLM calls and dollars are totals over the seeds; none of these systems reaches a provider.
+
+| system | seconds per seed (mean) | LLM calls | LLM dollars |
+|---|---|---|---|
+| BM25 | 0.7 | 0 | $0.00 |
+| Dense | 23.2 | 0 | $0.00 |
+| graph-rag passages | 81.0 | 0 | $0.00 |
+| graph-rag graph | 24.8 | 0 | $0.00 |
+
 ## Caveats
 
 - The text is rendered from templates: one fact per sentence, made-up names, no paraphrase. That is easier than real prose in some ways (names are unambiguous tokens) and unlike it in others, so public sets stay in the picture.

@@ -203,9 +203,10 @@ class Comparison:
             "",
             "## Cost and latency",
             "",
-            "Wall time covers building the index and answering every question, one core, no GPU. "
-            "LLM calls and dollars are totals over the seeds; none of these systems reaches a "
-            "provider.",
+            "Wall time covers building the index and answering every question, on CPU with no GPU. "
+            "The systems share one embedding cache, so the times are not a like-for-like speed "
+            "comparison. LLM calls and dollars are totals over the seeds; none of these systems "
+            "reaches a provider.",
             "",
             "| system | seconds per seed (mean) | LLM calls | LLM dollars |",
             "|---|---|---|---|",
