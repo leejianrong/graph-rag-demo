@@ -353,3 +353,53 @@ def test_temporal_types_fall_back_when_the_world_never_changes(world) -> None:
     still = generate(make(n_entities=100, avg_degree=4, seed=4))
     qs = generate_questions(still, QuestionSpec(n_questions=5, type_mix={"as_of": 1.0}))
     assert len(qs) == 5 and {q.type for q in qs} == {"entity"}
+
+
+def test_a_path_question_gold_is_every_shortest_chain_between_the_two(world) -> None:
+    from kggen.spec import VAGUE_PREDICATE
+
+    ents = {e.id: e for e in world.entities}
+    facts = {e.id: e for e in world.edges}
+    live = [
+        e
+        for e in world.current_edges()
+        if e.predicate != VAGUE_PREDICATE
+        and not ents[e.subject].distractor
+        and not ents[e.object].distractor
+    ]
+    adj: dict[str, list[str]] = {}
+    for e in live:
+        adj.setdefault(e.subject, []).append(e.object)
+        adj.setdefault(e.object, []).append(e.subject)
+    qs = generate_questions(world, QuestionSpec(n_questions=30, type_mix={"path": 1.0}))
+    assert qs and {q.type for q in qs} == {"path"}
+    for q in qs:
+        dist, ways = {q.start: 0}, {q.start: 1}  # shortest distance and number of shortest paths
+        queue = [q.start]
+        for node in queue:
+            for other in adj.get(node, []):
+                if other not in dist:
+                    dist[other] = dist[node] + 1
+                    queue.append(other)
+                if dist[other] == dist[node] + 1:
+                    ways[other] = ways.get(other, 0) + (ways[node] if other in dist else 0)
+        (end,) = q.answers
+        assert dist[end] == q.hops and q.ordered and q.grading == "path"
+        assert len(q.gold_paths) == ways[end]  # none of the shortest chains is left out
+        assert len(q.gold_paths) == len(set(q.gold_paths))
+        for chain in q.gold_paths:
+            assert len(chain) == q.hops
+            at = q.start
+            for fid in chain:
+                e = facts[fid]
+                assert at in (e.subject, e.object)
+                at = e.object if e.subject == at else e.subject
+            assert at == end
+
+
+def test_a_path_question_is_dropped_when_too_many_chains_link_the_pair() -> None:
+    from kggen.questions import MAX_PATHS
+
+    dense = generate(make(n_entities=300, avg_degree=14, seed=8))
+    qs = generate_questions(dense, QuestionSpec(n_questions=40, type_mix={"path": 1.0}))
+    assert qs and all(len(q.gold_paths) <= MAX_PATHS for q in qs)
