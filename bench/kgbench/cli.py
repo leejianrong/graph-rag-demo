@@ -22,10 +22,11 @@ from kggen.render import render_documents
 from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
 from kggen.world import generate
 
-from graph_rag.wiring import build_offline_components, build_real_components
+from graph_rag.wiring import build_embedder, build_offline_components, build_real_components
 from kgbench import __version__, gate
 from kgbench import order as orders
-from kgbench.compare import compare
+from kgbench import sweep as sweeps
+from kgbench.compare import CachingEmbedder, compare
 from kgbench.cost import Meter
 from kgbench.dataset import SUBSETS, load_examples, select_subset
 from kgbench.extraction import gold_from, run_pipeline, score
@@ -100,6 +101,33 @@ def build_parser() -> argparse.ArgumentParser:
     order.add_argument("--real", action="store_true", help="Run the real adapter stack.")
     order.add_argument("--out", type=Path, help="Write the markdown report here.")
     order.add_argument("--json", type=Path, help="Write every number as JSON here.")
+    sw = commands.add_parser(
+        "sweep", help="Vary one world knob at a time and score every system at each value."
+    )
+    sw.add_argument(
+        "--knob",
+        nargs="+",
+        default=["all"],
+        choices=["all", *sweeps.KNOBS],
+        help="Knobs to sweep (default: all).",
+    )
+    sw.add_argument(
+        "--values", type=float, nargs="+", help="Values for a single knob (default: its usual set)."
+    )
+    sw.add_argument("--preset", choices=PRESET_NAMES, default="small", help="Base world.")
+    sw.add_argument(
+        "--set",
+        dest="overrides",
+        nargs="+",
+        default=[],
+        metavar="KNOB=VALUE",
+        help="Change the base world first, e.g. n_entities=600.",
+    )
+    sw.add_argument("--seeds", type=int, nargs="+", default=[0, 1], help="World seeds per point.")
+    sw.add_argument("--questions", type=int, default=100, help="Questions per seed.")
+    sw.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
+    sw.add_argument("--k", type=int, default=5, help="The k for path@k.")
+    sw.add_argument("--out", type=Path, help="Directory for sweep.md, one SVG per knob and JSON.")
     gate_cmd = commands.add_parser(
         "gate", help="Fail if graph-rag scores below the stored floors (offline, no provider)."
     )
@@ -181,6 +209,58 @@ def _order(args: argparse.Namespace) -> int:
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)
         args.json.write_text(json.dumps(report.to_dict(), indent=1) + "\n")
+    return 0
+
+
+def _sweep(args: argparse.Namespace) -> int:
+    knobs = list(sweeps.KNOBS) if "all" in args.knob else args.knob
+    if args.values and len(knobs) != 1:
+        print("--values needs exactly one --knob", file=sys.stderr)
+        return 2
+    try:
+        overrides = dict(item.split("=", 1) for item in args.overrides)
+    except ValueError:
+        print("--set takes KNOB=VALUE pairs", file=sys.stderr)
+        return 2
+    base = load_preset(args.preset).with_overrides(**overrides)
+    real = args.embedder == "bge"
+    name = (
+        "bge-small-en-v1.5 (local sentence-transformers)" if real else "deterministic hashing fake"
+    )
+    embedder = CachingEmbedder(build_embedder(real=real))
+    done = []
+    for knob in knobs:
+        values = args.values or sweeps.KNOBS[knob]
+        done.append(
+            sweeps.run_sweep(
+                base,
+                knob,
+                values,
+                args.seeds,
+                preset=args.preset,
+                embedder=embedder,
+                embedder_name=name,
+                n_questions=args.questions,
+                k=args.k,
+                overrides=overrides,
+            )
+        )
+        print(f"{knob}: {done[-1].verdict()}", flush=True)
+    if args.out:
+        extra = f" --set {' '.join(args.overrides)}" if args.overrides else ""
+        command = (
+            f"uv run --extra embed kgbench sweep --knob {' '.join(args.knob)} "
+            f"--preset {args.preset}{extra} --seeds {' '.join(map(str, args.seeds))} "
+            f"--questions {args.questions} --embedder {args.embedder} --k {args.k} "
+            f"--out {args.out}"
+        )
+        args.out.mkdir(parents=True, exist_ok=True)
+        for one in done:
+            (args.out / f"sweep-{one.knob}.svg").write_text(sweeps.chart_svg(one))
+        (args.out / "sweep.md").write_text(sweeps.to_markdown(done, command=command))
+        (args.out / "sweep.json").write_text(
+            json.dumps([sweeps.to_dict(one) for one in done], indent=1) + "\n"
+        )
     return 0
 
 
@@ -266,6 +346,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _compare(args)
     if args.command == "order":
         return _order(args)
+    if args.command == "sweep":
+        return _sweep(args)
     if args.command == "gate":
         return _gate(args)
     parser.print_help()

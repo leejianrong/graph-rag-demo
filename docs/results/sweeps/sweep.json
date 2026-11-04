@@ -8,27 +8,62 @@
   "k": 5,
   "seeds": [
    0,
-   1
+   1,
+   2
   ],
-  "verdict": "graph-rag beat the baselines on path@5 only at 1000, 2000 of n_entities.",
+  "verdict": "graph-rag beat the baselines on 2-hop path@5 at every value of n_entities tried; the margin was smallest at 1000 (+0.09).",
   "points": [
    {
     "value": 100,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0333,
+     "Dense": 0.0167,
+     "graph-rag passages": 0.0167,
+     "graph-rag graph": 0.1833
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.25,
-     "Dense": 0.26,
-     "graph-rag passages": 0.26,
-     "graph-rag graph": 0.265
+     "BM25": 0.2479,
+     "Dense": 0.2542,
+     "graph-rag passages": 0.2542,
+     "graph-rag graph": 0.2792
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.9583,
+      "2": 0.0333,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 1.0,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 1.0,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9333,
+      "2": 0.1833,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4975,
-     "Dense": 0.5208,
-     "graph-rag passages": 0.5208,
-     "graph-rag graph": 0.4988
+     "BM25": 0.4972,
+     "Dense": 0.5227,
+     "graph-rag passages": 0.5227,
+     "graph-rag graph": 0.5142
     },
-    "margin": 0.005,
+    "margin": 0.15,
     "worlds": [
      {
       "seed": 0,
@@ -53,6 +88,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 100,
+      "facts": 200,
+      "current_facts": 200,
+      "degree_mean": 4.0,
+      "degree_max": 15,
+      "largest_component": 93,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    },
@@ -60,19 +107,53 @@
     "value": 300,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0083,
+     "Dense": 0.0167,
+     "graph-rag passages": 0.0167,
+     "graph-rag graph": 0.1417
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.235,
-     "Dense": 0.255,
-     "graph-rag passages": 0.255,
-     "graph-rag graph": 0.25
+     "BM25": 0.2437,
+     "Dense": 0.2521,
+     "graph-rag passages": 0.2521,
+     "graph-rag graph": 0.2708
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.9667,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9333,
+      "2": 0.1417,
+      "3": 0.0083,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4912,
-     "Dense": 0.5083,
-     "graph-rag passages": 0.5083,
-     "graph-rag graph": 0.5004
+     "BM25": 0.4957,
+     "Dense": 0.5036,
+     "graph-rag passages": 0.5036,
+     "graph-rag graph": 0.5132
     },
-    "margin": -0.005,
+    "margin": 0.125,
     "worlds": [
      {
       "seed": 0,
@@ -97,6 +178,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 300,
+      "facts": 600,
+      "current_facts": 600,
+      "degree_mean": 4.0,
+      "degree_max": 38,
+      "largest_component": 276,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    },
@@ -104,19 +197,53 @@
     "value": 1000,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0083,
+     "Dense": 0.0167,
+     "graph-rag passages": 0.0167,
+     "graph-rag graph": 0.1083
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.25,
-     "Dense": 0.255,
-     "graph-rag passages": 0.255,
-     "graph-rag graph": 0.28
+     "BM25": 0.2479,
+     "Dense": 0.2521,
+     "graph-rag passages": 0.2521,
+     "graph-rag graph": 0.2625
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.9833,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9417,
+      "2": 0.1083,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.515,
-     "Dense": 0.5042,
-     "graph-rag passages": 0.5042,
-     "graph-rag graph": 0.5388
+     "BM25": 0.5085,
+     "Dense": 0.4993,
+     "graph-rag passages": 0.4993,
+     "graph-rag graph": 0.5125
     },
-    "margin": 0.025,
+    "margin": 0.0917,
     "worlds": [
      {
       "seed": 0,
@@ -141,6 +268,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 1000,
+      "facts": 2000,
+      "current_facts": 2000,
+      "degree_mean": 4.0,
+      "degree_max": 47,
+      "largest_component": 903,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    },
@@ -148,19 +287,53 @@
     "value": 2000,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.2
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.245,
-     "Dense": 0.25,
-     "graph-rag passages": 0.25,
-     "graph-rag graph": 0.285
+     "BM25": 0.2479,
+     "Dense": 0.2458,
+     "graph-rag passages": 0.2458,
+     "graph-rag graph": 0.2771
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.9917,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9833,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9833,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9083,
+      "2": 0.2,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.5004,
-     "Dense": 0.4917,
-     "graph-rag passages": 0.4917,
-     "graph-rag graph": 0.5042
+     "BM25": 0.504,
+     "Dense": 0.4882,
+     "graph-rag passages": 0.4882,
+     "graph-rag graph": 0.5054
     },
-    "margin": 0.035,
+    "margin": 0.2,
     "worlds": [
      {
       "seed": 0,
@@ -185,6 +358,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 2000,
+      "facts": 4000,
+      "current_facts": 4000,
+      "degree_mean": 4.0,
+      "degree_max": 69,
+      "largest_component": 1807,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    }
@@ -199,27 +384,62 @@
   "k": 5,
   "seeds": [
    0,
-   1
+   1,
+   2
   ],
-  "verdict": "graph-rag beat the baselines on path@5 up to 4 and stopped beating them from 6 on.",
+  "verdict": "graph-rag beat the baselines on 2-hop path@5 up to 6 and stopped beating them from 10 on.",
   "points": [
    {
     "value": 2,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0083,
+     "Dense": 0.0167,
+     "graph-rag passages": 0.0167,
+     "graph-rag graph": 0.3
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.25,
-     "Dense": 0.25,
-     "graph-rag passages": 0.25,
+     "BM25": 0.2479,
+     "Dense": 0.2542,
+     "graph-rag passages": 0.2542,
      "graph-rag graph": 0.325
     },
-    "recall": {
-     "BM25": 0.5029,
-     "Dense": 0.5179,
-     "graph-rag passages": 0.5179,
-     "graph-rag graph": 0.5754
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.975,
+      "2": 0.0083,
+      "3": 0.0083,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 1.0,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 1.0,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9833,
+      "2": 0.3,
+      "3": 0.0167,
+      "4": 0.0
+     }
     },
-    "margin": 0.075,
+    "recall": {
+     "BM25": 0.5066,
+     "Dense": 0.5203,
+     "graph-rag passages": 0.5203,
+     "graph-rag graph": 0.5748
+    },
+    "margin": 0.2833,
     "worlds": [
      {
       "seed": 0,
@@ -244,6 +464,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 500,
+      "current_facts": 500,
+      "degree_mean": 2.0,
+      "degree_max": 17,
+      "largest_component": 355,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    },
@@ -251,19 +483,53 @@
     "value": 4,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0083,
+     "Dense": 0.0083,
+     "graph-rag passages": 0.0083,
+     "graph-rag graph": 0.1833
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.235,
-     "Dense": 0.245,
-     "graph-rag passages": 0.245,
-     "graph-rag graph": 0.275
+     "BM25": 0.2458,
+     "Dense": 0.25,
+     "graph-rag passages": 0.25,
+     "graph-rag graph": 0.2729
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.975,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9083,
+      "2": 0.1833,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4942,
-     "Dense": 0.5108,
-     "graph-rag passages": 0.5108,
-     "graph-rag graph": 0.5096
+     "BM25": 0.5007,
+     "Dense": 0.509,
+     "graph-rag passages": 0.509,
+     "graph-rag graph": 0.5026
     },
-    "margin": 0.03,
+    "margin": 0.175,
     "worlds": [
      {
       "seed": 0,
@@ -288,6 +554,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    },
@@ -295,19 +573,53 @@
     "value": 6,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.125
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.24,
-     "Dense": 0.235,
-     "graph-rag passages": 0.235,
-     "graph-rag graph": 0.23
+     "BM25": 0.2375,
+     "Dense": 0.2396,
+     "graph-rag passages": 0.2396,
+     "graph-rag graph": 0.25
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.95,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9583,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9583,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.8667,
+      "2": 0.125,
+      "3": 0.0083,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4892,
-     "Dense": 0.4696,
-     "graph-rag passages": 0.4696,
-     "graph-rag graph": 0.4471
+     "BM25": 0.4866,
+     "Dense": 0.4828,
+     "graph-rag passages": 0.4828,
+     "graph-rag graph": 0.4611
     },
-    "margin": -0.01,
+    "margin": 0.125,
     "worlds": [
      {
       "seed": 0,
@@ -332,6 +644,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1500,
+      "current_facts": 1500,
+      "degree_mean": 6.0,
+      "degree_max": 41,
+      "largest_component": 479,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    },
@@ -339,19 +663,53 @@
     "value": 10,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.0333
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.21,
-     "Dense": 0.23,
-     "graph-rag passages": 0.23,
-     "graph-rag graph": 0.205
+     "BM25": 0.2208,
+     "Dense": 0.2333,
+     "graph-rag passages": 0.2333,
+     "graph-rag graph": 0.2063
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.8833,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9333,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9333,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.7917,
+      "2": 0.0333,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4521,
-     "Dense": 0.4546,
-     "graph-rag passages": 0.4546,
-     "graph-rag graph": 0.4071
+     "BM25": 0.4597,
+     "Dense": 0.4569,
+     "graph-rag passages": 0.4569,
+     "graph-rag graph": 0.4083
     },
-    "margin": -0.025,
+    "margin": 0.0333,
     "worlds": [
      {
       "seed": 0,
@@ -376,6 +734,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 2500,
+      "current_facts": 2500,
+      "degree_mean": 10.0,
+      "degree_max": 63,
+      "largest_component": 495,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    }
@@ -390,27 +760,62 @@
   "k": 5,
   "seeds": [
    0,
-   1
+   1,
+   2
   ],
-  "verdict": "graph-rag beat the baselines on path@5 up to 1 and stopped beating them from 1.5 on.",
+  "verdict": "graph-rag beat the baselines on 2-hop path@5 at every value of degree_skew tried; the margin was smallest at 1.5 (+0.09).",
   "points": [
    {
     "value": 0,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0167,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.1167
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.235,
-     "Dense": 0.245,
-     "graph-rag passages": 0.245,
-     "graph-rag graph": 0.275
+     "BM25": 0.2437,
+     "Dense": 0.2437,
+     "graph-rag passages": 0.2437,
+     "graph-rag graph": 0.2625
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.9583,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.975,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.975,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9333,
+      "2": 0.1167,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4808,
-     "Dense": 0.4954,
-     "graph-rag passages": 0.4954,
-     "graph-rag graph": 0.5121
+     "BM25": 0.4955,
+     "Dense": 0.495,
+     "graph-rag passages": 0.495,
+     "graph-rag graph": 0.4984
     },
-    "margin": 0.03,
+    "margin": 0.1,
     "worlds": [
      {
       "seed": 0,
@@ -435,6 +840,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 13,
+      "largest_component": 479,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    },
@@ -442,19 +859,53 @@
     "value": 0.5,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0083,
+     "Dense": 0.0083,
+     "graph-rag passages": 0.0083,
+     "graph-rag graph": 0.1833
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.235,
-     "Dense": 0.245,
-     "graph-rag passages": 0.245,
-     "graph-rag graph": 0.275
+     "BM25": 0.2458,
+     "Dense": 0.25,
+     "graph-rag passages": 0.25,
+     "graph-rag graph": 0.2729
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.975,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9083,
+      "2": 0.1833,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4942,
-     "Dense": 0.5108,
-     "graph-rag passages": 0.5108,
-     "graph-rag graph": 0.5096
+     "BM25": 0.5007,
+     "Dense": 0.509,
+     "graph-rag passages": 0.509,
+     "graph-rag graph": 0.5026
     },
-    "margin": 0.03,
+    "margin": 0.175,
     "worlds": [
      {
       "seed": 0,
@@ -479,6 +930,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    },
@@ -486,19 +949,53 @@
     "value": 1.0,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0083,
+     "Dense": 0.0083,
+     "graph-rag passages": 0.0083,
+     "graph-rag graph": 0.1333
+    },
+    "verdict_questions": 120,
     "path": {
      "BM25": 0.25,
      "Dense": 0.25,
      "graph-rag passages": 0.25,
-     "graph-rag graph": 0.28
+     "graph-rag graph": 0.2687
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9417,
+      "2": 0.1333,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.51,
-     "Dense": 0.5208,
-     "graph-rag passages": 0.5208,
-     "graph-rag graph": 0.5417
+     "BM25": 0.5144,
+     "Dense": 0.5106,
+     "graph-rag passages": 0.5106,
+     "graph-rag graph": 0.524
     },
-    "margin": 0.03,
+    "margin": 0.125,
     "worlds": [
      {
       "seed": 0,
@@ -523,6 +1020,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 86,
+      "largest_component": 386,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    },
@@ -530,19 +1039,53 @@
     "value": 1.5,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.025,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.1167
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.255,
-     "Dense": 0.25,
-     "graph-rag passages": 0.25,
-     "graph-rag graph": 0.265
+     "BM25": 0.25,
+     "Dense": 0.2479,
+     "graph-rag passages": 0.2479,
+     "graph-rag graph": 0.2667
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.975,
+      "2": 0.025,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9417,
+      "2": 0.1167,
+      "3": 0.0083,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.5171,
-     "Dense": 0.5196,
-     "graph-rag passages": 0.5196,
-     "graph-rag graph": 0.5096
+     "BM25": 0.5128,
+     "Dense": 0.5125,
+     "graph-rag passages": 0.5125,
+     "graph-rag graph": 0.521
     },
-    "margin": 0.01,
+    "margin": 0.0917,
     "worlds": [
      {
       "seed": 0,
@@ -567,6 +1110,18 @@
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 130,
+      "largest_component": 306,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    }
@@ -581,27 +1136,62 @@
   "k": 5,
   "seeds": [
    0,
-   1
+   1,
+   2
   ],
-  "verdict": "graph-rag beat the baselines on path@5 only at 0, 0.3 of homonym_rate.",
+  "verdict": "graph-rag beat the baselines on 2-hop path@5 up to 0.3 and stopped beating them from 0.5 on.",
   "points": [
    {
     "value": 0,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0083,
+     "Dense": 0.0083,
+     "graph-rag passages": 0.0083,
+     "graph-rag graph": 0.1833
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.235,
-     "Dense": 0.245,
-     "graph-rag passages": 0.245,
-     "graph-rag graph": 0.275
+     "BM25": 0.2458,
+     "Dense": 0.25,
+     "graph-rag passages": 0.25,
+     "graph-rag graph": 0.2729
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.975,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9083,
+      "2": 0.1833,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4942,
-     "Dense": 0.5108,
-     "graph-rag passages": 0.5108,
-     "graph-rag graph": 0.5096
+     "BM25": 0.5007,
+     "Dense": 0.509,
+     "graph-rag passages": 0.509,
+     "graph-rag graph": 0.5026
     },
-    "margin": 0.03,
+    "margin": 0.175,
     "worlds": [
      {
       "seed": 0,
@@ -623,6 +1213,18 @@
       "degree_mean": 4.0,
       "degree_max": 35,
       "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
@@ -633,19 +1235,53 @@
     "value": 0.1,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0083,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.1
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.225,
-     "Dense": 0.245,
-     "graph-rag passages": 0.245,
-     "graph-rag graph": 0.255
+     "BM25": 0.2417,
+     "Dense": 0.2479,
+     "graph-rag passages": 0.2479,
+     "graph-rag graph": 0.2563
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.9583,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.925,
+      "2": 0.1,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4737,
-     "Dense": 0.4996,
-     "graph-rag passages": 0.4996,
-     "graph-rag graph": 0.4987
+     "BM25": 0.4925,
+     "Dense": 0.501,
+     "graph-rag passages": 0.501,
+     "graph-rag graph": 0.4911
     },
-    "margin": 0.01,
+    "margin": 0.0917,
     "worlds": [
      {
       "seed": 0,
@@ -667,6 +1303,18 @@
       "degree_mean": 4.0,
       "degree_max": 35,
       "largest_component": 455,
+      "shared_names": 50,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
       "shared_names": 50,
       "replaced_facts": 0,
       "retracted_facts": 0
@@ -677,19 +1325,53 @@
     "value": 0.3,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.025,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.1167
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.25,
-     "Dense": 0.25,
-     "graph-rag passages": 0.25,
-     "graph-rag graph": 0.27
+     "BM25": 0.2521,
+     "Dense": 0.2479,
+     "graph-rag passages": 0.2479,
+     "graph-rag graph": 0.2646
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.9833,
+      "2": 0.025,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9333,
+      "2": 0.1167,
+      "3": 0.0083,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.5046,
-     "Dense": 0.5067,
-     "graph-rag passages": 0.5067,
-     "graph-rag graph": 0.4929
+     "BM25": 0.503,
+     "Dense": 0.5,
+     "graph-rag passages": 0.5,
+     "graph-rag graph": 0.4892
     },
-    "margin": 0.02,
+    "margin": 0.0917,
     "worlds": [
      {
       "seed": 0,
@@ -714,6 +1396,18 @@
       "shared_names": 150,
       "replaced_facts": 0,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
+      "shared_names": 150,
+      "replaced_facts": 0,
+      "retracted_facts": 0
      }
     ]
    },
@@ -721,19 +1415,53 @@
     "value": 0.5,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0333,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.05
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.255,
-     "Dense": 0.245,
-     "graph-rag passages": 0.245,
-     "graph-rag graph": 0.235
+     "BM25": 0.2458,
+     "Dense": 0.2458,
+     "graph-rag passages": 0.2458,
+     "graph-rag graph": 0.2375
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.95,
+      "2": 0.0333,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9833,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9833,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9,
+      "2": 0.05,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4962,
-     "Dense": 0.4967,
-     "graph-rag passages": 0.4967,
-     "graph-rag graph": 0.4833
+     "BM25": 0.4922,
+     "Dense": 0.5002,
+     "graph-rag passages": 0.5002,
+     "graph-rag graph": 0.4741
     },
-    "margin": -0.02,
+    "margin": 0.0167,
     "worlds": [
      {
       "seed": 0,
@@ -755,6 +1483,18 @@
       "degree_mean": 4.0,
       "degree_max": 35,
       "largest_component": 455,
+      "shared_names": 250,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
       "shared_names": 250,
       "replaced_facts": 0,
       "retracted_facts": 0
@@ -772,27 +1512,62 @@
   "k": 5,
   "seeds": [
    0,
-   1
+   1,
+   2
   ],
-  "verdict": "graph-rag beat the baselines on path@5 up to 0 and stopped beating them from 0.1 on.",
+  "verdict": "graph-rag beat the baselines on 2-hop path@5 up to 0.1 and stopped beating them from 0.3 on.",
   "points": [
    {
     "value": 0,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0083,
+     "Dense": 0.0083,
+     "graph-rag passages": 0.0083,
+     "graph-rag graph": 0.1833
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.235,
-     "Dense": 0.245,
-     "graph-rag passages": 0.245,
-     "graph-rag graph": 0.275
+     "BM25": 0.2458,
+     "Dense": 0.25,
+     "graph-rag passages": 0.25,
+     "graph-rag graph": 0.2729
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.975,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9083,
+      "2": 0.1833,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4942,
-     "Dense": 0.5108,
-     "graph-rag passages": 0.5108,
-     "graph-rag graph": 0.5096
+     "BM25": 0.5007,
+     "Dense": 0.509,
+     "graph-rag passages": 0.509,
+     "graph-rag graph": 0.5026
     },
-    "margin": 0.03,
+    "margin": 0.175,
     "worlds": [
      {
       "seed": 0,
@@ -814,6 +1589,18 @@
       "degree_mean": 4.0,
       "degree_max": 35,
       "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
@@ -824,19 +1611,53 @@
     "value": 0.1,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0167,
+     "Dense": 0.0167,
+     "graph-rag passages": 0.0167,
+     "graph-rag graph": 0.125
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.245,
-     "Dense": 0.245,
-     "graph-rag passages": 0.245,
-     "graph-rag graph": 0.26
+     "BM25": 0.2375,
+     "Dense": 0.2479,
+     "graph-rag passages": 0.2479,
+     "graph-rag graph": 0.2604
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.9333,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.975,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.975,
+      "2": 0.0167,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9167,
+      "2": 0.125,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.4996,
-     "Dense": 0.4983,
-     "graph-rag passages": 0.4983,
-     "graph-rag graph": 0.4929
+     "BM25": 0.4877,
+     "Dense": 0.5026,
+     "graph-rag passages": 0.5026,
+     "graph-rag graph": 0.4899
     },
-    "margin": 0.015,
+    "margin": 0.1083,
     "worlds": [
      {
       "seed": 0,
@@ -861,6 +1682,18 @@
       "shared_names": 0,
       "replaced_facts": 100,
       "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1100,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
+      "shared_names": 0,
+      "replaced_facts": 100,
+      "retracted_facts": 0
      }
     ]
    },
@@ -868,19 +1701,53 @@
     "value": 0.3,
     "hops": null,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.025,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.0583
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.24,
-     "Dense": 0.23,
-     "graph-rag passages": 0.23,
-     "graph-rag graph": 0.25
+     "BM25": 0.2437,
+     "Dense": 0.2375,
+     "graph-rag passages": 0.2375,
+     "graph-rag graph": 0.2417
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.95,
+      "2": 0.025,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.95,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.95,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9,
+      "2": 0.0583,
+      "3": 0.0,
+      "4": 0.0083
+     }
     },
     "recall": {
-     "BM25": 0.48,
-     "Dense": 0.4754,
-     "graph-rag passages": 0.4754,
-     "graph-rag graph": 0.4754
+     "BM25": 0.4861,
+     "Dense": 0.4799,
+     "graph-rag passages": 0.4799,
+     "graph-rag graph": 0.4627
     },
-    "margin": 0.01,
+    "margin": 0.0333,
     "worlds": [
      {
       "seed": 0,
@@ -902,6 +1769,18 @@
       "degree_mean": 4.0,
       "degree_max": 35,
       "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 300,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1300,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
       "shared_names": 0,
       "replaced_facts": 300,
       "retracted_facts": 0
@@ -919,7 +1798,8 @@
   "k": 5,
   "seeds": [
    0,
-   1
+   1,
+   2
   ],
   "verdict": "graph-rag beat the baselines on path@5 only at 2 of hops.",
   "points": [
@@ -927,19 +1807,53 @@
     "value": 1,
     "hops": 1,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 1,
+    "verdict_path": {
+     "BM25": 0.975,
+     "Dense": 0.9917,
+     "graph-rag passages": 0.9917,
+     "graph-rag graph": 0.9083
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.94,
-     "Dense": 0.98,
-     "graph-rag passages": 0.98,
-     "graph-rag graph": 0.9
+     "BM25": 0.975,
+     "Dense": 0.9917,
+     "graph-rag passages": 0.9917,
+     "graph-rag graph": 0.9083
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.975,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9083,
+      "2": 0.1833,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.94,
-     "Dense": 0.98,
-     "graph-rag passages": 0.98,
-     "graph-rag graph": 0.9
+     "BM25": 0.975,
+     "Dense": 0.9917,
+     "graph-rag passages": 0.9917,
+     "graph-rag graph": 0.9083
     },
-    "margin": -0.08,
+    "margin": -0.0833,
     "worlds": [
      {
       "seed": 0,
@@ -961,6 +1875,18 @@
       "degree_mean": 4.0,
       "degree_max": 35,
       "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
@@ -971,19 +1897,53 @@
     "value": 2,
     "hops": 2,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 2,
+    "verdict_path": {
+     "BM25": 0.0083,
+     "Dense": 0.0083,
+     "graph-rag passages": 0.0083,
+     "graph-rag graph": 0.1833
+    },
+    "verdict_questions": 120,
     "path": {
-     "BM25": 0.0,
-     "Dense": 0.0,
-     "graph-rag passages": 0.0,
-     "graph-rag graph": 0.2
+     "BM25": 0.0083,
+     "Dense": 0.0083,
+     "graph-rag passages": 0.0083,
+     "graph-rag graph": 0.1833
+    },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.975,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9083,
+      "2": 0.1833,
+      "3": 0.0,
+      "4": 0.0
+     }
     },
     "recall": {
-     "BM25": 0.48,
-     "Dense": 0.5,
-     "graph-rag passages": 0.5,
-     "graph-rag graph": 0.59
+     "BM25": 0.475,
+     "Dense": 0.4875,
+     "graph-rag passages": 0.4875,
+     "graph-rag graph": 0.5458
     },
-    "margin": 0.2,
+    "margin": 0.175,
     "worlds": [
      {
       "seed": 0,
@@ -1005,6 +1965,18 @@
       "degree_mean": 4.0,
       "degree_max": 35,
       "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
@@ -1015,17 +1987,51 @@
     "value": 3,
     "hops": 3,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 3,
+    "verdict_path": {
+     "BM25": 0.0,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.0
+    },
+    "verdict_questions": 120,
     "path": {
      "BM25": 0.0,
      "Dense": 0.0,
      "graph-rag passages": 0.0,
      "graph-rag graph": 0.0
     },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.975,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9083,
+      "2": 0.1833,
+      "3": 0.0,
+      "4": 0.0
+     }
+    },
     "recall": {
-     "BM25": 0.3067,
-     "Dense": 0.3333,
-     "graph-rag passages": 0.3333,
-     "graph-rag graph": 0.3133
+     "BM25": 0.3111,
+     "Dense": 0.3194,
+     "graph-rag passages": 0.3194,
+     "graph-rag graph": 0.3167
     },
     "margin": 0.0,
     "worlds": [
@@ -1049,6 +2055,18 @@
       "degree_mean": 4.0,
       "degree_max": 35,
       "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0
@@ -1059,17 +2077,51 @@
     "value": 4,
     "hops": 4,
     "embedder": "bge-small-en-v1.5 (local sentence-transformers)",
+    "verdict_hops": 4,
+    "verdict_path": {
+     "BM25": 0.0,
+     "Dense": 0.0,
+     "graph-rag passages": 0.0,
+     "graph-rag graph": 0.0
+    },
+    "verdict_questions": 120,
     "path": {
      "BM25": 0.0,
      "Dense": 0.0,
      "graph-rag passages": 0.0,
      "graph-rag graph": 0.0
     },
+    "path_by_hops": {
+     "BM25": {
+      "1": 0.975,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "Dense": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag passages": {
+      "1": 0.9917,
+      "2": 0.0083,
+      "3": 0.0,
+      "4": 0.0
+     },
+     "graph-rag graph": {
+      "1": 0.9083,
+      "2": 0.1833,
+      "3": 0.0,
+      "4": 0.0
+     }
+    },
     "recall": {
-     "BM25": 0.25,
-     "Dense": 0.23,
-     "graph-rag passages": 0.23,
-     "graph-rag graph": 0.235
+     "BM25": 0.2417,
+     "Dense": 0.2375,
+     "graph-rag passages": 0.2375,
+     "graph-rag graph": 0.2396
     },
     "margin": 0.0,
     "worlds": [
@@ -1093,6 +2145,18 @@
       "degree_mean": 4.0,
       "degree_max": 35,
       "largest_component": 455,
+      "shared_names": 0,
+      "replaced_facts": 0,
+      "retracted_facts": 0
+     },
+     {
+      "seed": 2,
+      "entities": 500,
+      "facts": 1000,
+      "current_facts": 1000,
+      "degree_mean": 4.0,
+      "degree_max": 33,
+      "largest_component": 448,
       "shared_names": 0,
       "replaced_facts": 0,
       "retracted_facts": 0

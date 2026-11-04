@@ -327,6 +327,15 @@ make linking PRESET=small        # kgbench linking: B-cubed precision/recall per
 make order PRESET=small          # kgbench order: ingest one corpus in shuffled orders, report the spread
 ```
 
+`kgbench sweep` changes one world knob at a time and scores every system at each value
+([docs/results/sweeps/sweep.md](docs/results/sweeps/sweep.md), with a chart and the realised stats of every world). It
+reads 2-hop paths, the only hop count where the systems differ: BM25 and dense solve about 1% of them, offline graph-rag
+18% on the base world. graph-rag's lead shrinks steadily as the graph gets denser (average degree 2 to 10: +0.28 to
++0.03), and as homonyms (0.5: +0.02) and churn (0.3: +0.03) rise; it is flat across degree skew. The lead over size is
+not monotone (+0.15, +0.12, +0.09, +0.20 for 100 to 2,000 entities), which at about 120 questions per point is noise.
+A first run scored every question and was mostly noise; it is not published. `make sweep KNOB=avg_degree` runs one
+knob (about 10 minutes with bge; all six take over an hour).
+
 `kgbench order` ingests the same corpus as generated and in shuffled orders, each into a fresh pipeline, and reports how much each score moves. The offline pipeline shows none ([docs/results/order-medium.md](docs/results/order-medium.md)); merging by name cannot depend on order, so the question stays open for the real stack (`--real`).
 
 It reports mentions (exact span), entities (distinct gold entities recovered per canonical made) and
