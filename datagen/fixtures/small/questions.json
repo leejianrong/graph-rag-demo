@@ -4,9 +4,24 @@
    "Dune Partners"
   ],
   "answer": "E024",
+  "answer_kind": "entity",
   "answer_name": "Dune Partners",
+  "answers": [
+   "E024"
+  ],
+  "gold_paths": [
+   [
+    "F058",
+    "F270",
+    "F243",
+    "F049"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q00",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that produces the product that is part of the product that is part of the product that Gebi Boleve owns.",
   "start": "E030",
   "supporting_facts": [
@@ -14,62 +29,125 @@
    "F270",
    "F243",
    "F049"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Busu Toroni"
   ],
   "answer": "E103",
+  "answer_kind": "entity",
   "answer_name": "Busu Toroni",
+  "answers": [
+   "E103"
+  ],
+  "gold_paths": [
+   [
+    "F004",
+    "F003",
+    "F228"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q01",
+  "number": null,
+  "ordered": false,
   "question": "Name the person that founded the organization that the person that is a member of Mado Systems is affiliated with.",
   "start": "E126",
   "supporting_facts": [
    "F004",
    "F003",
    "F228"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Muvo Holdings"
   ],
   "answer": "E117",
+  "answer_kind": "entity",
   "answer_name": "Muvo Holdings",
+  "answers": [
+   "E117"
+  ],
+  "gold_paths": [
+   [
+    "F161",
+    "F162",
+    "F164"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q02",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that the organization that the person that is affiliated with Keme Group founded is affiliated with.",
   "start": "E062",
   "supporting_facts": [
    "F161",
    "F162",
    "F164"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Zeboese"
   ],
   "answer": "E045",
+  "answer_kind": "entity",
   "answer_name": "Zeboese",
+  "answers": [
+   "E045"
+  ],
+  "gold_paths": [
+   [
+    "F198"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q03",
+  "number": null,
+  "ordered": false,
   "question": "Name the group that Buga Lomazu is a member of.",
   "start": "E091",
   "supporting_facts": [
    "F198"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Govo X8"
   ],
   "answer": "E042",
+  "answer_kind": "entity",
   "answer_name": "Govo X8",
+  "answers": [
+   "E042"
+  ],
+  "gold_paths": [
+   [
+    "F120",
+    "F118",
+    "F277",
+    "F278"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q04",
+  "number": null,
+  "ordered": false,
   "question": "Name the product that the person that is a member of the organization that the person that founded Gora Works founded owns.",
   "start": "E116",
   "supporting_facts": [
@@ -77,31 +155,63 @@
    "F118",
    "F277",
    "F278"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Muvo Holdings"
   ],
   "answer": "E117",
+  "answer_kind": "entity",
   "answer_name": "Muvo Holdings",
+  "answers": [
+   "E117"
+  ],
+  "gold_paths": [
+   [
+    "F153",
+    "F164"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q05",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that the organization that Kazo Robeka founded is affiliated with.",
   "start": "E073",
   "supporting_facts": [
    "F153",
    "F164"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Segi Tibano"
   ],
   "answer": "E037",
+  "answer_kind": "entity",
   "answer_name": "Segi Tibano",
+  "answers": [
+   "E037"
+  ],
+  "gold_paths": [
+   [
+    "F264",
+    "F093",
+    "F164",
+    "F074"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q06",
+  "number": null,
+  "ordered": false,
   "question": "Name the person that founded the organization that the organization that the organization that Rave Industries is affiliated with owns is affiliated with.",
   "start": "E131",
   "supporting_facts": [
@@ -109,16 +219,33 @@
    "F093",
    "F164",
    "F074"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Veta Conference"
   ],
   "answer": "E052",
+  "answer_kind": "entity",
   "answer_name": "Veta Conference",
+  "answers": [
+   "E052"
+  ],
+  "gold_paths": [
+   [
+    "F239",
+    "F290",
+    "F291",
+    "F028"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q07",
+  "number": null,
+  "ordered": false,
   "question": "Name the event that the organization that the person that participated in the event that is located in Takomere works for participated in.",
   "start": "E012",
   "supporting_facts": [
@@ -126,121 +253,243 @@
    "F290",
    "F291",
    "F028"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Dodaese"
   ],
   "answer": "E051",
+  "answer_kind": "entity",
   "answer_name": "Dodaese",
+  "answers": [
+   "E051"
+  ],
+  "gold_paths": [
+   [
+    "F017"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q08",
+  "number": null,
+  "ordered": false,
   "question": "Name the group that Fido Tebifu is a member of.",
   "start": "E011",
   "supporting_facts": [
    "F017"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Kazo Robeka"
   ],
   "answer": "E073",
+  "answer_kind": "entity",
   "answer_name": "Kazo Robeka",
+  "answers": [
+   "E073"
+  ],
+  "gold_paths": [
+   [
+    "F241",
+    "F152"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q09",
+  "number": null,
+  "ordered": false,
   "question": "Name the person that is affiliated with the organization that Libu Belagu works for.",
   "start": "E109",
   "supporting_facts": [
    "F241",
    "F152"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Dadi Expo"
   ],
   "answer": "E079",
+  "answer_kind": "entity",
   "answer_name": "Dadi Expo",
+  "answers": [
+   "E079"
+  ],
+  "gold_paths": [
+   [
+    "F096",
+    "F288"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q10",
+  "number": null,
+  "ordered": false,
   "question": "Name the event that the organization that Gedu Tumuka works for participated in.",
   "start": "E049",
   "supporting_facts": [
    "F096",
    "F288"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Dune Partners"
   ],
   "answer": "E024",
+  "answer_kind": "entity",
   "answer_name": "Dune Partners",
+  "answers": [
+   "E024"
+  ],
+  "gold_paths": [
+   [
+    "F233",
+    "F232"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q11",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that the person that is located in Buriton founded.",
   "start": "E137",
   "supporting_facts": [
    "F233",
    "F232"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Begu Labs"
   ],
   "answer": "E101",
+  "answer_kind": "entity",
   "answer_name": "Begu Labs",
+  "answers": [
+   "E101"
+  ],
+  "gold_paths": [
+   [
+    "F235",
+    "F234"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q12",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that the organization that produces Golu Q17 is affiliated with.",
   "start": "E135",
   "supporting_facts": [
    "F235",
    "F234"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Govo X8"
   ],
   "answer": "E042",
+  "answer_kind": "entity",
   "answer_name": "Govo X8",
+  "answers": [
+   "E042"
+  ],
+  "gold_paths": [
+   [
+    "F145",
+    "F014",
+    "F011"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q13",
+  "number": null,
+  "ordered": false,
   "question": "Name the product that the person that works for the organization that Fumi Sideni founded owns.",
   "start": "E067",
   "supporting_facts": [
    "F145",
    "F014",
    "F011"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Golu Q17"
   ],
   "answer": "E135",
+  "answer_kind": "entity",
   "answer_name": "Golu Q17",
+  "answers": [
+   "E135"
+  ],
+  "gold_paths": [
+   [
+    "F296",
+    "F294"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q14",
+  "number": null,
+  "ordered": false,
   "question": "Name the product that the organization that produces Nato Z5 owns.",
   "start": "E015",
   "supporting_facts": [
    "F296",
    "F294"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Takomere"
   ],
   "answer": "E012",
+  "answer_kind": "entity",
   "answer_name": "Takomere",
+  "answers": [
+   "E012"
+  ],
+  "gold_paths": [
+   [
+    "F180",
+    "F177",
+    "F099",
+    "F019"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q15",
+  "number": null,
+  "ordered": false,
   "question": "Name the location that is part of the location that the event that the organization that is part of Gebo Holdings participated in is located in.",
   "start": "E017",
   "supporting_facts": [
@@ -248,46 +497,93 @@
    "F177",
    "F099",
    "F019"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Rito Summit"
   ],
   "answer": "E028",
+  "answer_kind": "entity",
   "answer_name": "Rito Summit",
+  "answers": [
+   "E028"
+  ],
+  "gold_paths": [
+   [
+    "F075"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q16",
+  "number": null,
+  "ordered": false,
   "question": "Name the event that Segi Tibano participated in.",
   "start": "E037",
   "supporting_facts": [
    "F075"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Bake"
   ],
   "answer": "E009",
+  "answer_kind": "entity",
   "answer_name": "Bake",
+  "answers": [
+   "E009"
+  ],
+  "gold_paths": [
+   [
+    "F082",
+    "F187",
+    "F085"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q17",
+  "number": null,
+  "ordered": false,
   "question": "Name the location that the location that the organization that Bure Sidusi founded is located in is part of.",
   "start": "E041",
   "supporting_facts": [
    "F082",
    "F187",
    "F085"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Begu Labs"
   ],
   "answer": "E101",
+  "answer_kind": "entity",
   "answer_name": "Begu Labs",
+  "answers": [
+   "E101"
+  ],
+  "gold_paths": [
+   [
+    "F008",
+    "F235",
+    "F192",
+    "F188"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q18",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that the organization that is part of the organization that produces the product that Mizu Group owns is a member of.",
   "start": "E006",
   "supporting_facts": [
@@ -295,30 +591,61 @@
    "F235",
    "F192",
    "F188"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Teve Nerama"
   ],
   "answer": "E099",
+  "answer_kind": "entity",
   "answer_name": "Teve Nerama",
+  "answers": [
+   "E099"
+  ],
+  "gold_paths": [
+   [
+    "F214"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q19",
+  "number": null,
+  "ordered": false,
   "question": "Name the person that is a member of Lomo Industries.",
   "start": "E098",
   "supporting_facts": [
    "F214"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Dune Partners"
   ],
   "answer": "E024",
+  "answer_kind": "entity",
   "answer_name": "Dune Partners",
+  "answers": [
+   "E024"
+  ],
+  "gold_paths": [
+   [
+    "F009",
+    "F266",
+    "F271",
+    "F043"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q20",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that is a member of the organization that is affiliated with the organization that produces the product that Mizu Group produces.",
   "start": "E006",
   "supporting_facts": [
@@ -326,45 +653,91 @@
    "F266",
    "F271",
    "F043"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Pova Festival"
   ],
   "answer": "E147",
+  "answer_kind": "entity",
   "answer_name": "Pova Festival",
+  "answers": [
+   "E147"
+  ],
+  "gold_paths": [
+   [
+    "F159",
+    "F158"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q21",
+  "number": null,
+  "ordered": false,
   "question": "Name the event that the person that works for Dune Partners participated in.",
   "start": "E024",
   "supporting_facts": [
    "F159",
    "F158"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Kite Fumada"
   ],
   "answer": "E016",
+  "answer_kind": "entity",
   "answer_name": "Kite Fumada",
+  "answers": [
+   "E016"
+  ],
+  "gold_paths": [
+   [
+    "F025"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q22",
+  "number": null,
+  "ordered": false,
   "question": "Name the person that founded Keme Group.",
   "start": "E062",
   "supporting_facts": [
    "F025"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Kite Fumada"
   ],
   "answer": "E016",
+  "answer_kind": "entity",
   "answer_name": "Kite Fumada",
+  "answers": [
+   "E016"
+  ],
+  "gold_paths": [
+   [
+    "F240",
+    "F241",
+    "F279",
+    "F024"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q23",
+  "number": null,
+  "ordered": false,
   "question": "Name the person that founded the organization that the organization that the person that owns Gori X18 works for is affiliated with.",
   "start": "E007",
   "supporting_facts": [
@@ -372,91 +745,183 @@
    "F241",
    "F279",
    "F024"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Sepa Z82"
   ],
   "answer": "E083",
+  "answer_kind": "entity",
   "answer_name": "Sepa Z82",
+  "answers": [
+   "E083"
+  ],
+  "gold_paths": [
+   [
+    "F184",
+    "F185"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q24",
+  "number": null,
+  "ordered": false,
   "question": "Name the product that is part of the product that is part of Nato Z5.",
   "start": "E015",
   "supporting_facts": [
    "F184",
    "F185"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Pita Labs"
   ],
   "answer": "E139",
+  "answer_kind": "entity",
   "answer_name": "Pita Labs",
+  "answers": [
+   "E139"
+  ],
+  "gold_paths": [
+   [
+    "F292",
+    "F154",
+    "F152"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q25",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that the person that is a member of the organization that Bagi Dalofe works for is affiliated with.",
   "start": "E144",
   "supporting_facts": [
    "F292",
    "F154",
    "F152"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Takomere"
   ],
   "answer": "E012",
+  "answer_kind": "entity",
   "answer_name": "Takomere",
+  "answers": [
+   "E012"
+  ],
+  "gold_paths": [
+   [
+    "F098",
+    "F099",
+    "F019"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q26",
+  "number": null,
+  "ordered": false,
   "question": "Name the location that is part of the location that the event that is located in Vapa is located in.",
   "start": "E029",
   "supporting_facts": [
    "F098",
    "F099",
    "F019"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Mobo Expo"
   ],
   "answer": "E053",
+  "answer_kind": "entity",
   "answer_name": "Mobo Expo",
+  "answers": [
+   "E053"
+  ],
+  "gold_paths": [
+   [
+    "F244"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q27",
+  "number": null,
+  "ordered": false,
   "question": "Name the event that Tobo Nonada participated in.",
   "start": "E114",
   "supporting_facts": [
    "F244"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Suvu Doveku"
   ],
   "answer": "E033",
+  "answer_kind": "entity",
   "answer_name": "Suvu Doveku",
+  "answers": [
+   "E033"
+  ],
+  "gold_paths": [
+   [
+    "F064"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q28",
+  "number": null,
+  "ordered": false,
   "question": "Name the person that is located in Kole.",
   "start": "E112",
   "supporting_facts": [
    "F064"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Gebi Boleve"
   ],
   "answer": "E030",
+  "answer_kind": "entity",
   "answer_name": "Gebi Boleve",
+  "answers": [
+   "E030"
+  ],
+  "gold_paths": [
+   [
+    "F214",
+    "F215",
+    "F186",
+    "F058"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q29",
+  "number": null,
+  "ordered": false,
   "question": "Name the person that owns the product that is part of the product that the person that is a member of Lomo Industries owns.",
   "start": "E098",
   "supporting_facts": [
@@ -464,16 +929,33 @@
    "F215",
    "F186",
    "F058"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Gori X18"
   ],
   "answer": "E007",
+  "answer_kind": "entity",
   "answer_name": "Gori X18",
+  "answers": [
+   "E007"
+  ],
+  "gold_paths": [
+   [
+    "F152",
+    "F154",
+    "F273",
+    "F274"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q30",
+  "number": null,
+  "ordered": false,
   "question": "Name the product that the organization that is part of the organization that the person that is affiliated with Pita Labs is a member of produces.",
   "start": "E139",
   "supporting_facts": [
@@ -481,117 +963,235 @@
    "F154",
    "F273",
    "F274"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Fili Vitalu"
   ],
   "answer": "E008",
+  "answer_kind": "entity",
   "answer_name": "Fili Vitalu",
+  "answers": [
+   "E008"
+  ],
+  "gold_paths": [
+   [
+    "F013"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q31",
+  "number": null,
+  "ordered": false,
   "question": "Name the person that works for Gilo Labs.",
   "start": "E060",
   "supporting_facts": [
    "F013"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Kufemere"
   ],
   "answer": "E129",
+  "answer_kind": "entity",
   "answer_name": "Kufemere",
+  "answers": [
+   "E129"
+  ],
+  "gold_paths": [
+   [
+    "F263"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q32",
+  "number": null,
+  "ordered": false,
   "question": "Name the location that is part of Bane.",
   "start": "E040",
   "supporting_facts": [
    "F263"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Mata Group"
   ],
   "answer": "E065",
+  "answer_kind": "entity",
   "answer_name": "Mata Group",
+  "answers": [
+   "E065"
+  ],
+  "gold_paths": [
+   [
+    "F151"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q33",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that Golu Finane founded.",
   "start": "E072",
   "supporting_facts": [
    "F151"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Kipe Q67"
   ],
   "answer": "E082",
+  "answer_kind": "entity",
   "answer_name": "Kipe Q67",
+  "answers": [
+   "E082"
+  ],
+  "gold_paths": [
+   [
+    "F004",
+    "F245",
+    "F246"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q34",
+  "number": null,
+  "ordered": false,
   "question": "Name the product that the organization that is part of the organization that Suzi Dekaba is a member of produces.",
   "start": "E003",
   "supporting_facts": [
    "F004",
    "F245",
    "F246"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Vaka Partners"
   ],
   "answer": "E070",
+  "answer_kind": "entity",
   "answer_name": "Vaka Partners",
+  "answers": [
+   "E070"
+  ],
+  "gold_paths": [
+   [
+    "F037"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q35",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that Lada Povedo works for.",
   "start": "E021",
   "supporting_facts": [
    "F037"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Gedo Works"
   ],
   "answer": "E081",
+  "answer_kind": "entity",
   "answer_name": "Gedo Works",
+  "answers": [
+   "E081"
+  ],
+  "gold_paths": [
+   [
+    "F179"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q36",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that participated in Satu Festival.",
   "start": "E125",
   "supporting_facts": [
    "F179"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Rave Industries"
   ],
   "answer": "E131",
+  "answer_kind": "entity",
   "answer_name": "Rave Industries",
+  "answers": [
+   "E131"
+  ],
+  "gold_paths": [
+   [
+    "F046",
+    "F044"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q37",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that the organization that participated in Pova Festival owns.",
   "start": "E147",
   "supporting_facts": [
    "F046",
    "F044"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Novu Q87"
   ],
   "answer": "E019",
+  "answer_kind": "entity",
   "answer_name": "Novu Q87",
+  "answers": [
+   "E019"
+  ],
+  "gold_paths": [
+   [
+    "F282",
+    "F090",
+    "F089",
+    "F087"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q38",
+  "number": null,
+  "ordered": false,
   "question": "Name the product that the organization that the organization that is a member of the organization that Fume Zivima is a member of is affiliated with owns.",
   "start": "E140",
   "supporting_facts": [
@@ -599,108 +1199,217 @@
    "F090",
    "F089",
    "F087"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Takomere"
   ],
   "answer": "E012",
+  "answer_kind": "entity",
   "answer_name": "Takomere",
+  "answers": [
+   "E012"
+  ],
+  "gold_paths": [
+   [
+    "F263",
+    "F020"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q39",
+  "number": null,
+  "ordered": false,
   "question": "Name the location that is part of the location that is part of Bane.",
   "start": "E040",
   "supporting_facts": [
    "F263",
    "F020"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Gori X18"
   ],
   "answer": "E007",
+  "answer_kind": "entity",
   "answer_name": "Gori X18",
+  "answers": [
+   "E007"
+  ],
+  "gold_paths": [
+   [
+    "F096",
+    "F095",
+    "F274"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q40",
+  "number": null,
+  "ordered": false,
   "question": "Name the product that the organization that the person that works for Seka Labs founded produces.",
   "start": "E142",
   "supporting_facts": [
    "F096",
    "F095",
    "F274"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Novu Q87"
   ],
   "answer": "E019",
+  "answer_kind": "entity",
   "answer_name": "Novu Q87",
+  "answers": [
+   "E019"
+  ],
+  "gold_paths": [
+   [
+    "F089",
+    "F087"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q41",
+  "number": null,
+  "ordered": false,
   "question": "Name the product that the organization that Saba Industries is affiliated with owns.",
   "start": "E047",
   "supporting_facts": [
    "F089",
    "F087"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Fazemere"
   ],
   "answer": "E055",
+  "answer_kind": "entity",
   "answer_name": "Fazemere",
+  "answers": [
+   "E055"
+  ],
+  "gold_paths": [
+   [
+    "F007"
+   ]
+  ],
+  "grading": "exact",
   "hops": 1,
   "id": "Q42",
+  "number": null,
+  "ordered": false,
   "question": "Name the location that Soto Forum is located in.",
   "start": "E005",
   "supporting_facts": [
    "F007"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Vaka Partners"
   ],
   "answer": "E070",
+  "answer_kind": "entity",
   "answer_name": "Vaka Partners",
+  "answers": [
+   "E070"
+  ],
+  "gold_paths": [
+   [
+    "F001",
+    "F036",
+    "F037"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q43",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that the person that founded the organization that is located in Vegemere works for.",
   "start": "E134",
   "supporting_facts": [
    "F001",
    "F036",
    "F037"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Lina"
   ],
   "answer": "E069",
+  "answer_kind": "entity",
   "answer_name": "Lina",
+  "answers": [
+   "E069"
+  ],
+  "gold_paths": [
+   [
+    "F006",
+    "F056",
+    "F062"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q44",
+  "number": null,
+  "ordered": false,
   "question": "Name the location that the location that the location that Gipi Luzazu is located in is located in is located in.",
   "start": "E004",
   "supporting_facts": [
    "F006",
    "F056",
    "F062"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Muvo Holdings"
   ],
   "answer": "E117",
+  "answer_kind": "entity",
   "answer_name": "Muvo Holdings",
+  "answers": [
+   "E117"
+  ],
+  "gold_paths": [
+   [
+    "F058",
+    "F057",
+    "F169",
+    "F164"
+   ]
+  ],
+  "grading": "exact",
   "hops": 4,
   "id": "Q45",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that the organization that is part of the organization that the person that owns Poti Z57 founded is affiliated with.",
   "start": "E084",
   "supporting_facts": [
@@ -708,68 +1417,132 @@
    "F057",
    "F169",
    "F164"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Nato Z5"
   ],
   "answer": "E015",
+  "answer_kind": "entity",
   "answer_name": "Nato Z5",
+  "answers": [
+   "E015"
+  ],
+  "gold_paths": [
+   [
+    "F142",
+    "F141",
+    "F023"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q46",
+  "number": null,
+  "ordered": false,
   "question": "Name the product that is part of the product that the person that works for Mado Systems owns.",
   "start": "E126",
   "supporting_facts": [
    "F142",
    "F141",
    "F023"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Gori X18"
   ],
   "answer": "E007",
+  "answer_kind": "entity",
   "answer_name": "Gori X18",
+  "answers": [
+   "E007"
+  ],
+  "gold_paths": [
+   [
+    "F041",
+    "F166",
+    "F171"
+   ]
+  ],
+  "grading": "exact",
   "hops": 3,
   "id": "Q47",
+  "number": null,
+  "ordered": false,
   "question": "Name the product that the organization that participated in the event that is located in Lina produces.",
   "start": "E069",
   "supporting_facts": [
    "F041",
    "F166",
    "F171"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Fozu Systems"
   ],
   "answer": "E038",
+  "answer_kind": "entity",
   "answer_name": "Fozu Systems",
+  "answers": [
+   "E038"
+  ],
+  "gold_paths": [
+   [
+    "F292",
+    "F109"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q48",
+  "number": null,
+  "ordered": false,
   "question": "Name the organization that the organization that Bagi Dalofe works for is a member of.",
   "start": "E144",
   "supporting_facts": [
    "F292",
    "F109"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  },
  {
   "accepted_answers": [
    "Tidi Dalali"
   ],
   "answer": "E054",
+  "answer_kind": "entity",
   "answer_name": "Tidi Dalali",
+  "answers": [
+   "E054"
+  ],
+  "gold_paths": [
+   [
+    "F145",
+    "F100"
+   ]
+  ],
+  "grading": "exact",
   "hops": 2,
   "id": "Q49",
+  "number": null,
+  "ordered": false,
   "question": "Name the person that is affiliated with the organization that Fumi Sideni founded.",
   "start": "E067",
   "supporting_facts": [
    "F145",
    "F100"
-  ]
+  ],
+  "tie_rule": "",
+  "type": "entity"
  }
 ]

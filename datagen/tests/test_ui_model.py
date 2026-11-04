@@ -6,6 +6,12 @@ import pytest
 from kggen.spec import PRESET_NAMES, load_preset
 from kggen_ui import model
 
+# Plain questions only, for tests that read a gold path as one chain with a fixed hop count.
+ENTITY_ONLY = {
+    **model.QUESTION_DEFAULTS,
+    **{f"type_{t}": 0 for t in ("set", "count", "compare", "superlative")},
+}
+
 
 @pytest.mark.parametrize("name", PRESET_NAMES)
 def test_every_preset_fills_every_knob(name: str) -> None:
@@ -177,7 +183,7 @@ def test_the_question_form_defaults_to_twenty_questions_across_all_hop_counts() 
 
 
 def test_a_hop_weight_of_zero_drops_that_hop_count() -> None:
-    values = {**model.QUESTION_DEFAULTS, "hops_1": 0, "hops_2": 0, "hops_4": 0}
+    values = {**ENTITY_ONLY, "hops_1": 0, "hops_2": 0, "hops_4": 0}
     assert set(model.question_spec_from_values(values).hop_mix) == {3}
     questions = model.derive_questions(question_world(), values)
     assert {q.hops for q in questions} == {3} and len(questions) == 20
@@ -185,7 +191,7 @@ def test_a_hop_weight_of_zero_drops_that_hop_count() -> None:
 
 def test_the_hop_mix_sets_the_distribution_of_derived_questions() -> None:
     values = {
-        **model.QUESTION_DEFAULTS,
+        **ENTITY_ONLY,
         "n_questions": 40,
         "hops_1": 1,
         "hops_2": 3,
@@ -222,7 +228,7 @@ def test_questions_a_world_cannot_supply_are_a_readable_error() -> None:
 
 
 def test_question_rows_carry_the_columns_the_table_shows() -> None:
-    questions = model.derive_questions(question_world(), model.QUESTION_DEFAULTS)
+    questions = model.derive_questions(question_world(), ENTITY_ONLY)
     rows = model.question_rows(questions)
     assert [set(r) for r in rows] == [set(model.QUESTION_COLUMNS)] * len(questions)
     assert [r["id"] for r in rows] == [q.id for q in questions]
@@ -232,7 +238,7 @@ def test_question_rows_carry_the_columns_the_table_shows() -> None:
 def test_the_gold_path_is_the_chain_from_the_start_to_the_answer() -> None:
     world = question_world()
     index = model.index_world(world)
-    for q in model.derive_questions(world, model.QUESTION_DEFAULTS):
+    for q in model.derive_questions(world, ENTITY_ONLY):
         nodes, edges = model.gold_path(index, q)
         assert nodes[0] == q.start and nodes[-1] == q.answer
         assert len(nodes) == q.hops + 1 and edges == list(q.supporting_facts)
@@ -247,7 +253,7 @@ def test_the_highlight_names_only_what_the_graph_draws() -> None:
     _, edges = model.graph_data(world)
     drawn_edges = {e["id"] for e in edges}
     drawn_nodes = {n["id"] for n in model.graph_data(world)[0]}
-    for q in model.derive_questions(world, model.QUESTION_DEFAULTS):
+    for q in model.derive_questions(world, ENTITY_ONLY):
         highlight = model.highlight_for(index, q)
         assert set(highlight["edges"]) <= drawn_edges and set(highlight["nodes"]) <= drawn_nodes
     assert model.highlight_for(index, None) is None and model.highlight_for(None, q) is None
@@ -256,7 +262,7 @@ def test_the_highlight_names_only_what_the_graph_draws() -> None:
 def test_the_gold_rows_read_each_fact_and_when_it_held() -> None:
     world = question_world()
     index = model.index_world(world)
-    q = next(q for q in model.derive_questions(world, model.QUESTION_DEFAULTS) if q.hops == 3)
+    q = next(q for q in model.derive_questions(world, ENTITY_ONLY) if q.hops == 3)
     rows = model.gold_rows(index, q)
     assert [r[0] for r in rows] == ["1", "2", "3"] and [r[1] for r in rows] == list(
         q.supporting_facts
@@ -271,7 +277,7 @@ def test_the_gold_rows_read_each_fact_and_when_it_held() -> None:
 
 def test_the_answer_text_lists_accepted_aliases_and_prompts_when_nothing_is_picked() -> None:
     world = question_world()
-    questions = model.derive_questions(world, {**model.QUESTION_DEFAULTS, "n_questions": 100})
+    questions = model.derive_questions(world, {**ENTITY_ONLY, "n_questions": 100})
     aliased = next(q for q in questions if len(q.accepted_answers) > 1)
     text = model.answer_text(aliased)
     assert aliased.answer_name in text and aliased.accepted_answers[1] in text
@@ -462,10 +468,27 @@ def test_llm_render_says_what_is_wrong_instead_of_raising(endpoint, tmp_path) ->
 
 def test_every_setting_has_an_info_tip() -> None:
     knobs = (*model.KNOBS, *model.QUESTION_KNOBS, *model.RENDER_KNOBS)
-    missing = [k.name for k in knobs if k.name != "hops_1" and not model.knob_help(k)]
-    assert [m for m in missing if not m.startswith("hops_")] == []
+    assert [k.name for k in knobs if not model.knob_help(k)] == []
 
 
 def test_the_form_accepts_the_stress_preset_size() -> None:
     assert model.MAX_ENTITIES >= 50_000
     model.read_knob(model.KNOBS[0], 50_000)
+
+
+def test_the_question_form_reads_a_type_mix_and_rejects_all_zero() -> None:
+    values = {**model.QUESTION_DEFAULTS, "type_entity": 0, "type_set": 3}
+    spec = model.question_spec_from_values(values)
+    assert spec.type_mix == {"set": 3.0, "count": 1.0, "compare": 1.0, "superlative": 1.0}
+    with pytest.raises(ValueError, match="question type"):
+        model.question_spec_from_values({**values, **{f"type_{t}": 0 for t in spec.type_mix}})
+
+
+def test_a_set_question_highlights_every_entity_and_fact_it_involves() -> None:
+    world = model.generate_world(model.preset_values("small"))
+    index = model.index_world(world)
+    qs = model.derive_questions(world, {**model.QUESTION_DEFAULTS, "n_questions": 30})
+    q = next(q for q in qs if q.type == "set")
+    nodes, edges = model.gold_path(index, q)
+    assert set(q.answers) <= set(nodes) and set(edges) == {f for p in q.gold_paths for f in p}
+    assert model.answer_text(q).startswith(f"Answers ({len(q.answers)})")

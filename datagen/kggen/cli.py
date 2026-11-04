@@ -48,6 +48,11 @@ def build_parser() -> argparse.ArgumentParser:
     _add_source(q_gen)
     q_gen.add_argument("--n", type=int, default=50, help="How many questions.")
     q_gen.add_argument("--hops", default="1:1,2:1,3:1,4:1", help="Hop mix, e.g. 1:1,2:2,3:1.")
+    q_gen.add_argument(
+        "--types",
+        default="entity:1",
+        help="Question type mix, e.g. entity:2,set:1,count:1,compare:1,superlative:1.",
+    )
     q_gen.add_argument("--question-seed", type=int, default=0, help="Seed for question choice.")
     q_gen.add_argument("--out", type=Path, help="Write here instead of stdout.")
     scenario = commands.add_parser(
@@ -147,7 +152,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
     if args.command == "questions":
         hop_mix = {int(h): float(w) for h, w in (p.split(":") for p in args.hops.split(","))}
-        spec = QuestionSpec(seed=args.question_seed, n_questions=args.n, hop_mix=hop_mix)
+        type_mix = {t: float(w) for t, w in (p.split(":") for p in args.types.split(","))}
+        spec = QuestionSpec(
+            seed=args.question_seed, n_questions=args.n, hop_mix=hop_mix, type_mix=type_mix
+        )
         data = [q.to_dict() for q in generate_questions(_world(args), spec)]
         text = json.dumps(data, sort_keys=True, indent=1) + "\n"
         if args.out:

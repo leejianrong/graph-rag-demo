@@ -8,7 +8,13 @@ from pathlib import Path
 
 from kggen.export import export_archive
 from kggen.llm import CachedChat, CacheMiss, OpenAICompatible, ResponseCache
-from kggen.questions import MAX_HOPS, Question, QuestionSpec, generate_questions
+from kggen.questions import (
+    MAX_HOPS,
+    QUESTION_TYPES,
+    Question,
+    QuestionSpec,
+    generate_questions,
+)
 from kggen.render import Document, RenderSpec, Sentence, render_documents
 from kggen.render_llm import InvalidRendering, render_documents_llm
 from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
@@ -123,7 +129,27 @@ HELP: dict[str, str] = {
 }
 
 
+_TYPE_HELP = {
+    "entity": "Questions with one entity as the answer, kept only when it is unique.",
+    "set": "Questions that ask for every entity that fits, between 2 and 25 of them.",
+    "count": "Questions that ask how many entities fit; the answer is a number.",
+    "compare": "Questions asking which of two entities has more of some relation.",
+    "superlative": "Questions asking which entity has the most of some relation. Few exist.",
+}
+
+
 def knob_help(knob: Knob) -> str:
+    if knob.name.startswith("hops_"):
+        return (
+            f"Relative share of questions that follow {knob.name[5:]} relation(s) from the start "
+            "entity. 0 leaves that length out. Longer paths are harder."
+        )
+    if knob.name.startswith("type_"):
+        kind = knob.name[5:]
+        return (
+            f"Relative share of {kind} questions. {_TYPE_HELP[kind]} If the world cannot supply "
+            "enough of a type, plain entity questions make up the difference."
+        )
     return HELP.get(knob.name, "")
 
 
@@ -186,10 +212,15 @@ QUESTION_KNOBS: tuple[Knob, ...] = (
         Knob(f"hops_{h}", f"{h}-hop weight", 0, 10, 1, integer=True, group="questions")
         for h in range(1, MAX_HOPS + 1)
     ),
+    *(
+        Knob(f"type_{t}", f"{t} questions weight", 0, 10, 1, integer=True, group="questions")
+        for t in QUESTION_TYPES
+    ),
 )
 QUESTION_DEFAULTS: dict[str, float] = {
     "n_questions": 20,
     **{f"hops_{h}": 1 for h in range(1, MAX_HOPS + 1)},
+    **{f"type_{t}": 1 for t in QUESTION_TYPES},
 }
 
 
@@ -199,7 +230,10 @@ def question_spec_from_values(values: dict[str, float]) -> QuestionSpec:
     mix = {h: float(read[f"hops_{h}"]) for h in range(1, MAX_HOPS + 1) if read[f"hops_{h}"] > 0}
     if not mix:
         raise ValueError("Give at least one hop count a weight above 0")
-    return QuestionSpec(n_questions=int(read["n_questions"]), hop_mix=mix)
+    types = {t: float(read[f"type_{t}"]) for t in QUESTION_TYPES if read[f"type_{t}"] > 0}
+    if not types:
+        raise ValueError("Give at least one question type a weight above 0")
+    return QuestionSpec(n_questions=int(read["n_questions"]), hop_mix=mix, type_mix=types)
 
 
 def derive_questions(world: World, values: dict[str, float]) -> tuple[Question, ...]:
@@ -228,6 +262,13 @@ def find_question(questions: tuple[Question, ...] | list[Question], qid: str | N
 
 def gold_path(index: WorldIndex, q: Question) -> tuple[list[str], list[str]]:
     """The entities along a question's chain, start to answer, and the facts that link them."""
+    if q.type != "entity":  # several answers or two entities: every entity and fact involved
+        facts = list(dict.fromkeys(f for path in q.gold_paths for f in path))
+        nodes = [q.start]
+        for fid in facts:
+            f = index.facts[fid]
+            nodes += [n for n in (f.subject, f.object) if n not in nodes]
+        return nodes, facts
     nodes, facts = [q.start], list(q.supporting_facts)
     for fid in facts:
         f = index.facts[fid]
@@ -235,12 +276,17 @@ def gold_path(index: WorldIndex, q: Question) -> tuple[list[str], list[str]]:
     return nodes, facts
 
 
+def _all_facts(q: Question) -> tuple[str, ...]:
+    return tuple(dict.fromkeys(f for path in q.gold_paths for f in path))
+
+
 def gold_rows(index: WorldIndex | None, q: Question | None) -> list[list[str]]:
     """The gold path as rows: hop, fact id, the fact read out, and when it held."""
     if index is None or q is None:
         return []
     rows = []
-    for hop, fid in enumerate(q.supporting_facts, start=1):
+    facts = q.supporting_facts if q.type == "entity" else _all_facts(q)
+    for hop, fid in enumerate(facts, start=1):
         f = index.facts[fid]
         until = "now" if f.valid_to is None else str(f.valid_to)
         rows.append(
@@ -262,6 +308,10 @@ def answer_text(q: Question | None) -> str:
         if len(q.accepted_answers) > 1
         else ""
     )
+    if q.type == "set":
+        return f"Answers ({len(q.answers)}): {q.answer_name}"
+    if q.type == "count":
+        return f"Answer: {q.number}"
     return f"Answer: {q.answer_name}{also}"
 
 
