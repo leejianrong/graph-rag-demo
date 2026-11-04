@@ -15,6 +15,7 @@ from kggen.llm import CachedChat, CacheMiss, OpenAICompatible, ResponseCache
 from kggen.questions import QuestionSpec, generate_questions
 from kggen.render import RenderSpec, render_documents
 from kggen.render_llm import InvalidRendering, render_documents_llm
+from kggen.scenarios import ScenarioSpec, generate_scenario
 from kggen.spec import PRESET_NAMES, load_preset, load_spec
 from kggen.stats import report
 from kggen.world import generate
@@ -48,6 +49,17 @@ def build_parser() -> argparse.ArgumentParser:
     q_gen.add_argument("--hops", default="1:1,2:1,3:1,4:1", help="Hop mix, e.g. 1:1,2:2,3:1.")
     q_gen.add_argument("--question-seed", type=int, default=0, help="Seed for question choice.")
     q_gen.add_argument("--out", type=Path, help="Write here instead of stdout.")
+    scenario = commands.add_parser(
+        "scenario", help="Update, delete and reorder scenarios with the expected final graph."
+    )
+    sc_commands = scenario.add_subparsers(dest="scenario_command", required=True)
+    sc_gen = sc_commands.add_parser("generate", help="Emit events, arrival orders and the result.")
+    _add_source(sc_gen)
+    sc_gen.add_argument("--scenario-seed", type=int, default=0, help="Seed for the scenario.")
+    sc_gen.add_argument("--updates", type=int, default=5, help="Facts whose object changes.")
+    sc_gen.add_argument("--deletes", type=int, default=5, help="Facts that are forgotten.")
+    sc_gen.add_argument("--orders", type=int, default=3, help="Arrival orders to generate.")
+    sc_gen.add_argument("--out", type=Path, help="Write here instead of stdout.")
     docs = commands.add_parser("docs", help="Render a world's facts as documents.")
     d_commands = docs.add_subparsers(dest="docs_command", required=True)
     d_gen = d_commands.add_parser("generate", help="Render template documents as JSON.")
@@ -137,6 +149,19 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.out.write_text(text)
         else:
             print(text, end="")
+        return 0
+    if args.command == "scenario":
+        spec = ScenarioSpec(
+            seed=args.scenario_seed,
+            n_updates=args.updates,
+            n_deletes=args.deletes,
+            n_orders=args.orders,
+        )
+        text = json.dumps(generate_scenario(_world(args), spec).to_dict(), sort_keys=True, indent=1)
+        if args.out:
+            args.out.write_text(text + "\n")
+        else:
+            print(text)
         return 0
     if args.command == "docs":
         spec = RenderSpec(

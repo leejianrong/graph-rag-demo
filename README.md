@@ -260,6 +260,7 @@ and the same spec and seed always give the same output:
 uv run kggen world generate --preset medium --out world.json   # also writes world.stats.json
 uv run kggen world stats --preset medium                       # realized stats vs. the spec
 uv run kggen questions generate --preset small --n 50 --hops 1:1,2:2,3:1 --out questions.json
+uv run kggen scenario generate --preset small --out scenario.json  # updates, deletes, arrival orders + expected graph
 uv run kggen docs generate --preset small --out docs.json      # template text, no LLM
 # LLM-written text for any OpenAI-compatible endpoint; answers are cached, so a re-run needs no endpoint:
 uv run kggen docs generate --preset tiny --renderer llm --model M --cache-dir DIR [--base-url URL]
