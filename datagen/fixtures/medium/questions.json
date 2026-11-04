@@ -11,6 +11,7 @@
    "E758"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1240",
@@ -26,6 +27,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that the organization that the organization that is a member of the organization that Zaku Fibazu founded owns participated in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E437",
   "supporting_facts": [
@@ -49,6 +51,7 @@
    "E090"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1048",
@@ -64,6 +67,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that the person that is a member of the organization that Tete Fikifo works for founded owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E402",
   "supporting_facts": [
@@ -87,6 +91,7 @@
    "E064"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1269"
@@ -99,6 +104,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that Peguton is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E454",
   "supporting_facts": [
@@ -119,6 +125,7 @@
    "E156"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0071",
@@ -134,6 +141,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the person that founded the organization that is affiliated with the organization that produces Peko X56 is a member of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E643",
   "supporting_facts": [
@@ -157,6 +165,7 @@
    "E253"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0404",
@@ -170,6 +179,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that produces Zapa Q95 is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E398",
   "supporting_facts": [
@@ -191,6 +201,7 @@
    "E323"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0243",
@@ -206,6 +217,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the location that the location that the organization that participated in Nide Festival is located in is part of is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E863",
   "supporting_facts": [
@@ -229,6 +241,7 @@
    "E502"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0174",
@@ -243,6 +256,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that the organization that is part of Zufa Systems is a member of produces.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E831",
   "supporting_facts": [
@@ -265,6 +279,7 @@
    "E475"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0480",
@@ -279,6 +294,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that owns the organization that is affiliated with the organization that Naku Labs is part of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E180",
   "supporting_facts": [
@@ -301,6 +317,7 @@
    "E268"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0824"
@@ -313,6 +330,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the group that Sobi Gekizu is a member of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E316",
   "supporting_facts": [
@@ -333,6 +351,7 @@
    "E090"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1349",
@@ -347,6 +366,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that is part of the organization that the person that is located in Bidoia is a member of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E870",
   "supporting_facts": [
@@ -369,6 +389,7 @@
    "E773"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1469",
@@ -384,6 +405,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that the person that founded the organization that is part of Nipo Group founded is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E247",
   "supporting_facts": [
@@ -407,6 +429,7 @@
    "E604"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0235",
@@ -420,6 +443,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the location that Kabeia is part of is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E070",
   "supporting_facts": [
@@ -441,6 +465,7 @@
    "E449"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1262"
@@ -453,6 +478,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that is part of Depa X72.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E810",
   "supporting_facts": [
@@ -473,6 +499,7 @@
    "E271"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0088",
@@ -486,6 +513,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that the person that owns Noku X31 participated in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E851",
   "supporting_facts": [
@@ -507,6 +535,7 @@
    "E866"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0433",
@@ -520,6 +549,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that Fala Tizelu founded produces.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E149",
   "supporting_facts": [
@@ -541,6 +571,7 @@
    "E242"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1620",
@@ -555,6 +586,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the group that the person that is a member of the organization that is a member of Voto Partners is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E942",
   "supporting_facts": [
@@ -577,6 +609,7 @@
    "E242"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1524",
@@ -590,6 +623,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the group that the person that founded Ziro Partners is a member of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E372",
   "supporting_facts": [
@@ -611,6 +645,7 @@
    "E546"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2052",
@@ -626,6 +661,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the organization that is affiliated with the organization that produces the product that Vola Loloda owns is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E765",
   "supporting_facts": [
@@ -649,6 +685,7 @@
    "E616"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0585",
@@ -663,6 +700,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the location that the organization that Tuse Zezure works for is located in is part of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E233",
   "supporting_facts": [
@@ -685,6 +723,7 @@
    "E414"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1192"
@@ -697,6 +736,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that is located in Vola.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E274",
   "supporting_facts": [
@@ -717,6 +757,7 @@
    "E806"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2399",
@@ -731,6 +772,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the person that works for the organization that Besa Padade is a member of is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E947",
   "supporting_facts": [
@@ -753,6 +795,7 @@
    "E292"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1229",
@@ -766,6 +809,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is a member of the group that Gubo Dasare is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E430",
   "supporting_facts": [
@@ -787,6 +831,7 @@
    "E122"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1931",
@@ -801,6 +846,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the location that is part of the location that Livi Lotene is located in is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E727",
   "supporting_facts": [
@@ -823,6 +869,7 @@
    "E006"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0412",
@@ -838,6 +885,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is affiliated with the group that the person that is affiliated with the organization that Suga Lelino is affiliated with is a member of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E133",
   "supporting_facts": [
@@ -861,6 +909,7 @@
    "E634"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0238",
@@ -874,6 +923,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the location that Kodi Expo is located in is part of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E074",
   "supporting_facts": [
@@ -895,6 +945,7 @@
    "E231"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0125",
@@ -909,6 +960,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that is part of the product that is part of the product that Mova Memari owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E035",
   "supporting_facts": [
@@ -931,6 +983,7 @@
    "E053"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2016",
@@ -945,6 +998,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that is a member of the organization that participated in the event that Podi Mivizo participated in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E752",
   "supporting_facts": [
@@ -967,6 +1021,7 @@
    "E090"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1618",
@@ -981,6 +1036,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the person that works for the organization that is located in Sonuford is a member of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E736",
   "supporting_facts": [
@@ -1003,6 +1059,7 @@
    "E783"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2122"
@@ -1015,6 +1072,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that Gubeton is part of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E808",
   "supporting_facts": [
@@ -1035,6 +1093,7 @@
    "E798"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1723",
@@ -1049,6 +1108,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that the person that works for the organization that Rasu Sazuvu founded participated in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E611",
   "supporting_facts": [
@@ -1071,6 +1131,7 @@
    "E311"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0543",
@@ -1086,6 +1147,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that is part of the organization that owns the product that is part of the product that Suva Labs owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E213",
   "supporting_facts": [
@@ -1109,6 +1171,7 @@
    "E327"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1172",
@@ -1122,6 +1185,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that owns the organization that is located in Remiburg.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E510",
   "supporting_facts": [
@@ -1143,6 +1207,7 @@
    "E744"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2432",
@@ -1158,6 +1223,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that is located in the location that the person that works for Mefo Group is located in produces.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E393",
   "supporting_facts": [
@@ -1181,6 +1247,7 @@
    "E407"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2270"
@@ -1193,6 +1260,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that Momeburg is part of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E888",
   "supporting_facts": [
@@ -1213,6 +1281,7 @@
    "E011"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0122",
@@ -1226,6 +1295,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that owns the organization that produces Tovi Z66.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E160",
   "supporting_facts": [
@@ -1247,6 +1317,7 @@
    "E732"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1620",
@@ -1262,6 +1333,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the organization that the person that is a member of the organization that is a member of Voto Partners works for is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E942",
   "supporting_facts": [
@@ -1285,6 +1357,7 @@
    "E905"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1531",
@@ -1300,6 +1373,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that is affiliated with the organization that the person that is located in the location that Bomu Summit is located in founded.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E555",
   "supporting_facts": [
@@ -1323,6 +1397,7 @@
    "E564"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2233",
@@ -1336,6 +1411,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that participated in the event that is located in Reboton.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E732",
   "supporting_facts": [
@@ -1357,6 +1433,7 @@
    "E325"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1210",
@@ -1370,6 +1447,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that the person that founded Liko Labs participated in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E352",
   "supporting_facts": [
@@ -1391,6 +1469,7 @@
    "E405"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1193",
@@ -1404,6 +1483,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is located in the location that is part of Zotoburg.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E204",
   "supporting_facts": [
@@ -1425,6 +1505,7 @@
    "E251"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1911"
@@ -1437,6 +1518,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that Lado Expo is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E714",
   "supporting_facts": [
@@ -1457,6 +1539,7 @@
    "E370"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2394"
@@ -1469,6 +1552,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that Teda Group produces.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E940",
   "supporting_facts": [
@@ -1489,6 +1573,7 @@
    "E616"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1353",
@@ -1503,6 +1588,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the location that the location that Misi is located in is located in is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E496",
   "supporting_facts": [
@@ -1525,6 +1611,7 @@
    "E816"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2377",
@@ -1538,6 +1625,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that produces the product that Tedu Berada owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E928",
   "supporting_facts": [
@@ -1559,6 +1647,7 @@
    "E168"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F0516"
@@ -1571,6 +1660,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that Zivu Tebeze is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E194",
   "supporting_facts": [
@@ -1591,6 +1681,7 @@
    "E405"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1192",
@@ -1606,6 +1697,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is located in the location that the location that the location that is located in Vola is part of is part of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E274",
   "supporting_facts": [
@@ -1629,6 +1721,7 @@
    "E736"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2367"
@@ -1641,6 +1734,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that Sopi Festival is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E925",
   "supporting_facts": [
@@ -1661,6 +1755,7 @@
    "E223"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F1979"
@@ -1673,6 +1768,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that Nota Group participated in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E738",
   "supporting_facts": [
@@ -1693,6 +1789,7 @@
    "E248"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2411"
@@ -1705,6 +1802,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that Fape Nebubi is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E953",
   "supporting_facts": [
@@ -1725,6 +1823,7 @@
    "E732"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F2233"
@@ -1737,6 +1836,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that Ziri Festival is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E858",
   "supporting_facts": [

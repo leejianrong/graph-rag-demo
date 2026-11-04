@@ -11,6 +11,7 @@
    "E024"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F058",
@@ -26,6 +27,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that produces the product that is part of the product that is part of the product that Gebi Boleve owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E030",
   "supporting_facts": [
@@ -49,6 +51,7 @@
    "E103"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F004",
@@ -63,6 +66,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that founded the organization that the person that is a member of Mado Systems is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E126",
   "supporting_facts": [
@@ -85,6 +89,7 @@
    "E117"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F161",
@@ -99,6 +104,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that the person that is affiliated with Keme Group founded is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E062",
   "supporting_facts": [
@@ -121,6 +127,7 @@
    "E045"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F198"
@@ -133,6 +140,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the group that Buga Lomazu is a member of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E091",
   "supporting_facts": [
@@ -153,6 +161,7 @@
    "E042"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F120",
@@ -168,6 +177,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the person that is a member of the organization that the person that founded Gora Works founded owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E116",
   "supporting_facts": [
@@ -191,6 +201,7 @@
    "E117"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F153",
@@ -204,6 +215,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that Kazo Robeka founded is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E073",
   "supporting_facts": [
@@ -225,6 +237,7 @@
    "E037"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F264",
@@ -240,6 +253,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that founded the organization that the organization that the organization that Rave Industries is affiliated with owns is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E131",
   "supporting_facts": [
@@ -263,6 +277,7 @@
    "E052"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F239",
@@ -278,6 +293,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that the organization that the person that participated in the event that is located in Takomere works for participated in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E012",
   "supporting_facts": [
@@ -301,6 +317,7 @@
    "E051"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F017"
@@ -313,6 +330,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the group that Fido Tebifu is a member of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E011",
   "supporting_facts": [
@@ -333,6 +351,7 @@
    "E073"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F241",
@@ -346,6 +365,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is affiliated with the organization that Libu Belagu works for.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E109",
   "supporting_facts": [
@@ -367,6 +387,7 @@
    "E079"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F096",
@@ -380,6 +401,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that the organization that Gedu Tumuka works for participated in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E049",
   "supporting_facts": [
@@ -401,6 +423,7 @@
    "E024"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F233",
@@ -414,6 +437,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the person that is located in Buriton founded.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E137",
   "supporting_facts": [
@@ -435,6 +459,7 @@
    "E101"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F235",
@@ -448,6 +473,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that produces Golu Q17 is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E135",
   "supporting_facts": [
@@ -469,6 +495,7 @@
    "E042"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F145",
@@ -483,6 +510,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the person that works for the organization that Fumi Sideni founded owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [
@@ -505,6 +533,7 @@
    "E135"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F296",
@@ -518,6 +547,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that produces Nato Z5 owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E015",
   "supporting_facts": [
@@ -539,6 +569,7 @@
    "E012"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F180",
@@ -554,6 +585,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that is part of the location that the event that the organization that is part of Gebo Holdings participated in is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E017",
   "supporting_facts": [
@@ -577,6 +609,7 @@
    "E028"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F075"
@@ -589,6 +622,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that Segi Tibano participated in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E037",
   "supporting_facts": [
@@ -609,6 +643,7 @@
    "E009"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F082",
@@ -623,6 +658,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the location that the organization that Bure Sidusi founded is located in is part of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E041",
   "supporting_facts": [
@@ -645,6 +681,7 @@
    "E101"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F008",
@@ -660,6 +697,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that is part of the organization that produces the product that Mizu Group owns is a member of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E006",
   "supporting_facts": [
@@ -683,6 +721,7 @@
    "E099"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F214"
@@ -695,6 +734,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is a member of Lomo Industries.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E098",
   "supporting_facts": [
@@ -715,6 +755,7 @@
    "E024"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F009",
@@ -730,6 +771,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that is a member of the organization that is affiliated with the organization that produces the product that Mizu Group produces.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E006",
   "supporting_facts": [
@@ -753,6 +795,7 @@
    "E147"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F159",
@@ -766,6 +809,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that the person that works for Dune Partners participated in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E024",
   "supporting_facts": [
@@ -787,6 +831,7 @@
    "E016"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F025"
@@ -799,6 +844,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that founded Keme Group.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E062",
   "supporting_facts": [
@@ -819,6 +865,7 @@
    "E016"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F240",
@@ -834,6 +881,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that founded the organization that the organization that the person that owns Gori X18 works for is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E007",
   "supporting_facts": [
@@ -857,6 +905,7 @@
    "E083"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F184",
@@ -870,6 +919,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that is part of the product that is part of Nato Z5.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E015",
   "supporting_facts": [
@@ -891,6 +941,7 @@
    "E139"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F292",
@@ -905,6 +956,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the person that is a member of the organization that Bagi Dalofe works for is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E144",
   "supporting_facts": [
@@ -927,6 +979,7 @@
    "E012"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F098",
@@ -941,6 +994,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that is part of the location that the event that is located in Vapa is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E029",
   "supporting_facts": [
@@ -963,6 +1017,7 @@
    "E053"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F244"
@@ -975,6 +1030,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the event that Tobo Nonada participated in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E114",
   "supporting_facts": [
@@ -995,6 +1051,7 @@
    "E033"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F064"
@@ -1007,6 +1064,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is located in Kole.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E112",
   "supporting_facts": [
@@ -1027,6 +1085,7 @@
    "E030"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F214",
@@ -1042,6 +1101,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that owns the product that is part of the product that the person that is a member of Lomo Industries owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E098",
   "supporting_facts": [
@@ -1065,6 +1125,7 @@
    "E007"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F152",
@@ -1080,6 +1141,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that is part of the organization that the person that is affiliated with Pita Labs is a member of produces.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E139",
   "supporting_facts": [
@@ -1103,6 +1165,7 @@
    "E008"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F013"
@@ -1115,6 +1178,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that works for Gilo Labs.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E060",
   "supporting_facts": [
@@ -1135,6 +1199,7 @@
    "E129"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F263"
@@ -1147,6 +1212,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that is part of Bane.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E040",
   "supporting_facts": [
@@ -1167,6 +1233,7 @@
    "E065"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F151"
@@ -1179,6 +1246,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that Golu Finane founded.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E072",
   "supporting_facts": [
@@ -1199,6 +1267,7 @@
    "E082"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F004",
@@ -1213,6 +1282,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that is part of the organization that Suzi Dekaba is a member of produces.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E003",
   "supporting_facts": [
@@ -1235,6 +1305,7 @@
    "E070"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F037"
@@ -1247,6 +1318,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that Lada Povedo works for.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E021",
   "supporting_facts": [
@@ -1267,6 +1339,7 @@
    "E081"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F179"
@@ -1279,6 +1352,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that participated in Satu Festival.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E125",
   "supporting_facts": [
@@ -1299,6 +1373,7 @@
    "E131"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F046",
@@ -1312,6 +1387,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that participated in Pova Festival owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E147",
   "supporting_facts": [
@@ -1333,6 +1409,7 @@
    "E019"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F282",
@@ -1348,6 +1425,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that the organization that is a member of the organization that Fume Zivima is a member of is affiliated with owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E140",
   "supporting_facts": [
@@ -1371,6 +1449,7 @@
    "E012"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F263",
@@ -1384,6 +1463,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that is part of the location that is part of Bane.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E040",
   "supporting_facts": [
@@ -1405,6 +1485,7 @@
    "E007"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F096",
@@ -1419,6 +1500,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that the person that works for Seka Labs founded produces.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E142",
   "supporting_facts": [
@@ -1441,6 +1523,7 @@
    "E019"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F089",
@@ -1454,6 +1537,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that Saba Industries is affiliated with owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E047",
   "supporting_facts": [
@@ -1475,6 +1559,7 @@
    "E055"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F007"
@@ -1487,6 +1572,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that Soto Forum is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E005",
   "supporting_facts": [
@@ -1507,6 +1593,7 @@
    "E070"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F001",
@@ -1521,6 +1608,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the person that founded the organization that is located in Vegemere works for.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E134",
   "supporting_facts": [
@@ -1543,6 +1631,7 @@
    "E069"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F006",
@@ -1557,6 +1646,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the location that the location that the location that Gipi Luzazu is located in is located in is located in.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E004",
   "supporting_facts": [
@@ -1579,6 +1669,7 @@
    "E117"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F058",
@@ -1594,6 +1685,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that is part of the organization that the person that owns Poti Z57 founded is affiliated with.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E084",
   "supporting_facts": [
@@ -1617,6 +1709,7 @@
    "E015"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F142",
@@ -1631,6 +1724,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that is part of the product that the person that works for Mado Systems owns.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E126",
   "supporting_facts": [
@@ -1653,6 +1747,7 @@
    "E007"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F041",
@@ -1667,6 +1762,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the product that the organization that participated in the event that is located in Lina produces.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E069",
   "supporting_facts": [
@@ -1689,6 +1785,7 @@
    "E038"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F292",
@@ -1702,6 +1799,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the organization that the organization that Bagi Dalofe works for is a member of.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E144",
   "supporting_facts": [
@@ -1723,6 +1821,7 @@
    "E054"
   ],
   "as_of": null,
+  "forbidden_claims": [],
   "gold_paths": [
    [
     "F145",
@@ -1736,6 +1835,7 @@
   "ordered": false,
   "premise": null,
   "question": "Name the person that is affiliated with the organization that Fumi Sideni founded.",
+  "required_facts": [],
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [

@@ -46,5 +46,10 @@ Rules that keep gold honest:
 - Set-valued answers let large skewed worlds supply questions, because multi-answer paths stop being discarded.
 - A `path` question ("How is A connected to B?") has every shortest chain of facts as `gold_paths`, in order; a
   scorer credits a chain that matches one of them.
+- Open-ended answers are scored by `kgbench.openended`: a required fact is covered when one sentence of the answer
+  names its subject and object, and a forbidden claim is made when one sentence states a stale pair without marking
+  it as past. It is a heuristic. A judge can be passed in to decide instead; none ships, and no provider is called.
+  Stale claims between two entities that a current fact also links are not asked about, since names cannot tell
+  them apart.
 - `questions.json` gains fields; old readers that only use the original fields keep working.
 - The bench gains scorers per `answer_kind`; they are added with each question family, not up front.

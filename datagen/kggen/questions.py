@@ -28,6 +28,8 @@ from kggen.world import Edge, World, WorldGenerationError, apportion
 MAX_HOPS = 4
 MIN_SET = 2
 MAX_BFS_NODES = 30_000  # a path search that grows past this many entities is dropped
+MAX_REQUIRED = 8  # an open-ended question requires at most this many of the subject's own facts
+MAX_CONTEXT = 4  # and at most this many facts about the entities it connects to
 MAX_PATHS = 4  # a path question is kept when at most this many shortest chains link the pair
 MAX_FRONTIER = 2000  # a path fanning out past this many entities is dropped as not unique
 MAX_SET = 25  # a set question is kept only when it has this many answers or fewer
@@ -43,6 +45,7 @@ QUESTION_TYPES = (
     "latest",
     "retracted",
     "path",
+    "open_ended",
 )
 
 # How each relation reads in a question (the same wording whichever side is the answer).
@@ -129,6 +132,9 @@ class Question:
     abstain: dict | None = None  # {expected, reason}: the right reply is to decline
     # A false premise: {asserted_fact, contradicting_fact_ids, correction}.
     premise: dict | None = None
+    # Open-ended questions: facts a good answer covers (with a weight) and claims it must not make.
+    required_facts: tuple[dict, ...] = ()
+    forbidden_claims: tuple[dict, ...] = ()
     as_of: int | None = None  # the year a temporal question asks about
     stale_values: tuple[str, ...] = ()  # names that held earlier and must not be given as current
 
@@ -140,6 +146,8 @@ class Question:
             "answers": list(self.answers),
             "gold_paths": [list(p) for p in self.gold_paths],
             "stale_values": list(self.stale_values),
+            "required_facts": list(self.required_facts),
+            "forbidden_claims": list(self.forbidden_claims),
         }
 
 
@@ -731,14 +739,110 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             )
         return found
 
+    def open_ended_questions(hops: int, target: int) -> list[Question]:
+        """ "Summarize what is known about X": gold is facts to cover and claims to avoid."""
+        found: list[Question] = []
+        around = {
+            i: sorted((*out_edges.get(i, ()), *in_edges.get(i, ())), key=lambda e: e.id)
+            for i in starts
+        }
+        eligible = [i for i in starts if len(around[i]) >= 3]
+        everything = [e for e in world.edges if e.predicate != VAGUE_PREDICATE]
+        budget = 200 * target + 500
+        while len(found) < target and budget > 0 and eligible:
+            budget -= 1
+            start = rng.choice(eligible)
+            if ("open_ended", start, hops) in seen:
+                continue
+            seen.add(("open_ended", start, hops))
+            own = around[start][:MAX_REQUIRED]
+            context: list[Edge] = []
+            if hops >= 2:
+                near = sorted({x for e in own for x in (e.subject, e.object)} - {start})
+                taken = {e.id for e in own}
+                context = [
+                    e
+                    for n in near
+                    for e in sorted(
+                        (*out_edges.get(n, ()), *in_edges.get(n, ())), key=lambda e: e.id
+                    )
+                    if e.id not in taken and start not in (e.subject, e.object)
+                ][:MAX_CONTEXT]
+
+            def record(edge: Edge, **extra) -> dict:
+                return {
+                    "fact_id": edge.id,
+                    "text": f"{names[edge.subject]} {VERB[edge.predicate]} {names[edge.object]}",
+                    "subject": edge.subject,
+                    "object": edge.object,
+                    "subject_names": list(names_of([edge.subject])),
+                    "object_names": list(names_of([edge.object])),
+                    **extra,
+                }
+
+            required = tuple(record(e, weight=1.0) for e in own) + tuple(
+                record(e, weight=0.5) for e in context
+            )
+            # A stale claim between two entities that a current fact also links (under another
+            # relation) cannot be told apart from it by names, so it is not asked about.
+            linked = {frozenset((e.subject, e.object)) for e in live}
+            forbidden = tuple(
+                record(
+                    e,
+                    reason=(
+                        "superseded"
+                        if any(
+                            o.subject == e.subject and o.predicate == e.predicate and o is not e
+                            for o in live
+                        )
+                        else "retracted"
+                    ),
+                )
+                for e in everything
+                if start in (e.subject, e.object)
+                and e.valid_to is not None
+                and frozenset((e.subject, e.object)) not in linked
+                and not entities[e.subject].distractor
+                and not entities[e.object].distractor
+            )
+            lead = f"Summarize what is known about {names[start]}"
+            text = lead + (" and the entities it is directly connected to." if hops >= 2 else ".")
+            paths = tuple((r["fact_id"],) for r in required)
+            found.append(
+                Question(
+                    id="",
+                    question=text,
+                    hops=hops,
+                    start=start,
+                    answer="",
+                    answer_name=(
+                        f"open-ended: cover {len(required)} facts, avoid {len(forbidden)} claims"
+                    ),
+                    accepted_answers=(),
+                    supporting_facts=paths[0],
+                    type="open_ended",
+                    answer_kind="open_ended",
+                    gold_paths=paths,
+                    grading="nugget",
+                    required_facts=required,
+                    forbidden_claims=forbidden,
+                )
+            )
+        return found
+
     quota = apportion(spec.n_questions, spec.type_mix)
     questions: list[Question] = []
     short = 0  # questions another type could not supply; plain entity questions make them up
-    for kind in ("set", "count", "path"):
+    for kind in ("set", "count", "path", "open_ended"):
         wanted = apportion(quota.get(kind, 0), {str(h): w for h, w in spec.hop_mix.items()})
         for hops_key in sorted(wanted):
             hops, n = int(hops_key), wanted[hops_key]
-            got = path_questions(hops, n) if kind == "path" else set_questions(hops, n, kind)
+            if kind == "path":
+                got = path_questions(hops, n)
+            elif kind == "open_ended":
+                got = open_ended_questions(min(hops, 2), n)
+            else:
+                got = set_questions(hops, n, kind)
             questions += got
             short += wanted[hops_key] - len(got)
     for kind, make in (

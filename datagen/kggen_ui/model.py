@@ -151,6 +151,7 @@ _TYPE_HELP = {
     "latest": "Questions about the current value of a fact that was replaced (needs churn).",
     "retracted": "Questions about a fact that was withdrawn and has no current answer.",
     "path": "Questions asking how two entities are connected; the answer is the chain of facts.",
+    "open_ended": "'Summarize what is known' questions, graded on facts covered and stale claims.",
 }
 
 
@@ -339,6 +340,11 @@ def answer_text(q: Question | None) -> str:
         return f"Answers ({len(q.answers)}): {q.answer_name}"
     if q.type == "count":
         return f"Answer: {q.number}"
+    if q.type == "open_ended":
+        return (
+            f"A good answer covers {len(q.required_facts)} facts and does not state any of the "
+            f"{len(q.forbidden_claims)} stale claims."
+        )
     if q.type == "path":
         return f"Chain ({q.hops} facts): {q.answer_name}"
     if q.type in ("as_of", "latest"):

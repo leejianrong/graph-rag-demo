@@ -427,3 +427,51 @@ def test_a_plural_subject_gets_a_plural_verb(world) -> None:
         assert not any(
             f"{p} that is " in q.question or f"{p} that owns" in q.question for p in plurals
         )
+
+
+def test_an_open_ended_question_requires_the_subjects_current_facts(churned) -> None:
+    qs = generate_questions(
+        churned, QuestionSpec(n_questions=20, hop_mix={1: 1.0}, type_mix={"open_ended": 1.0})
+    )
+    current = {e.id: e for e in churned.current_edges()}
+    names = {e.id: e.name for e in churned.entities}
+    assert qs and {q.type for q in qs} == {"open_ended"}
+    for q in qs:
+        assert q.answer_kind == "open_ended" and q.grading == "nugget" and q.answers == ()
+        assert 3 <= len(q.required_facts) <= 8
+        for r in q.required_facts:
+            assert r["fact_id"] in current and q.start in (r["subject"], r["object"])
+            assert r["weight"] == 1.0 and names[r["subject"]] in r["subject_names"]
+        assert q.gold_paths == tuple((r["fact_id"],) for r in q.required_facts)
+
+
+def test_forbidden_claims_are_facts_that_ended_and_are_not_true_now(churned) -> None:
+    facts = {e.id: e for e in churned.edges}
+    now = {(e.subject, e.predicate, e.object) for e in churned.current_edges()}
+    qs = generate_questions(
+        churned, QuestionSpec(n_questions=30, hop_mix={1: 1.0}, type_mix={"open_ended": 1.0})
+    )
+    claims = [c for q in qs for c in q.forbidden_claims]
+    assert claims and {c["reason"] for c in claims} <= {"superseded", "retracted"}
+    for q in qs:
+        for c in q.forbidden_claims:
+            f = facts[c["fact_id"]]
+            assert f.valid_to is not None and (f.subject, f.predicate, f.object) not in now
+            assert frozenset((f.subject, f.object)) not in {
+                frozenset((e.subject, e.object)) for e in churned.current_edges()
+            }
+            assert q.start in (f.subject, f.object)
+
+
+def test_a_two_hop_open_ended_question_adds_facts_about_connected_entities(churned) -> None:
+    qs = generate_questions(
+        churned, QuestionSpec(n_questions=20, hop_mix={2: 1.0}, type_mix={"open_ended": 1.0})
+    )
+    assert qs and all(q.hops == 2 for q in qs)
+    context = [r for q in qs for r in q.required_facts if r["weight"] == 0.5]
+    assert context and all(
+        q.start not in (r["subject"], r["object"])
+        for q in qs
+        for r in q.required_facts
+        if r["weight"] == 0.5
+    )
