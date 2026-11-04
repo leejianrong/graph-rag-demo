@@ -132,8 +132,8 @@ class UI:
             self.status.set(str(exc))
             return
         summary = model.summarize(world)
-        note = model.graph_limits_message(world)
-        shown = ([], []) if note else model.graph_data(world)
+        nodes, edges, note = model.graph_view(world)
+        shown = (nodes, edges)
         questions, question_note = self._derive(world)
         documents, doc_note = self._render(world)
 
@@ -192,21 +192,30 @@ class UI:
 
     def highlight(self) -> dict | None:
         """What the graph emphasises: the clicked sentence's fact, else the picked question's path.
-        Nothing when the world is too big to draw."""
-        if self.graph_note.value:
-            return None
+        Only what is drawn: a sampled graph may lack part of a path."""
         fact = model.fact_highlight(self.index.value, self.picked_fact.value)
-        return fact or model.highlight_for(self.index.value, self.picked_question())
+        wanted = fact or model.highlight_for(self.index.value, self.picked_question())
+        if wanted is None or not self.graph_note.value:
+            return wanted
+        nodes, edges = self.graph.value
+        nodes_drawn, edges_drawn = {n["id"] for n in nodes}, {e["id"] for e in edges}
+        return {
+            "nodes": [n for n in wanted["nodes"] if n in nodes_drawn],
+            "edges": [e for e in wanted["edges"] if e in edges_drawn],
+        }
 
     def focus(self) -> str | None:
-        """Where the graph centres: the clicked fact's subject, else the picked question's start."""
-        if self.graph_note.value:
-            return None
+        """Where the graph centres: the clicked fact's subject, else the picked question's start,
+        when the graph draws it."""
         index = self.index.value
         if index is not None and self.picked_fact.value in index.facts:
-            return index.facts[self.picked_fact.value].subject
-        question = self.picked_question()
-        return question.start if question else None
+            target = index.facts[self.picked_fact.value].subject
+        else:
+            question = self.picked_question()
+            target = question.start if question else None
+        if target is None or not self.graph_note.value:
+            return target
+        return target if any(n["id"] == target for n in self.graph.value[0]) else None
 
 
 def build_ui() -> UI:

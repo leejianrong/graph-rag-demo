@@ -105,16 +105,37 @@ def test_selecting_a_node_shows_its_facts_and_regenerating_clears_the_selection(
 
 
 @needs_graph
-def test_an_oversize_world_is_generated_but_not_drawn_and_says_why() -> None:
+def test_an_oversize_world_is_drawn_as_a_sample_and_says_so() -> None:
     ui = build_ui()
     ui.preset.set("tiny")
     ui.values["n_entities"].set(8000)
     ui.values["avg_degree"].set(20)
     ui.generate()
-    assert ui.graph.value == ([], [])
-    assert "average degree" in ui.graph_note.value
-    assert ui.entities.value == "8,000"  # the world still exists and its stats are shown
+    nodes, edges = ui.graph.value
+    assert nodes and edges and len(edges) <= 60_000
+    assert "most connected" in ui.graph_note.value
+    assert ui.entities.value == "8,000"  # the world is whole and its stats are shown
     assert ui.checks.value
+
+
+@needs_graph
+def test_a_sampled_graph_is_asked_to_emphasise_only_what_it_draws() -> None:
+    ui = build_ui()
+    ui.preset.set("tiny")
+    ui.values["n_entities"].set(8000)
+    ui.values["avg_degree"].set(20)
+    ui.generate()
+    nodes, edges = ui.graph.value
+    drawn_nodes, drawn_edges = {n["id"] for n in nodes}, {e["id"] for e in edges}
+    world = ui.world.value
+    fact = next(f for f in world.current_edges() if f.subject not in drawn_nodes)
+    ui.picked_fact.set(fact.id)
+    wanted = ui.highlight()
+    assert wanted["edges"] == [] and set(wanted["nodes"]) <= drawn_nodes
+    assert ui.focus() is None  # the clicked fact's subject is not on the graph
+    inside = next(f for f in world.current_edges() if f.id in drawn_edges)
+    ui.picked_fact.set(inside.id)
+    assert ui.highlight()["edges"] == [inside.id] and ui.focus() == inside.subject
 
 
 @needs_graph

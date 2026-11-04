@@ -119,14 +119,43 @@ def test_nodes_are_coloured_by_type_with_distractors_apart() -> None:
     assert model.DISTRACTOR_GROUP in {n["group"] for n in nodes}
 
 
-def test_a_small_world_fits_and_an_oversize_one_says_why() -> None:
-    assert model.graph_limits_message(rich_world()) is None
+def test_a_small_world_is_drawn_whole_with_no_note() -> None:
+    world = rich_world()
+    nodes, edges, note = model.graph_view(world)
+    assert (nodes, edges) == model.graph_data(world) and note == ""
+
+
+def test_a_world_with_too_many_facts_is_drawn_as_its_most_connected_part() -> None:
     # 8,000 entities at average degree 20 is 80,000 facts, past the 60,000 the graph view holds
     huge = model.generate_world(
         {**model.preset_values("tiny"), "n_entities": 8000, "avg_degree": 20.0}
     )
-    message = model.graph_limits_message(huge)
-    assert message and "60,000" in message and "average degree" in message
+    nodes, edges, note = model.graph_view(huge)
+    assert 0 < len(edges) <= model.MAX_GRAPH_EDGES and 0 < len(nodes) <= model.MAX_GRAPH_NODES
+    assert f"{len(nodes):,} most connected" in note and f"{len(edges):,} facts between" in note
+    assert "80,000" in note
+    ids = {n["id"] for n in nodes}
+    assert all(e["source"] in ids and e["target"] in ids for e in edges)
+    # the sample is exactly the facts between the kept entities, and as large as the limit allows
+    _, all_edges = model.graph_data(huge)
+    assert len(edges) == sum(e["source"] in ids and e["target"] in ids for e in all_edges)
+    degree: dict[str, int] = {}
+    for e in all_edges:
+        degree[e["source"]] = degree.get(e["source"], 0) + 1
+        degree[e["target"]] = degree.get(e["target"], 0) + 1
+    dropped = [degree.get(n["id"], 0) for n in model.graph_data(huge)[0] if n["id"] not in ids]
+    assert dropped and max(dropped) <= min(degree.get(i, 0) for i in ids)
+    assert model.graph_view(huge)[2] == note  # the same world gives the same sample
+
+
+def test_a_world_with_too_many_entities_is_drawn_up_to_the_node_limit() -> None:
+    wide = model.generate_world(
+        {**model.preset_values("tiny"), "n_entities": 21_000, "avg_degree": 2.0}
+    )
+    nodes, edges, note = model.graph_view(wide)
+    assert len(nodes) == model.MAX_GRAPH_NODES and "21,000 entities" in note
+    ids = {n["id"] for n in nodes}
+    assert edges and all(e["source"] in ids and e["target"] in ids for e in edges)
 
 
 def test_the_detail_lists_every_fact_that_touches_an_entity_with_its_dates() -> None:
