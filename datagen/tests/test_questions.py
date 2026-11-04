@@ -214,3 +214,83 @@ def test_a_dense_world_makes_up_missing_four_hop_questions_with_sets() -> None:
 def test_the_type_mix_is_validated() -> None:
     with pytest.raises(ValueError, match="type_mix"):
         QuestionSpec(type_mix={"riddle": 1.0})
+
+
+def _ever(world):
+    return {(e.subject, e.predicate, e.object) for e in world.edges}
+
+
+def test_an_unanswerable_question_asks_for_a_fact_the_world_never_held(world) -> None:
+    qs = generate_questions(world, QuestionSpec(n_questions=20, type_mix={"unanswerable": 1.0}))
+    assert {q.type for q in qs} == {"unanswerable"}
+    names = {e.id: e.name for e in world.entities}
+    for q in qs:
+        assert q.abstain == {"expected": True, "reason": "no_evidence"} and q.grading == "abstain"
+        assert q.answers == () and q.supporting_facts == () and q.answer_kind == "abstain"
+        asked = [
+            (p, forward)
+            for p, v in VERB.items()
+            for forward, tail in (
+                (True, f"{names[q.start]} {v}."),
+                (False, f"{v} {names[q.start]}."),
+            )
+            if q.question.endswith(tail)
+        ]
+        assert len(asked) == 1
+        predicate, forward = asked[0]
+        assert not any(
+            e.predicate == predicate and (e.subject if forward else e.object) == q.start
+            for e in world.edges
+        )
+
+
+def test_a_false_premise_contradicts_exactly_one_true_fact(world) -> None:
+    qs = generate_questions(world, QuestionSpec(n_questions=20, type_mix={"false_premise": 1.0}))
+    facts = {e.id: e for e in world.edges}
+    ever = _ever(world)
+    assert len(qs) == 20
+    for q in qs:
+        assert q.abstain == {"expected": True, "reason": "false_premise"}
+        asserted = q.premise["asserted_fact"]
+        key = (asserted["subject"], asserted["predicate"], asserted["object"])
+        assert key not in ever  # the premise is not a fact, current or past
+        (fid,) = q.premise["contradicting_fact_ids"]
+        true = facts[fid]
+        assert true.predicate == asserted["predicate"] and q.start in (true.subject, true.object)
+        assert true.id in {e.id for e in world.current_edges()}
+        assert q.premise["correction"] in q.answer_name and q.gold_paths == ((fid,),)
+        assert q.question.split(". ")[0].rstrip(".") not in q.premise["correction"]
+
+
+def test_declining_types_fall_back_to_plain_questions_when_none_exist() -> None:
+    tiny = generate(make(n_entities=40, avg_degree=2, seed=1))
+    qs = generate_questions(tiny, QuestionSpec(n_questions=6, type_mix={"unanswerable": 1.0}))
+    assert len(qs) == 6
+
+
+def test_unanswerable_and_false_premise_avoid_facts_that_held_in_the_past() -> None:
+    churny = generate(make(n_entities=80, avg_degree=6, churn_rate=0.7, seed=3))
+    ever = _ever(churny)
+    qs = generate_questions(
+        churny, QuestionSpec(n_questions=30, type_mix={"unanswerable": 1.0, "false_premise": 1.0})
+    )
+    names = {e.id: e.name for e in churny.entities}
+    for q in qs:
+        if q.type == "false_premise":
+            a = q.premise["asserted_fact"]
+            assert (a["subject"], a["predicate"], a["object"]) not in ever
+        elif q.type == "unanswerable":
+            (predicate, forward) = next(
+                (p, fw)
+                for p, v in VERB.items()
+                for fw, tail in (
+                    (True, f"{names[q.start]} {v}."),
+                    (False, f"{v} {names[q.start]}."),
+                )
+                if q.question.endswith(tail)
+            )
+            assert not any(
+                e.predicate == predicate and (e.subject if forward else e.object) == q.start
+                for e in churny.edges
+            )
+    assert {q.type for q in qs} == {"unanswerable", "false_premise"}

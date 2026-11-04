@@ -90,11 +90,14 @@ _FILES: tuple[tuple[str, str], ...] = (
     ),
     (
         "questions.json",
-        "Questions: `question`, `type` (entity, set, count, compare, superlative), `hops`, "
+        "Questions: `question`, `type` (entity, set, count, compare, superlative, unanswerable, "
+        "false_premise), `hops`, "
         "`answer` (an entity id; empty for a set or count), `answers` (every correct entity id), "
         "`number` (a count's answer), `accepted_answers` (names and aliases), `supporting_facts` "
         "(fact ids in hop order: the first gold path) and `gold_paths` (one fact chain per "
-        "correct answer), `answer_kind` and `grading` (how to score it).",
+        "correct answer), `answer_kind` and `grading` (how to score it), and for the two declining "
+        "types `abstain` and (for a false premise) `premise` with the contradicting fact and the "
+        "correction.",
     ),
     (
         "documents.json",

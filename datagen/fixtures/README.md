@@ -4,7 +4,7 @@ Seeded datasets, committed so runs start from fixed inputs. Regenerate with `uv 
 
 | Fixture | Entities | Seed | Facts | Documents | Questions | Size |
 |---|---|---|---|---|---|---|
-| `small` | 150 | 0 | 300 | 117 | 50 | 224 KB |
-| `medium` | 1000 | 0 | 2500 | 817 | 50 | 1596 KB |
+| `small` | 150 | 0 | 300 | 117 | 50 | 226 KB |
+| `medium` | 1000 | 0 | 2500 | 817 | 50 | 1598 KB |
 
 Each folder is a `kggen export` of that preset (see its own `README.md`). Documents are template text. Update/delete/reorder scenarios regenerate from the world with `kggen scenario generate`. LLM-written documents need a cache, see `examples/`.

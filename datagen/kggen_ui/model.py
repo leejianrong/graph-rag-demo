@@ -135,6 +135,8 @@ _TYPE_HELP = {
     "count": "Questions that ask how many entities fit; the answer is a number.",
     "compare": "Questions asking which of two entities has more of some relation.",
     "superlative": "Questions asking which entity has the most of some relation. Few exist.",
+    "unanswerable": "Questions about a fact the data never held; the right reply is to decline",
+    "false_premise": "Questions that state a fact the data contradicts; the reply should fix it",
 }
 
 
@@ -312,6 +314,8 @@ def answer_text(q: Question | None) -> str:
         return f"Answers ({len(q.answers)}): {q.answer_name}"
     if q.type == "count":
         return f"Answer: {q.number}"
+    if q.type in ("unanswerable", "false_premise"):
+        return f"Expected reply: decline or correct ({q.answer_name})"
     return f"Answer: {q.answer_name}{also}"
 
 
