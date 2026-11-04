@@ -62,6 +62,10 @@ def test_the_markdown_states_seeds_config_sample_size_and_how_to_reproduce(resul
     assert f"{sum(r.questions for r in result.runs)} in total" in text
     assert "templates" in text and "floor" in text  # the synthetic-text and offline caveats
     assert text.count("| hops |") == 2  # the means table and the spread table
+    assert "## Cost and latency" in text
+    for system in SYSTEMS:
+        assert text.count(f"| {system} |") == 3  # means, spread and cost rows
+    assert text.count("| 0 | $0.00 |") == len(SYSTEMS)  # no system reaches a provider
 
 
 def test_results_are_json_serialisable_and_carry_timing(result) -> None:

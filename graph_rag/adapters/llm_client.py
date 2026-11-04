@@ -27,6 +27,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import time
 from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -129,6 +130,11 @@ class LiteLLMClient:
         self._max_retries = max_retries
         self._api_key = api_key
         self._completion_fn: CompletionFn = completion_fn or self._default_completion
+        # Usage since construction, read by the bench to price a run (GRA-87).
+        self.calls = 0  # provider calls, retries included; a cache hit is not one
+        self.cache_hits = 0
+        self.seconds = 0.0  # wall time spent waiting on the provider
+        self.cost_usd = 0.0  # LiteLLM's price estimate; 0 for a model it cannot price
 
     @classmethod
     def from_settings(cls, settings: Settings) -> LiteLLMClient:
@@ -155,8 +161,9 @@ class LiteLLMClient:
         cached = self._read_cache(key)
         if cached is not None:
             _logger.debug("LLM cache hit (complete) %s", key[:12])
+            self.cache_hits += 1
             return cached
-        text = self._completion_fn(model=self._model, prompt=prompt, **params)
+        text = self._call_provider(prompt, params)
         self._write_cache(key, text)
         return text
 
@@ -178,12 +185,13 @@ class LiteLLMClient:
         cached = self._read_cache(key)
         if cached is not None:
             _logger.debug("LLM cache hit (structured %s) %s", schema.__name__, key[:12])
+            self.cache_hits += 1
             return schema.model_validate_json(_extract_json(cached))
 
         last_error: Exception | None = None
         attempts = self._max_retries + 1
         for attempt in range(1, attempts + 1):
-            text = self._completion_fn(model=self._model, prompt=full_prompt, **params)
+            text = self._call_provider(full_prompt, params)
             try:
                 instance = schema.model_validate_json(_extract_json(text))
             except (ValidationError, ValueError) as exc:
@@ -204,6 +212,15 @@ class LiteLLMClient:
         ) from last_error
 
     # --- Internals ----------------------------------------------------------
+
+    def _call_provider(self, prompt: str, params: Mapping[str, Any]) -> str:
+        """One provider call through the backend seam, counted and timed."""
+        start = time.perf_counter()
+        try:
+            return self._completion_fn(model=self._model, prompt=prompt, **params)
+        finally:
+            self.calls += 1
+            self.seconds += time.perf_counter() - start
 
     @staticmethod
     def _render_structured_prompt(prompt: str, schema: type[BaseModel]) -> str:
@@ -251,4 +268,8 @@ class LiteLLMClient:
             messages=[{"role": "user", "content": prompt}],
             **kwargs,
         )
+        try:
+            self.cost_usd += float(litellm.completion_cost(completion_response=response))
+        except Exception:  # noqa: BLE001 - an unpriced model (a local or recording server) is free
+            _logger.debug("no price for model %s", model)
         return response.choices[0].message.content or ""

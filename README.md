@@ -279,6 +279,8 @@ uv run kgbench run --subset small --dataset path/to/2wiki.json
 # or, over the in-repo mini fixture: make benchmark
 ```
 
+Every result, the table and the JSON alike, carries its wall time and the LLM calls and dollars behind it.
+
 `make benchmark` runs the same thing against a small bundled fixture with no
 arguments, so you can see the scorecard immediately; pass `DATASET=path/to/2wiki.json`
 for the real corpus or `REAL=1` for the real adapter stack.
@@ -320,7 +322,7 @@ worlds over three seeds, is in [docs/results/retrieval-medium.md](docs/results/r
 make compare                     # kgbench compare: path@k and recall@k per hop count, every system
 ```
 
-It takes about half an hour on CPU with bge (`EMBEDDER=fake` is quick and only for checking). What it
+It took about 8 minutes on a 4 vCPU cloud CPU, and about half an hour on a busy laptop, with bge (`EMBEDDER=fake` is quick and only for checking). The committed numbers came from the cloud run and match an earlier laptop run cell for cell. What it
 shows so far: every system finds 1-hop answers (whole-path@5 of 0.94 to 0.99). At 2 hops only the
 graph view recovers any whole path (0.11, against 0.00 to 0.01 for BM25 and dense), and at 3 and 4
 hops no system recovers one in the top 5. The offline graph-rag does not yet beat the baselines, and

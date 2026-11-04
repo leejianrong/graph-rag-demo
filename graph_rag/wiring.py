@@ -39,7 +39,7 @@ from __future__ import annotations
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from graph_rag.config import Settings
 from graph_rag.fakes import (
@@ -245,6 +245,41 @@ class HeuristicKgBuildStage:
         return triples
 
 
+@dataclass(frozen=True)
+class LlmUsage:
+    """What the provider was asked for so far: calls, cache hits, wait time and dollars.
+
+    Zero everywhere for the offline pipeline, which never reaches a provider.
+    """
+
+    calls: int = 0
+    cache_hits: int = 0
+    seconds: float = 0.0
+    cost_usd: float = 0.0
+
+    def __sub__(self, other: LlmUsage) -> LlmUsage:
+        return LlmUsage(
+            self.calls - other.calls,
+            self.cache_hits - other.cache_hits,
+            self.seconds - other.seconds,
+            self.cost_usd - other.cost_usd,
+        )
+
+
+def usage_of(*clients: Any) -> Callable[[], LlmUsage]:
+    """A probe summing the usage counters of several LLM clients (coref, KG-build)."""
+
+    def usage() -> LlmUsage:
+        return LlmUsage(
+            sum(c.calls for c in clients),
+            sum(c.cache_hits for c in clients),
+            sum(c.seconds for c in clients),
+            sum(c.cost_usd for c in clients),
+        )
+
+    return usage
+
+
 @dataclass
 class BenchmarkComponents:
     """The wired pieces the :class:`~kgbench.harness.BenchmarkHarness` drives.
@@ -260,6 +295,7 @@ class BenchmarkComponents:
     retriever: QueryRetriever
     bucket: str
     llm_calls: Callable[[], int]
+    llm_usage: Callable[[], LlmUsage]
 
 
 def build_offline_components(
@@ -317,6 +353,7 @@ def build_offline_components(
         retriever=retriever,
         bucket=settings.minio_bucket,
         llm_calls=lambda: llm_client.calls,
+        llm_usage=LlmUsage,  # the fake stands in for a provider: nothing is spent
     )
 
 
@@ -325,9 +362,8 @@ def build_real_components(settings: Settings | None = None) -> BenchmarkComponen
 
     Mirrors ``graph_rag.main`` — real adapters behind every port, the real
     spaCy/LLM stages, and a retriever that reuses the same embedder + stores — for
-    the opt-in, slow integration benchmark run. The LLM call count is not tracked
-    at this seam (the real client's response cache makes a re-run ~$0 by serving
-    cached completions), so ``llm_calls`` reports ``0``.
+    the opt-in, slow integration benchmark run. ``llm_calls`` and ``llm_usage`` sum
+    both LLM clients (coref and KG-build); a warm response cache makes a re-run read 0 calls.
 
     Args:
         settings: The runtime settings; defaults to environment-driven
@@ -346,6 +382,14 @@ def build_real_components(settings: Settings | None = None) -> BenchmarkComponen
     from graph_rag.stages.ner import SpacyNerStage
 
     settings = settings or Settings()
+    coref_llm = LiteLLMClient.from_settings(settings)
+    kg_llm = LiteLLMClient(  # as KgBuildStage.from_settings, but kept so its usage can be read
+        model=settings.kg_build_model,
+        cache_dir=settings.llm_cache_dir,
+        max_retries=settings.llm_max_retries,
+        api_key=settings.openai_api_key,
+    )
+    usage = usage_of(coref_llm, kg_llm)
 
     object_store = MinioObjectStore.from_settings(settings)
     document_store = EsDocumentStore.from_settings(settings)
@@ -360,10 +404,10 @@ def build_real_components(settings: Settings | None = None) -> BenchmarkComponen
         object_store=object_store,
         document_store=document_store,
         ner_stage=SpacyNerStage.from_settings(settings),
-        coref_stage=LLMCorefStage(LiteLLMClient.from_settings(settings)),
+        coref_stage=LLMCorefStage(coref_llm),
         entity_linking_stage=EntityLinkingStage.from_settings(settings, entity_store, embedder),
         graph_store=graph_store,
-        kg_build_stage=KgBuildStage.from_settings(settings),
+        kg_build_stage=KgBuildStage(kg_llm),
     )
     retriever = QueryRetriever.from_settings(
         settings,
@@ -377,7 +421,8 @@ def build_real_components(settings: Settings | None = None) -> BenchmarkComponen
         orchestrator=orchestrator,
         retriever=retriever,
         bucket=settings.minio_bucket,
-        llm_calls=lambda: 0,
+        llm_calls=lambda: usage().calls,
+        llm_usage=usage,
     )
 
 

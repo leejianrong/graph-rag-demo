@@ -9,7 +9,6 @@ baseline and graph-rag, so they use the same vectors and each sentence is embedd
 
 from __future__ import annotations
 
-import time
 from collections.abc import Sequence
 from dataclasses import dataclass
 
@@ -21,6 +20,7 @@ from kggen.world import generate
 from graph_rag.ports import Embedder
 from graph_rag.wiring import build_embedder, build_offline_components
 from kgbench.baselines import BM25Retriever, DenseRetriever
+from kgbench.cost import Cost, Meter
 from kgbench.graph_retriever import GraphRagRetriever
 from kgbench.retrieval import DEFAULT_KS, RetrievalReport, evaluate
 
@@ -70,7 +70,7 @@ class SeedRun:
     sentences: int
     questions: int
     reports: dict[str, RetrievalReport]
-    seconds: dict[str, float]
+    costs: dict[str, Cost]  # per system: wall time (index build plus questions) and LLM usage
 
 
 @dataclass(frozen=True)
@@ -139,12 +139,24 @@ class Comparison:
                     "documents": r.documents,
                     "sentences": r.sentences,
                     "questions": r.questions,
-                    "seconds": {s: round(v, 2) for s, v in r.seconds.items()},
+                    "seconds": {s: round(c.wall_seconds, 2) for s, c in r.costs.items()},
+                    "cost": {s: c.to_dict() for s, c in r.costs.items()},
                     "systems": {s: rep.to_dict() for s, rep in r.reports.items()},
                 }
                 for r in self.runs
             ],
         }
+
+    def cost_rows(self) -> list[str]:
+        """One markdown row per system: mean wall time per seed, and LLM usage summed over seeds."""
+        rows = []
+        for system in SYSTEMS:
+            costs = [r.costs[system] for r in self.runs]
+            seconds = sum(c.wall_seconds for c in costs) / len(costs)
+            calls = sum(c.llm.calls for c in costs)
+            usd = sum(c.llm.cost_usd for c in costs)
+            rows.append(f"| {system} | {seconds:.1f} | {calls} | ${usd:.2f} |")
+        return rows
 
     def to_markdown(self, *, k: int, command: str) -> str:
         first = self.runs[0]
@@ -189,6 +201,17 @@ class Comparison:
             "",
             *table(range_cell),
             "",
+            "## Cost and latency",
+            "",
+            "Wall time covers building the index and answering every question, on CPU with no GPU. "
+            "The systems share one embedding cache, so the times are not a like-for-like speed "
+            "comparison. LLM calls and dollars are totals over the seeds; none of these systems "
+            "reaches a provider.",
+            "",
+            "| system | seconds per seed (mean) | LLM calls | LLM dollars |",
+            "|---|---|---|---|",
+            *self.cost_rows(),
+            "",
             "## Caveats",
             "",
             *[f"- {c}" for c in CAVEATS],
@@ -203,22 +226,26 @@ def run_seed(
     world = generate(spec)
     documents = render_documents(world)
     questions = generate_questions(world, QuestionSpec(n_questions=n_questions))
+    # Each system is (the pipeline it runs, which has an LLM bill, or None; how to build it).
+    graph = {m: build_offline_components(embedder=embedder) for m in ("passages", "graph")}
     systems = {
-        "BM25": lambda: BM25Retriever(documents),
-        "Dense": lambda: DenseRetriever(documents, embedder),
-        "graph-rag passages": lambda: GraphRagRetriever(
-            build_offline_components(embedder=embedder), documents, mode="passages"
+        "BM25": (None, lambda: BM25Retriever(documents)),
+        "Dense": (None, lambda: DenseRetriever(documents, embedder)),
+        "graph-rag passages": (
+            graph["passages"],
+            lambda: GraphRagRetriever(graph["passages"], documents, mode="passages"),
         ),
-        "graph-rag graph": lambda: GraphRagRetriever(
-            build_offline_components(embedder=embedder), documents, mode="graph"
+        "graph-rag graph": (
+            graph["graph"],
+            lambda: GraphRagRetriever(graph["graph"], documents, mode="graph"),
         ),
     }
     reports: dict[str, RetrievalReport] = {}
-    seconds: dict[str, float] = {}
-    for name, build in systems.items():
-        start = time.perf_counter()
-        reports[name] = evaluate(build(), questions, ks)
-        seconds[name] = time.perf_counter() - start
+    costs: dict[str, Cost] = {}
+    for name, (components, build) in systems.items():
+        with Meter(components) as meter:
+            reports[name] = evaluate(build(), questions, ks)
+        costs[name] = meter.cost
     return SeedRun(
         spec.seed,
         len(world.entities),
@@ -227,7 +254,7 @@ def run_seed(
         sum(len(d.sentences) for d in documents),
         len(questions),
         reports,
-        seconds,
+        costs,
     )
 
 

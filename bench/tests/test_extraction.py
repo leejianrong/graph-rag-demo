@@ -191,4 +191,5 @@ def test_extract_command_prints_the_table_and_json(capsys: pytest.CaptureFixture
         "triples",
         "edges",
         "by_predicate",
+        "cost",
     }
