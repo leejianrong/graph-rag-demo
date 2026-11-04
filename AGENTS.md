@@ -27,7 +27,8 @@ partly built: extraction and linking scoring (`kgbench extract`, `kgbench linkin
 - **Commit with the GitHub noreply email** (`85485699+leejianrong@users.noreply.github.com`). Pushes with the
   private address are rejected. The repo-local git config is already set; check it in a fresh clone.
 - **`main` is protected and PR-only.** Merge (squash) once the required checks `lint`, `fast`, `contract`,
-  `secret-scan` are green. `dep-audit` is advisory but should be green too. Never merge on stale green checks.
+  `secret-scan` are green. `dep-audit` is advisory but should be green too, and so should `image` (the Dockerfile builds and the package
+  imports inside it). Never merge on stale green checks.
 - **Never let a slow check gate a local push.** The pre-push hook is the cheap mirror of CI only.
 - **`datagen/` (`kggen`) must never import `graph_rag`, `kgbench` or `litellm`** (enforced by
   `datagen/tests/test_isolation.py`); it owns its vocabulary. **`bench/` may import `graph_rag` only via ports

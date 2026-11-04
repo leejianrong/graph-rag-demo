@@ -186,3 +186,19 @@ jobs:
         run: uv sync --frozen --extra dev
       - name: Contract suite (real adapters via testcontainers)
         run: uv run pytest -m contract -q
+
+  # --- Image gate: the Dockerfile builds, and what it built starts to import ---
+  # `make up` builds this image, so without this job a broken Dockerfile (a workspace member
+  # whose manifest is no longer copied, a dependency that no longer resolves) would only show
+  # up there. Plain docker CLI, no marketplace action; nothing is pushed. The smoke step runs
+  # inside the image: the package and its adapters import, and the spaCy model is installed.
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the image (no push)
+        run: docker build --tag graph-rag:ci .
+      - name: Smoke test inside the image
+        run: >
+          docker run --rm --entrypoint uv graph-rag:ci run --no-sync python -c
+          "import graph_rag.main, spacy; spacy.load('en_core_web_sm'); print('image ok')"
