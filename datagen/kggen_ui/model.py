@@ -16,7 +16,7 @@ from kggen.stats import check_against_spec
 from kggen.world import Edge, Entity, World, WorldGenerationError, generate
 from pydantic import ValidationError
 
-MAX_ENTITIES = 20_000  # what the graph view can hold (ADR-0048); larger worlds go through the CLI
+MAX_ENTITIES = 50_000  # the stress preset; the graph is drawn only up to MAX_GRAPH_NODES (ADR-0048)
 
 
 @dataclass(frozen=True)
@@ -48,6 +48,83 @@ KNOBS: tuple[Knob, ...] = (
 )
 KNOB_NAMES = tuple(k.name for k in KNOBS)
 DEFAULT_PRESET = "small"
+
+
+# What each form field controls and affects: the text of its info tip.
+HELP: dict[str, str] = {
+    "n_entities": (
+        "How many entities (nodes) the world has. More entities mean more facts, more "
+        "documents and longer generation. The graph is drawn only up to 20,000 nodes; "
+        "larger worlds still give stats, questions, documents and export."
+    ),
+    "avg_degree": (
+        "Average number of facts each entity takes part in. Facts = entities x degree / "
+        "2. Higher makes denser graphs and longer multi-hop paths; very low leaves many "
+        "entities disconnected."
+    ),
+    "degree_skew": (
+        "0 gives every entity a similar number of facts. Higher values create a few hub "
+        "entities with many facts and a long tail. Hubs make questions with several valid "
+        "answers and stress retrieval."
+    ),
+    "n_communities": (
+        "How many clusters entities are grouped into. Facts mostly stay inside a cluster, "
+        "so more communities give more separate topics and more distinct neighbourhoods."
+    ),
+    "community_mixing": (
+        "The chance a fact joins two different communities. 0 keeps clusters isolated; "
+        "higher blurs them. It decides how easily a path leaves its topic."
+    ),
+    "cycle_rate": (
+        "Share of facts that close a three-entity loop. Cycles give paths that return to "
+        "where they started, which tests that questions and traversal do not loop "
+        "forever."
+    ),
+    "seed": (
+        "Same settings and seed give exactly the same world. Change it for a different "
+        "world of the same shape."
+    ),
+    "alias_rate": (
+        "Share of entities that also go by other names. Documents may use an alias, so a "
+        "system has to link different spellings to one entity."
+    ),
+    "homonym_rate": (
+        "Extra entities that reuse another entity's name (as a share of entities). They "
+        "test whether a system keeps two people or places with the same name apart."
+    ),
+    "distractor_rate": (
+        "Extra look-alike entities with similar names that take part in no real facts you "
+        "ask about. They add plausible but wrong candidates for retrieval."
+    ),
+    "noise_rate": (
+        "Share of facts that are a vague 'related to' link between any two entities "
+        "instead of a specific relation. It adds weak, uninformative edges."
+    ),
+    "churn_rate": (
+        "Share of facts that are replaced later by a newer value (a new employer, a new "
+        "city). The old value stays in the world as history, so questions can ask about "
+        "the current or an earlier value."
+    ),
+    "retraction_rate": (
+        "Share of facts withdrawn later with nothing replacing them. After retraction the "
+        "fact should no longer be answered as true."
+    ),
+    "n_questions": (
+        "How many questions to derive from the world. Fewer are returned if the world "
+        "cannot supply enough with a single correct answer."
+    ),
+    "alias_use_rate": (
+        "How often a document mentions an entity by one of its aliases instead of its main name."
+    ),
+    "max_facts_per_doc": (
+        "The most facts one document states. Higher gives longer documents with fewer "
+        "files; lower gives many short ones."
+    ),
+}
+
+
+def knob_help(knob: Knob) -> str:
+    return HELP.get(knob.name, "")
 
 
 def values_from_spec(spec: WorldSpec) -> dict[str, float]:
@@ -453,6 +530,8 @@ def summarize(world: World) -> Summary:
 
 
 __all__ = [
+    "HELP",
+    "knob_help",
     "DEFAULT_PRESET",
     "GROUPS",
     "KNOBS",

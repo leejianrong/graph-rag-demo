@@ -277,11 +277,7 @@ def build_ui() -> UI:
         indah.effect(effect)
 
     def group_inputs(group: str) -> list[indah.Component]:
-        return [
-            indah.Number(values[k.name], min=k.min, max=k.max, step=k.step, label=k.label)
-            for k in model.KNOBS
-            if k.group == group
-        ]
+        return [field(k, values[k.name]) for k in model.KNOBS if k.group == group]
 
     def verdict() -> str:
         rows = ui.checks.value
@@ -360,12 +356,18 @@ def world_card(ui: UI) -> indah.Component:
     )
 
 
+def field(knob: model.Knob, signal: indah.Signal) -> indah.Component:
+    """A number field with an info icon that says what the setting controls."""
+    number = indah.Number(signal, min=knob.min, max=knob.max, step=knob.step, label=knob.label)
+    tip = model.knob_help(knob)
+    if not tip:
+        return number
+    return indah.Row([number, indah.InfoTip(tip, label=f"About {knob.label}")])
+
+
 def questions_card(ui: UI) -> indah.Component:
     """The multi-hop questions, a control for their hop mix, and the picked one's gold path."""
-    inputs = [
-        indah.Number(ui.question_values[k.name], min=k.min, max=k.max, step=k.step, label=k.label)
-        for k in model.QUESTION_KNOBS
-    ]
+    inputs = [field(k, ui.question_values[k.name]) for k in model.QUESTION_KNOBS]
     table = indah.Table(
         rows=ui.question_rows,
         columns=[
@@ -403,10 +405,7 @@ def questions_card(ui: UI) -> indah.Component:
 
 def documents_card(ui: UI) -> indah.Component:
     """Documents rendered from the world's facts, and the sentences of the one being read."""
-    inputs = [
-        indah.Number(ui.doc_values[k.name], min=k.min, max=k.max, step=k.step, label=k.label)
-        for k in model.RENDER_KNOBS
-    ]
+    inputs = [field(k, ui.doc_values[k.name]) for k in model.RENDER_KNOBS]
     documents = indah.Table(
         rows=ui.doc_rows,
         columns=[
