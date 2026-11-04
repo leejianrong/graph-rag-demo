@@ -13,12 +13,18 @@ that reuses a warm response cache and the pre-built graph costs about nothing.
 from __future__ import annotations
 
 import argparse
+import json
 from collections.abc import Sequence
 from pathlib import Path
+
+from kggen.render import render_documents
+from kggen.spec import PRESET_NAMES, load_preset
+from kggen.world import generate
 
 from graph_rag.wiring import build_offline_components, build_real_components
 from kgbench import __version__
 from kgbench.dataset import SUBSETS, load_examples, select_subset
+from kgbench.extraction import gold_from, run_pipeline, score
 from kgbench.harness import BenchmarkHarness
 
 # The bundled mini fixture, so the command runs offline with no download.
@@ -52,7 +58,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Wire the real adapter stack (Docker + models + API key) instead of offline fakes.",
     )
     run.add_argument("--per-question", action="store_true", help="Also print per-question scores.")
+    extract = commands.add_parser(
+        "extract", help="Score extraction (mentions, entities, triples) against generated gold."
+    )
+    extract.add_argument("--preset", choices=PRESET_NAMES, default="small", help="World to use.")
+    extract.add_argument("--seed", type=int, help="Override the preset's seed.")
+    extract.add_argument("--real", action="store_true", help="Score the real adapter stack.")
+    extract.add_argument("--json", action="store_true", help="Print the report as JSON.")
     return parser
+
+
+def _extract(args: argparse.Namespace) -> int:
+    spec = load_preset(args.preset)
+    world = generate(spec.model_copy(update={"seed": args.seed}) if args.seed is not None else spec)
+    documents = render_documents(world)
+    components = build_real_components() if args.real else build_offline_components()
+    report = score(gold_from(world, documents), run_pipeline(components, documents))
+    print(json.dumps(report.to_dict(), indent=1) if args.json else report.format_table())
+    return 0
 
 
 def _run(args: argparse.Namespace) -> int:
@@ -72,5 +95,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(list(argv) if argv is not None else None)
     if args.command == "run":
         return _run(args)
+    if args.command == "extract":
+        return _extract(args)
     parser.print_help()
     return 0

@@ -298,8 +298,16 @@ bench in [`bench/`](bench/) (command `kgbench`, design in
 [ADR-0011](docs/adr/0011-in-repo-evaluation-bench.md)). Instead of grading against
 an extraction of our own, it scores the pipeline on a synthetic world graph made by the
 standalone [generator](#synthetic-data-generator), so the gold answer never depends on the
-pipeline under test. So far `bench/` is a scaffold: extraction and retrieval scoring and the
-BM25 and dense-retrieval baselines the comparison needs are still to build.
+pipeline under test. Extraction scoring is built; try it with no Docker or key:
+
+```bash
+make extract PRESET=small        # kgbench extract: P/R/F1 for mentions, entities and triples, per predicate
+```
+
+It reports mentions (exact span), entities (distinct gold entities recovered per canonical made) and
+triples, strictly and by entity pair only, so you can see a relation found but not named. Entity
+linking scores, retrieval scoring and the BM25 and dense-retrieval baselines the comparison needs are
+still to build.
 
 ## Where the design lives
 
