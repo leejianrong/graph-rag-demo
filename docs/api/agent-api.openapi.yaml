@@ -1,0 +1,440 @@
+openapi: 3.1.0
+info:
+  title: Graph RAG agent API
+  version: 0.1.0
+  summary: Remember, recall, forget and look up, for agents and the tools that wrap them.
+  description: |
+    The surface an agent uses as memory (ADR-0014). Four verbs, each one tool name, one
+    request body and one error shape, so the HTTP API, the MCP server and the CLI can share it.
+
+    `x-status` says where each operation stands: `existing` operations run today and
+    `x-maps-to` names the endpoint that serves them, `planned` ones are specified here and built
+    by the cards named in `x-card`. A field marked `x-status: planned` is ignored by today's
+    server. This file is the contract; it is not generated from the code.
+servers:
+  - url: http://localhost:8000
+    description: The docker-compose stack
+security:
+  - bearerAuth: []
+tags:
+  - name: memory
+    description: Put information in, get it back, take it out.
+paths:
+  /v1/remember:
+    post:
+      operationId: remember
+      tags: [memory]
+      summary: Remember a piece of text.
+      description: |
+        Stores the text under a source id and queues it for the pipeline, which reads it into
+        the graph. Returns at once; the pipeline runs afterwards, so a `recall` straight after
+        may not see it yet. Posting the same source id with the same text again is a no-op
+        (`status: unchanged`). Posting different text under an existing source id replaces it
+        once updates are built (until then it is ingested again alongside the old graph).
+      x-status: existing
+      x-maps-to: { method: post, path: /ingest }
+      x-card: GRA-36
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RememberRequest" }
+      responses:
+        "202":
+          description: Accepted for processing, or already held unchanged.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RememberResponse" }
+        "400": { $ref: "#/components/responses/InvalidRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "413": { $ref: "#/components/responses/TooLarge" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /v1/recall:
+    post:
+      operationId: recall
+      tags: [memory]
+      summary: Recall what is known about a question.
+      description: |
+        Answers from the graph and returns the evidence: the connected subgraph, the ranked
+        entities, and the supporting sentences with the document and character offsets each
+        came from. The default path makes no LLM call.
+      x-status: existing
+      x-maps-to: { method: post, path: /query }
+      x-card: GRA-36
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RecallRequest" }
+      responses:
+        "200":
+          description: The answer and its evidence.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/RecallResponse" }
+        "400": { $ref: "#/components/responses/InvalidRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /v1/forget:
+    post:
+      operationId: forget
+      tags: [memory]
+      summary: Forget a source.
+      description: |
+        Removes the source's text, its facts and its sentences, and the entities that no other
+        source mentions. Entities another source still mentions stay. Name the source by
+        `source_id`, or by the `document_id` that `remember` returned.
+      x-status: existing
+      x-maps-to: { method: delete, path: "/documents/{doc_id}" }
+      x-card: GRA-37
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ForgetRequest" }
+      responses:
+        "200":
+          description: What was removed.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ForgetResponse" }
+        "400": { $ref: "#/components/responses/InvalidRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /v1/lookup:
+    post:
+      operationId: lookup
+      tags: [memory]
+      summary: Look an entity up by name or id.
+      description: |
+        Returns the entities that match, each with its aliases and its neighbours: the facts
+        it takes part in, with the sentence each came from. A name can match several entities
+        (homonyms); all are returned, best match first.
+      x-status: planned
+      x-card: GRA-37
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LookupRequest" }
+      responses:
+        "200":
+          description: The matching entities.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LookupResponse" }
+        "400": { $ref: "#/components/responses/InvalidRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /health:
+    get:
+      operationId: health
+      summary: Liveness.
+      security: []
+      x-status: existing
+      x-maps-to: { method: get, path: /health }
+      responses:
+        "200":
+          description: The service is up.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { type: string, const: ok }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        An API key. It names the tenant, so no request carries a tenant id. Not enforced yet:
+        the server accepts unauthenticated calls until the key cards (GRA-22, GRA-23) land.
+      x-status: planned
+  responses:
+    InvalidRequest:
+      description: The request is malformed or breaks a rule.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unauthorized:
+      description: The API key is missing or wrong.
+      x-status: planned
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Nothing matches.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    TooLarge:
+      description: The text is over the size limit.
+      x-status: planned
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unavailable:
+      description: A part of the service this call needs is not running or not configured.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              description: A stable, machine-readable reason; clients branch on this, not on the message.
+              enum:
+                - invalid_request
+                - unauthorized
+                - not_found
+                - payload_too_large
+                - unavailable
+                - internal
+            message:
+              type: string
+              description: One sentence a person can read, saying what to change.
+            details:
+              type: object
+              description: Extra fields for the code, such as the offending field name.
+              additionalProperties: true
+    RememberRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          description: What to remember, as plain text.
+        source_id:
+          type: string
+          minLength: 1
+          description: |
+            Names the source (a URL, a path, a note id). The same id with the same text is a
+            no-op, so a caller can repeat a call safely. Omit it and the id is derived from the
+            text, so identical text is still stored once.
+        force:
+          type: boolean
+          default: false
+          description: Ingest the text again even if the source already holds it, for a source whose first attempt failed.
+        namespace:
+          type: string
+          description: Keeps this memory apart from other namespaces of the same tenant.
+          x-status: planned
+          x-card: GRA-45
+    RememberResponse:
+      type: object
+      required: [document_id, source_id, status]
+      properties:
+        document_id:
+          type: string
+          description: The deterministic id of the stored document.
+        source_id:
+          type: string
+        status:
+          type: string
+          enum: [accepted, unchanged]
+          description: "`accepted`: stored and queued. `unchanged`: this source already holds this text, nothing was done."
+    RecallRequest:
+      type: object
+      required: [question]
+      properties:
+        question:
+          type: string
+          minLength: 1
+        synthesize:
+          type: boolean
+          default: false
+          description: Also write a short grounded answer with an LLM. Off by default; the default path costs nothing.
+        token_budget:
+          type: integer
+          minimum: 1
+          description: The most tokens of evidence to return, highest-ranked first. 0 or less is rejected.
+          x-status: planned
+          x-card: GRA-38
+        as_of:
+          type: string
+          format: date
+          description: Answer from the facts that were true on this date. Omit for the current facts.
+          x-status: planned
+          x-card: GRA-44
+        namespace:
+          type: string
+          x-status: planned
+          x-card: GRA-45
+    RecallResponse:
+      type: object
+      required: [answer, answer_entity, subgraph, ranked_nodes, supporting_sentences]
+      properties:
+        answer:
+          type: [string, "null"]
+          description: The top-ranked entity's name, or null when nothing was found.
+        answer_entity:
+          oneOf:
+            - { $ref: "#/components/schemas/RankedEntity" }
+            - { type: "null" }
+        subgraph:
+          $ref: "#/components/schemas/Subgraph"
+        ranked_nodes:
+          type: array
+          description: Every candidate entity, best first.
+          items: { $ref: "#/components/schemas/RankedEntity" }
+        supporting_sentences:
+          type: array
+          description: The evidence, best first, each with where it came from.
+          items: { $ref: "#/components/schemas/SupportingSentence" }
+        prose:
+          type: [string, "null"]
+          description: The grounded written answer, only when `synthesize` was true.
+        truncated:
+          type: boolean
+          description: True when `token_budget` cut evidence out.
+          x-status: planned
+          x-card: GRA-38
+        tokens_used:
+          type: integer
+          minimum: 0
+          x-status: planned
+          x-card: GRA-38
+    ForgetRequest:
+      type: object
+      description: Name the source by exactly one of its two ids.
+      oneOf:
+        - required: [source_id]
+        - required: [document_id]
+      properties:
+        source_id: { type: string, minLength: 1 }
+        document_id: { type: string, minLength: 1 }
+    ForgetResponse:
+      type: object
+      required: [document_id, entities_removed, entities_kept]
+      properties:
+        document_id: { type: string }
+        source_id:
+          type: string
+          description: The source id, as `remember` was given it.
+        entities_removed:
+          type: array
+          items: { type: string }
+          description: Entities no other source mentions, now gone.
+        entities_kept:
+          type: array
+          items: { type: string }
+          description: Entities another source still mentions.
+    LookupRequest:
+      type: object
+      description: Name the entity by exactly one of its name or its id.
+      oneOf:
+        - required: [name]
+        - required: [entity_id]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: A name or alias; matched ignoring case and punctuation.
+        entity_id: { type: string, minLength: 1 }
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+          description: The most neighbours to return per entity.
+    LookupResponse:
+      type: object
+      required: [entities]
+      properties:
+        entities:
+          type: array
+          items: { $ref: "#/components/schemas/EntityDetail" }
+    Entity:
+      type: object
+      required: [canonical_id, name, type]
+      properties:
+        canonical_id: { type: string }
+        name: { type: string }
+        type:
+          type: string
+          enum: [PERSON, ORG, LOCATION, LAW, DATE, EVENT, NORP, PRODUCT]
+        aliases:
+          type: array
+          items: { type: string }
+    RankedEntity:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - type: object
+          required: [score]
+          properties:
+            score: { type: number }
+    EntityDetail:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - type: object
+          required: [neighbours]
+          properties:
+            neighbours:
+              type: array
+              items: { $ref: "#/components/schemas/Neighbour" }
+    Neighbour:
+      type: object
+      required: [entity, predicate, direction, provenance]
+      properties:
+        entity: { $ref: "#/components/schemas/Entity" }
+        predicate: { type: string }
+        direction:
+          type: string
+          enum: [outgoing, incoming]
+          description: "`outgoing`: the looked-up entity is the subject of the fact."
+        provenance: { $ref: "#/components/schemas/Provenance" }
+    Subgraph:
+      type: object
+      required: [nodes, edges]
+      properties:
+        nodes:
+          type: array
+          items: { $ref: "#/components/schemas/Entity" }
+        edges:
+          type: array
+          items: { $ref: "#/components/schemas/Edge" }
+    Edge:
+      type: object
+      required: [subject_id, predicate, object_id, provenance]
+      properties:
+        subject_id: { type: string }
+        predicate:
+          type: string
+          description: One of the closed predicate set, or RELATED_TO (the original phrase is then in `provenance.raw_predicate`).
+        object_id: { type: string }
+        date:
+          type: [string, "null"]
+        provenance: { $ref: "#/components/schemas/Provenance" }
+    Provenance:
+      type: object
+      required: [source_doc_id, sentence_index, source_sentence]
+      properties:
+        source_doc_id: { type: string }
+        sentence_index: { type: integer, minimum: 0 }
+        source_sentence: { type: string }
+        raw_predicate: { type: [string, "null"] }
+        confidence: { type: [number, "null"] }
+        char_start: { type: [integer, "null"] }
+        char_end: { type: [integer, "null"] }
+    SupportingSentence:
+      type: object
+      required: [document_id, text, char_start, char_end, sentence_index, score]
+      properties:
+        document_id: { type: string }
+        text: { type: string }
+        char_start: { type: integer, minimum: 0 }
+        char_end: { type: integer, minimum: 0 }
+        sentence_index: { type: integer, minimum: 0 }
+        score: { type: number }
