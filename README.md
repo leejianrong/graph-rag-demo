@@ -329,6 +329,12 @@ hops no system recovers one in the top 5. The offline graph-rag does not yet bea
 its graph view costs about 4 points at 1 hop. That is the offline heuristic graph, a floor; whether
 the real stack's LLM-built graph closes the gap is the open question.
 
+A quality drop fails the build. `make gate` runs the small world offline (no provider, about 15 seconds)
+and compares graph-rag's retrieval recall and path recovery per hop count, extraction F1 and linking F1
+with the floors stored in [`bench/kgbench/gate.json`](bench/kgbench/gate.json). The fast CI job and the
+pre-push hook run it as a test. After a change that is meant to move the numbers, `uv run kgbench gate
+--update` rewrites the floors, so raising or lowering one shows up in the diff.
+
 ## Where the design lives
 
 The thinking is all written down, and it's worth reading before any code:

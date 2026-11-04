@@ -22,7 +22,7 @@ from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
 from kggen.world import generate
 
 from graph_rag.wiring import build_offline_components, build_real_components
-from kgbench import __version__
+from kgbench import __version__, gate
 from kgbench.compare import compare
 from kgbench.cost import Meter
 from kgbench.dataset import SUBSETS, load_examples, select_subset
@@ -84,6 +84,17 @@ def build_parser() -> argparse.ArgumentParser:
     cmp.add_argument("--k", type=int, default=5, help="The k for the headline table.")
     cmp.add_argument("--out", type=Path, help="Write the markdown report here.")
     cmp.add_argument("--json", type=Path, help="Write every number as JSON here.")
+    gate_cmd = commands.add_parser(
+        "gate", help="Fail if graph-rag scores below the stored floors (offline, no provider)."
+    )
+    gate_cmd.add_argument(
+        "--thresholds", type=Path, default=gate.DEFAULT_FLOORS, help="Floor file."
+    )
+    gate_cmd.add_argument(
+        "--update",
+        action="store_true",
+        help="Rewrite the floors from the current numbers (after a change meant to move them).",
+    )
     linking = commands.add_parser(
         "linking", help="Score entity linking (B-cubed) per difficulty setting."
     )
@@ -122,6 +133,22 @@ def _compare(args: argparse.Namespace) -> int:
     if args.json:
         args.json.write_text(json.dumps(result.to_dict(), indent=1) + "\n")
     return 0
+
+
+def _gate(args: argparse.Namespace) -> int:
+    setup, floors = gate.load(args.thresholds)
+    metrics = gate.measure(setup)
+    if args.update:
+        gate.save(args.thresholds, setup, gate.floors_from(metrics, setup.margin))
+        print(f"Wrote {len(gate.floors_from(metrics, setup.margin))} floors to {args.thresholds}")
+        return 0
+    print(gate.format_report(metrics, floors))
+    failures = gate.check(metrics, floors)
+    for f in failures:
+        got = "not measured" if f.value is None else f"{f.value:.3f}"
+        print(f"REGRESSION {f.metric}: {got} is below the floor {f.floor:.3f}")
+    print(f"{len(floors) - len(failures)}/{len(floors)} gated metrics at or above their floor")
+    return 1 if failures else 0
 
 
 def _linking(args: argparse.Namespace) -> int:
@@ -188,5 +215,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _linking(args)
     if args.command == "compare":
         return _compare(args)
+    if args.command == "gate":
+        return _gate(args)
     parser.print_help()
     return 0
