@@ -261,6 +261,8 @@ uv run kggen world generate --preset medium --out world.json   # also writes wor
 uv run kggen world stats --preset medium                       # realized stats vs. the spec
 uv run kggen questions generate --preset small --n 50 --hops 1:1,2:2,3:1 --out questions.json
 uv run kggen docs generate --preset small --out docs.json      # template text, no LLM
+# LLM-written text for any OpenAI-compatible endpoint; answers are cached, so a re-run needs no endpoint:
+uv run kggen docs generate --preset tiny --renderer llm --model M --cache-dir DIR [--base-url URL]
 uv run kggen export --spec spec.json --out dataset.zip         # world + questions + documents + specs, reproducible
 uv run --with indah kggen ui                                   # web UI (or install kggen[ui]);
                                                                # the graph view needs indah 0.12+; the UI also
