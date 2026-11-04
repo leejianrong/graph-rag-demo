@@ -22,7 +22,7 @@ plain entity question is unchanged.
 | `type` | The question family: `entity`, `set`, `count`, `compare`, `superlative`, `unanswerable`, `false_premise`, `as_of`, `latest`, `retracted`, `path`, `open_ended` |
 | `answer_kind` | How to grade: `entity`, `set`, `number`, `path`, `abstain`, `false_premise`, `open_ended` |
 | `answers` | Entity ids that are correct (all of them, for a set); `number` holds a count |
-| `answer_names` | Every accepted surface form of every correct answer |
+| `answer_names` | One list of surface forms (name and aliases) per entry of `answers`, in the same order |
 | `ordered`, `tie_rule` | Whether order matters; how ties are handled for a superlative |
 | `gold_paths` | One or more lists of fact ids; `supporting_facts` stays the first |
 | `abstain` | `{expected, reason}`; reason is `no_evidence`, `false_premise`, `retracted` or `ambiguous` |
@@ -51,5 +51,10 @@ Rules that keep gold honest:
   it as past. It is a heuristic. A judge can be passed in to decide instead; none ships, and no provider is called.
   Stale claims between two entities that a current fact also links are not asked about, since names cannot tell
   them apart.
+- `kgbench.answers` scores an answer to any question by its `answer_kind` (entity, set F1, number, abstain and
+  false premise, path, open-ended) and reports answerable and unanswerable questions apart, with the correct-refusal
+  and false-refusal rates side by side. A system may pass structure (entity ids, a number, a refusal flag, cited fact
+  ids); without it, the scorer reads the text with offline heuristics and says so in each result's `detail`. Free text
+  cannot be scored for a `path` question, so those need cited facts.
 - `questions.json` gains fields; old readers that only use the original fields keep working.
 - The bench gains scorers per `answer_kind`; they are added with each question family, not up front.

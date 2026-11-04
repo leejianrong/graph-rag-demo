@@ -17,31 +17,21 @@ provider call.
 
 from __future__ import annotations
 
-import re
-from collections.abc import Callable, Sequence
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from kggen.questions import Question
 
+from kgbench.text import PAST, mentions, sentences_of
+
 Judge = Callable[[str, dict], "bool | None"]
-
-_SENTENCES = re.compile(r"(?<=[.!?])\s+|\n+")
-_PAST = re.compile(
-    r"\b(formerly|previously|no longer|used to|until|was|were|former|withdrawn|retracted|"
-    r"replaced|instead of|rather than|not|never|from)\b",
-    re.IGNORECASE,
-)
-
-
-def _mentions(sentence: str, names: Sequence[str]) -> bool:
-    return any(re.search(rf"(?<!\w){re.escape(n)}(?!\w)", sentence, re.IGNORECASE) for n in names)
 
 
 def _together(sentences: list[str], fact: dict) -> list[str]:
     return [
         s
         for s in sentences
-        if _mentions(s, fact["subject_names"]) and _mentions(s, fact["object_names"])
+        if mentions(s, fact["subject_names"]) and mentions(s, fact["object_names"])
     ]
 
 
@@ -70,7 +60,7 @@ def score_open_ended(question: Question, answer: str, judge: Judge | None = None
     """Coverage of ``question.required_facts`` and the forbidden claims ``answer`` makes."""
     if question.answer_kind != "open_ended":
         raise ValueError(f"{question.id} is a {question.type} question, not an open-ended one")
-    sentences = [s.strip() for s in _SENTENCES.split(answer) if s.strip()]
+    sentences = sentences_of(answer)
     covered, missed, total, got = [], [], 0.0, 0.0
     for fact in question.required_facts:
         verdict = judge(answer, fact) if judge else None
@@ -85,7 +75,7 @@ def score_open_ended(question: Question, answer: str, judge: Judge | None = None
     for claim in question.forbidden_claims:
         verdict = judge(answer, claim) if judge else None
         if verdict is None:
-            verdict = any(not _PAST.search(s) for s in _together(sentences, claim))
+            verdict = any(not PAST.search(s) for s in _together(sentences, claim))
         if verdict:
             made.append(claim["fact_id"])
     return OpenEndedScore(got / total if total else 0.0, tuple(covered), tuple(missed), tuple(made))
