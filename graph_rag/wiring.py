@@ -52,6 +52,7 @@ from graph_rag.fakes import (
 )
 from graph_rag.models import EdgeProvenance, Mention, Sentence, Triple
 from graph_rag.orchestrator import Orchestrator
+from graph_rag.ports import Embedder
 from graph_rag.predicates import Predicate
 from graph_rag.query.retriever import QueryRetriever
 from graph_rag.stages.coref import LLMCorefStage
@@ -66,6 +67,7 @@ __all__ = [
     "HeuristicNerStage",
     "HeuristicKgBuildStage",
     "BenchmarkComponents",
+    "build_embedder",
     "build_offline_components",
     "build_real_components",
 ]
@@ -372,3 +374,17 @@ def build_real_components(settings: Settings | None = None) -> BenchmarkComponen
         bucket=settings.minio_bucket,
         llm_calls=lambda: 0,
     )
+
+
+def build_embedder(*, real: bool = False, settings: Settings | None = None) -> Embedder:
+    """The embedder a pipeline uses: the deterministic fake, or the real local model.
+
+    ``real=True`` returns the ``sentence-transformers`` embedder from ``settings`` (bge-small by
+    default). It loads the model on first use, so building it needs neither torch nor a download;
+    embedding does (the ``embed`` extra and ``make embed-model``).
+    """
+    if not real:
+        return FakeEmbedder()
+    from graph_rag.adapters.embedder import SentenceTransformerEmbedder
+
+    return SentenceTransformerEmbedder.from_settings(settings or Settings())

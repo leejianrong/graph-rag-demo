@@ -14,6 +14,7 @@ from collections.abc import Sequence
 
 from kggen.render import Document
 
+from graph_rag.ports import Embedder
 from kgbench.retrieval import RetrievedSentence
 
 _TOKEN = re.compile(r"\w+")
@@ -59,3 +60,39 @@ class BM25Retriever:
         scored = [(self._score(query, i), i) for i in range(len(self._sentences))]
         ranked = sorted((x for x in scored if x[0] > 0), key=lambda x: (-x[0], x[1]))
         return [self._sentences[i] for _, i in ranked[:k]]
+
+
+def _unit(vector: Sequence[float]) -> list[float]:
+    norm = math.sqrt(sum(x * x for x in vector))
+    return [x / norm for x in vector] if norm else list(vector)
+
+
+class DenseRetriever:
+    """Dense-passage retrieval over sentences with the project's own ``Embedder`` port.
+
+    The corpus is embedded once, in batches, when the retriever is built; each question costs one
+    embedding call. Vectors are normalised here, so the score is cosine similarity whatever the
+    embedder returns. It always returns the ``k`` nearest sentences (there is no score cut-off),
+    and ties break by corpus position. No service beyond the embedder is needed.
+    """
+
+    def __init__(
+        self, documents: Sequence[Document], embedder: Embedder, *, batch_size: int = 64
+    ) -> None:
+        self._sentences = sentences_of(documents)
+        self._embedder = embedder
+        self._vectors: list[list[float]] = []
+        texts = [s.text for s in self._sentences]
+        for i in range(0, len(texts), batch_size):
+            self._vectors += [_unit(v) for v in embedder.embed(texts[i : i + batch_size])]
+
+    def retrieve(self, question: str, k: int) -> list[RetrievedSentence]:
+        if not self._sentences:
+            return []
+        query = _unit(self._embedder.embed([question])[0])
+        scored = [
+            (sum(a * b for a, b in zip(query, v, strict=True)), i)
+            for i, v in enumerate(self._vectors)
+        ]
+        scored.sort(key=lambda x: (-x[0], x[1]))
+        return [self._sentences[i] for _, i in scored[:k]]
