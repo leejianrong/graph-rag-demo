@@ -137,6 +137,7 @@ class Question:
     forbidden_claims: tuple[dict, ...] = ()
     as_of: int | None = None  # the year a temporal question asks about
     stale_values: tuple[str, ...] = ()  # names that held earlier and must not be given as current
+    answer_names: tuple[tuple[str, ...], ...] = ()  # each answer's name and aliases, as `answers`
 
     def to_dict(self) -> dict:
         return {
@@ -146,6 +147,7 @@ class Question:
             "answers": list(self.answers),
             "gold_paths": [list(p) for p in self.gold_paths],
             "stale_values": list(self.stale_values),
+            "answer_names": [list(n) for n in self.answer_names],
             "required_facts": list(self.required_facts),
             "forbidden_claims": list(self.forbidden_claims),
         }
@@ -871,4 +873,9 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
         questions += got
     rng.shuffle(questions)
     width = len(str(len(questions) - 1))
-    return tuple(Question(**{**vars(q), "id": f"Q{i:0{width}d}"}) for i, q in enumerate(questions))
+
+    def numbered(i: int, q: Question) -> Question:
+        who = tuple((names[a], *entities[a].aliases) for a in q.answers)
+        return Question(**{**vars(q), "id": f"Q{i:0{width}d}", "answer_names": who})
+
+    return tuple(numbered(i, q) for i, q in enumerate(questions))
