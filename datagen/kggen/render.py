@@ -259,18 +259,18 @@ def render_documents(world: World, spec: RenderSpec | None = None) -> tuple[Docu
                 )
             continue
         for i in range(0, len(facts), spec.max_facts_per_doc):
-            sentences: list[Sentence] = []
+            written: list[Sentence] = []
             offset = 0
             for edge in facts[i : i + spec.max_facts_per_doc]:
                 s = sentence(edge, offset)
-                sentences.append(s)
+                written.append(s)
                 offset = s.end + 1  # a single space joins sentences
             documents.append(
                 Document(
                     id=f"D{len(documents):05d}",
                     title=entities[subject].name,
-                    text=" ".join(s.text for s in sentences),
-                    sentences=tuple(sentences),
+                    text=" ".join(s.text for s in written),
+                    sentences=tuple(written),
                     distractor=entities[subject].distractor,
                     subject=subject,
                 )

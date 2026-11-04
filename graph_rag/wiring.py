@@ -50,9 +50,9 @@ from graph_rag.fakes import (
     InMemoryGraphStore,
     InMemoryObjectStore,
 )
-from graph_rag.models import EdgeProvenance, Mention, Sentence, Triple
+from graph_rag.models import CuratedType, EdgeProvenance, Mention, Sentence, Triple
 from graph_rag.orchestrator import Orchestrator
-from graph_rag.ports import Embedder
+from graph_rag.ports import Embedder, ObjectStore
 from graph_rag.predicates import Predicate
 from graph_rag.query.retriever import QueryRetriever
 from graph_rag.stages.coref import LLMCorefStage
@@ -126,7 +126,7 @@ _LEADING_STOPWORDS = frozenset(
     }
 )
 # The uniform curated type assigned to every heuristic mention (see module docstring).
-_HEURISTIC_TYPE = "ORG"
+_HEURISTIC_TYPE: CuratedType = "ORG"
 
 
 class HeuristicNerStage:
@@ -290,7 +290,7 @@ class BenchmarkComponents:
     calls, non-LLM retrieval) is observable.
     """
 
-    object_store: InMemoryObjectStore | object
+    object_store: ObjectStore
     orchestrator: Orchestrator
     retriever: QueryRetriever
     bucket: str

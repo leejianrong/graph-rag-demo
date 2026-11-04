@@ -9,7 +9,7 @@ baseline and graph-rag, so they use the same vectors and each sentence is embedd
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 from kggen.questions import QuestionSpec, generate_questions
@@ -18,11 +18,11 @@ from kggen.spec import WorldSpec
 from kggen.world import generate
 
 from graph_rag.ports import Embedder
-from graph_rag.wiring import build_embedder, build_offline_components
+from graph_rag.wiring import BenchmarkComponents, build_embedder, build_offline_components
 from kgbench.baselines import BM25Retriever, DenseRetriever
 from kgbench.cost import Cost, Meter
 from kgbench.graph_retriever import GraphRagRetriever
-from kgbench.retrieval import DEFAULT_KS, RetrievalReport, evaluate
+from kgbench.retrieval import DEFAULT_KS, RetrievalReport, Retriever, evaluate
 
 SYSTEMS = ("BM25", "Dense", "graph-rag passages", "graph-rag graph")
 
@@ -228,7 +228,7 @@ def run_seed(
     questions = generate_questions(world, QuestionSpec(n_questions=n_questions))
     # Each system is (the pipeline it runs, which has an LLM bill, or None; how to build it).
     graph = {m: build_offline_components(embedder=embedder) for m in ("passages", "graph")}
-    systems = {
+    systems: dict[str, tuple[BenchmarkComponents | None, Callable[[], Retriever]]] = {
         "BM25": (None, lambda: BM25Retriever(documents)),
         "Dense": (None, lambda: DenseRetriever(documents, embedder)),
         "graph-rag passages": (

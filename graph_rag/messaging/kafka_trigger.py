@@ -30,7 +30,7 @@ __all__ = ["KafkaTriggerPublisher", "KafkaTriggerConsumer"]
 _logger = get_logger(__name__)
 
 #: Type of the callback the consumer drives for each received trigger.
-TriggerHandler = Callable[[IngestTrigger], None]
+TriggerHandler = Callable[[IngestTrigger], object]  # a return value, if any, is ignored
 
 
 class KafkaTriggerPublisher:
@@ -139,6 +139,9 @@ class KafkaTriggerConsumer:
         Returns ``True`` if the message was delivered to the handler, ``False`` if
         it was logged-and-dropped (bad payload or handler error). Never raises.
         """
+        if raw_value is None:
+            _logger.error("dropping a trigger message with no value")
+            return False
         try:
             trigger = IngestTrigger.from_json(raw_value)
         except Exception:  # noqa: BLE001 — a bad message must not wedge the loop.

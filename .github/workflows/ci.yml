@@ -32,6 +32,9 @@ jobs:
         run: uv run ruff check .
       - name: Ruff format check
         run: uv run ruff format --check .
+      # A baseline config (pyproject.toml [tool.mypy]); a type error fails the required `lint` job.
+      - name: Type check (mypy)
+        run: uv run mypy
 
   # --- Cheap gate: landing-page check (dev-playbook #15) --------------------
   # site/index.html is a hand-authored, self-contained page published to GitHub

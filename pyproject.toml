@@ -42,6 +42,8 @@ dev = [
     "kggen",
     "kgbench",
     "openapi-spec-validator>=0.9.0",
+    "mypy>=2.4.1",
+    "types-pyyaml>=6.0.12.20261103",
 ]
 # Transformer NER runtime (ADR-0002). Only the real stack / a trf-backed run
 # needs these; the fast suite uses `en_core_web_sm` under plain spaCy.
@@ -78,6 +80,19 @@ target-version = "py312"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "W", "UP", "B"]
+
+# A baseline, not strict mode: signatures are checked, bodies of untyped functions are not, and a
+# library without stubs is skipped. Tighten (disallow_untyped_defs, check_untyped_defs) per
+# package as the code earns it. Run with `make types`.
+[tool.mypy]
+python_version = "3.12"
+files = ["graph_rag", "datagen/kggen", "bench/kgbench"]
+warn_redundant_casts = true
+no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+module = ["kafka", "kafka.*"]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests", "bench/tests", "datagen/tests"]

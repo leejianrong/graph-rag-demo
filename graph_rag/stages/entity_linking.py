@@ -237,6 +237,7 @@ class EntityLinkingStage:
             block = self._entity_store.block_candidates(
                 entity_type=entity.entity_type, normalized_name=normalized
             )
+            best_entity: CanonicalEntity | None
             if block:
                 best_entity = min(block, key=lambda candidate: candidate.canonical_id)
                 scored, cosine = self._best_candidate(vector, [best_entity])

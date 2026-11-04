@@ -266,8 +266,8 @@ def run_http(
 
     # Health check first, with a friendly hint if the stack isn't up.
     try:
-        with urllib.request.urlopen(f"{base_url}/health", timeout=10) as response:  # noqa: S310
-            response.read()
+        with urllib.request.urlopen(f"{base_url}/health", timeout=10) as health:  # noqa: S310
+            health.read()
     except urllib.error.URLError as error:
         print(
             f"Cannot reach the service at {base_url} ({error}).\n"
