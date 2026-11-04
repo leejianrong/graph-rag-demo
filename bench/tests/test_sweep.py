@@ -36,18 +36,55 @@ def test_a_sweep_where_graph_rag_never_wins_says_so() -> None:
 
 
 def test_a_sweep_where_graph_rag_always_wins_names_the_smallest_margin() -> None:
-    verdict = sweep_of([0.2, 0.05, 0.1]).verdict()
-    assert "at every value" in verdict and "smallest at 2" in verdict and "+0.05" in verdict
+    verdict = sweep_of([0.3, 0.1, 0.2]).verdict()
+    assert "at every value" in verdict and "smallest at 2" in verdict and "+0.10" in verdict
 
 
 def test_a_sweep_that_loses_from_some_value_on_names_where() -> None:
-    verdict = sweep_of([0.2, 0.1, 0.0, -0.1]).verdict()
+    verdict = sweep_of([0.3, 0.2, 0.0, -0.1]).verdict()
     assert "up to 2" in verdict and "stopped beating them from 3 on" in verdict
 
 
 def test_a_sweep_that_wins_only_in_the_middle_lists_those_values() -> None:
-    verdict = sweep_of([-0.1, 0.1, -0.1]).verdict()
+    verdict = sweep_of([-0.1, 0.2, -0.1]).verdict()
     assert "only at 2" in verdict
+
+
+def two_hop_sweep(overall: float, two_hop: float, knob: str = "avg_degree") -> sw.Sweep:
+    """A one-point sweep whose graph-rag leads by ``overall`` over every question but by
+    ``two_hop`` over the 2-hop ones."""
+
+    def rep(path_all: float, path_2: float) -> RetrievalReport:
+        return RetrievalReport(
+            (K,),
+            HopScore(40, {K: path_all}, {K: path_all}),
+            {1: HopScore(20, {K: 0.9}, {K: 0.9}), 2: HopScore(20, {K: path_2}, {K: path_2})},
+        )
+
+    reports = {s: rep(0.3, 0.1) for s in SYSTEMS}
+    reports[sw.CHALLENGER] = rep(0.3 + overall, 0.1 + two_hop)
+    run = SeedRun(0, 100, 200, 50, 200, 40, reports, {})
+    point = sw.Point(1.0, Comparison("small", "fake", (K,), (run,)), None, ())
+    return sw.Sweep(knob, "small", {}, K, (point,), (0,))
+
+
+def test_the_verdict_reads_two_hop_paths_not_the_score_over_every_question() -> None:
+    big_overall_only = two_hop_sweep(overall=0.3, two_hop=0.0)
+    assert (
+        "never beat" in big_overall_only.verdict() and "2-hop path@5" in big_overall_only.verdict()
+    )
+    assert big_overall_only.margin(big_overall_only.points[0]) == pytest.approx(0.0)
+    two_hop_win = two_hop_sweep(overall=0.0, two_hop=0.3)
+    assert "at every value" in two_hop_win.verdict()
+
+
+def test_the_hops_sweep_reads_each_point_at_its_own_hop_count() -> None:
+    s = two_hop_sweep(overall=0.0, two_hop=0.3, knob="hops")
+    point = s.points[0]
+    at_two = sw.Point(2.0, point.comparison, 2, ())
+    at_one = sw.Point(1.0, point.comparison, 1, ())
+    assert s.margin(at_two) == pytest.approx(0.3) and s.margin(at_one) == pytest.approx(0.0)
+    assert "2-hop" not in sw.Sweep("hops", "small", {}, K, (at_two,), (0,)).verdict()
 
 
 def test_a_gap_under_the_margin_is_not_a_win() -> None:
@@ -73,11 +110,12 @@ def test_the_margin_is_measured_against_the_better_baseline() -> None:
 
 def test_the_chart_is_valid_svg_with_a_line_per_system_and_a_label_per_value() -> None:
     svg = sw.chart_svg(sweep_of([0.1, 0.0, -0.1]))
+    assert "2-hop path@5" in svg  # the chart plots what the verdict reads
     root = ET.fromstring(svg)
     ns = "{http://www.w3.org/2000/svg}"
     assert len(root.findall(f"{ns}polyline")) == len(SYSTEMS)
     labels = {t.text for t in root.iter(f"{ns}text")}
-    assert {"1", "2", "3", "avg_degree", *SYSTEMS} <= labels
+    assert {"1", "2", "3", "avg_degree", "2-hop path@5", *SYSTEMS} <= labels
 
 
 def test_an_unknown_knob_is_refused() -> None:
@@ -112,7 +150,9 @@ def test_a_real_sweep_records_the_seed_and_realised_stats_of_every_point(tmp_pat
     for point in points:
         assert [w["seed"] for w in point["worlds"]] == [0, 1]
         assert all(w["entities"] == 120 for w in point["worlds"])
-        assert set(point["path"]) == set(SYSTEMS)
+        assert set(point["path"]) == set(SYSTEMS) == set(point["verdict_path"])
+        assert point["verdict_hops"] == 2 and point["verdict_questions"] > 0
+        assert set(point["path_by_hops"]["BM25"]) == {"1", "2", "3", "4"}
     assert points[0]["worlds"][0]["degree_mean"] == pytest.approx(2.0)
     assert points[1]["worlds"][0]["degree_mean"] == pytest.approx(6.0)
     assert points[1]["worlds"][0]["facts"] == 360

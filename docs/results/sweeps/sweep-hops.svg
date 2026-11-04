@@ -10,27 +10,27 @@
 <text x="262.0" y="254" text-anchor="middle" fill="#5b5148">3</text>
 <text x="370.0" y="254" text-anchor="middle" fill="#5b5148">4</text>
 <text x="208.0" y="272" text-anchor="middle" fill="#2a241f">hops</text><text x="12" y="130.0" transform="rotate(-90 12 130.0)" text-anchor="middle" fill="#2a241f">path@5</text>
-<polyline fill="none" stroke="#3457d5" stroke-width="2" points="46.0,36.7 154.0,236.0 262.0,236.0 370.0,236.0"/>
-<circle cx="46.0" cy="36.7" r="3" fill="#3457d5"/>
-<circle cx="154.0" cy="236.0" r="3" fill="#3457d5"/>
+<polyline fill="none" stroke="#3457d5" stroke-width="2" points="46.0,29.3 154.0,234.2 262.0,236.0 370.0,236.0"/>
+<circle cx="46.0" cy="29.3" r="3" fill="#3457d5"/>
+<circle cx="154.0" cy="234.2" r="3" fill="#3457d5"/>
 <circle cx="262.0" cy="236.0" r="3" fill="#3457d5"/>
 <circle cx="370.0" cy="236.0" r="3" fill="#3457d5"/>
 <line x1="384" x2="404" y1="38" y2="38" stroke="#3457d5" stroke-width="2"/><text x="410" y="42" fill="#2a241f">BM25</text>
-<polyline fill="none" stroke="#2e6d62" stroke-width="2" points="46.0,28.2 154.0,236.0 262.0,236.0 370.0,236.0"/>
-<circle cx="46.0" cy="28.2" r="3" fill="#2e6d62"/>
-<circle cx="154.0" cy="236.0" r="3" fill="#2e6d62"/>
+<polyline fill="none" stroke="#2e6d62" stroke-width="2" points="46.0,25.8 154.0,234.2 262.0,236.0 370.0,236.0"/>
+<circle cx="46.0" cy="25.8" r="3" fill="#2e6d62"/>
+<circle cx="154.0" cy="234.2" r="3" fill="#2e6d62"/>
 <circle cx="262.0" cy="236.0" r="3" fill="#2e6d62"/>
 <circle cx="370.0" cy="236.0" r="3" fill="#2e6d62"/>
 <line x1="384" x2="404" y1="56" y2="56" stroke="#2e6d62" stroke-width="2"/><text x="410" y="60" fill="#2a241f">Dense</text>
-<polyline fill="none" stroke="#e0701a" stroke-width="2" points="46.0,28.2 154.0,236.0 262.0,236.0 370.0,236.0"/>
-<circle cx="46.0" cy="28.2" r="3" fill="#e0701a"/>
-<circle cx="154.0" cy="236.0" r="3" fill="#e0701a"/>
+<polyline fill="none" stroke="#e0701a" stroke-width="2" points="46.0,25.8 154.0,234.2 262.0,236.0 370.0,236.0"/>
+<circle cx="46.0" cy="25.8" r="3" fill="#e0701a"/>
+<circle cx="154.0" cy="234.2" r="3" fill="#e0701a"/>
 <circle cx="262.0" cy="236.0" r="3" fill="#e0701a"/>
 <circle cx="370.0" cy="236.0" r="3" fill="#e0701a"/>
 <line x1="384" x2="404" y1="74" y2="74" stroke="#e0701a" stroke-width="2"/><text x="410" y="78" fill="#2a241f">graph-rag passages</text>
-<polyline fill="none" stroke="#b5296b" stroke-width="2" points="46.0,45.2 154.0,193.6 262.0,236.0 370.0,236.0"/>
-<circle cx="46.0" cy="45.2" r="3" fill="#b5296b"/>
-<circle cx="154.0" cy="193.6" r="3" fill="#b5296b"/>
+<polyline fill="none" stroke="#b5296b" stroke-width="2" points="46.0,43.4 154.0,197.1 262.0,236.0 370.0,236.0"/>
+<circle cx="46.0" cy="43.4" r="3" fill="#b5296b"/>
+<circle cx="154.0" cy="197.1" r="3" fill="#b5296b"/>
 <circle cx="262.0" cy="236.0" r="3" fill="#b5296b"/>
 <circle cx="370.0" cy="236.0" r="3" fill="#b5296b"/>
 <line x1="384" x2="404" y1="92" y2="92" stroke="#b5296b" stroke-width="2"/><text x="410" y="96" fill="#2a241f">graph-rag graph</text>

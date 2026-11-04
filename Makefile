@@ -1,7 +1,7 @@
 # One-command dev loop (dev-playbook #17). See docs/ARCHITECTURE.md §8.
 # Bare `make` prints this help; it never starts anything.
 .DEFAULT_GOAL := help
-.PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint types fmt check ui world fixtures extract linking order compare gate
+.PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint types fmt check ui world fixtures extract linking order sweep compare gate
 
 # The generator UI uses a local indah checkout when one exists (its Graph component is not on PyPI
 # until indah 0.12), else PyPI indah. Override: INDAH=/path/to/indah-python-ui, or INDAH= for PyPI.
@@ -125,6 +125,10 @@ linking: ## Score entity linking (B-cubed) per difficulty setting (PRESET=...).
 
 order: ## Ingest one corpus in shuffled orders and report the spread (PRESET=..., offline).
 	uv run kgbench order --preset $(PRESET)
+
+# bge needs the embed extra; the default sweep takes over an hour with bge. KNOB=avg_degree for one knob.
+sweep: ## Vary one world knob at a time and score every system (KNOB=all|n_entities|avg_degree|..., EMBEDDER=bge|fake).
+	uv run --extra embed kgbench sweep --knob $(or $(KNOB),all) --preset small --set n_entities=500 --embedder $(or $(EMBEDDER),bge) --out docs/results/sweeps
 
 gate: ## Fail if graph-rag scores below the floors in bench/kgbench/gate.json (offline, ~15 s).
 	uv run kgbench gate
