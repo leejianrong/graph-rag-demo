@@ -6,8 +6,10 @@ and every question carries the ids of the facts that support it (its gold path).
 of the plain kind is kept only if its answer is unique: following the same relations from the start
 entity reaches exactly one entity in the world's final state. Other kinds (ADR-0013) ask for every
 entity that fits (``set``), how many (``count``), which of two has more (``compare``) or which has
-the most (``superlative``). Their gold is still read off the world's facts. When a world cannot
-supply enough unique-answer questions at some hop count, the rest of that count are set
+the most (``superlative``). Two kinds have no answer to find: ``unanswerable`` asks about a relation
+the world holds no fact for, and ``false_premise`` states a fact the world contradicts; the right
+reply is to decline or to correct. Their gold is still read off the world's facts. When a world
+cannot supply enough unique-answer questions at some hop count, the rest of that count are set
 questions instead of an error, because on a large skewed world most long paths end in several
 valid answers.
 """
@@ -27,7 +29,15 @@ MAX_HOPS = 4
 MIN_SET = 2
 MAX_FRONTIER = 2000  # a path fanning out past this many entities is dropped as not unique
 MAX_SET = 25  # a set question is kept only when it has this many answers or fewer
-QUESTION_TYPES = ("entity", "set", "count", "compare", "superlative")
+QUESTION_TYPES = (
+    "entity",
+    "set",
+    "count",
+    "compare",
+    "superlative",
+    "unanswerable",
+    "false_premise",
+)
 
 # How each relation reads in a question (the same wording whichever side is the answer).
 VERB = {
@@ -109,7 +119,11 @@ class Question:
     gold_paths: tuple[tuple[str, ...], ...] = ()  # one chain of fact ids per correct answer
     ordered: bool = False
     tie_rule: str = ""
-    grading: str = "exact"  # exact | set_f1 | numeric
+    grading: str = "exact"  # exact | set_f1 | numeric | abstain
+    abstain: dict | None = None  # {expected, reason}: the right reply is to decline
+    premise: dict | None = (
+        None  # a false premise: {asserted_fact, contradicting_fact_ids, correction}
+    )
 
     def to_dict(self) -> dict:
         return {
@@ -417,6 +431,122 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             )
         return found
 
+    ever = {(e.subject, e.predicate, e.object) for e in world.edges}  # live and past facts
+    held: dict[tuple[str, str, bool], bool] = {}
+    for s_, p_, o_ in ever:
+        held[(s_, p_, True)] = held[(o_, p_, False)] = True
+    holders: dict[tuple[str, bool], set[str]] = {
+        k: {t for t in map(types.get, m)} for k, m in counts.items()
+    }
+
+    def unanswerable_questions(target: int) -> list[Question]:
+        found: list[Question] = []
+        keys = sorted(counts)
+        budget = 200 * target + 500
+        while len(found) < target and budget > 0 and keys:
+            budget -= 1
+            start = rng.choice(starts)
+            predicate, forward = rng.choice(keys)
+            if types[start] not in holders[(predicate, forward)]:
+                continue
+            if (
+                held.get((start, predicate, forward))
+                or ("unanswerable", start, predicate, forward) in seen
+            ):
+                continue
+            seen.add(("unanswerable", start, predicate, forward))
+            other = by_id[next(iter(next(iter(counts[(predicate, forward)].values()))))]
+            label = TYPE_LABEL[types[other.object if forward else other.subject]]
+            verb = VERB[predicate]
+            tail = f"{names[start]} {verb}" if forward else f"{verb} {names[start]}"
+            found.append(
+                Question(
+                    id="",
+                    question=f"Name the {label} that {tail}.",
+                    hops=1,
+                    start=start,
+                    answer="",
+                    answer_name="no answer: the data holds no such fact",
+                    accepted_answers=(),
+                    supporting_facts=(),
+                    type="unanswerable",
+                    answer_kind="abstain",
+                    grading="abstain",
+                    abstain={"expected": True, "reason": "no_evidence"},
+                )
+            )
+        return found
+
+    def false_premise_questions(target: int) -> list[Question]:
+        found: list[Question] = []
+        budget = 400 * target + 1000
+        while len(found) < target and budget > 0:
+            budget -= 1
+            start = rng.choice(starts)
+            options = [(e, True) for e in out_edges.get(start, [])] + [
+                (e, False) for e in in_edges.get(start, [])
+            ]
+            if not options:
+                continue
+            edge, forward = rng.choice(options)
+            true_end = edge.object if forward else edge.subject
+            if reach({start}, edge.predicate, forward) != {true_end}:
+                continue  # the real answer must be the only one, so the correction is exact
+            fake = rng.choice(starts)
+            if (
+                fake in (start, true_end)
+                or types[fake] != types[true_end]
+                or ((start, edge.predicate, fake) if forward else (fake, edge.predicate, start))
+                in ever
+            ):
+                continue
+            nxt = [(e, True) for e in out_edges.get(fake, []) if e.object != start] + [
+                (e, False) for e in in_edges.get(fake, []) if e.subject != start
+            ]
+            if not nxt or ("false_premise", start, edge.id, fake) in seen:
+                continue
+            seen.add(("false_premise", start, edge.id, fake))
+            second, second_forward = rng.choice(nxt)
+            verb = VERB[edge.predicate]
+            claim = (
+                f"{names[start]} {verb} {names[fake]}."
+                if forward
+                else f"{names[fake]} {verb} {names[start]}."
+            )
+            truth = (
+                f"{names[start]} {verb} {names[true_end]}"
+                if forward
+                else f"{names[true_end]} {verb} {names[start]}"
+            )
+            asked = _noun_phrase(names, types, fake, [(second, second_forward)])
+            found.append(
+                Question(
+                    id="",
+                    question=f"{claim} Name {asked}.",
+                    hops=2,
+                    start=start,
+                    answer="",
+                    answer_name=f"the premise is false: {truth}",
+                    accepted_answers=(),
+                    supporting_facts=(edge.id,),
+                    type="false_premise",
+                    answer_kind="false_premise",
+                    gold_paths=((edge.id,),),
+                    grading="abstain",
+                    abstain={"expected": True, "reason": "false_premise"},
+                    premise={
+                        "asserted_fact": {
+                            "subject": start if forward else fake,
+                            "predicate": edge.predicate,
+                            "object": fake if forward else start,
+                        },
+                        "contradicting_fact_ids": [edge.id],
+                        "correction": truth,
+                    },
+                )
+            )
+        return found
+
     quota = apportion(spec.n_questions, spec.type_mix)
     questions: list[Question] = []
     short = 0  # questions another type could not supply; plain entity questions make them up
@@ -426,7 +556,12 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             got = set_questions(int(hops_key), wanted[hops_key], kind)
             questions += got
             short += wanted[hops_key] - len(got)
-    for kind, make in (("compare", compare_questions), ("superlative", superlative_questions)):
+    for kind, make in (
+        ("compare", compare_questions),
+        ("superlative", superlative_questions),
+        ("unanswerable", unanswerable_questions),
+        ("false_premise", false_premise_questions),
+    ):
         got = make(quota.get(kind, 0))
         questions += got
         short += quota.get(kind, 0) - len(got)
