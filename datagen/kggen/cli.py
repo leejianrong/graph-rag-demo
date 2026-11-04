@@ -4,13 +4,17 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import sys
 from collections.abc import Sequence
 from pathlib import Path
 
 from kggen import __version__
 from kggen.export import export_archive
+from kggen.llm import CachedChat, CacheMiss, OpenAICompatible, ResponseCache
 from kggen.questions import QuestionSpec, generate_questions
 from kggen.render import RenderSpec, render_documents
+from kggen.render_llm import InvalidRendering, render_documents_llm
 from kggen.spec import PRESET_NAMES, load_preset, load_spec
 from kggen.stats import report
 from kggen.world import generate
@@ -53,6 +57,14 @@ def build_parser() -> argparse.ArgumentParser:
     d_gen.add_argument(
         "--alias-rate", type=float, default=0.5, help="Chance a mention is an alias."
     )
+    d_gen.add_argument(
+        "--renderer", choices=("template", "llm"), default="template", help="Who writes the text."
+    )
+    d_gen.add_argument("--cache-dir", type=Path, help="llm: where answers are cached (required).")
+    d_gen.add_argument(
+        "--base-url", help="llm: an OpenAI-compatible endpoint; omit to use only the cache."
+    )
+    d_gen.add_argument("--model", help="llm: the model name (required).")
     d_gen.add_argument("--out", type=Path, help="Write here instead of stdout.")
     export = commands.add_parser(
         "export", help="Write a reproducible dataset zip: world, questions, documents and specs."
@@ -80,6 +92,24 @@ def _world(args: argparse.Namespace):
     if args.seed is not None:
         spec = spec.with_overrides(seed=args.seed)
     return generate(spec)
+
+
+def _render_llm(args: argparse.Namespace, spec: RenderSpec):
+    """LLM rendering: the key comes from KGGEN_LLM_API_KEY, never from a flag."""
+    if not (args.cache_dir and args.model):
+        raise SystemExit("--renderer llm needs --cache-dir and --model")
+    client = (
+        OpenAICompatible(args.base_url, args.model, os.environ.get("KGGEN_LLM_API_KEY"))
+        if args.base_url
+        else None
+    )
+    chat = CachedChat(ResponseCache(args.cache_dir), client, args.model)
+    try:
+        docs = render_documents_llm(_world(args), chat, spec)
+    except (CacheMiss, InvalidRendering) as error:
+        raise SystemExit(f"error: {error}") from error
+    print(f"llm renderer: {chat.calls} endpoint calls, {chat.hits} cache hits", file=sys.stderr)
+    return docs
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -112,7 +142,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         spec = RenderSpec(
             seed=args.render_seed, max_facts_per_doc=args.max_facts, alias_use_rate=args.alias_rate
         )
-        data = [d.to_dict() for d in render_documents(_world(args), spec)]
+        if args.renderer == "llm":
+            docs = _render_llm(args, spec)
+        else:
+            docs = render_documents(_world(args), spec)
+        data = [d.to_dict() for d in docs]
         text = json.dumps(data, sort_keys=True, indent=1) + "\n"
         if args.out:
             args.out.write_text(text)
