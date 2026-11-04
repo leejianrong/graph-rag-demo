@@ -84,3 +84,23 @@ def test_put_is_overwrite_idempotent(object_store: MinioObjectStore) -> None:
     object_store.put(bucket, "doc.txt", b"second")
 
     assert object_store.get(bucket, "doc.txt") == b"second"
+
+
+def test_delete_removes_the_object_and_is_a_no_op_when_it_is_missing(
+    object_store: MinioObjectStore,
+) -> None:
+    """delete drops the bytes (get then raises); deleting again, or in a bucket that was
+    never made, does nothing, like the fake."""
+    from graph_rag.fakes import InMemoryObjectStore
+
+    bucket = f"documents-{uuid.uuid4().hex[:8]}"
+    fake = InMemoryObjectStore()
+    for store in (object_store, fake):
+        store.put(bucket, "gone.txt", b"bytes")
+        store.put(bucket, "kept.txt", b"other")
+        store.delete(bucket, "gone.txt")
+        with pytest.raises(FileNotFoundError):
+            store.get(bucket, "gone.txt")
+        assert store.get(bucket, "kept.txt") == b"other"
+        store.delete(bucket, "gone.txt")  # already gone
+        store.delete(f"never-created-{uuid.uuid4().hex[:8]}", "x.txt")  # no such bucket

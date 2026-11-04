@@ -300,3 +300,27 @@ def test_khop_returns_connected_subgraph(store: Neo4jGraphStore) -> None:
     real0 = store.khop(["p:a", "p:missing"], 0)
     assert _node_ids(real0) == {"p:a"}
     assert real0.edges == []
+
+
+def test_delete_nodes_removes_the_nodes_and_their_edges_like_the_fake(
+    store: Neo4jGraphStore,
+) -> None:
+    """delete_nodes drops the named nodes with every edge touching them; the rest stay and an
+    unknown id is ignored, as in the fake."""
+    from graph_rag.fakes import InMemoryGraphStore
+
+    entities = [_entity("p:a", "A"), _entity("p:b", "B"), _entity("p:c", "C")]
+    triples = [
+        _triple("p:a", "WORKS_FOR", "p:b", doc="doc:1"),
+        _triple("p:b", "MEMBER_OF", "p:c", doc="doc:2"),
+        _triple("p:a", "AFFILIATED_WITH", "p:c", doc="doc:2"),
+    ]
+    fake = InMemoryGraphStore()
+    for s in (store, fake):
+        s.upsert_entities(entities)
+        s.write_triples(triples)
+        s.delete_nodes(["p:b", "p:unknown"])
+        s.delete_nodes([])
+        assert s.get_node("p:b") is None and s.get_node("p:a") is not None
+    assert store.node_count() == fake.node_count() == 2
+    assert store.edge_count() == fake.edge_count() == 1

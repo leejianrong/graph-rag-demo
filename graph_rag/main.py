@@ -90,6 +90,7 @@ def main() -> None:
         entity_linking_stage=entity_linking_stage,
         graph_store=graph_store,
         kg_build_stage=kg_build_stage,
+        entity_store=entity_store,
     )
 
     # --- Prose synthesizer (N17, V7): the OPTIONAL gated LLM answer mode -----
@@ -129,7 +130,13 @@ def main() -> None:
     logger.info("started Kafka trigger consumer on topic %r", settings.ingest_trigger_topic)
 
     # --- FastAPI app (POST /ingest publishes; POST /query retrieves) --------
-    app = create_app(object_store, publisher, settings, retriever=retriever)
+    app = create_app(
+        object_store,
+        publisher,
+        settings,
+        retriever=retriever,
+        eraser=orchestrator.delete_document,
+    )
 
     logger.info("serving FastAPI app on 0.0.0.0:8000")
     uvicorn.run(app, host="0.0.0.0", port=8000)  # noqa: S104 — local demo, bind all.

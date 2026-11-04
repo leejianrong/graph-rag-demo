@@ -197,3 +197,17 @@ def test_knn_type_filter_restricts_candidates(store: EsEntityStore) -> None:
 
     org_hits = store.knn(vector=query, entity_type="ORG", top_k=5)
     assert [e.canonical_id for e, _ in org_hits] == ["org:x"]
+
+
+def test_delete_removes_one_entity_and_is_a_no_op_when_it_is_missing(store: EsEntityStore) -> None:
+    """delete drops the entity (get then returns None) and leaves the others; deleting again
+    does nothing, like the fake."""
+    fake = InMemoryEntityStore()
+    for s in (store, fake):
+        s.upsert(_entity("org:a", "Alpha"))
+        s.upsert(_entity("org:b", "Beta"))
+        s.delete("org:a")
+        assert s.get("org:a") is None and s.get("org:b") is not None
+        s.delete("org:a")
+        s.delete("org:never")
+    assert store.count() == fake.count() == 1

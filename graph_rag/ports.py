@@ -67,6 +67,10 @@ class ObjectStore(Protocol):
         """
         ...
 
+    def delete(self, bucket: str, object_key: str) -> None:
+        """Remove the object at ``(bucket, object_key)``; a no-op if it is not there."""
+        ...
+
 
 @runtime_checkable
 class DocumentStore(Protocol):
@@ -82,6 +86,19 @@ class DocumentStore(Protocol):
 
     def get(self, document_id: str) -> DocumentRecord | None:
         """Return the record for ``document_id``, or ``None`` if absent."""
+        ...
+
+    def delete(self, document_id: str) -> bool:
+        """Remove the record for ``document_id``; ``True`` if there was one."""
+        ...
+
+    def entities_in_use(self, canonical_ids: set[str], *, excluding: str | None = None) -> set[str]:
+        """The members of ``canonical_ids`` that a stored document still links to.
+
+        A record links to an entity when its ``el_result`` names that ``canonical_id``.
+        ``excluding`` skips one document, so a delete can ask what the *other* documents
+        still use before it removes this one.
+        """
         ...
 
     def search_sentences(self, *, vector: list[float], top_k: int) -> list[SupportingSentence]:
@@ -119,6 +136,10 @@ class EntityStore(Protocol):
 
     def upsert(self, entity: CanonicalEntity) -> None:
         """Insert or overwrite a canonical entity, keyed by ``entity.canonical_id``."""
+        ...
+
+    def delete(self, canonical_id: str) -> None:
+        """Remove the canonical entity; a no-op if it is not there."""
         ...
 
     def get(self, canonical_id: str) -> CanonicalEntity | None:
@@ -209,6 +230,10 @@ class GraphStore(Protocol):
         them (the graph-idempotency requirement — TESTING.md gap #1). Nodes are
         left intact (they are shared across documents and idempotent by ID).
         """
+        ...
+
+    def delete_nodes(self, canonical_ids: list[str]) -> None:
+        """Remove these nodes and every edge that touches them; ids with no node are ignored."""
         ...
 
     def khop(self, seed_ids: list[str], hops: int) -> Subgraph:

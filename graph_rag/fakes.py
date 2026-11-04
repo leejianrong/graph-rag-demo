@@ -76,6 +76,10 @@ class InMemoryObjectStore:
         except KeyError as exc:
             raise FileNotFoundError(f"No object at {bucket}/{object_key}") from exc
 
+    def delete(self, bucket: str, object_key: str) -> None:
+        """Remove the object; a no-op if it is not there."""
+        self._objects.pop((bucket, object_key), None)
+
 
 class InMemoryDocumentStore:
     """In-memory :class:`~graph_rag.ports.DocumentStore` backed by a dict.
@@ -94,6 +98,20 @@ class InMemoryDocumentStore:
     def get(self, document_id: str) -> DocumentRecord | None:
         """Return the record for ``document_id``, or ``None`` if absent."""
         return self._records.get(document_id)
+
+    def delete(self, document_id: str) -> bool:
+        """Remove the record; ``True`` if there was one."""
+        return self._records.pop(document_id, None) is not None
+
+    def entities_in_use(self, canonical_ids: set[str], *, excluding: str | None = None) -> set[str]:
+        """The ids some stored record (other than ``excluding``) links to."""
+        used = {
+            link.canonical_id
+            for record in self._records.values()
+            if record.document_id != excluding
+            for link in record.el_result
+        }
+        return canonical_ids & used
 
     def search_sentences(self, *, vector: list[float], top_k: int) -> list[SupportingSentence]:
         """Return the ``top_k`` sentences nearest ``vector`` by cosine (V6, B5).
@@ -161,6 +179,10 @@ class InMemoryEntityStore:
     def upsert(self, entity: CanonicalEntity) -> None:
         """Insert or overwrite the entity keyed by ``entity.canonical_id`` (idempotent)."""
         self._entities[entity.canonical_id] = entity
+
+    def delete(self, canonical_id: str) -> None:
+        """Remove the entity; a no-op if it is not there."""
+        self._entities.pop(canonical_id, None)
 
     def get(self, canonical_id: str) -> CanonicalEntity | None:
         """Return the canonical entity for ``canonical_id``, or ``None`` if absent."""
@@ -249,6 +271,15 @@ class InMemoryGraphStore:
         """
         self._edges = [
             edge for edge in self._edges if edge.provenance.source_doc_id != source_doc_id
+        ]
+
+    def delete_nodes(self, canonical_ids: list[str]) -> None:
+        """Remove these nodes and every edge that touches them."""
+        gone = set(canonical_ids)
+        for canonical_id in gone:
+            self._nodes.pop(canonical_id, None)
+        self._edges = [
+            e for e in self._edges if e.subject_id not in gone and e.object_id not in gone
         ]
 
     def khop(self, seed_ids: list[str], hops: int) -> Subgraph:
