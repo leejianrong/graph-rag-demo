@@ -151,7 +151,7 @@ at ~$0 thanks to response caching.
     raw strings), so that edges are grounded in the dedup store.
 23. As a graph consumer, I want a closed **predicate** set (~12: `LOCATED_IN`,
     `PART_OF`, `MEMBER_OF`, `WORKS_FOR`, `HAS_ROLE`, `FOUNDED`, `OWNS`,
-    `PRODUCES`, `PARTICIPATED_IN`, `OCCURRED_ON`, `AFFILIATED_WITH`, and
+    `PRODUCES`, `PARTICIPATED_IN`, `OCCURRED_ON`, `AFFILIATED_WITH`, `GOVERNED_BY`, and
     `RELATED_TO` as fallback), so that multi-hop queries and benchmarking are
     consistent.
 24. As a graph consumer, I want an open fallback that emits `RELATED_TO` and

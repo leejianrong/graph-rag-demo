@@ -147,7 +147,7 @@ documents become one node and enables cross-document multi-hop reasoning.
 `RELATED_TO` open fallback:
 
 `LOCATED_IN`, `PART_OF`, `MEMBER_OF`, `WORKS_FOR`, `HAS_ROLE`, `FOUNDED`, `OWNS`,
-`PRODUCES`, `PARTICIPATED_IN`, `OCCURRED_ON`, `AFFILIATED_WITH`, `RELATED_TO`
+`PRODUCES`, `PARTICIPATED_IN`, `OCCURRED_ON`, `AFFILIATED_WITH`, `GOVERNED_BY`, `RELATED_TO`
 (fallback). When nothing fits, the edge is `RELATED_TO` and the model's original
 phrase is preserved in the `raw_predicate` property — nothing is lost.
 

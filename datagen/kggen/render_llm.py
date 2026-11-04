@@ -34,6 +34,7 @@ _READABLE = {  # how to say each relation in the prompt; the model words it free
     "PRODUCES": "produces",
     "PARTICIPATED_IN": "participated in",
     "AFFILIATED_WITH": "is affiliated with",
+    "GOVERNED_BY": "is governed by",
 }
 
 

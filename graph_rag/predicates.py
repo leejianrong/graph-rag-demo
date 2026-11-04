@@ -31,7 +31,7 @@ __all__ = ["Predicate", "CLOSED_PREDICATES", "map_predicate"]
 class Predicate(StrEnum):
     """The closed knowledge-graph predicate set (ADR-0006 / ARCHITECTURE §5c).
 
-    Eleven curated primary relations plus :attr:`RELATED_TO`, the open fallback
+    Twelve curated primary relations plus :attr:`RELATED_TO`, the open fallback
     used when a raw predicate maps to none of the primaries. Members are plain
     strings (``StrEnum``), so ``Predicate.WORKS_FOR == "WORKS_FOR"`` and a member
     slots straight into :attr:`~graph_rag.models.Triple.predicate`.
@@ -48,6 +48,7 @@ class Predicate(StrEnum):
     PARTICIPATED_IN = "PARTICIPATED_IN"
     OCCURRED_ON = "OCCURRED_ON"
     AFFILIATED_WITH = "AFFILIATED_WITH"
+    GOVERNED_BY = "GOVERNED_BY"
     RELATED_TO = "RELATED_TO"  # open fallback — preserve raw phrase in provenance
 
 
@@ -130,6 +131,15 @@ _SYNONYMS: dict[str, Predicate] = {
     "associated with": Predicate.AFFILIATED_WITH,
     "affiliation": Predicate.AFFILIATED_WITH,
     "allied with": Predicate.AFFILIATED_WITH,
+    # GOVERNED_BY: the subject falls under a law (the object). "governs" is left out on purpose:
+    # it reads the other way round, and a phrase maps to a predicate, not to its inverse.
+    "regulated by": Predicate.GOVERNED_BY,
+    "subject to": Predicate.GOVERNED_BY,
+    "bound by": Predicate.GOVERNED_BY,
+    "complies with": Predicate.GOVERNED_BY,
+    "falls under": Predicate.GOVERNED_BY,
+    "under the jurisdiction of": Predicate.GOVERNED_BY,
+    "covered by": Predicate.GOVERNED_BY,
     # RELATED_TO (explicit — a clean map to the fallback member)
     "relates to": Predicate.RELATED_TO,
     "connected to": Predicate.RELATED_TO,

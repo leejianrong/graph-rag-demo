@@ -30,7 +30,8 @@ nothing is lost.
 
 Starter closed set (~12, extensible): `LOCATED_IN`, `PART_OF`, `MEMBER_OF`,
 `WORKS_FOR`, `HAS_ROLE`, `FOUNDED`, `OWNS`, `PRODUCES`, `PARTICIPATED_IN`,
-`OCCURRED_ON`, `AFFILIATED_WITH`, `RELATED_TO` (fallback).
+`OCCURRED_ON`, `AFFILIATED_WITH`, `GOVERNED_BY` (a law applies to the subject; added by GRA-94),
+`RELATED_TO` (fallback).
 
 **Node identity / merge key:** one Neo4j node per **canonical entity ID** (from
 corpus-local EL, [ADR-0004](./0004-corpus-local-entity-linking.md)). This is the
