@@ -1,0 +1,7538 @@
+[
+ {
+  "distractor": false,
+  "id": "D00000",
+  "sentences": [
+   {
+    "end": 33,
+    "fact_ids": [
+     "F000"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E001",
+      "start": 0,
+      "surface": "Dako Works"
+     },
+     {
+      "end": 32,
+      "entity_id": "E074",
+      "start": 24,
+      "surface": "Vipu X55"
+     }
+    ],
+    "start": 0,
+    "text": "Dako Works manufactures Vipu X55."
+   }
+  ],
+  "text": "Dako Works manufactures Vipu X55.",
+  "title": "Dako Works"
+ },
+ {
+  "distractor": false,
+  "id": "D00001",
+  "sentences": [
+   {
+    "end": 32,
+    "fact_ids": [
+     "F001"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E002",
+      "start": 0,
+      "surface": "Vazi Group"
+     },
+     {
+      "end": 31,
+      "entity_id": "E134",
+      "start": 23,
+      "surface": "Vegemere"
+     }
+    ],
+    "start": 0,
+    "text": "Vazi Group is based in Vegemere."
+   },
+   {
+    "end": 61,
+    "fact_ids": [
+     "F002"
+    ],
+    "mentions": [
+     {
+      "end": 43,
+      "entity_id": "E002",
+      "start": 33,
+      "surface": "Vazi Group"
+     },
+     {
+      "end": 60,
+      "entity_id": "E042",
+      "start": 53,
+      "surface": "Govo X8"
+     }
+    ],
+    "start": 33,
+    "text": "Vazi Group produces Govo X8."
+   }
+  ],
+  "text": "Vazi Group is based in Vegemere. Vazi Group produces Govo X8.",
+  "title": "Vazi Group"
+ },
+ {
+  "distractor": false,
+  "id": "D00002",
+  "sentences": [
+   {
+    "end": 47,
+    "fact_ids": [
+     "F003"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E003",
+      "start": 0,
+      "surface": "Suzi Dekaba"
+     },
+     {
+      "end": 46,
+      "entity_id": "E115",
+      "start": 31,
+      "surface": "Gaze Industries"
+     }
+    ],
+    "start": 0,
+    "text": "Suzi Dekaba is associated with Gaze Industries."
+   },
+   {
+    "end": 99,
+    "fact_ids": [
+     "F004"
+    ],
+    "mentions": [
+     {
+      "end": 59,
+      "entity_id": "E003",
+      "start": 48,
+      "surface": "Suzi Dekaba"
+     },
+     {
+      "end": 98,
+      "entity_id": "E126",
+      "start": 86,
+      "surface": "Mado Systems"
+     }
+    ],
+    "start": 48,
+    "text": "Suzi Dekaba sits among the members of Mado Systems."
+   }
+  ],
+  "text": "Suzi Dekaba is associated with Gaze Industries. Suzi Dekaba sits among the members of Mado Systems.",
+  "title": "Suzi Dekaba"
+ },
+ {
+  "distractor": false,
+  "id": "D00003",
+  "sentences": [
+   {
+    "end": 31,
+    "fact_ids": [
+     "F005"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E004",
+      "start": 0,
+      "surface": "Gipi Luzazu"
+     },
+     {
+      "end": 30,
+      "entity_id": "E002",
+      "start": 20,
+      "surface": "Vazi Group"
+     }
+    ],
+    "start": 0,
+    "text": "Gipi Luzazu founded Vazi Group."
+   },
+   {
+    "end": 61,
+    "fact_ids": [
+     "F006"
+    ],
+    "mentions": [
+     {
+      "end": 43,
+      "entity_id": "E004",
+      "start": 32,
+      "surface": "Gipi Luzazu"
+     },
+     {
+      "end": 60,
+      "entity_id": "E029",
+      "start": 56,
+      "surface": "Vapa"
+     }
+    ],
+    "start": 32,
+    "text": "Gipi Luzazu is based in Vapa."
+   }
+  ],
+  "text": "Gipi Luzazu founded Vazi Group. Gipi Luzazu is based in Vapa.",
+  "title": "Gipi Luzazu"
+ },
+ {
+  "distractor": false,
+  "id": "D00004",
+  "sentences": [
+   {
+    "end": 32,
+    "fact_ids": [
+     "F007"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E005",
+      "start": 0,
+      "surface": "Soto Forum"
+     },
+     {
+      "end": 31,
+      "entity_id": "E055",
+      "start": 23,
+      "surface": "Fazemere"
+     }
+    ],
+    "start": 0,
+    "text": "Soto Forum is based in Fazemere."
+   }
+  ],
+  "text": "Soto Forum is based in Fazemere.",
+  "title": "Soto Forum"
+ },
+ {
+  "distractor": false,
+  "id": "D00005",
+  "sentences": [
+   {
+    "end": 25,
+    "fact_ids": [
+     "F008"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E006",
+      "start": 0,
+      "surface": "Mizu Group"
+     },
+     {
+      "end": 24,
+      "entity_id": "E135",
+      "start": 16,
+      "surface": "Golu Q17"
+     }
+    ],
+    "start": 0,
+    "text": "Mizu Group owns Golu Q17."
+   },
+   {
+    "end": 55,
+    "fact_ids": [
+     "F009"
+    ],
+    "mentions": [
+     {
+      "end": 36,
+      "entity_id": "E006",
+      "start": 26,
+      "surface": "Mizu Group"
+     },
+     {
+      "end": 54,
+      "entity_id": "E084",
+      "start": 46,
+      "surface": "Poti Z57"
+     }
+    ],
+    "start": 26,
+    "text": "Mizu Group produces Poti Z57."
+   }
+  ],
+  "text": "Mizu Group owns Golu Q17. Mizu Group produces Poti Z57.",
+  "title": "Mizu Group"
+ },
+ {
+  "distractor": false,
+  "id": "D00006",
+  "sentences": [
+   {
+    "end": 29,
+    "fact_ids": [
+     "F010"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E007",
+      "start": 0,
+      "surface": "Gori X18"
+     },
+     {
+      "end": 28,
+      "entity_id": "E110",
+      "start": 20,
+      "surface": "Leze Z87"
+     }
+    ],
+    "start": 0,
+    "text": "Gori X18 belongs to Leze Z87."
+   }
+  ],
+  "text": "Gori X18 belongs to Leze Z87.",
+  "title": "Gori X18"
+ },
+ {
+  "distractor": false,
+  "id": "D00007",
+  "sentences": [
+   {
+    "end": 25,
+    "fact_ids": [
+     "F011"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E008",
+      "start": 0,
+      "surface": "Fili Vitalu"
+     },
+     {
+      "end": 24,
+      "entity_id": "E042",
+      "start": 17,
+      "surface": "Govo X8"
+     }
+    ],
+    "start": 0,
+    "text": "Fili Vitalu owns Govo X8."
+   },
+   {
+    "end": 61,
+    "fact_ids": [
+     "F012"
+    ],
+    "mentions": [
+     {
+      "end": 37,
+      "entity_id": "E008",
+      "start": 26,
+      "surface": "Fili Vitalu"
+     },
+     {
+      "end": 60,
+      "entity_id": "E100",
+      "start": 51,
+      "surface": "Gaze Expo"
+     }
+    ],
+    "start": 26,
+    "text": "Fili Vitalu took part in Gaze Expo."
+   },
+   {
+    "end": 99,
+    "fact_ids": [
+     "F013"
+    ],
+    "mentions": [
+     {
+      "end": 73,
+      "entity_id": "E008",
+      "start": 62,
+      "surface": "Fili Vitalu"
+     },
+     {
+      "end": 98,
+      "entity_id": "E060",
+      "start": 89,
+      "surface": "Gilo Labs"
+     }
+    ],
+    "start": 62,
+    "text": "Fili Vitalu is employed by Gilo Labs."
+   },
+   {
+    "end": 133,
+    "fact_ids": [
+     "F014"
+    ],
+    "mentions": [
+     {
+      "end": 111,
+      "entity_id": "E008",
+      "start": 100,
+      "surface": "Fili Vitalu"
+     },
+     {
+      "end": 132,
+      "entity_id": "E105",
+      "start": 122,
+      "surface": "Bisa Group"
+     }
+    ],
+    "start": 100,
+    "text": "Fili Vitalu works for Bisa Group."
+   }
+  ],
+  "text": "Fili Vitalu owns Govo X8. Fili Vitalu took part in Gaze Expo. Fili Vitalu is employed by Gilo Labs. Fili Vitalu works for Bisa Group.",
+  "title": "Fili Vitalu"
+ },
+ {
+  "distractor": false,
+  "id": "D00008",
+  "sentences": [
+   {
+    "end": 51,
+    "fact_ids": [
+     "F015"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E010",
+      "start": 0,
+      "surface": "Rilo Partners"
+     },
+     {
+      "end": 50,
+      "entity_id": "E105",
+      "start": 40,
+      "surface": "Bisa Group"
+     }
+    ],
+    "start": 0,
+    "text": "Rilo Partners sits among the members of Bisa Group."
+   }
+  ],
+  "text": "Rilo Partners sits among the members of Bisa Group.",
+  "title": "Rilo Partners"
+ },
+ {
+  "distractor": false,
+  "id": "D00009",
+  "sentences": [
+   {
+    "end": 33,
+    "fact_ids": [
+     "F016"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E011",
+      "start": 0,
+      "surface": "Fido Tebifu"
+     },
+     {
+      "end": 32,
+      "entity_id": "E126",
+      "start": 20,
+      "surface": "Mado Systems"
+     }
+    ],
+    "start": 0,
+    "text": "Fido Tebifu founded Mado Systems."
+   },
+   {
+    "end": 69,
+    "fact_ids": [
+     "F017"
+    ],
+    "mentions": [
+     {
+      "end": 45,
+      "entity_id": "E011",
+      "start": 34,
+      "surface": "Fido Tebifu"
+     },
+     {
+      "end": 68,
+      "entity_id": "E051",
+      "start": 61,
+      "surface": "Dodaese"
+     }
+    ],
+    "start": 34,
+    "text": "Fido Tebifu is a member of Dodaese."
+   }
+  ],
+  "text": "Fido Tebifu founded Mado Systems. Fido Tebifu is a member of Dodaese.",
+  "title": "Fido Tebifu"
+ },
+ {
+  "distractor": false,
+  "id": "D00010",
+  "sentences": [
+   {
+    "end": 25,
+    "fact_ids": [
+     "F018"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E012",
+      "start": 0,
+      "surface": "Takomere"
+     },
+     {
+      "end": 24,
+      "entity_id": "E029",
+      "start": 20,
+      "surface": "Vapa"
+     }
+    ],
+    "start": 0,
+    "text": "Takomere belongs to Vapa."
+   },
+   {
+    "end": 55,
+    "fact_ids": [
+     "F019"
+    ],
+    "mentions": [
+     {
+      "end": 34,
+      "entity_id": "E012",
+      "start": 26,
+      "surface": "Takomere"
+     },
+     {
+      "end": 54,
+      "entity_id": "E089",
+      "start": 46,
+      "surface": "Tuloford"
+     }
+    ],
+    "start": 26,
+    "text": "Takomere belongs to Tuloford."
+   },
+   {
+    "end": 85,
+    "fact_ids": [
+     "F020"
+    ],
+    "mentions": [
+     {
+      "end": 64,
+      "entity_id": "E012",
+      "start": 56,
+      "surface": "Takomere"
+     },
+     {
+      "end": 84,
+      "entity_id": "E129",
+      "start": 76,
+      "surface": "Kufemere"
+     }
+    ],
+    "start": 56,
+    "text": "Takomere is part of Kufemere."
+   }
+  ],
+  "text": "Takomere belongs to Vapa. Takomere belongs to Tuloford. Takomere is part of Kufemere.",
+  "title": "Takomere"
+ },
+ {
+  "distractor": false,
+  "id": "D00011",
+  "sentences": [
+   {
+    "end": 29,
+    "fact_ids": [
+     "F021"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E013",
+      "start": 0,
+      "surface": "Lima X72"
+     },
+     {
+      "end": 28,
+      "entity_id": "E123",
+      "start": 20,
+      "surface": "Duva X94"
+     }
+    ],
+    "start": 0,
+    "text": "Lima X72 belongs to Duva X94."
+   }
+  ],
+  "text": "Lima X72 belongs to Duva X94.",
+  "title": "Lima X72"
+ },
+ {
+  "distractor": false,
+  "id": "D00012",
+  "sentences": [
+   {
+    "end": 22,
+    "fact_ids": [
+     "F022"
+    ],
+    "mentions": [
+     {
+      "end": 4,
+      "entity_id": "E014",
+      "start": 0,
+      "surface": "Noli"
+     },
+     {
+      "end": 21,
+      "entity_id": "E132",
+      "start": 17,
+      "surface": "Fepa"
+     }
+    ],
+    "start": 0,
+    "text": "Noli is based in Fepa."
+   }
+  ],
+  "text": "Noli is based in Fepa.",
+  "title": "Noli"
+ },
+ {
+  "distractor": false,
+  "id": "D00013",
+  "sentences": [
+   {
+    "end": 28,
+    "fact_ids": [
+     "F023"
+    ],
+    "mentions": [
+     {
+      "end": 7,
+      "entity_id": "E015",
+      "start": 0,
+      "surface": "Nato Z5"
+     },
+     {
+      "end": 27,
+      "entity_id": "E083",
+      "start": 19,
+      "surface": "Sepa Z82"
+     }
+    ],
+    "start": 0,
+    "text": "Nato Z5 is part of Sepa Z82."
+   }
+  ],
+  "text": "Nato Z5 is part of Sepa Z82.",
+  "title": "Nato Z5"
+ },
+ {
+  "distractor": false,
+  "id": "D00014",
+  "sentences": [
+   {
+    "end": 46,
+    "fact_ids": [
+     "F024"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E016",
+      "start": 0,
+      "surface": "Kite Fumada"
+     },
+     {
+      "end": 45,
+      "entity_id": "E031",
+      "start": 30,
+      "surface": "Zolu Industries"
+     }
+    ],
+    "start": 0,
+    "text": "Kite Fumada is the founder of Zolu Industries."
+   },
+   {
+    "end": 78,
+    "fact_ids": [
+     "F025"
+    ],
+    "mentions": [
+     {
+      "end": 58,
+      "entity_id": "E016",
+      "start": 47,
+      "surface": "Kite Fumada"
+     },
+     {
+      "end": 77,
+      "entity_id": "E062",
+      "start": 67,
+      "surface": "Keme Group"
+     }
+    ],
+    "start": 47,
+    "text": "Kite Fumada founded Keme Group."
+   },
+   {
+    "end": 114,
+    "fact_ids": [
+     "F026"
+    ],
+    "mentions": [
+     {
+      "end": 90,
+      "entity_id": "E016",
+      "start": 79,
+      "surface": "Kite Fumada"
+     },
+     {
+      "end": 113,
+      "entity_id": "E066",
+      "start": 101,
+      "surface": "Mipo Systems"
+     }
+    ],
+    "start": 79,
+    "text": "Kite Fumada works for Mipo Systems."
+   }
+  ],
+  "text": "Kite Fumada is the founder of Zolu Industries. Kite Fumada founded Keme Group. Kite Fumada works for Mipo Systems.",
+  "title": "Kite Fumada"
+ },
+ {
+  "distractor": false,
+  "id": "D00015",
+  "sentences": [
+   {
+    "end": 30,
+    "fact_ids": [
+     "F027"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E017",
+      "start": 0,
+      "surface": "Gebo Holdings"
+     },
+     {
+      "end": 29,
+      "entity_id": "E081",
+      "start": 19,
+      "surface": "Gedo Works"
+     }
+    ],
+    "start": 0,
+    "text": "Gebo Holdings owns Gedo Works."
+   },
+   {
+    "end": 74,
+    "fact_ids": [
+     "F028"
+    ],
+    "mentions": [
+     {
+      "end": 44,
+      "entity_id": "E017",
+      "start": 31,
+      "surface": "Gebo Holdings"
+     },
+     {
+      "end": 73,
+      "entity_id": "E052",
+      "start": 58,
+      "surface": "Veta Conference"
+     }
+    ],
+    "start": 31,
+    "text": "Gebo Holdings took part in Veta Conference."
+   }
+  ],
+  "text": "Gebo Holdings owns Gedo Works. Gebo Holdings took part in Veta Conference.",
+  "title": "Gebo Holdings"
+ },
+ {
+  "distractor": false,
+  "id": "D00016",
+  "sentences": [
+   {
+    "end": 29,
+    "fact_ids": [
+     "F029"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E019",
+      "start": 0,
+      "surface": "Novu Q87"
+     },
+     {
+      "end": 28,
+      "entity_id": "E007",
+      "start": 20,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 0,
+    "text": "Novu Q87 belongs to Gori X18."
+   }
+  ],
+  "text": "Novu Q87 belongs to Gori X18.",
+  "title": "Novu Q87"
+ },
+ {
+  "distractor": false,
+  "id": "D00017",
+  "sentences": [
+   {
+    "end": 45,
+    "fact_ids": [
+     "F030"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E020",
+      "start": 0,
+      "surface": "Godi Gireme"
+     },
+     {
+      "end": 44,
+      "entity_id": "E024",
+      "start": 31,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Godi Gireme is associated with Dune Partners."
+   },
+   {
+    "end": 85,
+    "fact_ids": [
+     "F031"
+    ],
+    "mentions": [
+     {
+      "end": 57,
+      "entity_id": "E020",
+      "start": 46,
+      "surface": "Godi Gireme"
+     },
+     {
+      "end": 84,
+      "entity_id": "E057",
+      "start": 77,
+      "surface": "Besaish"
+     }
+    ],
+    "start": 46,
+    "text": "Godi Gireme is affiliated with Besaish."
+   },
+   {
+    "end": 125,
+    "fact_ids": [
+     "F032"
+    ],
+    "mentions": [
+     {
+      "end": 97,
+      "entity_id": "E020",
+      "start": 86,
+      "surface": "Godi Gireme"
+     },
+     {
+      "end": 124,
+      "entity_id": "E097",
+      "start": 117,
+      "surface": "Legeese"
+     }
+    ],
+    "start": 86,
+    "text": "Godi Gireme is affiliated with Legeese."
+   },
+   {
+    "end": 165,
+    "fact_ids": [
+     "F033"
+    ],
+    "mentions": [
+     {
+      "end": 137,
+      "entity_id": "E020",
+      "start": 126,
+      "surface": "Godi Gireme"
+     },
+     {
+      "end": 164,
+      "entity_id": "E124",
+      "start": 157,
+      "surface": "Megiish"
+     }
+    ],
+    "start": 126,
+    "text": "Godi Gireme is affiliated with Megiish."
+   },
+   {
+    "end": 207,
+    "fact_ids": [
+     "F034"
+    ],
+    "mentions": [
+     {
+      "end": 177,
+      "entity_id": "E020",
+      "start": 166,
+      "surface": "Godi Gireme"
+     },
+     {
+      "end": 206,
+      "entity_id": "E024",
+      "start": 193,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 166,
+    "text": "Godi Gireme is a member of Dune Partners."
+   }
+  ],
+  "text": "Godi Gireme is associated with Dune Partners. Godi Gireme is affiliated with Besaish. Godi Gireme is affiliated with Legeese. Godi Gireme is affiliated with Megiish. Godi Gireme is a member of Dune Partners.",
+  "title": "Godi Gireme"
+ },
+ {
+  "distractor": false,
+  "id": "D00018",
+  "sentences": [
+   {
+    "end": 44,
+    "fact_ids": [
+     "F035"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E021",
+      "start": 0,
+      "surface": "Lada Povedo"
+     },
+     {
+      "end": 43,
+      "entity_id": "E038",
+      "start": 31,
+      "surface": "Fozu Systems"
+     }
+    ],
+    "start": 0,
+    "text": "Lada Povedo is affiliated with Fozu Systems."
+   },
+   {
+    "end": 86,
+    "fact_ids": [
+     "F036"
+    ],
+    "mentions": [
+     {
+      "end": 56,
+      "entity_id": "E021",
+      "start": 45,
+      "surface": "Lada Povedo"
+     },
+     {
+      "end": 85,
+      "entity_id": "E002",
+      "start": 75,
+      "surface": "Vazi Group"
+     }
+    ],
+    "start": 45,
+    "text": "Lada Povedo is the founder of Vazi Group."
+   },
+   {
+    "end": 128,
+    "fact_ids": [
+     "F037"
+    ],
+    "mentions": [
+     {
+      "end": 98,
+      "entity_id": "E021",
+      "start": 87,
+      "surface": "Lada Povedo"
+     },
+     {
+      "end": 127,
+      "entity_id": "E070",
+      "start": 114,
+      "surface": "Vaka Partners"
+     }
+    ],
+    "start": 87,
+    "text": "Lada Povedo is employed by Vaka Partners."
+   }
+  ],
+  "text": "Lada Povedo is affiliated with Fozu Systems. Lada Povedo is the founder of Vazi Group. Lada Povedo is employed by Vaka Partners.",
+  "title": "Lada Povedo"
+ },
+ {
+  "distractor": false,
+  "id": "D00019",
+  "sentences": [
+   {
+    "end": 39,
+    "fact_ids": [
+     "F038"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E022",
+      "start": 0,
+      "surface": "Miga Verede"
+     },
+     {
+      "end": 38,
+      "entity_id": "E045",
+      "start": 31,
+      "surface": "Zeboese"
+     }
+    ],
+    "start": 0,
+    "text": "Miga Verede is affiliated with Zeboese."
+   },
+   {
+    "end": 69,
+    "fact_ids": [
+     "F039"
+    ],
+    "mentions": [
+     {
+      "end": 51,
+      "entity_id": "E022",
+      "start": 40,
+      "surface": "Miga Verede"
+     },
+     {
+      "end": 68,
+      "entity_id": "E069",
+      "start": 64,
+      "surface": "Lina"
+     }
+    ],
+    "start": 40,
+    "text": "Miga Verede is based in Lina."
+   },
+   {
+    "end": 96,
+    "fact_ids": [
+     "F040"
+    ],
+    "mentions": [
+     {
+      "end": 81,
+      "entity_id": "E022",
+      "start": 70,
+      "surface": "Miga Verede"
+     },
+     {
+      "end": 95,
+      "entity_id": "E007",
+      "start": 87,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 70,
+    "text": "Miga Verede owns Gori X18."
+   }
+  ],
+  "text": "Miga Verede is affiliated with Zeboese. Miga Verede is based in Lina. Miga Verede owns Gori X18.",
+  "title": "Miga Verede"
+ },
+ {
+  "distractor": false,
+  "id": "D00020",
+  "sentences": [
+   {
+    "end": 37,
+    "fact_ids": [
+     "F041"
+    ],
+    "mentions": [
+     {
+      "end": 17,
+      "entity_id": "E023",
+      "start": 0,
+      "surface": "Nolu Accord Talks"
+     },
+     {
+      "end": 36,
+      "entity_id": "E069",
+      "start": 32,
+      "surface": "Lina"
+     }
+    ],
+    "start": 0,
+    "text": "Nolu Accord Talks is located in Lina."
+   }
+  ],
+  "text": "Nolu Accord Talks is located in Lina.",
+  "title": "Nolu Accord Talks"
+ },
+ {
+  "distractor": false,
+  "id": "D00021",
+  "sentences": [
+   {
+    "end": 45,
+    "fact_ids": [
+     "F042"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E024",
+      "start": 0,
+      "surface": "Dune Partners"
+     },
+     {
+      "end": 44,
+      "entity_id": "E131",
+      "start": 29,
+      "surface": "Rave Industries"
+     }
+    ],
+    "start": 0,
+    "text": "Dune Partners is a member of Rave Industries."
+   },
+   {
+    "end": 86,
+    "fact_ids": [
+     "F043"
+    ],
+    "mentions": [
+     {
+      "end": 59,
+      "entity_id": "E024",
+      "start": 46,
+      "surface": "Dune Partners"
+     },
+     {
+      "end": 85,
+      "entity_id": "E136",
+      "start": 75,
+      "surface": "Sodu Works"
+     }
+    ],
+    "start": 46,
+    "text": "Dune Partners is a member of Sodu Works."
+   },
+   {
+    "end": 133,
+    "fact_ids": [
+     "F044"
+    ],
+    "mentions": [
+     {
+      "end": 100,
+      "entity_id": "E024",
+      "start": 87,
+      "surface": "Dune Partners"
+     },
+     {
+      "end": 132,
+      "entity_id": "E131",
+      "start": 117,
+      "surface": "Rave Industries"
+     }
+    ],
+    "start": 87,
+    "text": "Dune Partners is the owner of Rave Industries."
+   },
+   {
+    "end": 176,
+    "fact_ids": [
+     "F045"
+    ],
+    "mentions": [
+     {
+      "end": 147,
+      "entity_id": "E024",
+      "start": 134,
+      "surface": "Dune Partners"
+     },
+     {
+      "end": 175,
+      "entity_id": "E028",
+      "start": 164,
+      "surface": "Rito Summit"
+     }
+    ],
+    "start": 134,
+    "text": "Dune Partners participated in Rito Summit."
+   },
+   {
+    "end": 218,
+    "fact_ids": [
+     "F046"
+    ],
+    "mentions": [
+     {
+      "end": 190,
+      "entity_id": "E024",
+      "start": 177,
+      "surface": "Dune Partners"
+     },
+     {
+      "end": 217,
+      "entity_id": "E147",
+      "start": 204,
+      "surface": "Pova Festival"
+     }
+    ],
+    "start": 177,
+    "text": "Dune Partners took part in Pova Festival."
+   },
+   {
+    "end": 258,
+    "fact_ids": [
+     "F047"
+    ],
+    "mentions": [
+     {
+      "end": 232,
+      "entity_id": "E024",
+      "start": 219,
+      "surface": "Dune Partners"
+     },
+     {
+      "end": 257,
+      "entity_id": "E086",
+      "start": 244,
+      "surface": "Damo Partners"
+     }
+    ],
+    "start": 219,
+    "text": "Dune Partners is part of Damo Partners."
+   }
+  ],
+  "text": "Dune Partners is a member of Rave Industries. Dune Partners is a member of Sodu Works. Dune Partners is the owner of Rave Industries. Dune Partners participated in Rito Summit. Dune Partners took part in Pova Festival. Dune Partners is part of Damo Partners.",
+  "title": "Dune Partners"
+ },
+ {
+  "distractor": false,
+  "id": "D00022",
+  "sentences": [
+   {
+    "end": 32,
+    "fact_ids": [
+     "F048"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E024",
+      "start": 0,
+      "surface": "Dune Partners"
+     },
+     {
+      "end": 31,
+      "entity_id": "E007",
+      "start": 23,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 0,
+    "text": "Dune Partners produces Gori X18."
+   },
+   {
+    "end": 65,
+    "fact_ids": [
+     "F049"
+    ],
+    "mentions": [
+     {
+      "end": 46,
+      "entity_id": "E024",
+      "start": 33,
+      "surface": "Dune Partners"
+     },
+     {
+      "end": 64,
+      "entity_id": "E113",
+      "start": 56,
+      "surface": "Kuda Z64"
+     }
+    ],
+    "start": 33,
+    "text": "Dune Partners produces Kuda Z64."
+   },
+   {
+    "end": 102,
+    "fact_ids": [
+     "F050"
+    ],
+    "mentions": [
+     {
+      "end": 79,
+      "entity_id": "E024",
+      "start": 66,
+      "surface": "Dune Partners"
+     },
+     {
+      "end": 101,
+      "entity_id": "E135",
+      "start": 93,
+      "surface": "Golu Q17"
+     }
+    ],
+    "start": 66,
+    "text": "Dune Partners manufactures Golu Q17."
+   }
+  ],
+  "text": "Dune Partners produces Gori X18. Dune Partners produces Kuda Z64. Dune Partners manufactures Golu Q17.",
+  "title": "Dune Partners"
+ },
+ {
+  "distractor": false,
+  "id": "D00023",
+  "sentences": [
+   {
+    "end": 33,
+    "fact_ids": [
+     "F051"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E026",
+      "start": 0,
+      "surface": "Lone Pugali"
+     },
+     {
+      "end": 32,
+      "entity_id": "E120",
+      "start": 22,
+      "surface": "Veti Works"
+     }
+    ],
+    "start": 0,
+    "text": "Lone Pugali works for Veti Works."
+   }
+  ],
+  "text": "Lone Pugali works for Veti Works.",
+  "title": "Lone Pugali"
+ },
+ {
+  "distractor": false,
+  "id": "D00024",
+  "sentences": [
+   {
+    "end": 44,
+    "fact_ids": [
+     "F052"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E027",
+      "start": 0,
+      "surface": "Zibu Firezo"
+     },
+     {
+      "end": 43,
+      "entity_id": "E070",
+      "start": 30,
+      "surface": "Vaka Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Zibu Firezo is the founder of Vaka Partners."
+   },
+   {
+    "end": 76,
+    "fact_ids": [
+     "F053"
+    ],
+    "mentions": [
+     {
+      "end": 56,
+      "entity_id": "E027",
+      "start": 45,
+      "surface": "Zibu Firezo"
+     },
+     {
+      "end": 75,
+      "entity_id": "E116",
+      "start": 65,
+      "surface": "Gora Works"
+     }
+    ],
+    "start": 45,
+    "text": "Zibu Firezo founded Gora Works."
+   },
+   {
+    "end": 118,
+    "fact_ids": [
+     "F054"
+    ],
+    "mentions": [
+     {
+      "end": 88,
+      "entity_id": "E027",
+      "start": 77,
+      "surface": "Zibu Firezo"
+     },
+     {
+      "end": 117,
+      "entity_id": "E024",
+      "start": 104,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 77,
+    "text": "Zibu Firezo is employed by Dune Partners."
+   }
+  ],
+  "text": "Zibu Firezo is the founder of Vaka Partners. Zibu Firezo founded Gora Works. Zibu Firezo is employed by Dune Partners.",
+  "title": "Zibu Firezo"
+ },
+ {
+  "distractor": false,
+  "id": "D00025",
+  "sentences": [
+   {
+    "end": 32,
+    "fact_ids": [
+     "F055"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E028",
+      "start": 0,
+      "surface": "Rito Summit"
+     },
+     {
+      "end": 31,
+      "entity_id": "E137",
+      "start": 24,
+      "surface": "Buriton"
+     }
+    ],
+    "start": 0,
+    "text": "Rito Summit is based in Buriton."
+   }
+  ],
+  "text": "Rito Summit is based in Buriton.",
+  "title": "Rito Summit"
+ },
+ {
+  "distractor": false,
+  "id": "D00026",
+  "sentences": [
+   {
+    "end": 24,
+    "fact_ids": [
+     "F056"
+    ],
+    "mentions": [
+     {
+      "end": 4,
+      "entity_id": "E029",
+      "start": 0,
+      "surface": "Vapa"
+     },
+     {
+      "end": 23,
+      "entity_id": "E032",
+      "start": 19,
+      "surface": "Pubu"
+     }
+    ],
+    "start": 0,
+    "text": "Vapa is located in Pubu."
+   }
+  ],
+  "text": "Vapa is located in Pubu.",
+  "title": "Vapa"
+ },
+ {
+  "distractor": false,
+  "id": "D00027",
+  "sentences": [
+   {
+    "end": 31,
+    "fact_ids": [
+     "F057"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E030",
+      "start": 0,
+      "surface": "Gebi Boleve"
+     },
+     {
+      "end": 30,
+      "entity_id": "E065",
+      "start": 20,
+      "surface": "Mata Group"
+     }
+    ],
+    "start": 0,
+    "text": "Gebi Boleve founded Mata Group."
+   },
+   {
+    "end": 69,
+    "fact_ids": [
+     "F058"
+    ],
+    "mentions": [
+     {
+      "end": 43,
+      "entity_id": "E030",
+      "start": 32,
+      "surface": "Gebi Boleve"
+     },
+     {
+      "end": 68,
+      "entity_id": "E084",
+      "start": 60,
+      "surface": "Poti Z57"
+     }
+    ],
+    "start": 32,
+    "text": "Gebi Boleve is the owner of Poti Z57."
+   }
+  ],
+  "text": "Gebi Boleve founded Mata Group. Gebi Boleve is the owner of Poti Z57.",
+  "title": "Gebi Boleve"
+ },
+ {
+  "distractor": false,
+  "id": "D00028",
+  "sentences": [
+   {
+    "end": 32,
+    "fact_ids": [
+     "F059"
+    ],
+    "mentions": [
+     {
+      "end": 15,
+      "entity_id": "E031",
+      "start": 0,
+      "surface": "Zolu Industries"
+     },
+     {
+      "end": 31,
+      "entity_id": "E062",
+      "start": 21,
+      "surface": "Keme Group"
+     }
+    ],
+    "start": 0,
+    "text": "Zolu Industries owns Keme Group."
+   },
+   {
+    "end": 80,
+    "fact_ids": [
+     "F060"
+    ],
+    "mentions": [
+     {
+      "end": 48,
+      "entity_id": "E031",
+      "start": 33,
+      "surface": "Zolu Industries"
+     },
+     {
+      "end": 79,
+      "entity_id": "E023",
+      "start": 62,
+      "surface": "Nolu Accord Talks"
+     }
+    ],
+    "start": 33,
+    "text": "Zolu Industries took part in Nolu Accord Talks."
+   },
+   {
+    "end": 119,
+    "fact_ids": [
+     "F061"
+    ],
+    "mentions": [
+     {
+      "end": 96,
+      "entity_id": "E031",
+      "start": 81,
+      "surface": "Zolu Industries"
+     },
+     {
+      "end": 118,
+      "entity_id": "E007",
+      "start": 110,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 81,
+    "text": "Zolu Industries manufactures Gori X18."
+   }
+  ],
+  "text": "Zolu Industries owns Keme Group. Zolu Industries took part in Nolu Accord Talks. Zolu Industries manufactures Gori X18.",
+  "title": "Zolu Industries"
+ },
+ {
+  "distractor": false,
+  "id": "D00029",
+  "sentences": [
+   {
+    "end": 22,
+    "fact_ids": [
+     "F062"
+    ],
+    "mentions": [
+     {
+      "end": 4,
+      "entity_id": "E032",
+      "start": 0,
+      "surface": "Pubu"
+     },
+     {
+      "end": 21,
+      "entity_id": "E069",
+      "start": 17,
+      "surface": "Lina"
+     }
+    ],
+    "start": 0,
+    "text": "Pubu is based in Lina."
+   }
+  ],
+  "text": "Pubu is based in Lina.",
+  "title": "Pubu"
+ },
+ {
+  "distractor": false,
+  "id": "D00030",
+  "sentences": [
+   {
+    "end": 34,
+    "fact_ids": [
+     "F063"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E033",
+      "start": 0,
+      "surface": "Suvu Doveku"
+     },
+     {
+      "end": 33,
+      "entity_id": "E133",
+      "start": 20,
+      "surface": "Vevo Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Suvu Doveku founded Vevo Partners."
+   },
+   {
+    "end": 64,
+    "fact_ids": [
+     "F064"
+    ],
+    "mentions": [
+     {
+      "end": 46,
+      "entity_id": "E033",
+      "start": 35,
+      "surface": "Suvu Doveku"
+     },
+     {
+      "end": 63,
+      "entity_id": "E112",
+      "start": 59,
+      "surface": "Kole"
+     }
+    ],
+    "start": 35,
+    "text": "Suvu Doveku is based in Kole."
+   },
+   {
+    "end": 111,
+    "fact_ids": [
+     "F065"
+    ],
+    "mentions": [
+     {
+      "end": 76,
+      "entity_id": "E033",
+      "start": 65,
+      "surface": "Suvu Doveku"
+     },
+     {
+      "end": 110,
+      "entity_id": "E051",
+      "start": 103,
+      "surface": "Dodaese"
+     }
+    ],
+    "start": 65,
+    "text": "Suvu Doveku sits among the members of Dodaese."
+   },
+   {
+    "end": 150,
+    "fact_ids": [
+     "F066"
+    ],
+    "mentions": [
+     {
+      "end": 123,
+      "entity_id": "E033",
+      "start": 112,
+      "surface": "Suvu Doveku"
+     },
+     {
+      "end": 149,
+      "entity_id": "E081",
+      "start": 139,
+      "surface": "Gedo Works"
+     }
+    ],
+    "start": 112,
+    "text": "Suvu Doveku is a member of Gedo Works."
+   }
+  ],
+  "text": "Suvu Doveku founded Vevo Partners. Suvu Doveku is based in Kole. Suvu Doveku sits among the members of Dodaese. Suvu Doveku is a member of Gedo Works.",
+  "title": "Suvu Doveku"
+ },
+ {
+  "distractor": false,
+  "id": "D00031",
+  "sentences": [
+   {
+    "end": 31,
+    "fact_ids": [
+     "F067"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E034",
+      "start": 0,
+      "surface": "Rozo Zoruga"
+     },
+     {
+      "end": 30,
+      "entity_id": "E081",
+      "start": 20,
+      "surface": "Gedo Works"
+     }
+    ],
+    "start": 0,
+    "text": "Rozo Zoruga founded Gedo Works."
+   },
+   {
+    "end": 70,
+    "fact_ids": [
+     "F068"
+    ],
+    "mentions": [
+     {
+      "end": 43,
+      "entity_id": "E034",
+      "start": 32,
+      "surface": "Rozo Zoruga"
+     },
+     {
+      "end": 69,
+      "entity_id": "E081",
+      "start": 59,
+      "surface": "Gedo Works"
+     }
+    ],
+    "start": 32,
+    "text": "Rozo Zoruga is a member of Gedo Works."
+   },
+   {
+    "end": 111,
+    "fact_ids": [
+     "F069"
+    ],
+    "mentions": [
+     {
+      "end": 82,
+      "entity_id": "E034",
+      "start": 71,
+      "surface": "Rozo Zoruga"
+     },
+     {
+      "end": 110,
+      "entity_id": "E126",
+      "start": 98,
+      "surface": "Mado Systems"
+     }
+    ],
+    "start": 71,
+    "text": "Rozo Zoruga is employed by Mado Systems."
+   }
+  ],
+  "text": "Rozo Zoruga founded Gedo Works. Rozo Zoruga is a member of Gedo Works. Rozo Zoruga is employed by Mado Systems.",
+  "title": "Rozo Zoruga"
+ },
+ {
+  "distractor": false,
+  "id": "D00032",
+  "sentences": [
+   {
+    "end": 52,
+    "fact_ids": [
+     "F070"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E035",
+      "start": 0,
+      "surface": "Sate Kurila"
+     },
+     {
+      "end": 51,
+      "entity_id": "E010",
+      "start": 38,
+      "surface": "Rilo Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Sate Kurila sits among the members of Rilo Partners."
+   },
+   {
+    "end": 99,
+    "fact_ids": [
+     "F071"
+    ],
+    "mentions": [
+     {
+      "end": 64,
+      "entity_id": "E035",
+      "start": 53,
+      "surface": "Sate Kurila"
+     },
+     {
+      "end": 98,
+      "entity_id": "E124",
+      "start": 91,
+      "surface": "Megiish"
+     }
+    ],
+    "start": 53,
+    "text": "Sate Kurila sits among the members of Megiish."
+   }
+  ],
+  "text": "Sate Kurila sits among the members of Rilo Partners. Sate Kurila sits among the members of Megiish.",
+  "title": "Sate Kurila"
+ },
+ {
+  "distractor": false,
+  "id": "D00033",
+  "sentences": [
+   {
+    "end": 44,
+    "fact_ids": [
+     "F072"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E037",
+      "start": 0,
+      "surface": "Segi Tibano"
+     },
+     {
+      "end": 43,
+      "entity_id": "E024",
+      "start": 30,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Segi Tibano is the founder of Dune Partners."
+   },
+   {
+    "end": 86,
+    "fact_ids": [
+     "F073"
+    ],
+    "mentions": [
+     {
+      "end": 56,
+      "entity_id": "E037",
+      "start": 45,
+      "surface": "Segi Tibano"
+     },
+     {
+      "end": 85,
+      "entity_id": "E065",
+      "start": 75,
+      "surface": "Mata Group"
+     }
+    ],
+    "start": 45,
+    "text": "Segi Tibano is the founder of Mata Group."
+   },
+   {
+    "end": 131,
+    "fact_ids": [
+     "F074"
+    ],
+    "mentions": [
+     {
+      "end": 98,
+      "entity_id": "E037",
+      "start": 87,
+      "surface": "Segi Tibano"
+     },
+     {
+      "end": 130,
+      "entity_id": "E117",
+      "start": 117,
+      "surface": "Muvo Holdings"
+     }
+    ],
+    "start": 87,
+    "text": "Segi Tibano is the founder of Muvo Holdings."
+   },
+   {
+    "end": 169,
+    "fact_ids": [
+     "F075"
+    ],
+    "mentions": [
+     {
+      "end": 143,
+      "entity_id": "E037",
+      "start": 132,
+      "surface": "Segi Tibano"
+     },
+     {
+      "end": 168,
+      "entity_id": "E028",
+      "start": 157,
+      "surface": "Rito Summit"
+     }
+    ],
+    "start": 132,
+    "text": "Segi Tibano took part in Rito Summit."
+   }
+  ],
+  "text": "Segi Tibano is the founder of Dune Partners. Segi Tibano is the founder of Mata Group. Segi Tibano is the founder of Muvo Holdings. Segi Tibano took part in Rito Summit.",
+  "title": "Segi Tibano"
+ },
+ {
+  "distractor": false,
+  "id": "D00034",
+  "sentences": [
+   {
+    "end": 40,
+    "fact_ids": [
+     "F076"
+    ],
+    "mentions": [
+     {
+      "end": 12,
+      "entity_id": "E038",
+      "start": 0,
+      "surface": "Fozu Systems"
+     },
+     {
+      "end": 39,
+      "entity_id": "E136",
+      "start": 29,
+      "surface": "Sodu Works"
+     }
+    ],
+    "start": 0,
+    "text": "Fozu Systems is the owner of Sodu Works."
+   },
+   {
+    "end": 80,
+    "fact_ids": [
+     "F077"
+    ],
+    "mentions": [
+     {
+      "end": 53,
+      "entity_id": "E038",
+      "start": 41,
+      "surface": "Fozu Systems"
+     },
+     {
+      "end": 79,
+      "entity_id": "E053",
+      "start": 70,
+      "surface": "Mobo Expo"
+     }
+    ],
+    "start": 41,
+    "text": "Fozu Systems participated in Mobo Expo."
+   },
+   {
+    "end": 115,
+    "fact_ids": [
+     "F078"
+    ],
+    "mentions": [
+     {
+      "end": 93,
+      "entity_id": "E038",
+      "start": 81,
+      "surface": "Fozu Systems"
+     },
+     {
+      "end": 114,
+      "entity_id": "E042",
+      "start": 107,
+      "surface": "Govo X8"
+     }
+    ],
+    "start": 81,
+    "text": "Fozu Systems manufactures Govo X8."
+   }
+  ],
+  "text": "Fozu Systems is the owner of Sodu Works. Fozu Systems participated in Mobo Expo. Fozu Systems manufactures Govo X8.",
+  "title": "Fozu Systems"
+ },
+ {
+  "distractor": false,
+  "id": "D00035",
+  "sentences": [
+   {
+    "end": 44,
+    "fact_ids": [
+     "F079"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E039",
+      "start": 0,
+      "surface": "Devi Maromo"
+     },
+     {
+      "end": 43,
+      "entity_id": "E070",
+      "start": 30,
+      "surface": "Vaka Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Devi Maromo is the founder of Vaka Partners."
+   },
+   {
+    "end": 85,
+    "fact_ids": [
+     "F080"
+    ],
+    "mentions": [
+     {
+      "end": 56,
+      "entity_id": "E039",
+      "start": 45,
+      "surface": "Devi Maromo"
+     },
+     {
+      "end": 84,
+      "entity_id": "E038",
+      "start": 72,
+      "surface": "Fozu Systems"
+     }
+    ],
+    "start": 45,
+    "text": "Devi Maromo is employed by Fozu Systems."
+   },
+   {
+    "end": 124,
+    "fact_ids": [
+     "F081"
+    ],
+    "mentions": [
+     {
+      "end": 97,
+      "entity_id": "E039",
+      "start": 86,
+      "surface": "Devi Maromo"
+     },
+     {
+      "end": 123,
+      "entity_id": "E085",
+      "start": 113,
+      "surface": "Luse Group"
+     }
+    ],
+    "start": 86,
+    "text": "Devi Maromo is employed by Luse Group."
+   }
+  ],
+  "text": "Devi Maromo is the founder of Vaka Partners. Devi Maromo is employed by Fozu Systems. Devi Maromo is employed by Luse Group.",
+  "title": "Devi Maromo"
+ },
+ {
+  "distractor": false,
+  "id": "D00036",
+  "sentences": [
+   {
+    "end": 41,
+    "fact_ids": [
+     "F082"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E041",
+      "start": 0,
+      "surface": "Bure Sidusi"
+     },
+     {
+      "end": 40,
+      "entity_id": "E085",
+      "start": 30,
+      "surface": "Luse Group"
+     }
+    ],
+    "start": 0,
+    "text": "Bure Sidusi is the founder of Luse Group."
+   },
+   {
+    "end": 80,
+    "fact_ids": [
+     "F083"
+    ],
+    "mentions": [
+     {
+      "end": 53,
+      "entity_id": "E041",
+      "start": 42,
+      "surface": "Bure Sidusi"
+     },
+     {
+      "end": 79,
+      "entity_id": "E085",
+      "start": 69,
+      "surface": "Luse Group"
+     }
+    ],
+    "start": 42,
+    "text": "Bure Sidusi is a member of Luse Group."
+   }
+  ],
+  "text": "Bure Sidusi is the founder of Luse Group. Bure Sidusi is a member of Luse Group.",
+  "title": "Bure Sidusi"
+ },
+ {
+  "distractor": false,
+  "id": "D00037",
+  "sentences": [
+   {
+    "end": 30,
+    "fact_ids": [
+     "F084"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E044",
+      "start": 0,
+      "surface": "Mitaburg"
+     },
+     {
+      "end": 29,
+      "entity_id": "E055",
+      "start": 21,
+      "surface": "Fazemere"
+     }
+    ],
+    "start": 0,
+    "text": "Mitaburg is based in Fazemere."
+   },
+   {
+    "end": 56,
+    "fact_ids": [
+     "F085"
+    ],
+    "mentions": [
+     {
+      "end": 39,
+      "entity_id": "E044",
+      "start": 31,
+      "surface": "Mitaburg"
+     },
+     {
+      "end": 55,
+      "entity_id": "E009",
+      "start": 51,
+      "surface": "Bake"
+     }
+    ],
+    "start": 31,
+    "text": "Mitaburg belongs to Bake."
+   }
+  ],
+  "text": "Mitaburg is based in Fazemere. Mitaburg belongs to Bake.",
+  "title": "Mitaburg"
+ },
+ {
+  "distractor": false,
+  "id": "D00038",
+  "sentences": [
+   {
+    "end": 44,
+    "fact_ids": [
+     "F086"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E046",
+      "start": 0,
+      "surface": "Leni Works"
+     },
+     {
+      "end": 43,
+      "entity_id": "E146",
+      "start": 30,
+      "surface": "Mami Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Leni Works is associated with Mami Partners."
+   },
+   {
+    "end": 70,
+    "fact_ids": [
+     "F087"
+    ],
+    "mentions": [
+     {
+      "end": 55,
+      "entity_id": "E046",
+      "start": 45,
+      "surface": "Leni Works"
+     },
+     {
+      "end": 69,
+      "entity_id": "E019",
+      "start": 61,
+      "surface": "Novu Q87"
+     }
+    ],
+    "start": 45,
+    "text": "Leni Works owns Novu Q87."
+   },
+   {
+    "end": 104,
+    "fact_ids": [
+     "F088"
+    ],
+    "mentions": [
+     {
+      "end": 81,
+      "entity_id": "E046",
+      "start": 71,
+      "surface": "Leni Works"
+     },
+     {
+      "end": 103,
+      "entity_id": "E062",
+      "start": 93,
+      "surface": "Keme Group"
+     }
+    ],
+    "start": 71,
+    "text": "Leni Works belongs to Keme Group."
+   }
+  ],
+  "text": "Leni Works is associated with Mami Partners. Leni Works owns Novu Q87. Leni Works belongs to Keme Group.",
+  "title": "Leni Works"
+ },
+ {
+  "distractor": false,
+  "id": "D00039",
+  "sentences": [
+   {
+    "end": 46,
+    "fact_ids": [
+     "F089"
+    ],
+    "mentions": [
+     {
+      "end": 15,
+      "entity_id": "E047",
+      "start": 0,
+      "surface": "Saba Industries"
+     },
+     {
+      "end": 45,
+      "entity_id": "E046",
+      "start": 35,
+      "surface": "Leni Works"
+     }
+    ],
+    "start": 0,
+    "text": "Saba Industries is affiliated with Leni Works."
+   },
+   {
+    "end": 100,
+    "fact_ids": [
+     "F090"
+    ],
+    "mentions": [
+     {
+      "end": 62,
+      "entity_id": "E047",
+      "start": 47,
+      "surface": "Saba Industries"
+     },
+     {
+      "end": 99,
+      "entity_id": "E001",
+      "start": 89,
+      "surface": "Dako Works"
+     }
+    ],
+    "start": 47,
+    "text": "Saba Industries sits among the members of Dako Works."
+   },
+   {
+    "end": 143,
+    "fact_ids": [
+     "F091"
+    ],
+    "mentions": [
+     {
+      "end": 116,
+      "entity_id": "E047",
+      "start": 101,
+      "surface": "Saba Industries"
+     },
+     {
+      "end": 142,
+      "entity_id": "E080",
+      "start": 132,
+      "surface": "Pidu Works"
+     }
+    ],
+    "start": 101,
+    "text": "Saba Industries is a member of Pidu Works."
+   },
+   {
+    "end": 190,
+    "fact_ids": [
+     "F092"
+    ],
+    "mentions": [
+     {
+      "end": 159,
+      "entity_id": "E047",
+      "start": 144,
+      "surface": "Saba Industries"
+     },
+     {
+      "end": 189,
+      "entity_id": "E024",
+      "start": 176,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 144,
+    "text": "Saba Industries is the owner of Dune Partners."
+   },
+   {
+    "end": 234,
+    "fact_ids": [
+     "F093"
+    ],
+    "mentions": [
+     {
+      "end": 206,
+      "entity_id": "E047",
+      "start": 191,
+      "surface": "Saba Industries"
+     },
+     {
+      "end": 233,
+      "entity_id": "E080",
+      "start": 223,
+      "surface": "Pidu Works"
+     }
+    ],
+    "start": 191,
+    "text": "Saba Industries is the owner of Pidu Works."
+   }
+  ],
+  "text": "Saba Industries is affiliated with Leni Works. Saba Industries sits among the members of Dako Works. Saba Industries is a member of Pidu Works. Saba Industries is the owner of Dune Partners. Saba Industries is the owner of Pidu Works.",
+  "title": "Saba Industries"
+ },
+ {
+  "distractor": false,
+  "id": "D00040",
+  "sentences": [
+   {
+    "end": 35,
+    "fact_ids": [
+     "F094"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E048",
+      "start": 0,
+      "surface": "Kapu Festival"
+     },
+     {
+      "end": 34,
+      "entity_id": "E000",
+      "start": 26,
+      "surface": "Dozoford"
+     }
+    ],
+    "start": 0,
+    "text": "Kapu Festival is based in Dozoford."
+   }
+  ],
+  "text": "Kapu Festival is based in Dozoford.",
+  "title": "Kapu Festival"
+ },
+ {
+  "distractor": false,
+  "id": "D00041",
+  "sentences": [
+   {
+    "end": 31,
+    "fact_ids": [
+     "F095"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E049",
+      "start": 0,
+      "surface": "Gedu Tumuka"
+     },
+     {
+      "end": 30,
+      "entity_id": "E136",
+      "start": 20,
+      "surface": "Sodu Works"
+     }
+    ],
+    "start": 0,
+    "text": "Gedu Tumuka founded Sodu Works."
+   },
+   {
+    "end": 69,
+    "fact_ids": [
+     "F096"
+    ],
+    "mentions": [
+     {
+      "end": 43,
+      "entity_id": "E049",
+      "start": 32,
+      "surface": "Gedu Tumuka"
+     },
+     {
+      "end": 68,
+      "entity_id": "E142",
+      "start": 59,
+      "surface": "Seka Labs"
+     }
+    ],
+    "start": 32,
+    "text": "Gedu Tumuka is employed by Seka Labs."
+   }
+  ],
+  "text": "Gedu Tumuka founded Sodu Works. Gedu Tumuka is employed by Seka Labs.",
+  "title": "Gedu Tumuka"
+ },
+ {
+  "distractor": false,
+  "id": "D00042",
+  "sentences": [
+   {
+    "end": 40,
+    "fact_ids": [
+     "F097"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E050",
+      "start": 0,
+      "surface": "Foro Holdings"
+     },
+     {
+      "end": 39,
+      "entity_id": "E053",
+      "start": 30,
+      "surface": "Mobo Expo"
+     }
+    ],
+    "start": 0,
+    "text": "Foro Holdings participated in Mobo Expo."
+   }
+  ],
+  "text": "Foro Holdings participated in Mobo Expo.",
+  "title": "Foro Holdings"
+ },
+ {
+  "distractor": false,
+  "id": "D00043",
+  "sentences": [
+   {
+    "end": 35,
+    "fact_ids": [
+     "F098"
+    ],
+    "mentions": [
+     {
+      "end": 15,
+      "entity_id": "E052",
+      "start": 0,
+      "surface": "Veta Conference"
+     },
+     {
+      "end": 34,
+      "entity_id": "E029",
+      "start": 30,
+      "surface": "Vapa"
+     }
+    ],
+    "start": 0,
+    "text": "Veta Conference is located in Vapa."
+   },
+   {
+    "end": 73,
+    "fact_ids": [
+     "F099"
+    ],
+    "mentions": [
+     {
+      "end": 51,
+      "entity_id": "E052",
+      "start": 36,
+      "surface": "Veta Conference"
+     },
+     {
+      "end": 72,
+      "entity_id": "E089",
+      "start": 64,
+      "surface": "Tuloford"
+     }
+    ],
+    "start": 36,
+    "text": "Veta Conference is based in Tuloford."
+   }
+  ],
+  "text": "Veta Conference is located in Vapa. Veta Conference is based in Tuloford.",
+  "title": "Veta Conference"
+ },
+ {
+  "distractor": false,
+  "id": "D00044",
+  "sentences": [
+   {
+    "end": 42,
+    "fact_ids": [
+     "F100"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E054",
+      "start": 0,
+      "surface": "Tidi Dalali"
+     },
+     {
+      "end": 41,
+      "entity_id": "E105",
+      "start": 31,
+      "surface": "Bisa Group"
+     }
+    ],
+    "start": 0,
+    "text": "Tidi Dalali is affiliated with Bisa Group."
+   },
+   {
+    "end": 74,
+    "fact_ids": [
+     "F101"
+    ],
+    "mentions": [
+     {
+      "end": 54,
+      "entity_id": "E054",
+      "start": 43,
+      "surface": "Tidi Dalali"
+     },
+     {
+      "end": 73,
+      "entity_id": "E105",
+      "start": 63,
+      "surface": "Bisa Group"
+     }
+    ],
+    "start": 43,
+    "text": "Tidi Dalali founded Bisa Group."
+   },
+   {
+    "end": 106,
+    "fact_ids": [
+     "F102"
+    ],
+    "mentions": [
+     {
+      "end": 86,
+      "entity_id": "E054",
+      "start": 75,
+      "surface": "Tidi Dalali"
+     },
+     {
+      "end": 105,
+      "entity_id": "E116",
+      "start": 95,
+      "surface": "Gora Works"
+     }
+    ],
+    "start": 75,
+    "text": "Tidi Dalali founded Gora Works."
+   },
+   {
+    "end": 155,
+    "fact_ids": [
+     "F103"
+    ],
+    "mentions": [
+     {
+      "end": 118,
+      "entity_id": "E054",
+      "start": 107,
+      "surface": "Tidi Dalali"
+     },
+     {
+      "end": 154,
+      "entity_id": "E101",
+      "start": 145,
+      "surface": "Begu Labs"
+     }
+    ],
+    "start": 107,
+    "text": "Tidi Dalali sits among the members of Begu Labs."
+   },
+   {
+    "end": 192,
+    "fact_ids": [
+     "F104"
+    ],
+    "mentions": [
+     {
+      "end": 167,
+      "entity_id": "E054",
+      "start": 156,
+      "surface": "Tidi Dalali"
+     },
+     {
+      "end": 191,
+      "entity_id": "E005",
+      "start": 181,
+      "surface": "Soto Forum"
+     }
+    ],
+    "start": 156,
+    "text": "Tidi Dalali took part in Soto Forum."
+   },
+   {
+    "end": 231,
+    "fact_ids": [
+     "F105"
+    ],
+    "mentions": [
+     {
+      "end": 204,
+      "entity_id": "E054",
+      "start": 193,
+      "surface": "Tidi Dalali"
+     },
+     {
+      "end": 230,
+      "entity_id": "E100",
+      "start": 221,
+      "surface": "Gaze Expo"
+     }
+    ],
+    "start": 193,
+    "text": "Tidi Dalali participated in Gaze Expo."
+   }
+  ],
+  "text": "Tidi Dalali is affiliated with Bisa Group. Tidi Dalali founded Bisa Group. Tidi Dalali founded Gora Works. Tidi Dalali sits among the members of Begu Labs. Tidi Dalali took part in Soto Forum. Tidi Dalali participated in Gaze Expo.",
+  "title": "Tidi Dalali"
+ },
+ {
+  "distractor": false,
+  "id": "D00045",
+  "sentences": [
+   {
+    "end": 38,
+    "fact_ids": [
+     "F106"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E054",
+      "start": 0,
+      "surface": "Tidi Dalali"
+     },
+     {
+      "end": 37,
+      "entity_id": "E063",
+      "start": 27,
+      "surface": "Velu Group"
+     }
+    ],
+    "start": 0,
+    "text": "Tidi Dalali is employed by Velu Group."
+   },
+   {
+    "end": 71,
+    "fact_ids": [
+     "F107"
+    ],
+    "mentions": [
+     {
+      "end": 50,
+      "entity_id": "E054",
+      "start": 39,
+      "surface": "Tidi Dalali"
+     },
+     {
+      "end": 70,
+      "entity_id": "E101",
+      "start": 61,
+      "surface": "Begu Labs"
+     }
+    ],
+    "start": 39,
+    "text": "Tidi Dalali works for Begu Labs."
+   }
+  ],
+  "text": "Tidi Dalali is employed by Velu Group. Tidi Dalali works for Begu Labs.",
+  "title": "Tidi Dalali"
+ },
+ {
+  "distractor": false,
+  "id": "D00046",
+  "sentences": [
+   {
+    "end": 30,
+    "fact_ids": [
+     "F108"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E056",
+      "start": 0,
+      "surface": "Lare Group"
+     },
+     {
+      "end": 29,
+      "entity_id": "E040",
+      "start": 25,
+      "surface": "Bane"
+     }
+    ],
+    "start": 0,
+    "text": "Lare Group is located in Bane."
+   },
+   {
+    "end": 70,
+    "fact_ids": [
+     "F109"
+    ],
+    "mentions": [
+     {
+      "end": 41,
+      "entity_id": "E056",
+      "start": 31,
+      "surface": "Lare Group"
+     },
+     {
+      "end": 69,
+      "entity_id": "E038",
+      "start": 57,
+      "surface": "Fozu Systems"
+     }
+    ],
+    "start": 31,
+    "text": "Lare Group is a member of Fozu Systems."
+   },
+   {
+    "end": 100,
+    "fact_ids": [
+     "F110"
+    ],
+    "mentions": [
+     {
+      "end": 81,
+      "entity_id": "E056",
+      "start": 71,
+      "surface": "Lare Group"
+     },
+     {
+      "end": 99,
+      "entity_id": "E007",
+      "start": 91,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 71,
+    "text": "Lare Group produces Gori X18."
+   },
+   {
+    "end": 130,
+    "fact_ids": [
+     "F111"
+    ],
+    "mentions": [
+     {
+      "end": 111,
+      "entity_id": "E056",
+      "start": 101,
+      "surface": "Lare Group"
+     },
+     {
+      "end": 129,
+      "entity_id": "E110",
+      "start": 121,
+      "surface": "Leze Z87"
+     }
+    ],
+    "start": 101,
+    "text": "Lare Group produces Leze Z87."
+   }
+  ],
+  "text": "Lare Group is located in Bane. Lare Group is a member of Fozu Systems. Lare Group produces Gori X18. Lare Group produces Leze Z87.",
+  "title": "Lare Group"
+ },
+ {
+  "distractor": false,
+  "id": "D00047",
+  "sentences": [
+   {
+    "end": 45,
+    "fact_ids": [
+     "F112"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E059",
+      "start": 0,
+      "surface": "Gefo Dolifa"
+     },
+     {
+      "end": 44,
+      "entity_id": "E024",
+      "start": 31,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Gefo Dolifa is affiliated with Dune Partners."
+   },
+   {
+    "end": 88,
+    "fact_ids": [
+     "F113"
+    ],
+    "mentions": [
+     {
+      "end": 57,
+      "entity_id": "E059",
+      "start": 46,
+      "surface": "Gefo Dolifa"
+     },
+     {
+      "end": 87,
+      "entity_id": "E085",
+      "start": 77,
+      "surface": "Luse Group"
+     }
+    ],
+    "start": 46,
+    "text": "Gefo Dolifa is affiliated with Luse Group."
+   },
+   {
+    "end": 123,
+    "fact_ids": [
+     "F114"
+    ],
+    "mentions": [
+     {
+      "end": 100,
+      "entity_id": "E059",
+      "start": 89,
+      "surface": "Gefo Dolifa"
+     },
+     {
+      "end": 122,
+      "entity_id": "E137",
+      "start": 115,
+      "surface": "Buriton"
+     }
+    ],
+    "start": 89,
+    "text": "Gefo Dolifa is located in Buriton."
+   },
+   {
+    "end": 161,
+    "fact_ids": [
+     "F115"
+    ],
+    "mentions": [
+     {
+      "end": 135,
+      "entity_id": "E059",
+      "start": 124,
+      "surface": "Gefo Dolifa"
+     },
+     {
+      "end": 160,
+      "entity_id": "E028",
+      "start": 149,
+      "surface": "Rito Summit"
+     }
+    ],
+    "start": 124,
+    "text": "Gefo Dolifa took part in Rito Summit."
+   }
+  ],
+  "text": "Gefo Dolifa is affiliated with Dune Partners. Gefo Dolifa is affiliated with Luse Group. Gefo Dolifa is located in Buriton. Gefo Dolifa took part in Rito Summit.",
+  "title": "Gefo Dolifa"
+ },
+ {
+  "distractor": false,
+  "id": "D00048",
+  "sentences": [
+   {
+    "end": 39,
+    "fact_ids": [
+     "F116"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E061",
+      "start": 0,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 38,
+      "entity_id": "E124",
+      "start": 31,
+      "surface": "Megiish"
+     }
+    ],
+    "start": 0,
+    "text": "Kusi Fudapu is affiliated with Megiish."
+   },
+   {
+    "end": 73,
+    "fact_ids": [
+     "F117"
+    ],
+    "mentions": [
+     {
+      "end": 51,
+      "entity_id": "E061",
+      "start": 40,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 72,
+      "entity_id": "E038",
+      "start": 60,
+      "surface": "Fozu Systems"
+     }
+    ],
+    "start": 40,
+    "text": "Kusi Fudapu founded Fozu Systems."
+   },
+   {
+    "end": 115,
+    "fact_ids": [
+     "F118"
+    ],
+    "mentions": [
+     {
+      "end": 85,
+      "entity_id": "E061",
+      "start": 74,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 114,
+      "entity_id": "E063",
+      "start": 104,
+      "surface": "Velu Group"
+     }
+    ],
+    "start": 74,
+    "text": "Kusi Fudapu is the founder of Velu Group."
+   },
+   {
+    "end": 157,
+    "fact_ids": [
+     "F119"
+    ],
+    "mentions": [
+     {
+      "end": 127,
+      "entity_id": "E061",
+      "start": 116,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 156,
+      "entity_id": "E085",
+      "start": 146,
+      "surface": "Luse Group"
+     }
+    ],
+    "start": 116,
+    "text": "Kusi Fudapu is the founder of Luse Group."
+   },
+   {
+    "end": 189,
+    "fact_ids": [
+     "F120"
+    ],
+    "mentions": [
+     {
+      "end": 169,
+      "entity_id": "E061",
+      "start": 158,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 188,
+      "entity_id": "E116",
+      "start": 178,
+      "surface": "Gora Works"
+     }
+    ],
+    "start": 158,
+    "text": "Kusi Fudapu founded Gora Works."
+   },
+   {
+    "end": 225,
+    "fact_ids": [
+     "F121"
+    ],
+    "mentions": [
+     {
+      "end": 201,
+      "entity_id": "E061",
+      "start": 190,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 224,
+      "entity_id": "E055",
+      "start": 216,
+      "surface": "Fazemere"
+     }
+    ],
+    "start": 190,
+    "text": "Kusi Fudapu is located in Fazemere."
+   }
+  ],
+  "text": "Kusi Fudapu is affiliated with Megiish. Kusi Fudapu founded Fozu Systems. Kusi Fudapu is the founder of Velu Group. Kusi Fudapu is the founder of Luse Group. Kusi Fudapu founded Gora Works. Kusi Fudapu is located in Fazemere.",
+  "title": "Kusi Fudapu"
+ },
+ {
+  "distractor": false,
+  "id": "D00049",
+  "sentences": [
+   {
+    "end": 49,
+    "fact_ids": [
+     "F122"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E061",
+      "start": 0,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 48,
+      "entity_id": "E116",
+      "start": 38,
+      "surface": "Gora Works"
+     }
+    ],
+    "start": 0,
+    "text": "Kusi Fudapu sits among the members of Gora Works."
+   },
+   {
+    "end": 85,
+    "fact_ids": [
+     "F123"
+    ],
+    "mentions": [
+     {
+      "end": 61,
+      "entity_id": "E061",
+      "start": 50,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 84,
+      "entity_id": "E124",
+      "start": 77,
+      "surface": "Megiish"
+     }
+    ],
+    "start": 50,
+    "text": "Kusi Fudapu is a member of Megiish."
+   },
+   {
+    "end": 111,
+    "fact_ids": [
+     "F124"
+    ],
+    "mentions": [
+     {
+      "end": 97,
+      "entity_id": "E061",
+      "start": 86,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 110,
+      "entity_id": "E042",
+      "start": 103,
+      "surface": "Govo X8"
+     }
+    ],
+    "start": 86,
+    "text": "Kusi Fudapu owns Govo X8."
+   },
+   {
+    "end": 150,
+    "fact_ids": [
+     "F125"
+    ],
+    "mentions": [
+     {
+      "end": 123,
+      "entity_id": "E061",
+      "start": 112,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 149,
+      "entity_id": "E053",
+      "start": 140,
+      "surface": "Mobo Expo"
+     }
+    ],
+    "start": 112,
+    "text": "Kusi Fudapu participated in Mobo Expo."
+   },
+   {
+    "end": 190,
+    "fact_ids": [
+     "F126"
+    ],
+    "mentions": [
+     {
+      "end": 162,
+      "entity_id": "E061",
+      "start": 151,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 189,
+      "entity_id": "E058",
+      "start": 176,
+      "surface": "Bila Festival"
+     }
+    ],
+    "start": 151,
+    "text": "Kusi Fudapu took part in Bila Festival."
+   },
+   {
+    "end": 229,
+    "fact_ids": [
+     "F127"
+    ],
+    "mentions": [
+     {
+      "end": 202,
+      "entity_id": "E061",
+      "start": 191,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 228,
+      "entity_id": "E002",
+      "start": 218,
+      "surface": "Vazi Group"
+     }
+    ],
+    "start": 191,
+    "text": "Kusi Fudapu is employed by Vazi Group."
+   }
+  ],
+  "text": "Kusi Fudapu sits among the members of Gora Works. Kusi Fudapu is a member of Megiish. Kusi Fudapu owns Govo X8. Kusi Fudapu participated in Mobo Expo. Kusi Fudapu took part in Bila Festival. Kusi Fudapu is employed by Vazi Group.",
+  "title": "Kusi Fudapu"
+ },
+ {
+  "distractor": false,
+  "id": "D00050",
+  "sentences": [
+   {
+    "end": 33,
+    "fact_ids": [
+     "F128"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E061",
+      "start": 0,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 32,
+      "entity_id": "E063",
+      "start": 22,
+      "surface": "Velu Group"
+     }
+    ],
+    "start": 0,
+    "text": "Kusi Fudapu works for Velu Group."
+   },
+   {
+    "end": 75,
+    "fact_ids": [
+     "F129"
+    ],
+    "mentions": [
+     {
+      "end": 45,
+      "entity_id": "E061",
+      "start": 34,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 74,
+      "entity_id": "E070",
+      "start": 61,
+      "surface": "Vaka Partners"
+     }
+    ],
+    "start": 34,
+    "text": "Kusi Fudapu is employed by Vaka Partners."
+   },
+   {
+    "end": 114,
+    "fact_ids": [
+     "F130"
+    ],
+    "mentions": [
+     {
+      "end": 87,
+      "entity_id": "E061",
+      "start": 76,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 113,
+      "entity_id": "E085",
+      "start": 103,
+      "surface": "Luse Group"
+     }
+    ],
+    "start": 76,
+    "text": "Kusi Fudapu is employed by Luse Group."
+   },
+   {
+    "end": 148,
+    "fact_ids": [
+     "F131"
+    ],
+    "mentions": [
+     {
+      "end": 126,
+      "entity_id": "E061",
+      "start": 115,
+      "surface": "Kusi Fudapu"
+     },
+     {
+      "end": 147,
+      "entity_id": "E116",
+      "start": 137,
+      "surface": "Gora Works"
+     }
+    ],
+    "start": 115,
+    "text": "Kusi Fudapu works for Gora Works."
+   }
+  ],
+  "text": "Kusi Fudapu works for Velu Group. Kusi Fudapu is employed by Vaka Partners. Kusi Fudapu is employed by Luse Group. Kusi Fudapu works for Gora Works.",
+  "title": "Kusi Fudapu"
+ },
+ {
+  "distractor": false,
+  "id": "D00051",
+  "sentences": [
+   {
+    "end": 41,
+    "fact_ids": [
+     "F132"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E062",
+      "start": 0,
+      "surface": "Keme Group"
+     },
+     {
+      "end": 40,
+      "entity_id": "E080",
+      "start": 30,
+      "surface": "Pidu Works"
+     }
+    ],
+    "start": 0,
+    "text": "Keme Group is associated with Pidu Works."
+   },
+   {
+    "end": 71,
+    "fact_ids": [
+     "F133"
+    ],
+    "mentions": [
+     {
+      "end": 52,
+      "entity_id": "E062",
+      "start": 42,
+      "surface": "Keme Group"
+     },
+     {
+      "end": 70,
+      "entity_id": "E007",
+      "start": 62,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 42,
+    "text": "Keme Group produces Gori X18."
+   },
+   {
+    "end": 101,
+    "fact_ids": [
+     "F134"
+    ],
+    "mentions": [
+     {
+      "end": 82,
+      "entity_id": "E062",
+      "start": 72,
+      "surface": "Keme Group"
+     },
+     {
+      "end": 100,
+      "entity_id": "E019",
+      "start": 92,
+      "surface": "Novu Q87"
+     }
+    ],
+    "start": 72,
+    "text": "Keme Group produces Novu Q87."
+   },
+   {
+    "end": 131,
+    "fact_ids": [
+     "F135"
+    ],
+    "mentions": [
+     {
+      "end": 112,
+      "entity_id": "E062",
+      "start": 102,
+      "surface": "Keme Group"
+     },
+     {
+      "end": 130,
+      "entity_id": "E110",
+      "start": 122,
+      "surface": "Leze Z87"
+     }
+    ],
+    "start": 102,
+    "text": "Keme Group produces Leze Z87."
+   }
+  ],
+  "text": "Keme Group is associated with Pidu Works. Keme Group produces Gori X18. Keme Group produces Novu Q87. Keme Group produces Leze Z87.",
+  "title": "Keme Group"
+ },
+ {
+  "distractor": false,
+  "id": "D00052",
+  "sentences": [
+   {
+    "end": 37,
+    "fact_ids": [
+     "F136"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E063",
+      "start": 0,
+      "surface": "Velu Group"
+     },
+     {
+      "end": 36,
+      "entity_id": "E002",
+      "start": 26,
+      "surface": "Vazi Group"
+     }
+    ],
+    "start": 0,
+    "text": "Velu Group is a member of Vazi Group."
+   },
+   {
+    "end": 74,
+    "fact_ids": [
+     "F137"
+    ],
+    "mentions": [
+     {
+      "end": 48,
+      "entity_id": "E063",
+      "start": 38,
+      "surface": "Velu Group"
+     },
+     {
+      "end": 73,
+      "entity_id": "E070",
+      "start": 60,
+      "surface": "Vaka Partners"
+     }
+    ],
+    "start": 38,
+    "text": "Velu Group belongs to Vaka Partners."
+   },
+   {
+    "end": 107,
+    "fact_ids": [
+     "F138"
+    ],
+    "mentions": [
+     {
+      "end": 85,
+      "entity_id": "E063",
+      "start": 75,
+      "surface": "Velu Group"
+     },
+     {
+      "end": 106,
+      "entity_id": "E042",
+      "start": 99,
+      "surface": "Govo X8"
+     }
+    ],
+    "start": 75,
+    "text": "Velu Group manufactures Govo X8."
+   }
+  ],
+  "text": "Velu Group is a member of Vazi Group. Velu Group belongs to Vaka Partners. Velu Group manufactures Govo X8.",
+  "title": "Velu Group"
+ },
+ {
+  "distractor": false,
+  "id": "D00053",
+  "sentences": [
+   {
+    "end": 31,
+    "fact_ids": [
+     "F139"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E064",
+      "start": 0,
+      "surface": "Geki Mazera"
+     },
+     {
+      "end": 30,
+      "entity_id": "E081",
+      "start": 20,
+      "surface": "Gedo Works"
+     }
+    ],
+    "start": 0,
+    "text": "Geki Mazera founded Gedo Works."
+   },
+   {
+    "end": 58,
+    "fact_ids": [
+     "F140"
+    ],
+    "mentions": [
+     {
+      "end": 43,
+      "entity_id": "E064",
+      "start": 32,
+      "surface": "Geki Mazera"
+     },
+     {
+      "end": 57,
+      "entity_id": "E013",
+      "start": 49,
+      "surface": "Lima X72"
+     }
+    ],
+    "start": 32,
+    "text": "Geki Mazera owns Lima X72."
+   },
+   {
+    "end": 96,
+    "fact_ids": [
+     "F141"
+    ],
+    "mentions": [
+     {
+      "end": 70,
+      "entity_id": "E064",
+      "start": 59,
+      "surface": "Geki Mazera"
+     },
+     {
+      "end": 95,
+      "entity_id": "E083",
+      "start": 87,
+      "surface": "Sepa Z82"
+     }
+    ],
+    "start": 59,
+    "text": "Geki Mazera is the owner of Sepa Z82."
+   },
+   {
+    "end": 137,
+    "fact_ids": [
+     "F142"
+    ],
+    "mentions": [
+     {
+      "end": 108,
+      "entity_id": "E064",
+      "start": 97,
+      "surface": "Geki Mazera"
+     },
+     {
+      "end": 136,
+      "entity_id": "E126",
+      "start": 124,
+      "surface": "Mado Systems"
+     }
+    ],
+    "start": 97,
+    "text": "Geki Mazera is employed by Mado Systems."
+   }
+  ],
+  "text": "Geki Mazera founded Gedo Works. Geki Mazera owns Lima X72. Geki Mazera is the owner of Sepa Z82. Geki Mazera is employed by Mado Systems.",
+  "title": "Geki Mazera"
+ },
+ {
+  "distractor": false,
+  "id": "D00054",
+  "sentences": [
+   {
+    "end": 31,
+    "fact_ids": [
+     "F143"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E065",
+      "start": 0,
+      "surface": "Mata Group"
+     },
+     {
+      "end": 30,
+      "entity_id": "E137",
+      "start": 23,
+      "surface": "Buriton"
+     }
+    ],
+    "start": 0,
+    "text": "Mata Group is based in Buriton."
+   }
+  ],
+  "text": "Mata Group is based in Buriton.",
+  "title": "Mata Group"
+ },
+ {
+  "distractor": false,
+  "id": "D00055",
+  "sentences": [
+   {
+    "end": 36,
+    "fact_ids": [
+     "F144"
+    ],
+    "mentions": [
+     {
+      "end": 12,
+      "entity_id": "E066",
+      "start": 0,
+      "surface": "Mipo Systems"
+     },
+     {
+      "end": 35,
+      "entity_id": "E079",
+      "start": 26,
+      "surface": "Dadi Expo"
+     }
+    ],
+    "start": 0,
+    "text": "Mipo Systems took part in Dadi Expo."
+   }
+  ],
+  "text": "Mipo Systems took part in Dadi Expo.",
+  "title": "Mipo Systems"
+ },
+ {
+  "distractor": false,
+  "id": "D00056",
+  "sentences": [
+   {
+    "end": 31,
+    "fact_ids": [
+     "F145"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E067",
+      "start": 0,
+      "surface": "Fumi Sideni"
+     },
+     {
+      "end": 30,
+      "entity_id": "E105",
+      "start": 20,
+      "surface": "Bisa Group"
+     }
+    ],
+    "start": 0,
+    "text": "Fumi Sideni founded Bisa Group."
+   }
+  ],
+  "text": "Fumi Sideni founded Bisa Group.",
+  "title": "Fumi Sideni"
+ },
+ {
+  "distractor": false,
+  "id": "D00057",
+  "sentences": [
+   {
+    "end": 28,
+    "fact_ids": [
+     "F146"
+    ],
+    "mentions": [
+     {
+      "end": 4,
+      "entity_id": "E069",
+      "start": 0,
+      "surface": "Lina"
+     },
+     {
+      "end": 27,
+      "entity_id": "E000",
+      "start": 19,
+      "surface": "Dozoford"
+     }
+    ],
+    "start": 0,
+    "text": "Lina is located in Dozoford."
+   },
+   {
+    "end": 51,
+    "fact_ids": [
+     "F147"
+    ],
+    "mentions": [
+     {
+      "end": 33,
+      "entity_id": "E069",
+      "start": 29,
+      "surface": "Lina"
+     },
+     {
+      "end": 50,
+      "entity_id": "E029",
+      "start": 46,
+      "surface": "Vapa"
+     }
+    ],
+    "start": 29,
+    "text": "Lina is based in Vapa."
+   }
+  ],
+  "text": "Lina is located in Dozoford. Lina is based in Vapa.",
+  "title": "Lina"
+ },
+ {
+  "distractor": false,
+  "id": "D00058",
+  "sentences": [
+   {
+    "end": 31,
+    "fact_ids": [
+     "F148"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E070",
+      "start": 0,
+      "surface": "Vaka Partners"
+     },
+     {
+      "end": 30,
+      "entity_id": "E042",
+      "start": 23,
+      "surface": "Govo X8"
+     }
+    ],
+    "start": 0,
+    "text": "Vaka Partners produces Govo X8."
+   }
+  ],
+  "text": "Vaka Partners produces Govo X8.",
+  "title": "Vaka Partners"
+ },
+ {
+  "distractor": false,
+  "id": "D00059",
+  "sentences": [
+   {
+    "end": 45,
+    "fact_ids": [
+     "F149"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E071",
+      "start": 0,
+      "surface": "Revo Mevome"
+     },
+     {
+      "end": 44,
+      "entity_id": "E024",
+      "start": 31,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Revo Mevome is affiliated with Dune Partners."
+   },
+   {
+    "end": 95,
+    "fact_ids": [
+     "F150"
+    ],
+    "mentions": [
+     {
+      "end": 57,
+      "entity_id": "E071",
+      "start": 46,
+      "surface": "Revo Mevome"
+     },
+     {
+      "end": 94,
+      "entity_id": "E065",
+      "start": 84,
+      "surface": "Mata Group"
+     }
+    ],
+    "start": 46,
+    "text": "Revo Mevome sits among the members of Mata Group."
+   }
+  ],
+  "text": "Revo Mevome is affiliated with Dune Partners. Revo Mevome sits among the members of Mata Group.",
+  "title": "Revo Mevome"
+ },
+ {
+  "distractor": false,
+  "id": "D00060",
+  "sentences": [
+   {
+    "end": 41,
+    "fact_ids": [
+     "F151"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E072",
+      "start": 0,
+      "surface": "Golu Finane"
+     },
+     {
+      "end": 40,
+      "entity_id": "E065",
+      "start": 30,
+      "surface": "Mata Group"
+     }
+    ],
+    "start": 0,
+    "text": "Golu Finane is the founder of Mata Group."
+   }
+  ],
+  "text": "Golu Finane is the founder of Mata Group.",
+  "title": "Golu Finane"
+ },
+ {
+  "distractor": false,
+  "id": "D00061",
+  "sentences": [
+   {
+    "end": 41,
+    "fact_ids": [
+     "F152"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E073",
+      "start": 0,
+      "surface": "Kazo Robeka"
+     },
+     {
+      "end": 40,
+      "entity_id": "E139",
+      "start": 31,
+      "surface": "Pita Labs"
+     }
+    ],
+    "start": 0,
+    "text": "Kazo Robeka is affiliated with Pita Labs."
+   },
+   {
+    "end": 83,
+    "fact_ids": [
+     "F153"
+    ],
+    "mentions": [
+     {
+      "end": 53,
+      "entity_id": "E073",
+      "start": 42,
+      "surface": "Kazo Robeka"
+     },
+     {
+      "end": 82,
+      "entity_id": "E080",
+      "start": 72,
+      "surface": "Pidu Works"
+     }
+    ],
+    "start": 42,
+    "text": "Kazo Robeka is the founder of Pidu Works."
+   },
+   {
+    "end": 122,
+    "fact_ids": [
+     "F154"
+    ],
+    "mentions": [
+     {
+      "end": 95,
+      "entity_id": "E073",
+      "start": 84,
+      "surface": "Kazo Robeka"
+     },
+     {
+      "end": 121,
+      "entity_id": "E056",
+      "start": 111,
+      "surface": "Lare Group"
+     }
+    ],
+    "start": 84,
+    "text": "Kazo Robeka is a member of Lare Group."
+   },
+   {
+    "end": 162,
+    "fact_ids": [
+     "F155"
+    ],
+    "mentions": [
+     {
+      "end": 134,
+      "entity_id": "E073",
+      "start": 123,
+      "surface": "Kazo Robeka"
+     },
+     {
+      "end": 161,
+      "entity_id": "E058",
+      "start": 148,
+      "surface": "Bila Festival"
+     }
+    ],
+    "start": 123,
+    "text": "Kazo Robeka took part in Bila Festival."
+   }
+  ],
+  "text": "Kazo Robeka is affiliated with Pita Labs. Kazo Robeka is the founder of Pidu Works. Kazo Robeka is a member of Lare Group. Kazo Robeka took part in Bila Festival.",
+  "title": "Kazo Robeka"
+ },
+ {
+  "distractor": false,
+  "id": "D00062",
+  "sentences": [
+   {
+    "end": 45,
+    "fact_ids": [
+     "F156"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E076",
+      "start": 0,
+      "surface": "Guvo Kadisa"
+     },
+     {
+      "end": 44,
+      "entity_id": "E146",
+      "start": 31,
+      "surface": "Mami Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Guvo Kadisa is associated with Mami Partners."
+   },
+   {
+    "end": 80,
+    "fact_ids": [
+     "F157"
+    ],
+    "mentions": [
+     {
+      "end": 57,
+      "entity_id": "E076",
+      "start": 46,
+      "surface": "Guvo Kadisa"
+     },
+     {
+      "end": 79,
+      "entity_id": "E024",
+      "start": 66,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 46,
+    "text": "Guvo Kadisa founded Dune Partners."
+   },
+   {
+    "end": 120,
+    "fact_ids": [
+     "F158"
+    ],
+    "mentions": [
+     {
+      "end": 92,
+      "entity_id": "E076",
+      "start": 81,
+      "surface": "Guvo Kadisa"
+     },
+     {
+      "end": 119,
+      "entity_id": "E147",
+      "start": 106,
+      "surface": "Pova Festival"
+     }
+    ],
+    "start": 81,
+    "text": "Guvo Kadisa took part in Pova Festival."
+   },
+   {
+    "end": 162,
+    "fact_ids": [
+     "F159"
+    ],
+    "mentions": [
+     {
+      "end": 132,
+      "entity_id": "E076",
+      "start": 121,
+      "surface": "Guvo Kadisa"
+     },
+     {
+      "end": 161,
+      "entity_id": "E024",
+      "start": 148,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 121,
+    "text": "Guvo Kadisa is employed by Dune Partners."
+   },
+   {
+    "end": 196,
+    "fact_ids": [
+     "F160"
+    ],
+    "mentions": [
+     {
+      "end": 174,
+      "entity_id": "E076",
+      "start": 163,
+      "surface": "Guvo Kadisa"
+     },
+     {
+      "end": 195,
+      "entity_id": "E120",
+      "start": 185,
+      "surface": "Veti Works"
+     }
+    ],
+    "start": 163,
+    "text": "Guvo Kadisa works for Veti Works."
+   }
+  ],
+  "text": "Guvo Kadisa is associated with Mami Partners. Guvo Kadisa founded Dune Partners. Guvo Kadisa took part in Pova Festival. Guvo Kadisa is employed by Dune Partners. Guvo Kadisa works for Veti Works.",
+  "title": "Guvo Kadisa"
+ },
+ {
+  "distractor": false,
+  "id": "D00063",
+  "sentences": [
+   {
+    "end": 42,
+    "fact_ids": [
+     "F161"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E077",
+      "start": 0,
+      "surface": "Bimu Ronati"
+     },
+     {
+      "end": 41,
+      "entity_id": "E062",
+      "start": 31,
+      "surface": "Keme Group"
+     }
+    ],
+    "start": 0,
+    "text": "Bimu Ronati is affiliated with Keme Group."
+   },
+   {
+    "end": 84,
+    "fact_ids": [
+     "F162"
+    ],
+    "mentions": [
+     {
+      "end": 54,
+      "entity_id": "E077",
+      "start": 43,
+      "surface": "Bimu Ronati"
+     },
+     {
+      "end": 83,
+      "entity_id": "E080",
+      "start": 73,
+      "surface": "Pidu Works"
+     }
+    ],
+    "start": 43,
+    "text": "Bimu Ronati is the founder of Pidu Works."
+   },
+   {
+    "end": 111,
+    "fact_ids": [
+     "F163"
+    ],
+    "mentions": [
+     {
+      "end": 96,
+      "entity_id": "E077",
+      "start": 85,
+      "surface": "Bimu Ronati"
+     },
+     {
+      "end": 110,
+      "entity_id": "E113",
+      "start": 102,
+      "surface": "Kuda Z64"
+     }
+    ],
+    "start": 85,
+    "text": "Bimu Ronati owns Kuda Z64."
+   }
+  ],
+  "text": "Bimu Ronati is affiliated with Keme Group. Bimu Ronati is the founder of Pidu Works. Bimu Ronati owns Kuda Z64.",
+  "title": "Bimu Ronati"
+ },
+ {
+  "distractor": false,
+  "id": "D00064",
+  "sentences": [
+   {
+    "end": 44,
+    "fact_ids": [
+     "F164"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E080",
+      "start": 0,
+      "surface": "Pidu Works"
+     },
+     {
+      "end": 43,
+      "entity_id": "E117",
+      "start": 30,
+      "surface": "Muvo Holdings"
+     }
+    ],
+    "start": 0,
+    "text": "Pidu Works is affiliated with Muvo Holdings."
+   },
+   {
+    "end": 70,
+    "fact_ids": [
+     "F165"
+    ],
+    "mentions": [
+     {
+      "end": 55,
+      "entity_id": "E080",
+      "start": 45,
+      "surface": "Pidu Works"
+     },
+     {
+      "end": 69,
+      "entity_id": "E007",
+      "start": 61,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 45,
+    "text": "Pidu Works owns Gori X18."
+   },
+   {
+    "end": 113,
+    "fact_ids": [
+     "F166"
+    ],
+    "mentions": [
+     {
+      "end": 81,
+      "entity_id": "E080",
+      "start": 71,
+      "surface": "Pidu Works"
+     },
+     {
+      "end": 112,
+      "entity_id": "E023",
+      "start": 95,
+      "surface": "Nolu Accord Talks"
+     }
+    ],
+    "start": 71,
+    "text": "Pidu Works took part in Nolu Accord Talks."
+   },
+   {
+    "end": 157,
+    "fact_ids": [
+     "F167"
+    ],
+    "mentions": [
+     {
+      "end": 124,
+      "entity_id": "E080",
+      "start": 114,
+      "surface": "Pidu Works"
+     },
+     {
+      "end": 156,
+      "entity_id": "E111",
+      "start": 141,
+      "surface": "Tiku Conference"
+     }
+    ],
+    "start": 114,
+    "text": "Pidu Works participated in Tiku Conference."
+   },
+   {
+    "end": 191,
+    "fact_ids": [
+     "F168"
+    ],
+    "mentions": [
+     {
+      "end": 168,
+      "entity_id": "E080",
+      "start": 158,
+      "surface": "Pidu Works"
+     },
+     {
+      "end": 190,
+      "entity_id": "E062",
+      "start": 180,
+      "surface": "Keme Group"
+     }
+    ],
+    "start": 158,
+    "text": "Pidu Works belongs to Keme Group."
+   },
+   {
+    "end": 225,
+    "fact_ids": [
+     "F169"
+    ],
+    "mentions": [
+     {
+      "end": 202,
+      "entity_id": "E080",
+      "start": 192,
+      "surface": "Pidu Works"
+     },
+     {
+      "end": 224,
+      "entity_id": "E065",
+      "start": 214,
+      "surface": "Mata Group"
+     }
+    ],
+    "start": 192,
+    "text": "Pidu Works is part of Mata Group."
+   }
+  ],
+  "text": "Pidu Works is affiliated with Muvo Holdings. Pidu Works owns Gori X18. Pidu Works took part in Nolu Accord Talks. Pidu Works participated in Tiku Conference. Pidu Works belongs to Keme Group. Pidu Works is part of Mata Group.",
+  "title": "Pidu Works"
+ },
+ {
+  "distractor": false,
+  "id": "D00065",
+  "sentences": [
+   {
+    "end": 33,
+    "fact_ids": [
+     "F170"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E080",
+      "start": 0,
+      "surface": "Pidu Works"
+     },
+     {
+      "end": 32,
+      "entity_id": "E136",
+      "start": 22,
+      "surface": "Sodu Works"
+     }
+    ],
+    "start": 0,
+    "text": "Pidu Works belongs to Sodu Works."
+   },
+   {
+    "end": 63,
+    "fact_ids": [
+     "F171"
+    ],
+    "mentions": [
+     {
+      "end": 44,
+      "entity_id": "E080",
+      "start": 34,
+      "surface": "Pidu Works"
+     },
+     {
+      "end": 62,
+      "entity_id": "E007",
+      "start": 54,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 34,
+    "text": "Pidu Works produces Gori X18."
+   }
+  ],
+  "text": "Pidu Works belongs to Sodu Works. Pidu Works produces Gori X18.",
+  "title": "Pidu Works"
+ },
+ {
+  "distractor": false,
+  "id": "D00066",
+  "sentences": [
+   {
+    "end": 44,
+    "fact_ids": [
+     "F172"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E081",
+      "start": 0,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 43,
+      "entity_id": "E017",
+      "start": 30,
+      "surface": "Gebo Holdings"
+     }
+    ],
+    "start": 0,
+    "text": "Gedo Works is affiliated with Gebo Holdings."
+   },
+   {
+    "end": 79,
+    "fact_ids": [
+     "F173"
+    ],
+    "mentions": [
+     {
+      "end": 55,
+      "entity_id": "E081",
+      "start": 45,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 78,
+      "entity_id": "E012",
+      "start": 70,
+      "surface": "Takomere"
+     }
+    ],
+    "start": 45,
+    "text": "Gedo Works is located in Takomere."
+   },
+   {
+    "end": 110,
+    "fact_ids": [
+     "F174"
+    ],
+    "mentions": [
+     {
+      "end": 90,
+      "entity_id": "E081",
+      "start": 80,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 109,
+      "entity_id": "E029",
+      "start": 105,
+      "surface": "Vapa"
+     }
+    ],
+    "start": 80,
+    "text": "Gedo Works is located in Vapa."
+   },
+   {
+    "end": 143,
+    "fact_ids": [
+     "F175"
+    ],
+    "mentions": [
+     {
+      "end": 121,
+      "entity_id": "E081",
+      "start": 111,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 142,
+      "entity_id": "E115",
+      "start": 127,
+      "surface": "Gaze Industries"
+     }
+    ],
+    "start": 111,
+    "text": "Gedo Works owns Gaze Industries."
+   },
+   {
+    "end": 173,
+    "fact_ids": [
+     "F176"
+    ],
+    "mentions": [
+     {
+      "end": 154,
+      "entity_id": "E081",
+      "start": 144,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 172,
+      "entity_id": "E126",
+      "start": 160,
+      "surface": "Mado Systems"
+     }
+    ],
+    "start": 144,
+    "text": "Gedo Works owns Mado Systems."
+   },
+   {
+    "end": 217,
+    "fact_ids": [
+     "F177"
+    ],
+    "mentions": [
+     {
+      "end": 184,
+      "entity_id": "E081",
+      "start": 174,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 216,
+      "entity_id": "E052",
+      "start": 201,
+      "surface": "Veta Conference"
+     }
+    ],
+    "start": 174,
+    "text": "Gedo Works participated in Veta Conference."
+   }
+  ],
+  "text": "Gedo Works is affiliated with Gebo Holdings. Gedo Works is located in Takomere. Gedo Works is located in Vapa. Gedo Works owns Gaze Industries. Gedo Works owns Mado Systems. Gedo Works participated in Veta Conference.",
+  "title": "Gedo Works"
+ },
+ {
+  "distractor": false,
+  "id": "D00067",
+  "sentences": [
+   {
+    "end": 40,
+    "fact_ids": [
+     "F178"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E081",
+      "start": 0,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 39,
+      "entity_id": "E108",
+      "start": 24,
+      "surface": "Vilu Conference"
+     }
+    ],
+    "start": 0,
+    "text": "Gedo Works took part in Vilu Conference."
+   },
+   {
+    "end": 79,
+    "fact_ids": [
+     "F179"
+    ],
+    "mentions": [
+     {
+      "end": 51,
+      "entity_id": "E081",
+      "start": 41,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 78,
+      "entity_id": "E125",
+      "start": 65,
+      "surface": "Satu Festival"
+     }
+    ],
+    "start": 41,
+    "text": "Gedo Works took part in Satu Festival."
+   },
+   {
+    "end": 116,
+    "fact_ids": [
+     "F180"
+    ],
+    "mentions": [
+     {
+      "end": 90,
+      "entity_id": "E081",
+      "start": 80,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 115,
+      "entity_id": "E017",
+      "start": 102,
+      "surface": "Gebo Holdings"
+     }
+    ],
+    "start": 80,
+    "text": "Gedo Works belongs to Gebo Holdings."
+   },
+   {
+    "end": 146,
+    "fact_ids": [
+     "F181"
+    ],
+    "mentions": [
+     {
+      "end": 127,
+      "entity_id": "E081",
+      "start": 117,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 145,
+      "entity_id": "E019",
+      "start": 137,
+      "surface": "Novu Q87"
+     }
+    ],
+    "start": 117,
+    "text": "Gedo Works produces Novu Q87."
+   },
+   {
+    "end": 180,
+    "fact_ids": [
+     "F182"
+    ],
+    "mentions": [
+     {
+      "end": 157,
+      "entity_id": "E081",
+      "start": 147,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 179,
+      "entity_id": "E074",
+      "start": 171,
+      "surface": "Vipu X55"
+     }
+    ],
+    "start": 147,
+    "text": "Gedo Works manufactures Vipu X55."
+   },
+   {
+    "end": 214,
+    "fact_ids": [
+     "F183"
+    ],
+    "mentions": [
+     {
+      "end": 191,
+      "entity_id": "E081",
+      "start": 181,
+      "surface": "Gedo Works"
+     },
+     {
+      "end": 213,
+      "entity_id": "E083",
+      "start": 205,
+      "surface": "Sepa Z82"
+     }
+    ],
+    "start": 181,
+    "text": "Gedo Works manufactures Sepa Z82."
+   }
+  ],
+  "text": "Gedo Works took part in Vilu Conference. Gedo Works took part in Satu Festival. Gedo Works belongs to Gebo Holdings. Gedo Works produces Novu Q87. Gedo Works manufactures Vipu X55. Gedo Works manufactures Sepa Z82.",
+  "title": "Gedo Works"
+ },
+ {
+  "distractor": false,
+  "id": "D00068",
+  "sentences": [
+   {
+    "end": 28,
+    "fact_ids": [
+     "F184"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E082",
+      "start": 0,
+      "surface": "Kipe Q67"
+     },
+     {
+      "end": 27,
+      "entity_id": "E015",
+      "start": 20,
+      "surface": "Nato Z5"
+     }
+    ],
+    "start": 0,
+    "text": "Kipe Q67 is part of Nato Z5."
+   }
+  ],
+  "text": "Kipe Q67 is part of Nato Z5.",
+  "title": "Kipe Q67"
+ },
+ {
+  "distractor": false,
+  "id": "D00069",
+  "sentences": [
+   {
+    "end": 29,
+    "fact_ids": [
+     "F185"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E083",
+      "start": 0,
+      "surface": "Sepa Z82"
+     },
+     {
+      "end": 28,
+      "entity_id": "E082",
+      "start": 20,
+      "surface": "Kipe Q67"
+     }
+    ],
+    "start": 0,
+    "text": "Sepa Z82 belongs to Kipe Q67."
+   }
+  ],
+  "text": "Sepa Z82 belongs to Kipe Q67.",
+  "title": "Sepa Z82"
+ },
+ {
+  "distractor": false,
+  "id": "D00070",
+  "sentences": [
+   {
+    "end": 29,
+    "fact_ids": [
+     "F186"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E084",
+      "start": 0,
+      "surface": "Poti Z57"
+     },
+     {
+      "end": 28,
+      "entity_id": "E090",
+      "start": 20,
+      "surface": "Boke Q64"
+     }
+    ],
+    "start": 0,
+    "text": "Poti Z57 is part of Boke Q64."
+   }
+  ],
+  "text": "Poti Z57 is part of Boke Q64.",
+  "title": "Poti Z57"
+ },
+ {
+  "distractor": false,
+  "id": "D00071",
+  "sentences": [
+   {
+    "end": 32,
+    "fact_ids": [
+     "F187"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E085",
+      "start": 0,
+      "surface": "Luse Group"
+     },
+     {
+      "end": 31,
+      "entity_id": "E044",
+      "start": 23,
+      "surface": "Mitaburg"
+     }
+    ],
+    "start": 0,
+    "text": "Luse Group is based in Mitaburg."
+   },
+   {
+    "end": 80,
+    "fact_ids": [
+     "F188"
+    ],
+    "mentions": [
+     {
+      "end": 43,
+      "entity_id": "E085",
+      "start": 33,
+      "surface": "Luse Group"
+     },
+     {
+      "end": 79,
+      "entity_id": "E101",
+      "start": 70,
+      "surface": "Begu Labs"
+     }
+    ],
+    "start": 33,
+    "text": "Luse Group sits among the members of Begu Labs."
+   },
+   {
+    "end": 122,
+    "fact_ids": [
+     "F189"
+    ],
+    "mentions": [
+     {
+      "end": 91,
+      "entity_id": "E085",
+      "start": 81,
+      "surface": "Luse Group"
+     },
+     {
+      "end": 121,
+      "entity_id": "E010",
+      "start": 108,
+      "surface": "Rilo Partners"
+     }
+    ],
+    "start": 81,
+    "text": "Luse Group is the owner of Rilo Partners."
+   },
+   {
+    "end": 160,
+    "fact_ids": [
+     "F190"
+    ],
+    "mentions": [
+     {
+      "end": 133,
+      "entity_id": "E085",
+      "start": 123,
+      "surface": "Luse Group"
+     },
+     {
+      "end": 159,
+      "entity_id": "E053",
+      "start": 150,
+      "surface": "Mobo Expo"
+     }
+    ],
+    "start": 123,
+    "text": "Luse Group participated in Mobo Expo."
+   },
+   {
+    "end": 193,
+    "fact_ids": [
+     "F191"
+    ],
+    "mentions": [
+     {
+      "end": 171,
+      "entity_id": "E085",
+      "start": 161,
+      "surface": "Luse Group"
+     },
+     {
+      "end": 192,
+      "entity_id": "E060",
+      "start": 183,
+      "surface": "Gilo Labs"
+     }
+    ],
+    "start": 161,
+    "text": "Luse Group belongs to Gilo Labs."
+   },
+   {
+    "end": 227,
+    "fact_ids": [
+     "F192"
+    ],
+    "mentions": [
+     {
+      "end": 204,
+      "entity_id": "E085",
+      "start": 194,
+      "surface": "Luse Group"
+     },
+     {
+      "end": 226,
+      "entity_id": "E105",
+      "start": 216,
+      "surface": "Bisa Group"
+     }
+    ],
+    "start": 194,
+    "text": "Luse Group belongs to Bisa Group."
+   }
+  ],
+  "text": "Luse Group is based in Mitaburg. Luse Group sits among the members of Begu Labs. Luse Group is the owner of Rilo Partners. Luse Group participated in Mobo Expo. Luse Group belongs to Gilo Labs. Luse Group belongs to Bisa Group.",
+  "title": "Luse Group"
+ },
+ {
+  "distractor": false,
+  "id": "D00072",
+  "sentences": [
+   {
+    "end": 43,
+    "fact_ids": [
+     "F193"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E086",
+      "start": 0,
+      "surface": "Damo Partners"
+     },
+     {
+      "end": 42,
+      "entity_id": "E024",
+      "start": 29,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Damo Partners is a member of Dune Partners."
+   },
+   {
+    "end": 85,
+    "fact_ids": [
+     "F194"
+    ],
+    "mentions": [
+     {
+      "end": 57,
+      "entity_id": "E086",
+      "start": 44,
+      "surface": "Damo Partners"
+     },
+     {
+      "end": 84,
+      "entity_id": "E147",
+      "start": 71,
+      "surface": "Pova Festival"
+     }
+    ],
+    "start": 44,
+    "text": "Damo Partners took part in Pova Festival."
+   },
+   {
+    "end": 122,
+    "fact_ids": [
+     "F195"
+    ],
+    "mentions": [
+     {
+      "end": 99,
+      "entity_id": "E086",
+      "start": 86,
+      "surface": "Damo Partners"
+     },
+     {
+      "end": 121,
+      "entity_id": "E007",
+      "start": 113,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 86,
+    "text": "Damo Partners manufactures Gori X18."
+   }
+  ],
+  "text": "Damo Partners is a member of Dune Partners. Damo Partners took part in Pova Festival. Damo Partners manufactures Gori X18.",
+  "title": "Damo Partners"
+ },
+ {
+  "distractor": false,
+  "id": "D00073",
+  "sentences": [
+   {
+    "end": 29,
+    "fact_ids": [
+     "F196"
+    ],
+    "mentions": [
+     {
+      "end": 7,
+      "entity_id": "E088",
+      "start": 0,
+      "surface": "Nogoton"
+     },
+     {
+      "end": 28,
+      "entity_id": "E012",
+      "start": 20,
+      "surface": "Takomere"
+     }
+    ],
+    "start": 0,
+    "text": "Nogoton is based in Takomere."
+   }
+  ],
+  "text": "Nogoton is based in Takomere.",
+  "title": "Nogoton"
+ },
+ {
+  "distractor": false,
+  "id": "D00074",
+  "sentences": [
+   {
+    "end": 29,
+    "fact_ids": [
+     "F197"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E090",
+      "start": 0,
+      "surface": "Boke Q64"
+     },
+     {
+      "end": 28,
+      "entity_id": "E110",
+      "start": 20,
+      "surface": "Leze Z87"
+     }
+    ],
+    "start": 0,
+    "text": "Boke Q64 is part of Leze Z87."
+   }
+  ],
+  "text": "Boke Q64 is part of Leze Z87.",
+  "title": "Boke Q64"
+ },
+ {
+  "distractor": false,
+  "id": "D00075",
+  "sentences": [
+   {
+    "end": 35,
+    "fact_ids": [
+     "F198"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E091",
+      "start": 0,
+      "surface": "Buga Lomazu"
+     },
+     {
+      "end": 34,
+      "entity_id": "E045",
+      "start": 27,
+      "surface": "Zeboese"
+     }
+    ],
+    "start": 0,
+    "text": "Buga Lomazu is a member of Zeboese."
+   },
+   {
+    "end": 71,
+    "fact_ids": [
+     "F199"
+    ],
+    "mentions": [
+     {
+      "end": 47,
+      "entity_id": "E091",
+      "start": 36,
+      "surface": "Buga Lomazu"
+     },
+     {
+      "end": 70,
+      "entity_id": "E079",
+      "start": 61,
+      "surface": "Dadi Expo"
+     }
+    ],
+    "start": 36,
+    "text": "Buga Lomazu took part in Dadi Expo."
+   },
+   {
+    "end": 112,
+    "fact_ids": [
+     "F200"
+    ],
+    "mentions": [
+     {
+      "end": 83,
+      "entity_id": "E091",
+      "start": 72,
+      "surface": "Buga Lomazu"
+     },
+     {
+      "end": 111,
+      "entity_id": "E107",
+      "start": 100,
+      "surface": "Ludu Summit"
+     }
+    ],
+    "start": 72,
+    "text": "Buga Lomazu participated in Ludu Summit."
+   }
+  ],
+  "text": "Buga Lomazu is a member of Zeboese. Buga Lomazu took part in Dadi Expo. Buga Lomazu participated in Ludu Summit.",
+  "title": "Buga Lomazu"
+ },
+ {
+  "distractor": false,
+  "id": "D00076",
+  "sentences": [
+   {
+    "end": 34,
+    "fact_ids": [
+     "F201"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E093",
+      "start": 0,
+      "surface": "Ladu Bizite"
+     },
+     {
+      "end": 33,
+      "entity_id": "E017",
+      "start": 20,
+      "surface": "Gebo Holdings"
+     }
+    ],
+    "start": 0,
+    "text": "Ladu Bizite founded Gebo Holdings."
+   },
+   {
+    "end": 76,
+    "fact_ids": [
+     "F202"
+    ],
+    "mentions": [
+     {
+      "end": 46,
+      "entity_id": "E093",
+      "start": 35,
+      "surface": "Ladu Bizite"
+     },
+     {
+      "end": 75,
+      "entity_id": "E081",
+      "start": 65,
+      "surface": "Gedo Works"
+     }
+    ],
+    "start": 35,
+    "text": "Ladu Bizite is the founder of Gedo Works."
+   },
+   {
+    "end": 123,
+    "fact_ids": [
+     "F203"
+    ],
+    "mentions": [
+     {
+      "end": 88,
+      "entity_id": "E093",
+      "start": 77,
+      "surface": "Ladu Bizite"
+     },
+     {
+      "end": 122,
+      "entity_id": "E051",
+      "start": 115,
+      "surface": "Dodaese"
+     }
+    ],
+    "start": 77,
+    "text": "Ladu Bizite sits among the members of Dodaese."
+   },
+   {
+    "end": 162,
+    "fact_ids": [
+     "F204"
+    ],
+    "mentions": [
+     {
+      "end": 135,
+      "entity_id": "E093",
+      "start": 124,
+      "surface": "Ladu Bizite"
+     },
+     {
+      "end": 161,
+      "entity_id": "E001",
+      "start": 151,
+      "surface": "Dako Works"
+     }
+    ],
+    "start": 124,
+    "text": "Ladu Bizite is employed by Dako Works."
+   },
+   {
+    "end": 201,
+    "fact_ids": [
+     "F205"
+    ],
+    "mentions": [
+     {
+      "end": 174,
+      "entity_id": "E093",
+      "start": 163,
+      "surface": "Ladu Bizite"
+     },
+     {
+      "end": 200,
+      "entity_id": "E081",
+      "start": 190,
+      "surface": "Gedo Works"
+     }
+    ],
+    "start": 163,
+    "text": "Ladu Bizite is employed by Gedo Works."
+   }
+  ],
+  "text": "Ladu Bizite founded Gebo Holdings. Ladu Bizite is the founder of Gedo Works. Ladu Bizite sits among the members of Dodaese. Ladu Bizite is employed by Dako Works. Ladu Bizite is employed by Gedo Works.",
+  "title": "Ladu Bizite"
+ },
+ {
+  "distractor": false,
+  "id": "D00077",
+  "sentences": [
+   {
+    "end": 45,
+    "fact_ids": [
+     "F206"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E095",
+      "start": 0,
+      "surface": "Moti Meloso"
+     },
+     {
+      "end": 44,
+      "entity_id": "E024",
+      "start": 31,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Moti Meloso is associated with Dune Partners."
+   },
+   {
+    "end": 75,
+    "fact_ids": [
+     "F207"
+    ],
+    "mentions": [
+     {
+      "end": 57,
+      "entity_id": "E095",
+      "start": 46,
+      "surface": "Moti Meloso"
+     },
+     {
+      "end": 74,
+      "entity_id": "E132",
+      "start": 70,
+      "surface": "Fepa"
+     }
+    ],
+    "start": 46,
+    "text": "Moti Meloso is based in Fepa."
+   }
+  ],
+  "text": "Moti Meloso is associated with Dune Partners. Moti Meloso is based in Fepa.",
+  "title": "Moti Meloso"
+ },
+ {
+  "distractor": false,
+  "id": "D00078",
+  "sentences": [
+   {
+    "end": 42,
+    "fact_ids": [
+     "F208"
+    ],
+    "mentions": [
+     {
+      "end": 15,
+      "entity_id": "E098",
+      "start": 0,
+      "surface": "Lomo Industries"
+     },
+     {
+      "end": 41,
+      "entity_id": "E056",
+      "start": 31,
+      "surface": "Lare Group"
+     }
+    ],
+    "start": 0,
+    "text": "Lomo Industries is a member of Lare Group."
+   },
+   {
+    "end": 78,
+    "fact_ids": [
+     "F209"
+    ],
+    "mentions": [
+     {
+      "end": 58,
+      "entity_id": "E098",
+      "start": 43,
+      "surface": "Lomo Industries"
+     },
+     {
+      "end": 77,
+      "entity_id": "E050",
+      "start": 64,
+      "surface": "Foro Holdings"
+     }
+    ],
+    "start": 43,
+    "text": "Lomo Industries owns Foro Holdings."
+   },
+   {
+    "end": 118,
+    "fact_ids": [
+     "F210"
+    ],
+    "mentions": [
+     {
+      "end": 94,
+      "entity_id": "E098",
+      "start": 79,
+      "surface": "Lomo Industries"
+     },
+     {
+      "end": 117,
+      "entity_id": "E079",
+      "start": 108,
+      "surface": "Dadi Expo"
+     }
+    ],
+    "start": 79,
+    "text": "Lomo Industries took part in Dadi Expo."
+   }
+  ],
+  "text": "Lomo Industries is a member of Lare Group. Lomo Industries owns Foro Holdings. Lomo Industries took part in Dadi Expo.",
+  "title": "Lomo Industries"
+ },
+ {
+  "distractor": false,
+  "id": "D00079",
+  "sentences": [
+   {
+    "end": 39,
+    "fact_ids": [
+     "F211"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E099",
+      "start": 0,
+      "surface": "Teve Nerama"
+     },
+     {
+      "end": 38,
+      "entity_id": "E097",
+      "start": 31,
+      "surface": "Legeese"
+     }
+    ],
+    "start": 0,
+    "text": "Teve Nerama is associated with Legeese."
+   },
+   {
+    "end": 87,
+    "fact_ids": [
+     "F212"
+    ],
+    "mentions": [
+     {
+      "end": 51,
+      "entity_id": "E099",
+      "start": 40,
+      "surface": "Teve Nerama"
+     },
+     {
+      "end": 86,
+      "entity_id": "E131",
+      "start": 71,
+      "surface": "Rave Industries"
+     }
+    ],
+    "start": 40,
+    "text": "Teve Nerama is associated with Rave Industries."
+   },
+   {
+    "end": 119,
+    "fact_ids": [
+     "F213"
+    ],
+    "mentions": [
+     {
+      "end": 99,
+      "entity_id": "E099",
+      "start": 88,
+      "surface": "Teve Nerama"
+     },
+     {
+      "end": 118,
+      "entity_id": "E065",
+      "start": 108,
+      "surface": "Mata Group"
+     }
+    ],
+    "start": 88,
+    "text": "Teve Nerama founded Mata Group."
+   },
+   {
+    "end": 174,
+    "fact_ids": [
+     "F214"
+    ],
+    "mentions": [
+     {
+      "end": 131,
+      "entity_id": "E099",
+      "start": 120,
+      "surface": "Teve Nerama"
+     },
+     {
+      "end": 173,
+      "entity_id": "E098",
+      "start": 158,
+      "surface": "Lomo Industries"
+     }
+    ],
+    "start": 120,
+    "text": "Teve Nerama sits among the members of Lomo Industries."
+   },
+   {
+    "end": 212,
+    "fact_ids": [
+     "F215"
+    ],
+    "mentions": [
+     {
+      "end": 186,
+      "entity_id": "E099",
+      "start": 175,
+      "surface": "Teve Nerama"
+     },
+     {
+      "end": 211,
+      "entity_id": "E090",
+      "start": 203,
+      "surface": "Boke Q64"
+     }
+    ],
+    "start": 175,
+    "text": "Teve Nerama is the owner of Boke Q64."
+   },
+   {
+    "end": 254,
+    "fact_ids": [
+     "F216"
+    ],
+    "mentions": [
+     {
+      "end": 224,
+      "entity_id": "E099",
+      "start": 213,
+      "surface": "Teve Nerama"
+     },
+     {
+      "end": 253,
+      "entity_id": "E024",
+      "start": 240,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 213,
+    "text": "Teve Nerama is employed by Dune Partners."
+   }
+  ],
+  "text": "Teve Nerama is associated with Legeese. Teve Nerama is associated with Rave Industries. Teve Nerama founded Mata Group. Teve Nerama sits among the members of Lomo Industries. Teve Nerama is the owner of Boke Q64. Teve Nerama is employed by Dune Partners.",
+  "title": "Teve Nerama"
+ },
+ {
+  "distractor": false,
+  "id": "D00080",
+  "sentences": [
+   {
+    "end": 33,
+    "fact_ids": [
+     "F217"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E099",
+      "start": 0,
+      "surface": "Teve Nerama"
+     },
+     {
+      "end": 32,
+      "entity_id": "E065",
+      "start": 22,
+      "surface": "Mata Group"
+     }
+    ],
+    "start": 0,
+    "text": "Teve Nerama works for Mata Group."
+   },
+   {
+    "end": 67,
+    "fact_ids": [
+     "F218"
+    ],
+    "mentions": [
+     {
+      "end": 45,
+      "entity_id": "E099",
+      "start": 34,
+      "surface": "Teve Nerama"
+     },
+     {
+      "end": 66,
+      "entity_id": "E120",
+      "start": 56,
+      "surface": "Veti Works"
+     }
+    ],
+    "start": 34,
+    "text": "Teve Nerama works for Veti Works."
+   }
+  ],
+  "text": "Teve Nerama works for Mata Group. Teve Nerama works for Veti Works.",
+  "title": "Teve Nerama"
+ },
+ {
+  "distractor": false,
+  "id": "D00081",
+  "sentences": [
+   {
+    "end": 33,
+    "fact_ids": [
+     "F219"
+    ],
+    "mentions": [
+     {
+      "end": 9,
+      "entity_id": "E100",
+      "start": 0,
+      "surface": "Gaze Expo"
+     },
+     {
+      "end": 32,
+      "entity_id": "E025",
+      "start": 24,
+      "surface": "Mopoford"
+     }
+    ],
+    "start": 0,
+    "text": "Gaze Expo is located in Mopoford."
+   },
+   {
+    "end": 65,
+    "fact_ids": [
+     "F220"
+    ],
+    "mentions": [
+     {
+      "end": 43,
+      "entity_id": "E100",
+      "start": 34,
+      "surface": "Gaze Expo"
+     },
+     {
+      "end": 64,
+      "entity_id": "E055",
+      "start": 56,
+      "surface": "Fazemere"
+     }
+    ],
+    "start": 34,
+    "text": "Gaze Expo is based in Fazemere."
+   }
+  ],
+  "text": "Gaze Expo is located in Mopoford. Gaze Expo is based in Fazemere.",
+  "title": "Gaze Expo"
+ },
+ {
+  "distractor": false,
+  "id": "D00082",
+  "sentences": [
+   {
+    "end": 43,
+    "fact_ids": [
+     "F221"
+    ],
+    "mentions": [
+     {
+      "end": 9,
+      "entity_id": "E101",
+      "start": 0,
+      "surface": "Begu Labs"
+     },
+     {
+      "end": 42,
+      "entity_id": "E010",
+      "start": 29,
+      "surface": "Rilo Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Begu Labs is associated with Rilo Partners."
+   },
+   {
+    "end": 67,
+    "fact_ids": [
+     "F222"
+    ],
+    "mentions": [
+     {
+      "end": 53,
+      "entity_id": "E101",
+      "start": 44,
+      "surface": "Begu Labs"
+     },
+     {
+      "end": 66,
+      "entity_id": "E042",
+      "start": 59,
+      "surface": "Govo X8"
+     }
+    ],
+    "start": 44,
+    "text": "Begu Labs owns Govo X8."
+   },
+   {
+    "end": 101,
+    "fact_ids": [
+     "F223"
+    ],
+    "mentions": [
+     {
+      "end": 77,
+      "entity_id": "E101",
+      "start": 68,
+      "surface": "Begu Labs"
+     },
+     {
+      "end": 100,
+      "entity_id": "E100",
+      "start": 91,
+      "surface": "Gaze Expo"
+     }
+    ],
+    "start": 68,
+    "text": "Begu Labs took part in Gaze Expo."
+   },
+   {
+    "end": 133,
+    "fact_ids": [
+     "F224"
+    ],
+    "mentions": [
+     {
+      "end": 111,
+      "entity_id": "E101",
+      "start": 102,
+      "surface": "Begu Labs"
+     },
+     {
+      "end": 132,
+      "entity_id": "E042",
+      "start": 125,
+      "surface": "Govo X8"
+     }
+    ],
+    "start": 102,
+    "text": "Begu Labs manufactures Govo X8."
+   }
+  ],
+  "text": "Begu Labs is associated with Rilo Partners. Begu Labs owns Govo X8. Begu Labs took part in Gaze Expo. Begu Labs manufactures Govo X8.",
+  "title": "Begu Labs"
+ },
+ {
+  "distractor": false,
+  "id": "D00083",
+  "sentences": [
+   {
+    "end": 39,
+    "fact_ids": [
+     "F225"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E103",
+      "start": 0,
+      "surface": "Busu Toroni"
+     },
+     {
+      "end": 38,
+      "entity_id": "E051",
+      "start": 31,
+      "surface": "Dodaese"
+     }
+    ],
+    "start": 0,
+    "text": "Busu Toroni is affiliated with Dodaese."
+   },
+   {
+    "end": 74,
+    "fact_ids": [
+     "F226"
+    ],
+    "mentions": [
+     {
+      "end": 51,
+      "entity_id": "E103",
+      "start": 40,
+      "surface": "Busu Toroni"
+     },
+     {
+      "end": 73,
+      "entity_id": "E017",
+      "start": 60,
+      "surface": "Gebo Holdings"
+     }
+    ],
+    "start": 40,
+    "text": "Busu Toroni founded Gebo Holdings."
+   },
+   {
+    "end": 106,
+    "fact_ids": [
+     "F227"
+    ],
+    "mentions": [
+     {
+      "end": 86,
+      "entity_id": "E103",
+      "start": 75,
+      "surface": "Busu Toroni"
+     },
+     {
+      "end": 105,
+      "entity_id": "E081",
+      "start": 95,
+      "surface": "Gedo Works"
+     }
+    ],
+    "start": 75,
+    "text": "Busu Toroni founded Gedo Works."
+   },
+   {
+    "end": 153,
+    "fact_ids": [
+     "F228"
+    ],
+    "mentions": [
+     {
+      "end": 118,
+      "entity_id": "E103",
+      "start": 107,
+      "surface": "Busu Toroni"
+     },
+     {
+      "end": 152,
+      "entity_id": "E115",
+      "start": 137,
+      "surface": "Gaze Industries"
+     }
+    ],
+    "start": 107,
+    "text": "Busu Toroni is the founder of Gaze Industries."
+   },
+   {
+    "end": 203,
+    "fact_ids": [
+     "F229"
+    ],
+    "mentions": [
+     {
+      "end": 165,
+      "entity_id": "E103",
+      "start": 154,
+      "surface": "Busu Toroni"
+     },
+     {
+      "end": 202,
+      "entity_id": "E081",
+      "start": 192,
+      "surface": "Gedo Works"
+     }
+    ],
+    "start": 154,
+    "text": "Busu Toroni sits among the members of Gedo Works."
+   },
+   {
+    "end": 248,
+    "fact_ids": [
+     "F230"
+    ],
+    "mentions": [
+     {
+      "end": 215,
+      "entity_id": "E103",
+      "start": 204,
+      "surface": "Busu Toroni"
+     },
+     {
+      "end": 247,
+      "entity_id": "E052",
+      "start": 232,
+      "surface": "Veta Conference"
+     }
+    ],
+    "start": 204,
+    "text": "Busu Toroni participated in Veta Conference."
+   }
+  ],
+  "text": "Busu Toroni is affiliated with Dodaese. Busu Toroni founded Gebo Holdings. Busu Toroni founded Gedo Works. Busu Toroni is the founder of Gaze Industries. Busu Toroni sits among the members of Gedo Works. Busu Toroni participated in Veta Conference.",
+  "title": "Busu Toroni"
+ },
+ {
+  "distractor": false,
+  "id": "D00084",
+  "sentences": [
+   {
+    "end": 36,
+    "fact_ids": [
+     "F231"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E103",
+      "start": 0,
+      "surface": "Busu Toroni"
+     },
+     {
+      "end": 35,
+      "entity_id": "E017",
+      "start": 22,
+      "surface": "Gebo Holdings"
+     }
+    ],
+    "start": 0,
+    "text": "Busu Toroni works for Gebo Holdings."
+   }
+  ],
+  "text": "Busu Toroni works for Gebo Holdings.",
+  "title": "Busu Toroni"
+ },
+ {
+  "distractor": false,
+  "id": "D00085",
+  "sentences": [
+   {
+    "end": 34,
+    "fact_ids": [
+     "F232"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E104",
+      "start": 0,
+      "surface": "Togi Kabafi"
+     },
+     {
+      "end": 33,
+      "entity_id": "E024",
+      "start": 20,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Togi Kabafi founded Dune Partners."
+   },
+   {
+    "end": 67,
+    "fact_ids": [
+     "F233"
+    ],
+    "mentions": [
+     {
+      "end": 46,
+      "entity_id": "E104",
+      "start": 35,
+      "surface": "Togi Kabafi"
+     },
+     {
+      "end": 66,
+      "entity_id": "E137",
+      "start": 59,
+      "surface": "Buriton"
+     }
+    ],
+    "start": 35,
+    "text": "Togi Kabafi is based in Buriton."
+   }
+  ],
+  "text": "Togi Kabafi founded Dune Partners. Togi Kabafi is based in Buriton.",
+  "title": "Togi Kabafi"
+ },
+ {
+  "distractor": false,
+  "id": "D00086",
+  "sentences": [
+   {
+    "end": 40,
+    "fact_ids": [
+     "F234"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E105",
+      "start": 0,
+      "surface": "Bisa Group"
+     },
+     {
+      "end": 39,
+      "entity_id": "E101",
+      "start": 30,
+      "surface": "Begu Labs"
+     }
+    ],
+    "start": 0,
+    "text": "Bisa Group is affiliated with Begu Labs."
+   },
+   {
+    "end": 70,
+    "fact_ids": [
+     "F235"
+    ],
+    "mentions": [
+     {
+      "end": 51,
+      "entity_id": "E105",
+      "start": 41,
+      "surface": "Bisa Group"
+     },
+     {
+      "end": 69,
+      "entity_id": "E135",
+      "start": 61,
+      "surface": "Golu Q17"
+     }
+    ],
+    "start": 41,
+    "text": "Bisa Group produces Golu Q17."
+   }
+  ],
+  "text": "Bisa Group is affiliated with Begu Labs. Bisa Group produces Golu Q17.",
+  "title": "Bisa Group"
+ },
+ {
+  "distractor": false,
+  "id": "D00087",
+  "sentences": [
+   {
+    "end": 45,
+    "fact_ids": [
+     "F236"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E106",
+      "start": 0,
+      "surface": "Dose Ropene"
+     },
+     {
+      "end": 44,
+      "entity_id": "E050",
+      "start": 31,
+      "surface": "Foro Holdings"
+     }
+    ],
+    "start": 0,
+    "text": "Dose Ropene is associated with Foro Holdings."
+   },
+   {
+    "end": 85,
+    "fact_ids": [
+     "F237"
+    ],
+    "mentions": [
+     {
+      "end": 57,
+      "entity_id": "E106",
+      "start": 46,
+      "surface": "Dose Ropene"
+     },
+     {
+      "end": 84,
+      "entity_id": "E057",
+      "start": 77,
+      "surface": "Besaish"
+     }
+    ],
+    "start": 46,
+    "text": "Dose Ropene is affiliated with Besaish."
+   },
+   {
+    "end": 132,
+    "fact_ids": [
+     "F238"
+    ],
+    "mentions": [
+     {
+      "end": 97,
+      "entity_id": "E106",
+      "start": 86,
+      "surface": "Dose Ropene"
+     },
+     {
+      "end": 131,
+      "entity_id": "E057",
+      "start": 124,
+      "surface": "Besaish"
+     }
+    ],
+    "start": 86,
+    "text": "Dose Ropene sits among the members of Besaish."
+   }
+  ],
+  "text": "Dose Ropene is associated with Foro Holdings. Dose Ropene is affiliated with Besaish. Dose Ropene sits among the members of Besaish.",
+  "title": "Dose Ropene"
+ },
+ {
+  "distractor": false,
+  "id": "D00088",
+  "sentences": [
+   {
+    "end": 37,
+    "fact_ids": [
+     "F239"
+    ],
+    "mentions": [
+     {
+      "end": 15,
+      "entity_id": "E108",
+      "start": 0,
+      "surface": "Vilu Conference"
+     },
+     {
+      "end": 36,
+      "entity_id": "E012",
+      "start": 28,
+      "surface": "Takomere"
+     }
+    ],
+    "start": 0,
+    "text": "Vilu Conference is based in Takomere."
+   }
+  ],
+  "text": "Vilu Conference is based in Takomere.",
+  "title": "Vilu Conference"
+ },
+ {
+  "distractor": false,
+  "id": "D00089",
+  "sentences": [
+   {
+    "end": 26,
+    "fact_ids": [
+     "F240"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E109",
+      "start": 0,
+      "surface": "Libu Belagu"
+     },
+     {
+      "end": 25,
+      "entity_id": "E007",
+      "start": 17,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 0,
+    "text": "Libu Belagu owns Gori X18."
+   },
+   {
+    "end": 64,
+    "fact_ids": [
+     "F241"
+    ],
+    "mentions": [
+     {
+      "end": 38,
+      "entity_id": "E109",
+      "start": 27,
+      "surface": "Libu Belagu"
+     },
+     {
+      "end": 63,
+      "entity_id": "E139",
+      "start": 54,
+      "surface": "Pita Labs"
+     }
+    ],
+    "start": 27,
+    "text": "Libu Belagu is employed by Pita Labs."
+   }
+  ],
+  "text": "Libu Belagu owns Gori X18. Libu Belagu is employed by Pita Labs.",
+  "title": "Libu Belagu"
+ },
+ {
+  "distractor": false,
+  "id": "D00090",
+  "sentences": [
+   {
+    "end": 37,
+    "fact_ids": [
+     "F242"
+    ],
+    "mentions": [
+     {
+      "end": 15,
+      "entity_id": "E111",
+      "start": 0,
+      "surface": "Tiku Conference"
+     },
+     {
+      "end": 36,
+      "entity_id": "E000",
+      "start": 28,
+      "surface": "Dozoford"
+     }
+    ],
+    "start": 0,
+    "text": "Tiku Conference is based in Dozoford."
+   }
+  ],
+  "text": "Tiku Conference is based in Dozoford.",
+  "title": "Tiku Conference"
+ },
+ {
+  "distractor": false,
+  "id": "D00091",
+  "sentences": [
+   {
+    "end": 29,
+    "fact_ids": [
+     "F243"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E113",
+      "start": 0,
+      "surface": "Kuda Z64"
+     },
+     {
+      "end": 28,
+      "entity_id": "E135",
+      "start": 20,
+      "surface": "Golu Q17"
+     }
+    ],
+    "start": 0,
+    "text": "Kuda Z64 belongs to Golu Q17."
+   }
+  ],
+  "text": "Kuda Z64 belongs to Golu Q17.",
+  "title": "Kuda Z64"
+ },
+ {
+  "distractor": false,
+  "id": "D00092",
+  "sentences": [
+   {
+    "end": 38,
+    "fact_ids": [
+     "F244"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E114",
+      "start": 0,
+      "surface": "Tobo Nonada"
+     },
+     {
+      "end": 37,
+      "entity_id": "E053",
+      "start": 28,
+      "surface": "Mobo Expo"
+     }
+    ],
+    "start": 0,
+    "text": "Tobo Nonada participated in Mobo Expo."
+   }
+  ],
+  "text": "Tobo Nonada participated in Mobo Expo.",
+  "title": "Tobo Nonada"
+ },
+ {
+  "distractor": false,
+  "id": "D00093",
+  "sentences": [
+   {
+    "end": 40,
+    "fact_ids": [
+     "F245"
+    ],
+    "mentions": [
+     {
+      "end": 15,
+      "entity_id": "E115",
+      "start": 0,
+      "surface": "Gaze Industries"
+     },
+     {
+      "end": 39,
+      "entity_id": "E126",
+      "start": 27,
+      "surface": "Mado Systems"
+     }
+    ],
+    "start": 0,
+    "text": "Gaze Industries belongs to Mado Systems."
+   },
+   {
+    "end": 75,
+    "fact_ids": [
+     "F246"
+    ],
+    "mentions": [
+     {
+      "end": 56,
+      "entity_id": "E115",
+      "start": 41,
+      "surface": "Gaze Industries"
+     },
+     {
+      "end": 74,
+      "entity_id": "E082",
+      "start": 66,
+      "surface": "Kipe Q67"
+     }
+    ],
+    "start": 41,
+    "text": "Gaze Industries produces Kipe Q67."
+   }
+  ],
+  "text": "Gaze Industries belongs to Mado Systems. Gaze Industries produces Kipe Q67.",
+  "title": "Gaze Industries"
+ },
+ {
+  "distractor": false,
+  "id": "D00094",
+  "sentences": [
+   {
+    "end": 41,
+    "fact_ids": [
+     "F247"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E117",
+      "start": 0,
+      "surface": "Muvo Holdings"
+     },
+     {
+      "end": 40,
+      "entity_id": "E047",
+      "start": 25,
+      "surface": "Saba Industries"
+     }
+    ],
+    "start": 0,
+    "text": "Muvo Holdings is part of Saba Industries."
+   }
+  ],
+  "text": "Muvo Holdings is part of Saba Industries.",
+  "title": "Muvo Holdings"
+ },
+ {
+  "distractor": false,
+  "id": "D00095",
+  "sentences": [
+   {
+    "end": 39,
+    "fact_ids": [
+     "F248"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E119",
+      "start": 0,
+      "surface": "Zili Mapiru"
+     },
+     {
+      "end": 38,
+      "entity_id": "E097",
+      "start": 31,
+      "surface": "Legeese"
+     }
+    ],
+    "start": 0,
+    "text": "Zili Mapiru is associated with Legeese."
+   },
+   {
+    "end": 92,
+    "fact_ids": [
+     "F249"
+    ],
+    "mentions": [
+     {
+      "end": 51,
+      "entity_id": "E119",
+      "start": 40,
+      "surface": "Zili Mapiru"
+     },
+     {
+      "end": 91,
+      "entity_id": "E024",
+      "start": 78,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 40,
+    "text": "Zili Mapiru sits among the members of Dune Partners."
+   },
+   {
+    "end": 129,
+    "fact_ids": [
+     "F250"
+    ],
+    "mentions": [
+     {
+      "end": 104,
+      "entity_id": "E119",
+      "start": 93,
+      "surface": "Zili Mapiru"
+     },
+     {
+      "end": 128,
+      "entity_id": "E024",
+      "start": 115,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 93,
+    "text": "Zili Mapiru works for Dune Partners."
+   }
+  ],
+  "text": "Zili Mapiru is associated with Legeese. Zili Mapiru sits among the members of Dune Partners. Zili Mapiru works for Dune Partners.",
+  "title": "Zili Mapiru"
+ },
+ {
+  "distractor": false,
+  "id": "D00096",
+  "sentences": [
+   {
+    "end": 44,
+    "fact_ids": [
+     "F251"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E120",
+      "start": 0,
+      "surface": "Veti Works"
+     },
+     {
+      "end": 43,
+      "entity_id": "E024",
+      "start": 30,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Veti Works is associated with Dune Partners."
+   }
+  ],
+  "text": "Veti Works is associated with Dune Partners.",
+  "title": "Veti Works"
+ },
+ {
+  "distractor": false,
+  "id": "D00097",
+  "sentences": [
+   {
+    "end": 39,
+    "fact_ids": [
+     "F252"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E121",
+      "start": 0,
+      "surface": "Nuro Partners"
+     },
+     {
+      "end": 38,
+      "entity_id": "E028",
+      "start": 27,
+      "surface": "Rito Summit"
+     }
+    ],
+    "start": 0,
+    "text": "Nuro Partners took part in Rito Summit."
+   }
+  ],
+  "text": "Nuro Partners took part in Rito Summit.",
+  "title": "Nuro Partners"
+ },
+ {
+  "distractor": false,
+  "id": "D00098",
+  "sentences": [
+   {
+    "end": 40,
+    "fact_ids": [
+     "F253"
+    ],
+    "mentions": [
+     {
+      "end": 12,
+      "entity_id": "E126",
+      "start": 0,
+      "surface": "Mado Systems"
+     },
+     {
+      "end": 39,
+      "entity_id": "E081",
+      "start": 29,
+      "surface": "Gedo Works"
+     }
+    ],
+    "start": 0,
+    "text": "Mado Systems is the owner of Gedo Works."
+   },
+   {
+    "end": 86,
+    "fact_ids": [
+     "F254"
+    ],
+    "mentions": [
+     {
+      "end": 53,
+      "entity_id": "E126",
+      "start": 41,
+      "surface": "Mado Systems"
+     },
+     {
+      "end": 85,
+      "entity_id": "E108",
+      "start": 70,
+      "surface": "Vilu Conference"
+     }
+    ],
+    "start": 41,
+    "text": "Mado Systems participated in Vilu Conference."
+   },
+   {
+    "end": 122,
+    "fact_ids": [
+     "F255"
+    ],
+    "mentions": [
+     {
+      "end": 99,
+      "entity_id": "E126",
+      "start": 87,
+      "surface": "Mado Systems"
+     },
+     {
+      "end": 121,
+      "entity_id": "E083",
+      "start": 113,
+      "surface": "Sepa Z82"
+     }
+    ],
+    "start": 87,
+    "text": "Mado Systems manufactures Sepa Z82."
+   }
+  ],
+  "text": "Mado Systems is the owner of Gedo Works. Mado Systems participated in Vilu Conference. Mado Systems manufactures Sepa Z82.",
+  "title": "Mado Systems"
+ },
+ {
+  "distractor": false,
+  "id": "D00099",
+  "sentences": [
+   {
+    "end": 41,
+    "fact_ids": [
+     "F256"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E127",
+      "start": 0,
+      "surface": "Katu Lesusi"
+     },
+     {
+      "end": 40,
+      "entity_id": "E081",
+      "start": 30,
+      "surface": "Gedo Works"
+     }
+    ],
+    "start": 0,
+    "text": "Katu Lesusi is the founder of Gedo Works."
+   },
+   {
+    "end": 77,
+    "fact_ids": [
+     "F257"
+    ],
+    "mentions": [
+     {
+      "end": 53,
+      "entity_id": "E127",
+      "start": 42,
+      "surface": "Katu Lesusi"
+     },
+     {
+      "end": 76,
+      "entity_id": "E051",
+      "start": 69,
+      "surface": "Dodaese"
+     }
+    ],
+    "start": 42,
+    "text": "Katu Lesusi is a member of Dodaese."
+   },
+   {
+    "end": 119,
+    "fact_ids": [
+     "F258"
+    ],
+    "mentions": [
+     {
+      "end": 89,
+      "entity_id": "E127",
+      "start": 78,
+      "surface": "Katu Lesusi"
+     },
+     {
+      "end": 118,
+      "entity_id": "E024",
+      "start": 105,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 78,
+    "text": "Katu Lesusi is employed by Dune Partners."
+   }
+  ],
+  "text": "Katu Lesusi is the founder of Gedo Works. Katu Lesusi is a member of Dodaese. Katu Lesusi is employed by Dune Partners.",
+  "title": "Katu Lesusi"
+ },
+ {
+  "distractor": false,
+  "id": "D00100",
+  "sentences": [
+   {
+    "end": 39,
+    "fact_ids": [
+     "F259"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E128",
+      "start": 0,
+      "surface": "Gedu Kigiso"
+     },
+     {
+      "end": 38,
+      "entity_id": "E124",
+      "start": 31,
+      "surface": "Megiish"
+     }
+    ],
+    "start": 0,
+    "text": "Gedu Kigiso is associated with Megiish."
+   },
+   {
+    "end": 73,
+    "fact_ids": [
+     "F260"
+    ],
+    "mentions": [
+     {
+      "end": 51,
+      "entity_id": "E128",
+      "start": 40,
+      "surface": "Gedu Kigiso"
+     },
+     {
+      "end": 72,
+      "entity_id": "E038",
+      "start": 60,
+      "surface": "Fozu Systems"
+     }
+    ],
+    "start": 40,
+    "text": "Gedu Kigiso founded Fozu Systems."
+   },
+   {
+    "end": 115,
+    "fact_ids": [
+     "F261"
+    ],
+    "mentions": [
+     {
+      "end": 85,
+      "entity_id": "E128",
+      "start": 74,
+      "surface": "Gedu Kigiso"
+     },
+     {
+      "end": 114,
+      "entity_id": "E085",
+      "start": 104,
+      "surface": "Luse Group"
+     }
+    ],
+    "start": 74,
+    "text": "Gedu Kigiso is the founder of Luse Group."
+   }
+  ],
+  "text": "Gedu Kigiso is associated with Megiish. Gedu Kigiso founded Fozu Systems. Gedu Kigiso is the founder of Luse Group.",
+  "title": "Gedu Kigiso"
+ },
+ {
+  "distractor": false,
+  "id": "D00101",
+  "sentences": [
+   {
+    "end": 28,
+    "fact_ids": [
+     "F262"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E129",
+      "start": 0,
+      "surface": "Kufemere"
+     },
+     {
+      "end": 27,
+      "entity_id": "E040",
+      "start": 23,
+      "surface": "Bane"
+     }
+    ],
+    "start": 0,
+    "text": "Kufemere is located in Bane."
+   },
+   {
+    "end": 54,
+    "fact_ids": [
+     "F263"
+    ],
+    "mentions": [
+     {
+      "end": 37,
+      "entity_id": "E129",
+      "start": 29,
+      "surface": "Kufemere"
+     },
+     {
+      "end": 53,
+      "entity_id": "E040",
+      "start": 49,
+      "surface": "Bane"
+     }
+    ],
+    "start": 29,
+    "text": "Kufemere is part of Bane."
+   }
+  ],
+  "text": "Kufemere is located in Bane. Kufemere is part of Bane.",
+  "title": "Kufemere"
+ },
+ {
+  "distractor": false,
+  "id": "D00102",
+  "sentences": [
+   {
+    "end": 51,
+    "fact_ids": [
+     "F264"
+    ],
+    "mentions": [
+     {
+      "end": 15,
+      "entity_id": "E131",
+      "start": 0,
+      "surface": "Rave Industries"
+     },
+     {
+      "end": 50,
+      "entity_id": "E047",
+      "start": 35,
+      "surface": "Saba Industries"
+     }
+    ],
+    "start": 0,
+    "text": "Rave Industries is associated with Saba Industries."
+   },
+   {
+    "end": 93,
+    "fact_ids": [
+     "F265"
+    ],
+    "mentions": [
+     {
+      "end": 67,
+      "entity_id": "E131",
+      "start": 52,
+      "surface": "Rave Industries"
+     },
+     {
+      "end": 92,
+      "entity_id": "E024",
+      "start": 79,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 52,
+    "text": "Rave Industries belongs to Dune Partners."
+   },
+   {
+    "end": 132,
+    "fact_ids": [
+     "F266"
+    ],
+    "mentions": [
+     {
+      "end": 109,
+      "entity_id": "E131",
+      "start": 94,
+      "surface": "Rave Industries"
+     },
+     {
+      "end": 131,
+      "entity_id": "E084",
+      "start": 123,
+      "surface": "Poti Z57"
+     }
+    ],
+    "start": 94,
+    "text": "Rave Industries manufactures Poti Z57."
+   }
+  ],
+  "text": "Rave Industries is associated with Saba Industries. Rave Industries belongs to Dune Partners. Rave Industries manufactures Poti Z57.",
+  "title": "Rave Industries"
+ },
+ {
+  "distractor": false,
+  "id": "D00103",
+  "sentences": [
+   {
+    "end": 27,
+    "fact_ids": [
+     "F267"
+    ],
+    "mentions": [
+     {
+      "end": 4,
+      "entity_id": "E132",
+      "start": 0,
+      "surface": "Fepa"
+     },
+     {
+      "end": 26,
+      "entity_id": "E137",
+      "start": 19,
+      "surface": "Buriton"
+     }
+    ],
+    "start": 0,
+    "text": "Fepa is located in Buriton."
+   }
+  ],
+  "text": "Fepa is located in Buriton.",
+  "title": "Fepa"
+ },
+ {
+  "distractor": false,
+  "id": "D00104",
+  "sentences": [
+   {
+    "end": 32,
+    "fact_ids": [
+     "F268"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E133",
+      "start": 0,
+      "surface": "Vevo Partners"
+     },
+     {
+      "end": 31,
+      "entity_id": "E110",
+      "start": 23,
+      "surface": "Leze Z87"
+     }
+    ],
+    "start": 0,
+    "text": "Vevo Partners produces Leze Z87."
+   }
+  ],
+  "text": "Vevo Partners produces Leze Z87.",
+  "title": "Vevo Partners"
+ },
+ {
+  "distractor": false,
+  "id": "D00105",
+  "sentences": [
+   {
+    "end": 29,
+    "fact_ids": [
+     "F269"
+    ],
+    "mentions": [
+     {
+      "end": 8,
+      "entity_id": "E135",
+      "start": 0,
+      "surface": "Golu Q17"
+     },
+     {
+      "end": 28,
+      "entity_id": "E019",
+      "start": 20,
+      "surface": "Novu Q87"
+     }
+    ],
+    "start": 0,
+    "text": "Golu Q17 belongs to Novu Q87."
+   },
+   {
+    "end": 59,
+    "fact_ids": [
+     "F270"
+    ],
+    "mentions": [
+     {
+      "end": 38,
+      "entity_id": "E135",
+      "start": 30,
+      "surface": "Golu Q17"
+     },
+     {
+      "end": 58,
+      "entity_id": "E084",
+      "start": 50,
+      "surface": "Poti Z57"
+     }
+    ],
+    "start": 30,
+    "text": "Golu Q17 is part of Poti Z57."
+   }
+  ],
+  "text": "Golu Q17 belongs to Novu Q87. Golu Q17 is part of Poti Z57.",
+  "title": "Golu Q17"
+ },
+ {
+  "distractor": false,
+  "id": "D00106",
+  "sentences": [
+   {
+    "end": 46,
+    "fact_ids": [
+     "F271"
+    ],
+    "mentions": [
+     {
+      "end": 10,
+      "entity_id": "E136",
+      "start": 0,
+      "surface": "Sodu Works"
+     },
+     {
+      "end": 45,
+      "entity_id": "E131",
+      "start": 30,
+      "surface": "Rave Industries"
+     }
+    ],
+    "start": 0,
+    "text": "Sodu Works is affiliated with Rave Industries."
+   },
+   {
+    "end": 72,
+    "fact_ids": [
+     "F272"
+    ],
+    "mentions": [
+     {
+      "end": 57,
+      "entity_id": "E136",
+      "start": 47,
+      "surface": "Sodu Works"
+     },
+     {
+      "end": 71,
+      "entity_id": "E110",
+      "start": 63,
+      "surface": "Leze Z87"
+     }
+    ],
+    "start": 47,
+    "text": "Sodu Works owns Leze Z87."
+   },
+   {
+    "end": 106,
+    "fact_ids": [
+     "F273"
+    ],
+    "mentions": [
+     {
+      "end": 83,
+      "entity_id": "E136",
+      "start": 73,
+      "surface": "Sodu Works"
+     },
+     {
+      "end": 105,
+      "entity_id": "E056",
+      "start": 95,
+      "surface": "Lare Group"
+     }
+    ],
+    "start": 73,
+    "text": "Sodu Works is part of Lare Group."
+   },
+   {
+    "end": 136,
+    "fact_ids": [
+     "F274"
+    ],
+    "mentions": [
+     {
+      "end": 117,
+      "entity_id": "E136",
+      "start": 107,
+      "surface": "Sodu Works"
+     },
+     {
+      "end": 135,
+      "entity_id": "E007",
+      "start": 127,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 107,
+    "text": "Sodu Works produces Gori X18."
+   }
+  ],
+  "text": "Sodu Works is affiliated with Rave Industries. Sodu Works owns Leze Z87. Sodu Works is part of Lare Group. Sodu Works produces Gori X18.",
+  "title": "Sodu Works"
+ },
+ {
+  "distractor": false,
+  "id": "D00107",
+  "sentences": [
+   {
+    "end": 25,
+    "fact_ids": [
+     "F275"
+    ],
+    "mentions": [
+     {
+      "end": 7,
+      "entity_id": "E137",
+      "start": 0,
+      "surface": "Buriton"
+     },
+     {
+      "end": 24,
+      "entity_id": "E014",
+      "start": 20,
+      "surface": "Noli"
+     }
+    ],
+    "start": 0,
+    "text": "Buriton is based in Noli."
+   },
+   {
+    "end": 50,
+    "fact_ids": [
+     "F276"
+    ],
+    "mentions": [
+     {
+      "end": 33,
+      "entity_id": "E137",
+      "start": 26,
+      "surface": "Buriton"
+     },
+     {
+      "end": 49,
+      "entity_id": "E014",
+      "start": 45,
+      "surface": "Noli"
+     }
+    ],
+    "start": 26,
+    "text": "Buriton is part of Noli."
+   }
+  ],
+  "text": "Buriton is based in Noli. Buriton is part of Noli.",
+  "title": "Buriton"
+ },
+ {
+  "distractor": false,
+  "id": "D00108",
+  "sentences": [
+   {
+    "end": 49,
+    "fact_ids": [
+     "F277"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E138",
+      "start": 0,
+      "surface": "Nibe Pesovo"
+     },
+     {
+      "end": 48,
+      "entity_id": "E063",
+      "start": 38,
+      "surface": "Velu Group"
+     }
+    ],
+    "start": 0,
+    "text": "Nibe Pesovo sits among the members of Velu Group."
+   },
+   {
+    "end": 75,
+    "fact_ids": [
+     "F278"
+    ],
+    "mentions": [
+     {
+      "end": 61,
+      "entity_id": "E138",
+      "start": 50,
+      "surface": "Nibe Pesovo"
+     },
+     {
+      "end": 74,
+      "entity_id": "E042",
+      "start": 67,
+      "surface": "Govo X8"
+     }
+    ],
+    "start": 50,
+    "text": "Nibe Pesovo owns Govo X8."
+   }
+  ],
+  "text": "Nibe Pesovo sits among the members of Velu Group. Nibe Pesovo owns Govo X8.",
+  "title": "Nibe Pesovo"
+ },
+ {
+  "distractor": false,
+  "id": "D00109",
+  "sentences": [
+   {
+    "end": 45,
+    "fact_ids": [
+     "F279"
+    ],
+    "mentions": [
+     {
+      "end": 9,
+      "entity_id": "E139",
+      "start": 0,
+      "surface": "Pita Labs"
+     },
+     {
+      "end": 44,
+      "entity_id": "E031",
+      "start": 29,
+      "surface": "Zolu Industries"
+     }
+    ],
+    "start": 0,
+    "text": "Pita Labs is associated with Zolu Industries."
+   },
+   {
+    "end": 74,
+    "fact_ids": [
+     "F280"
+    ],
+    "mentions": [
+     {
+      "end": 55,
+      "entity_id": "E139",
+      "start": 46,
+      "surface": "Pita Labs"
+     },
+     {
+      "end": 73,
+      "entity_id": "E007",
+      "start": 65,
+      "surface": "Gori X18"
+     }
+    ],
+    "start": 46,
+    "text": "Pita Labs produces Gori X18."
+   }
+  ],
+  "text": "Pita Labs is associated with Zolu Industries. Pita Labs produces Gori X18.",
+  "title": "Pita Labs"
+ },
+ {
+  "distractor": false,
+  "id": "D00110",
+  "sentences": [
+   {
+    "end": 39,
+    "fact_ids": [
+     "F281"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E140",
+      "start": 0,
+      "surface": "Fume Zivima"
+     },
+     {
+      "end": 38,
+      "entity_id": "E051",
+      "start": 31,
+      "surface": "Dodaese"
+     }
+    ],
+    "start": 0,
+    "text": "Fume Zivima is associated with Dodaese."
+   },
+   {
+    "end": 78,
+    "fact_ids": [
+     "F282"
+    ],
+    "mentions": [
+     {
+      "end": 51,
+      "entity_id": "E140",
+      "start": 40,
+      "surface": "Fume Zivima"
+     },
+     {
+      "end": 77,
+      "entity_id": "E001",
+      "start": 67,
+      "surface": "Dako Works"
+     }
+    ],
+    "start": 40,
+    "text": "Fume Zivima is a member of Dako Works."
+   }
+  ],
+  "text": "Fume Zivima is associated with Dodaese. Fume Zivima is a member of Dako Works.",
+  "title": "Fume Zivima"
+ },
+ {
+  "distractor": false,
+  "id": "D00111",
+  "sentences": [
+   {
+    "end": 34,
+    "fact_ids": [
+     "F283"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E141",
+      "start": 0,
+      "surface": "Gale Loseki"
+     },
+     {
+      "end": 33,
+      "entity_id": "E024",
+      "start": 20,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Gale Loseki founded Dune Partners."
+   },
+   {
+    "end": 66,
+    "fact_ids": [
+     "F284"
+    ],
+    "mentions": [
+     {
+      "end": 46,
+      "entity_id": "E141",
+      "start": 35,
+      "surface": "Gale Loseki"
+     },
+     {
+      "end": 65,
+      "entity_id": "E065",
+      "start": 55,
+      "surface": "Mata Group"
+     }
+    ],
+    "start": 35,
+    "text": "Gale Loseki founded Mata Group."
+   },
+   {
+    "end": 109,
+    "fact_ids": [
+     "F285"
+    ],
+    "mentions": [
+     {
+      "end": 78,
+      "entity_id": "E141",
+      "start": 67,
+      "surface": "Gale Loseki"
+     },
+     {
+      "end": 108,
+      "entity_id": "E147",
+      "start": 95,
+      "surface": "Pova Festival"
+     }
+    ],
+    "start": 67,
+    "text": "Gale Loseki participated in Pova Festival."
+   },
+   {
+    "end": 151,
+    "fact_ids": [
+     "F286"
+    ],
+    "mentions": [
+     {
+      "end": 121,
+      "entity_id": "E141",
+      "start": 110,
+      "surface": "Gale Loseki"
+     },
+     {
+      "end": 150,
+      "entity_id": "E024",
+      "start": 137,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 110,
+    "text": "Gale Loseki is employed by Dune Partners."
+   },
+   {
+    "end": 185,
+    "fact_ids": [
+     "F287"
+    ],
+    "mentions": [
+     {
+      "end": 163,
+      "entity_id": "E141",
+      "start": 152,
+      "surface": "Gale Loseki"
+     },
+     {
+      "end": 184,
+      "entity_id": "E065",
+      "start": 174,
+      "surface": "Mata Group"
+     }
+    ],
+    "start": 152,
+    "text": "Gale Loseki works for Mata Group."
+   }
+  ],
+  "text": "Gale Loseki founded Dune Partners. Gale Loseki founded Mata Group. Gale Loseki participated in Pova Festival. Gale Loseki is employed by Dune Partners. Gale Loseki works for Mata Group.",
+  "title": "Gale Loseki"
+ },
+ {
+  "distractor": false,
+  "id": "D00112",
+  "sentences": [
+   {
+    "end": 36,
+    "fact_ids": [
+     "F288"
+    ],
+    "mentions": [
+     {
+      "end": 9,
+      "entity_id": "E142",
+      "start": 0,
+      "surface": "Seka Labs"
+     },
+     {
+      "end": 35,
+      "entity_id": "E079",
+      "start": 26,
+      "surface": "Dadi Expo"
+     }
+    ],
+    "start": 0,
+    "text": "Seka Labs participated in Dadi Expo."
+   }
+  ],
+  "text": "Seka Labs participated in Dadi Expo.",
+  "title": "Seka Labs"
+ },
+ {
+  "distractor": false,
+  "id": "D00113",
+  "sentences": [
+   {
+    "end": 34,
+    "fact_ids": [
+     "F289"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E144",
+      "start": 0,
+      "surface": "Bagi Dalofe"
+     },
+     {
+      "end": 33,
+      "entity_id": "E121",
+      "start": 20,
+      "surface": "Nuro Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Bagi Dalofe founded Nuro Partners."
+   },
+   {
+    "end": 76,
+    "fact_ids": [
+     "F290"
+    ],
+    "mentions": [
+     {
+      "end": 46,
+      "entity_id": "E144",
+      "start": 35,
+      "surface": "Bagi Dalofe"
+     },
+     {
+      "end": 75,
+      "entity_id": "E108",
+      "start": 60,
+      "surface": "Vilu Conference"
+     }
+    ],
+    "start": 35,
+    "text": "Bagi Dalofe took part in Vilu Conference."
+   },
+   {
+    "end": 118,
+    "fact_ids": [
+     "F291"
+    ],
+    "mentions": [
+     {
+      "end": 88,
+      "entity_id": "E144",
+      "start": 77,
+      "surface": "Bagi Dalofe"
+     },
+     {
+      "end": 117,
+      "entity_id": "E017",
+      "start": 104,
+      "surface": "Gebo Holdings"
+     }
+    ],
+    "start": 77,
+    "text": "Bagi Dalofe is employed by Gebo Holdings."
+   },
+   {
+    "end": 152,
+    "fact_ids": [
+     "F292"
+    ],
+    "mentions": [
+     {
+      "end": 130,
+      "entity_id": "E144",
+      "start": 119,
+      "surface": "Bagi Dalofe"
+     },
+     {
+      "end": 151,
+      "entity_id": "E056",
+      "start": 141,
+      "surface": "Lare Group"
+     }
+    ],
+    "start": 119,
+    "text": "Bagi Dalofe works for Lare Group."
+   }
+  ],
+  "text": "Bagi Dalofe founded Nuro Partners. Bagi Dalofe took part in Vilu Conference. Bagi Dalofe is employed by Gebo Holdings. Bagi Dalofe works for Lare Group.",
+  "title": "Bagi Dalofe"
+ },
+ {
+  "distractor": false,
+  "id": "D00114",
+  "sentences": [
+   {
+    "end": 47,
+    "fact_ids": [
+     "F293"
+    ],
+    "mentions": [
+     {
+      "end": 13,
+      "entity_id": "E146",
+      "start": 0,
+      "surface": "Mami Partners"
+     },
+     {
+      "end": 46,
+      "entity_id": "E024",
+      "start": 33,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 0,
+    "text": "Mami Partners is affiliated with Dune Partners."
+   },
+   {
+    "end": 76,
+    "fact_ids": [
+     "F294"
+    ],
+    "mentions": [
+     {
+      "end": 61,
+      "entity_id": "E146",
+      "start": 48,
+      "surface": "Mami Partners"
+     },
+     {
+      "end": 75,
+      "entity_id": "E135",
+      "start": 67,
+      "surface": "Golu Q17"
+     }
+    ],
+    "start": 48,
+    "text": "Mami Partners owns Golu Q17."
+   },
+   {
+    "end": 119,
+    "fact_ids": [
+     "F295"
+    ],
+    "mentions": [
+     {
+      "end": 90,
+      "entity_id": "E146",
+      "start": 77,
+      "surface": "Mami Partners"
+     },
+     {
+      "end": 118,
+      "entity_id": "E028",
+      "start": 107,
+      "surface": "Rito Summit"
+     }
+    ],
+    "start": 77,
+    "text": "Mami Partners participated in Rito Summit."
+   },
+   {
+    "end": 155,
+    "fact_ids": [
+     "F296"
+    ],
+    "mentions": [
+     {
+      "end": 133,
+      "entity_id": "E146",
+      "start": 120,
+      "surface": "Mami Partners"
+     },
+     {
+      "end": 154,
+      "entity_id": "E015",
+      "start": 147,
+      "surface": "Nato Z5"
+     }
+    ],
+    "start": 120,
+    "text": "Mami Partners manufactures Nato Z5."
+   }
+  ],
+  "text": "Mami Partners is affiliated with Dune Partners. Mami Partners owns Golu Q17. Mami Partners participated in Rito Summit. Mami Partners manufactures Nato Z5.",
+  "title": "Mami Partners"
+ },
+ {
+  "distractor": false,
+  "id": "D00115",
+  "sentences": [
+   {
+    "end": 39,
+    "fact_ids": [
+     "F297"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E148",
+      "start": 0,
+      "surface": "Dome Bufuzu"
+     },
+     {
+      "end": 38,
+      "entity_id": "E097",
+      "start": 31,
+      "surface": "Legeese"
+     }
+    ],
+    "start": 0,
+    "text": "Dome Bufuzu is associated with Legeese."
+   },
+   {
+    "end": 74,
+    "fact_ids": [
+     "F298"
+    ],
+    "mentions": [
+     {
+      "end": 51,
+      "entity_id": "E148",
+      "start": 40,
+      "surface": "Dome Bufuzu"
+     },
+     {
+      "end": 73,
+      "entity_id": "E024",
+      "start": 60,
+      "surface": "Dune Partners"
+     }
+    ],
+    "start": 40,
+    "text": "Dome Bufuzu founded Dune Partners."
+   }
+  ],
+  "text": "Dome Bufuzu is associated with Legeese. Dome Bufuzu founded Dune Partners.",
+  "title": "Dome Bufuzu"
+ },
+ {
+  "distractor": false,
+  "id": "D00116",
+  "sentences": [
+   {
+    "end": 44,
+    "fact_ids": [
+     "F299"
+    ],
+    "mentions": [
+     {
+      "end": 11,
+      "entity_id": "E149",
+      "start": 0,
+      "surface": "Zedi Gegave"
+     },
+     {
+      "end": 43,
+      "entity_id": "E111",
+      "start": 28,
+      "surface": "Tiku Conference"
+     }
+    ],
+    "start": 0,
+    "text": "Zedi Gegave participated in Tiku Conference."
+   }
+  ],
+  "text": "Zedi Gegave participated in Tiku Conference.",
+  "title": "Zedi Gegave"
+ }
+]

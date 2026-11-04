@@ -1,0 +1,153 @@
+{
+ "checks": [
+  {
+   "knob": "n_entities",
+   "ok": true,
+   "realized": 150,
+   "target": 150,
+   "tolerance": 0
+  },
+  {
+   "knob": "avg_degree",
+   "ok": true,
+   "realized": 4.0,
+   "target": 4.0,
+   "tolerance": 0.21333333333333335
+  },
+  {
+   "knob": "type_mix",
+   "ok": true,
+   "realized": 0.003333333333333334,
+   "target": 0.0,
+   "tolerance": 0.0066666676666666674
+  },
+  {
+   "knob": "community_mixing",
+   "ok": true,
+   "realized": 0.12666666666666668,
+   "target": 0.1,
+   "tolerance": 0.10196152422706632
+  },
+  {
+   "knob": "alias_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.006666666666666667
+  },
+  {
+   "knob": "homonym_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.006666666666666667
+  },
+  {
+   "knob": "distractor_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.006666666666666667
+  },
+  {
+   "knob": "noise_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.0033333333333333335
+  },
+  {
+   "knob": "churn_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.0033333333333333335
+  },
+  {
+   "knob": "retraction_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.0033333333333333335
+  }
+ ],
+ "stats": {
+  "ambiguity": {
+   "aliased_entities": 0,
+   "aliases": 0,
+   "shared_names": 0,
+   "vague_facts": 0
+  },
+  "churn": {
+   "replaced": 0,
+   "retracted": 0
+  },
+  "communities": {
+   "0": 38,
+   "1": 38,
+   "2": 37,
+   "3": 37
+  },
+  "components": {
+   "count": 17,
+   "largest": 134,
+   "sizes": [
+    134,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+   ]
+  },
+  "current_facts": 300,
+  "degree": {
+   "histogram": {
+    "0": 16,
+    "1": 14,
+    "2": 27,
+    "3": 27,
+    "4": 19,
+    "5": 15,
+    "6": 8,
+    "7": 6,
+    "8": 8,
+    "9": 3,
+    "10": 1,
+    "13": 3,
+    "16": 1,
+    "23": 1,
+    "31": 1
+   },
+   "max": 31,
+   "mean": 4.0
+  },
+  "distractors": 0,
+  "entities": 150,
+  "facts": 300,
+  "original_facts": 300,
+  "path_lengths": {
+   "1": 188,
+   "2": 744,
+   "3": 1334,
+   "4": 1742,
+   "5": 1235,
+   "6": 557,
+   "7": 157,
+   "8": 25,
+   "9": 3
+  },
+  "type_counts": {
+   "EVENT": 15,
+   "LOCATION": 23,
+   "NORP": 8,
+   "ORG": 37,
+   "PERSON": 52,
+   "PRODUCT": 15
+  }
+ }
+}
