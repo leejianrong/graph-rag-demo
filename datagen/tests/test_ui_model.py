@@ -3,16 +3,14 @@
 from __future__ import annotations
 
 import pytest
+from kggen.questions import QUESTION_TYPES
 from kggen.spec import PRESET_NAMES, load_preset
 from kggen_ui import model
 
 # Plain questions only, for tests that read a gold path as one chain with a fixed hop count.
 ENTITY_ONLY = {
     **model.QUESTION_DEFAULTS,
-    **{
-        f"type_{t}": 0
-        for t in ("set", "count", "compare", "superlative", "unanswerable", "false_premise")
-    },
+    **{f"type_{t}": 0 for t in QUESTION_TYPES if t != "entity"},
 }
 
 
@@ -482,14 +480,7 @@ def test_the_form_accepts_the_stress_preset_size() -> None:
 def test_the_question_form_reads_a_type_mix_and_rejects_all_zero() -> None:
     values = {**model.QUESTION_DEFAULTS, "type_entity": 0, "type_set": 3}
     spec = model.question_spec_from_values(values)
-    assert spec.type_mix == {
-        "set": 3.0,
-        "count": 1.0,
-        "compare": 1.0,
-        "superlative": 1.0,
-        "unanswerable": 1.0,
-        "false_premise": 1.0,
-    }
+    assert spec.type_mix == {t: (3.0 if t == "set" else 1.0) for t in QUESTION_TYPES[1:]}
     with pytest.raises(ValueError, match="question type"):
         model.question_spec_from_values({**values, **{f"type_{t}": 0 for t in spec.type_mix}})
 
@@ -502,3 +493,12 @@ def test_a_set_question_highlights_every_entity_and_fact_it_involves() -> None:
     nodes, edges = model.gold_path(index, q)
     assert set(q.answers) <= set(nodes) and set(edges) == {f for p in q.gold_paths for f in p}
     assert model.answer_text(q).startswith(f"Answers ({len(q.answers)})")
+
+
+def test_the_question_summary_names_the_types_so_a_fallback_is_visible() -> None:
+    world = model.generate_world(model.preset_values("small"))
+    qs = model.derive_questions(world, {**model.QUESTION_DEFAULTS, "n_questions": 30})
+    text = model.question_summary(qs)
+    assert text.startswith(f"{len(qs)} questions: ") and "entity" in text
+    assert "as_of" not in text  # the small world never changes, so those fell back
+    assert model.question_summary([]) == ""
