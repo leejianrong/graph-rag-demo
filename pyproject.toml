@@ -90,8 +90,10 @@ files = ["graph_rag", "datagen/kggen", "bench/kgbench"]
 warn_redundant_casts = true
 no_implicit_optional = true
 
+# kafka ships no stubs; sentence_transformers is the optional `embed` extra, which the lint job
+# (like a plain `uv sync --extra dev`) does not install.
 [[tool.mypy.overrides]]
-module = ["kafka", "kafka.*"]
+module = ["kafka", "kafka.*", "sentence_transformers", "sentence_transformers.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
