@@ -22,7 +22,7 @@ from kggen.stats import check_against_spec
 from kggen.world import Edge, Entity, World, WorldGenerationError, generate
 from pydantic import ValidationError
 
-MAX_ENTITIES = 50_000  # the stress preset; the graph is drawn only up to MAX_GRAPH_NODES (ADR-0048)
+MAX_ENTITIES = 50_000  # the stress preset; a bigger graph is drawn as a sample (ADR-0048)
 
 
 @dataclass(frozen=True)
@@ -567,18 +567,6 @@ MAX_GRAPH_EDGES = 60_000
 DISTRACTOR_GROUP = "Distractor"
 
 
-def graph_limits_message(world: World) -> str | None:
-    """Why this world is too big to draw, or ``None`` when it fits the graph view."""
-    edges = len(world.current_edges())
-    if len(world.entities) > MAX_GRAPH_NODES or edges > MAX_GRAPH_EDGES:
-        return (
-            f"This world has {len(world.entities):,} entities and {edges:,} facts; the graph view "
-            f"draws up to {MAX_GRAPH_NODES:,} and {MAX_GRAPH_EDGES:,}. Lower the entities or the "
-            "average degree to see it."
-        )
-    return None
-
-
 def graph_data(world: World) -> tuple[list[dict], list[dict]]:
     """The world as the Graph component wants it: nodes coloured by type (distractors apart) and
     the facts still true at the end, each edge carrying its fact id."""
@@ -588,6 +576,37 @@ def graph_data(world: World) -> tuple[list[dict], list[dict]]:
     ]
     edges = [{"source": f.subject, "target": f.object, "id": f.id} for f in world.current_edges()]
     return nodes, edges
+
+
+def graph_view(world: World) -> tuple[list[dict], list[dict], str]:
+    """What to draw, and a note on it. A world within the graph view's limits is drawn whole (the
+    note is empty). A bigger one is drawn as a sample: the most connected entities that fit both
+    limits, with the facts between them, so the picture shows the densest part of the world."""
+    nodes, edges = graph_data(world)
+    if len(nodes) <= MAX_GRAPH_NODES and len(edges) <= MAX_GRAPH_EDGES:
+        return nodes, edges, ""
+    degree: dict[str, int] = {}
+    for edge in edges:
+        degree[edge["source"]] = degree.get(edge["source"], 0) + 1
+        degree[edge["target"]] = degree.get(edge["target"], 0) + 1
+    ranked = sorted(nodes, key=lambda n: (-degree.get(n["id"], 0), n["id"]))
+    rank = {n["id"]: i for i, n in enumerate(ranked)}
+    # An edge is drawn once both its ends are, that is from its later end's rank on, so the nodes
+    # to keep are the top k, with k as large as both limits allow.
+    came_in = sorted(max(rank[e["source"]], rank[e["target"]]) for e in edges)
+    k = min(MAX_GRAPH_NODES, len(nodes))
+    if len(came_in) > MAX_GRAPH_EDGES:
+        k = min(k, came_in[MAX_GRAPH_EDGES])
+    kept = {n["id"] for n in ranked[:k]}
+    shown_nodes = [n for n in nodes if n["id"] in kept]
+    shown_edges = [e for e in edges if e["source"] in kept and e["target"] in kept]
+    note = (
+        f"This world has {len(nodes):,} entities and {len(edges):,} facts, more than the graph "
+        f"view holds ({MAX_GRAPH_NODES:,} and {MAX_GRAPH_EDGES:,}). Showing the "
+        f"{len(shown_nodes):,} most connected entities and the {len(shown_edges):,} facts "
+        "between them."
+    )
+    return shown_nodes, shown_edges, note
 
 
 @dataclass(frozen=True)
@@ -703,7 +722,7 @@ __all__ = [
     "entity_summary",
     "fact_rows",
     "graph_data",
-    "graph_limits_message",
+    "graph_view",
     "index_world",
     "generate_world",
     "preset_values",
