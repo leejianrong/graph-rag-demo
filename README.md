@@ -311,7 +311,9 @@ linking is scored with B-cubed (merged homonyms cost precision, split aliases co
 an alias-heavy and an ambiguous version of the world. Retrieval scoring (recall@k and
 whole-path@k per hop count, `kgbench.retrieval`) is built, and a BM25 baseline (`kgbench.baselines`) sits behind the same interface. On the small set it
 finds every 1-hop path in the top 5 and almost no 3-hop or 4-hop path: the headroom a graph is meant to
-close. The dense baseline and a graph-rag adapter the comparison needs are still to build.
+close. A dense baseline (`DenseRetriever`) uses the project's own embedder port: the fake in tests and
+bge-small for published numbers (`pip install` the `embed` extra and run `make embed-model`). A graph-rag
+adapter, and the comparison itself, are still to build.
 
 ## Where the design lives
 

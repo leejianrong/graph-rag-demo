@@ -7,12 +7,14 @@ import socket
 from pathlib import Path
 
 import pytest
-from kgbench.baselines import BM25Retriever, sentences_of, tokenize
+from kgbench.baselines import BM25Retriever, DenseRetriever, sentences_of, tokenize
 from kgbench.retrieval import RetrievedSentence, evaluate
 from kggen.questions import QuestionSpec, generate_questions
 from kggen.render import Document, Sentence, render_documents
 from kggen.spec import load_preset
 from kggen.world import generate
+
+from graph_rag.wiring import build_embedder
 
 FIXTURE = Path(__file__).resolve().parents[2] / "datagen" / "fixtures" / "small"
 
@@ -111,3 +113,88 @@ def test_sentences_keep_document_order_and_facts() -> None:
         ("B", ("F3",)),
     ]
     assert tokenize("Dune Partners, Inc.") == ["dune", "partners", "inc"]
+
+
+# --- dense baseline --------------------------------------------------------------------------
+
+
+class OneHot:
+    """An exact embedder for hand-built cases: one dimension per word of a fixed vocabulary."""
+
+    def __init__(self, vocabulary: list[str], scale: float = 1.0) -> None:
+        self.vocabulary, self.scale = vocabulary, scale
+        self.calls: list[int] = []  # how many texts each embed() call received
+
+    @property
+    def dim(self) -> int:
+        return len(self.vocabulary)
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        self.calls.append(len(texts))
+        return [
+            [self.scale * float(w in tokenize(text)) for w in self.vocabulary] for text in texts
+        ]
+
+
+def test_dense_ranks_by_cosine_and_ties_break_by_position() -> None:
+    docs = [
+        doc("A", ("zork cranes", "F1"), ("zork", "F2")),
+        doc("B", ("cranes", "F3"), ("zork cranes", "F4")),
+    ]
+    dense = DenseRetriever(docs, OneHot(["zork", "cranes"]))
+    # the query "zork" is closest to the pure-zork sentence, then the two equal mixed ones in order
+    assert [s.fact_ids[0] for s in dense.retrieve("zork", 4)] == ["F2", "F1", "F4", "F3"]
+
+
+class WordCounts:
+    """Unnormalised vectors whose length grows with repetition: "zork zork zork" is 3x "zork"."""
+
+    dim = 1
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        return [[float(tokenize(t).count("zork"))] for t in texts]
+
+
+def test_dense_scores_cosine_so_a_longer_vector_does_not_win() -> None:
+    docs = [doc("A", ("zork", "F1"), ("zork zork zork", "F2"))]
+    # both point the same way as the query, so cosine ties and corpus order decides: F1 first.
+    # A raw dot product would prefer F2, whose vector is three times longer.
+    assert [s.fact_ids[0] for s in DenseRetriever(docs, WordCounts()).retrieve("zork", 2)] == [
+        "F1",
+        "F2",
+    ]
+
+
+def test_dense_embeds_the_corpus_once_in_batches_and_each_question_once() -> None:
+    docs = [doc("A", *[(f"word{i}", f"F{i}") for i in range(10)])]
+    embedder = OneHot(["word1"])
+    dense = DenseRetriever(docs, embedder, batch_size=4)
+    assert embedder.calls == [4, 4, 2]
+    dense.retrieve("word1", 3)
+    dense.retrieve("word2", 3)
+    assert embedder.calls[3:] == [1, 1]  # one text per question, the corpus is not re-embedded
+
+
+def test_dense_with_the_project_fake_embedder_on_the_small_fixture(small) -> None:
+    _, documents, questions = small
+    dense = DenseRetriever(documents, build_embedder())
+    ranking = dense.retrieve(questions[0].question, 5)
+    assert len(ranking) == 5 and all(s.fact_ids for s in ranking)
+    assert ranking == DenseRetriever(documents, build_embedder()).retrieve(questions[0].question, 5)
+    report = evaluate(dense, questions, ks=(5,))
+    assert report.by_hops[1].recall_at[5] > 0.5  # the entity's own name is shared with its sentence
+    assert report.by_hops[4].path_at[5] == 0.0
+
+
+def test_dense_handles_an_empty_corpus_and_a_large_k() -> None:
+    assert DenseRetriever([], build_embedder()).retrieve("anything", 5) == []
+    docs = [doc("A", ("one", "F1"), ("two", "F2"))]
+    assert len(DenseRetriever(docs, OneHot(["one"])).retrieve("one", 50)) == 2
+
+
+def test_build_embedder_gives_the_fake_by_default_and_the_real_one_without_loading_it() -> None:
+    from graph_rag.fakes import FakeEmbedder
+
+    assert isinstance(build_embedder(), FakeEmbedder)
+    real = build_embedder(real=True)  # constructing it needs no torch and no model download
+    assert type(real).__name__ == "SentenceTransformerEmbedder" and real.dim == 384
