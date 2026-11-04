@@ -30,7 +30,7 @@ under [Benchmarking](#benchmarking). Today the demo is single-user and local; se
 [Conventions](#conventions) for what's not built yet.
 
 The design was written down before the code, and it's worth reading if you want
-the reasoning rather than just the moving parts. The [PRD](docs/PRD.md), the eleven
+the reasoning rather than just the moving parts. The [PRD](docs/PRD.md), the
 [ADRs](docs/adr/), and the [slice plan](docs/SLICES.md) cover it. Where a doc and
 the code disagree, trust the code.
 
@@ -114,7 +114,7 @@ for any OpenAI-compatible provider; the query path itself runs without one.
 git clone https://github.com/leejianrong/graph-rag-demo
 cd graph-rag-demo
 cp .env.example .env          # then set OPENAI_API_KEY — see below
-docker compose up --build     # or: make up
+docker compose up --build     # or: make up (bare `make` lists every command)
 ```
 
 The first build is large and slow. The image installs PyTorch and downloads
@@ -217,6 +217,56 @@ cleanly without a key, and `benchmark` runs the whole pipeline over a fixture.
 layering. Tests for the generator and the evaluation bench live in `datagen/tests` and `bench/tests` and run in the fast
 suite.
 
+## Synthetic data generator
+
+![The generator UI: a generated world drawn as a graph, with one question's gold path highlighted](docs/assets/kggen-ui.png)
+
+Testing a graph pipeline needs data where you know the right answer. [`datagen/`](datagen/)
+(command `kggen`, [ADR-0012](docs/adr/0012-standalone-data-generator.md)) builds a knowledge
+graph from a seeded, declarative spec, then derives documents and multi-hop questions from it,
+so the gold never depends on the pipeline under test. It knows nothing about graph-rag. It needs
+no Docker, model or API key.
+
+```bash
+make ui                    # web UI: set the knobs and a seed, see the graph, browse questions
+                           # with their gold paths, read documents, download the dataset zip
+make world PRESET=small    # realized stats versus what the spec asked for
+make fixtures              # regenerate the committed small and medium sets (datagen/fixtures)
+make                       # lists every command
+```
+
+`make ui` uses a local [indah](https://github.com/leejianrong/indah) checkout at
+`~/projects/abang-ai/indah-python-ui` when one exists, because the graph view needs indah 0.12,
+which is not released yet. Everything else works on the PyPI release (`make ui INDAH=`, or
+`uv run --with indah kggen ui`), only without the graph. It picks a free port itself; `PORT=8765`
+pins one. Documents are template text by default. An opt-in switch writes them with an LLM through
+any OpenAI-compatible endpoint instead; it only runs when you click Render documents.
+
+The command line does the same, and the same spec and seed always give the same output:
+
+```bash
+uv run kggen world generate --preset medium --out world.json   # also writes world.stats.json
+uv run kggen world stats --preset medium                       # realized stats vs. the spec
+uv run kggen questions generate --preset small --n 50 --hops 1:1,2:2,3:1 --out questions.json
+uv run kggen scenario generate --preset small --out scenario.json  # updates, deletes, arrival orders + expected graph
+uv run kggen docs generate --preset small --out docs.json      # template text, no LLM
+# LLM-written text for any OpenAI-compatible endpoint; answers are cached, so a re-run needs no endpoint:
+uv run kggen docs generate --preset tiny --renderer llm --model M --cache-dir DIR [--base-url URL]
+uv run kggen export --spec spec.json --out dataset.zip         # world + questions + documents + specs, reproducible
+```
+
+Presets run from `tiny` to `stress` (50,000 entities). You control how complex the graph is (size,
+type and relation mix, hub-heavy versus uniform degrees, communities, cycles). Beyond graph shape,
+a spec can add ambiguity (`alias_rate`, `homonym_rate`, `distractor_rate`, `noise_rate`) and temporal
+churn (`churn_rate`, `retraction_rate`, with `start_year` and `end_year`); all default to off, and
+every generated world is checked against its spec in the stats report. Questions run 1 to 4 hops and
+carry the ids of the facts that answer them; documents record which sentence expresses which fact
+and where each entity is mentioned, so scoring has exact gold. Scenarios add facts that change, are
+forgotten, or arrive in any order, with the graph a memory store should end up with.
+[`datagen/fixtures/`](datagen/fixtures/README.md) holds committed small and medium sets, and
+[`datagen/examples/llm-cache-tiny/`](datagen/examples/llm-cache-tiny/README.md) a cached
+LLM-written set for the tiny preset.
+
 ## Benchmarking
 
 The pipeline is evaluated on **2WikiMultihopQA**, whose evidence is expressed as
@@ -246,39 +296,10 @@ run reuses the pre-built graph and the response cache, so it costs about nothing
 To measure retrieval against ground truth we control, the repo is gaining its own
 bench in [`bench/`](bench/) (command `kgbench`, design in
 [ADR-0011](docs/adr/0011-in-repo-evaluation-bench.md)). Instead of grading against
-an extraction of our own, it scores the pipeline on a synthetic world graph made by a
-standalone generator, [`datagen/`](datagen/) (command `kggen`,
-[ADR-0012](docs/adr/0012-standalone-data-generator.md)). The generator knows nothing about
-graph-rag: it builds a graph from a seeded, declarative spec and derives documents and
-questions from it, so the gold answer never depends on the pipeline under test.
-
-So far the generator makes worlds, questions and documents. You can control how complex the
-graph is (size, type and relation mix, hub-heavy versus uniform degrees, communities, cycles)
-and the same spec and seed always give the same output:
-
-```bash
-uv run kggen world generate --preset medium --out world.json   # also writes world.stats.json
-uv run kggen world stats --preset medium                       # realized stats vs. the spec
-uv run kggen questions generate --preset small --n 50 --hops 1:1,2:2,3:1 --out questions.json
-uv run kggen scenario generate --preset small --out scenario.json  # updates, deletes, arrival orders + expected graph
-uv run kggen docs generate --preset small --out docs.json      # template text, no LLM
-# LLM-written text for any OpenAI-compatible endpoint; answers are cached, so a re-run needs no endpoint:
-uv run kggen docs generate --preset tiny --renderer llm --model M --cache-dir DIR [--base-url URL]
-uv run kggen export --spec spec.json --out dataset.zip         # world + questions + documents + specs, reproducible
-uv run --with indah kggen ui                                   # web UI (or install kggen[ui]);
-                                                               # the graph view needs indah 0.12+; the UI also
-                                                               # lists questions and shows each one's gold path,
-                                                               # and renders documents whose sentences you can click
-```
-
-Presets run from `tiny` to `stress` (50,000 entities). Beyond graph shape, a spec can add
-ambiguity (`alias_rate`, `homonym_rate`, `distractor_rate`, `noise_rate`) and temporal churn
-(`churn_rate`, `retraction_rate`, with `start_year` and `end_year`); all default to off. Every
-generated world is checked against its spec in the stats report. Questions run 1 to 4 hops and
-carry the ids of the facts that answer them; documents record which sentence expresses which
-fact and where each entity is mentioned, so scoring has exact gold. Not built yet: the LLM
-renderer, extraction and retrieval scoring, and the BM25 and dense-retrieval baselines the
-comparison needs.
+an extraction of our own, it scores the pipeline on a synthetic world graph made by the
+standalone [generator](#synthetic-data-generator), so the gold answer never depends on the
+pipeline under test. So far `bench/` is a scaffold: extraction and retrieval scoring and the
+BM25 and dense-retrieval baselines the comparison needs are still to build.
 
 ## Where the design lives
 
@@ -288,7 +309,7 @@ The thinking is all written down, and it's worth reading before any code:
   stories, implementation and testing decisions, scope.
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — topology, the six ports, the
   data model, and the stage/checkpoint flow, consolidated from the ADRs.
-- **[docs/adr/](docs/adr/)** — ten architecture decision records, one per major
+- **[docs/adr/](docs/adr/)** — architecture decision records, one per major
   choice, each with the alternatives weighed and the reasoning kept.
 - **[docs/SLICES.md](docs/SLICES.md)** — the eight vertical slices the build
   followed, each with its own test plan.
@@ -302,3 +323,12 @@ modular layout with type hints and docstrings throughout. English-only corpus.
 No authentication and no multi-tenancy yet: this is built to run on your laptop, not
 to be deployed. Tenancy, API keys, incremental ingest and an MCP interface are the
 next planned work.
+
+## Contributing
+
+Changes land through pull requests with the checks green; see [CONTRIBUTING.md](CONTRIBUTING.md).
+`make check` runs the cheap ones locally.
+
+## License
+
+None chosen yet, so the code is not licensed for reuse.

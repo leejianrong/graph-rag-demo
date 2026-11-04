@@ -14,8 +14,10 @@ Direction (2026-11): turning the demo into a product — a memory/knowledge stor
 (API, MCP, CLI, then a Vite + Svelte UI), with a standalone synthetic data generator (`datagen/`, ADR-0012) and an in-repo evaluation bench. The roadmap lives on
 **pandan board 9 (`GRA-*`)**, not in the docs; use the `pandan` skill, refer to cards by ref (`GRA-85`).
 
-**Build status:** V1–V8 are done and the pipeline is feature-complete. Slice-by-slice detail is in
-[`agent_docs/build-status.md`](agent_docs/build-status.md). The generator (`datagen/`, `kggen`) makes seeded worlds (ambiguity and churn knobs, a stats report), multi-hop questions with gold paths, update/delete/reorder scenarios (`kggen/scenarios.py`), and documents (templates, or an LLM-written set cached on disk, `kggen/render_llm.py`); `kggen ui` (extra `kggen[ui]`, package `kggen_ui`) is an indah app on top with sentence-to-fact and mention gold; the UI has an opt-in LLM toggle for documents (off by default; only Render calls it, never Generate); the bench (`bench/`, ADR-0011) has the scaffold; extraction/retrieval scoring and baselines are still to build.
+**Build status:** V1–V8 are done and the pipeline is feature-complete ([`agent_docs/build-status.md`](agent_docs/build-status.md)).
+The generator (`datagen/`, `kggen`) and its indah UI (`kggen ui`, extra `kggen[ui]`) are done; the UI's graph view needs
+indah 0.12, unreleased, so it runs against the local indah checkout (`make ui` picks it up). The bench (`bench/`, ADR-0011) is
+a scaffold: extraction/retrieval scoring and baselines are still to build.
 
 > **Trust the code over the docs.** `docs/` is design intent; where they disagree, the code is the truth and
 > the doc should be fixed in the same PR. Read `graph_rag/ports.py` before coding against a port.
@@ -36,6 +38,8 @@ Direction (2026-11): turning the demo into a product — a memory/knowledge stor
   files before `uv pip install --no-deps .` (uv parses the workspace). Keep them when touching the image.
 
 ## Commands
+
+Bare `make` lists every target (`make check` = lint + format check + fast suite; `make ui` starts the generator UI).
 
 ```bash
 uv sync --frozen --extra dev                                  # install (frozen; installs kggen and kgbench too)

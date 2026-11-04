@@ -1,22 +1,33 @@
-# One-command dev loop (dev-playbook #16). See docs/ARCHITECTURE.md §8.
-.PHONY: up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint fmt
+# One-command dev loop (dev-playbook #17). See docs/ARCHITECTURE.md §8.
+# Bare `make` prints this help; it never starts anything.
+.DEFAULT_GOAL := help
+.PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint fmt check ui world fixtures
+
+# The generator UI uses a local indah checkout when one exists (its Graph component is not on PyPI
+# until indah 0.12), else PyPI indah. Override: INDAH=/path/to/indah-python-ui, or INDAH= for PyPI.
+INDAH ?= $(wildcard $(HOME)/projects/abang-ai/indah-python-ui)
+PRESET ?= medium
+
+help: ## Show this help.
+	@echo "Targets (override variables like PRESET=small or PORT=8765):"
+	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  %-16s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 # Bring up the whole local stack (Kafka/MinIO/ES/app), building the app image.
-up:
+up: ## Bring up the whole stack (Kafka, MinIO, ES, Neo4j, app).
 	docker compose up --build
 
 # Tear the stack down.
-down:
+down: ## Stop the stack.
 	docker compose down
 
 # Tail the app logs.
-logs:
+logs: ## Tail the app logs.
 	docker compose logs -f app
 
 # End-to-end demo over the real running stack (needs `make up` + OPENAI_API_KEY):
 # ingests the bundled supply-chain corpus, waits for the graph, runs the multi-hop
 # query and prints the connected subgraph. Add SYNTHESIZE=1 for a prose answer.
-demo:
+demo: ## Multi-hop demo against the running stack (needs OPENAI_API_KEY).
 	uv run python -m graph_rag.demo --http http://localhost:8000 $(if $(SYNTHESIZE),--synthesize,)
 
 # Self-sufficient real-stack demo: bring the WHOLE stack up (build + start), block
@@ -25,61 +36,79 @@ demo:
 # Docker + OPENAI_API_KEY in .env (coref + KG-build call an LLM). Leaves the stack UP
 # afterwards: explore Neo4j at http://localhost:7474, re-run the query cheaply with
 # `make demo`, or `make down` to stop. Add SYNTHESIZE=1 for a prose answer.
-demo-live:
+demo-live: ## Start the whole stack, then run the demo (needs Docker + key).
 	docker compose up -d --build --wait
 	uv run python -m graph_rag.demo --http http://localhost:8000 $(if $(SYNTHESIZE),--synthesize,)
 
 # Same multi-hop demo with NO Docker, NO model, NO API key — the deterministic
 # offline heuristic pipeline over the same bundled corpus ($0).
-demo-offline:
+demo-offline: ## Multi-hop demo with no Docker, model or key.
 	uv run python -m graph_rag.demo
 
 # Fast suite — in-memory fakes, $0, no Docker, no model. The primary pre-push gate.
-test:
-	uv run pytest -m "not contract and not model and not benchmark"
+test: ## Fast suite: fakes only, no Docker/model/key (the pre-push gate).
+	uv run pytest -m "not contract and not model and not llm" -q
 
 # Run the V8 benchmark and print the metrics scorecard (EM / token-F1 /
 # supporting-fact P·R·F1). Offline by default: no Docker, no model, no key ($0).
 # Point at the real corpus with DATASET=..., or add REAL=1 for the real stack.
-benchmark:
+benchmark: ## V8 benchmark scorecard, offline (DATASET=... or REAL=1).
 	uv run benchmark run --subset small $(if $(DATASET),--dataset $(DATASET),) $(if $(REAL),--real,)
 
 # Opt-in whole-pipeline benchmark SMOKE TEST over the real stack (V8 pytest
 # marker; skips cleanly without infra). This is the test, not the scorecard.
-test-benchmark:
+test-benchmark: ## Whole-pipeline benchmark smoke test over the real stack.
 	uv run pytest -m benchmark
 
 # Contract suite — real adapters via testcontainers (needs Docker).
-contract:
+contract: ## Contract suite: real adapters via testcontainers (Docker).
 	uv run pytest -m contract
 
 # Model-backed NER suite — loads a real spaCy model (run `make models` first).
 # NOT part of the pre-push gate; runs in a dedicated CI job.
-model:
+model: ## Model-backed NER suite (run `make models` first).
 	uv run pytest -m model
 
 # Fetch the small spaCy model used by the tests + trf fallback ($0, no extras).
-models:
+models: ## Download the small spaCy model.
 	uv run python -m spacy download en_core_web_sm
 
 # Fetch the transformer model for the real stack (needs the `trf` extra).
-models-trf:
+models-trf: ## Download the transformer spaCy model (trf extra).
 	uv run --extra trf python -m spacy download en_core_web_trf
 
 # Fetch the sentence-transformer embedding model (V4, B1; needs the `embed` extra).
 # Also warms it for the `model`-marked embedder test.
-embed-model:
+embed-model: ## Download the embedding model (embed extra).
 	uv run --extra embed python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-en-v1.5')"
 
 # Validate the GitHub Pages landing page (site/index.html parses + every in-page
 # anchor resolves) before it ships. Mirrors the landing-page CI job; stdlib only.
-check-site:
+check-site: ## Validate the GitHub Pages landing page.
 	python scripts/check_landing_page.py
 
 # Lint.
-lint:
+lint: ## Ruff lint.
 	uv run ruff check .
 
 # Auto-format.
-fmt:
+fmt: ## Ruff auto-format.
 	uv run ruff format .
+
+# Lint, format check and the fast suite: what the pre-push hook and CI's cheap jobs run.
+check: ## Lint + format check + fast suite (run before pushing).
+	uv run ruff check .
+	uv run ruff format --check .
+	$(MAKE) test
+
+# Synthetic data generator (datagen/, kggen). No Docker, model or key needed.
+# The UI picks the first free port itself; PORT=8765 pins one.
+ui: ## Start the synthetic-data web UI (kggen ui). PORT=... to pin a port.
+	@echo "kggen ui with $(if $(INDAH),local indah at $(INDAH),PyPI indah: no graph view until indah 0.12)"
+	uv run $(if $(INDAH),--with-editable $(INDAH),--with indah) kggen ui $(if $(PORT),--port $(PORT),)
+
+world: ## Generate a world and print its stats vs the spec (PRESET=tiny|small|medium|large|stress).
+	uv run kggen world stats --preset $(PRESET)
+
+fixtures: ## Regenerate the committed small and medium fixtures (datagen/fixtures).
+	uv run kggen fixtures write
