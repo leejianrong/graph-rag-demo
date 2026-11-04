@@ -209,6 +209,7 @@ def _order(args: argparse.Namespace) -> int:
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)
         args.json.write_text(json.dumps(report.to_dict(), indent=1) + "\n")
+    return 0
 
 
 def _sweep(args: argparse.Namespace) -> int:
