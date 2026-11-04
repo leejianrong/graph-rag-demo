@@ -1,7 +1,7 @@
 # One-command dev loop (dev-playbook #17). See docs/ARCHITECTURE.md §8.
 # Bare `make` prints this help; it never starts anything.
 .DEFAULT_GOAL := help
-.PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint fmt check ui world fixtures extract
+.PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint fmt check ui world fixtures extract linking
 
 # The generator UI uses a local indah checkout when one exists (its Graph component is not on PyPI
 # until indah 0.12), else PyPI indah. Override: INDAH=/path/to/indah-python-ui, or INDAH= for PyPI.
@@ -115,3 +115,6 @@ fixtures: ## Regenerate the committed small and medium fixtures (datagen/fixture
 
 extract: ## Score extraction (mentions, entities, triples) against generated gold (PRESET=...).
 	uv run kgbench extract --preset $(PRESET)
+
+linking: ## Score entity linking (B-cubed) per difficulty setting (PRESET=...).
+	uv run kgbench linking --preset $(PRESET)

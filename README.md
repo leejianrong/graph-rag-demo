@@ -302,12 +302,14 @@ pipeline under test. Extraction scoring is built; try it with no Docker or key:
 
 ```bash
 make extract PRESET=small        # kgbench extract: P/R/F1 for mentions, entities and triples, per predicate
+make linking PRESET=small        # kgbench linking: B-cubed precision/recall per difficulty setting
 ```
 
 It reports mentions (exact span), entities (distinct gold entities recovered per canonical made) and
 triples, strictly and by entity pair only, so you can see a relation found but not named. Entity
-linking scores, retrieval scoring and the BM25 and dense-retrieval baselines the comparison needs are
-still to build.
+linking is scored with B-cubed (merged homonyms cost precision, split aliases cost recall), on a clean,
+an alias-heavy and an ambiguous version of the world. Retrieval scoring and the BM25 and
+dense-retrieval baselines the comparison needs are still to build.
 
 ## Where the design lives
 

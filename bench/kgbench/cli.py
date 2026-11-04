@@ -18,7 +18,7 @@ from collections.abc import Sequence
 from pathlib import Path
 
 from kggen.render import render_documents
-from kggen.spec import PRESET_NAMES, load_preset
+from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
 from kggen.world import generate
 
 from graph_rag.wiring import build_offline_components, build_real_components
@@ -26,6 +26,7 @@ from kgbench import __version__
 from kgbench.dataset import SUBSETS, load_examples, select_subset
 from kgbench.extraction import gold_from, run_pipeline, score
 from kgbench.harness import BenchmarkHarness
+from kgbench.linking import DIFFICULTY, linking_gold, score_linking
 
 # The bundled mini fixture, so the command runs offline with no download.
 _DEFAULT_DATASET = Path(__file__).resolve().parent / "data" / "wiki2_mini.json"
@@ -65,7 +66,37 @@ def build_parser() -> argparse.ArgumentParser:
     extract.add_argument("--seed", type=int, help="Override the preset's seed.")
     extract.add_argument("--real", action="store_true", help="Score the real adapter stack.")
     extract.add_argument("--json", action="store_true", help="Print the report as JSON.")
+    linking = commands.add_parser(
+        "linking", help="Score entity linking (B-cubed) per difficulty setting."
+    )
+    linking.add_argument("--preset", choices=PRESET_NAMES, default="small", help="Base world.")
+    linking.add_argument(
+        "--difficulty",
+        nargs="+",
+        choices=sorted(DIFFICULTY),
+        default=list(DIFFICULTY),
+        help="Ambiguity settings layered over the preset (default: all).",
+    )
+    linking.add_argument("--real", action="store_true", help="Score the real adapter stack.")
+    linking.add_argument("--json", action="store_true", help="Print the reports as JSON.")
     return parser
+
+
+def _linking(args: argparse.Namespace) -> int:
+    base = load_preset(args.preset).model_dump()
+    reports = {}
+    for name in args.difficulty:
+        world = generate(WorldSpec.model_validate({**base, **DIFFICULTY[name]}))
+        documents = render_documents(world)
+        components = build_real_components() if args.real else build_offline_components()
+        extraction = run_pipeline(components, documents)
+        reports[name] = score_linking(linking_gold(world, documents), extraction)
+    if args.json:
+        print(json.dumps({n: r.to_dict() for n, r in reports.items()}, indent=1))
+    else:
+        for name, report in reports.items():
+            print(f"[{name}] {report.format_table()}\n")
+    return 0
 
 
 def _extract(args: argparse.Namespace) -> int:
@@ -97,5 +128,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run(args)
     if args.command == "extract":
         return _extract(args)
+    if args.command == "linking":
+        return _linking(args)
     parser.print_help()
     return 0
