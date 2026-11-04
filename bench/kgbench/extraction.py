@@ -217,16 +217,27 @@ def score(gold: Gold, extraction: Extraction) -> ExtractionReport:
     return ExtractionReport(mentions, entities, triples, edges, by_predicate)
 
 
+def ingest(components, documents: tuple[Document, ...]):
+    """Ingest each document through ``graph_rag.wiring`` components, yielding (document, result).
+
+    ``result`` is the pipeline's ``PipelineResult``, or None when the pipeline dropped the document.
+    """
+    for doc in documents:
+        key = f"{doc.id}.txt"
+        components.object_store.put(components.bucket, key, doc.text.encode("utf-8"))
+        yield (
+            doc,
+            components.orchestrator.process_document(
+                IngestTrigger(bucket=components.bucket, object_key=key)
+            ),
+        )
+
+
 def run_pipeline(components, documents: tuple[Document, ...]) -> Extraction:
     """Ingest ``documents`` through ``graph_rag.wiring`` components; collect what they extract."""
     mentions: list[PredictedMention] = []
     triples: list[Triple] = []
-    for doc in documents:
-        key = f"{doc.id}.txt"
-        components.object_store.put(components.bucket, key, doc.text.encode("utf-8"))
-        result = components.orchestrator.process_document(
-            IngestTrigger(bucket=components.bucket, object_key=key)
-        )
+    for doc, result in ingest(components, documents):
         if result is None:  # the pipeline dropped it: everything in it counts as missed
             continue
         link = {el.mention_text: el.canonical_id for el in result.el_result}

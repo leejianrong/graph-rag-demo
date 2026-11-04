@@ -1,7 +1,7 @@
 # One-command dev loop (dev-playbook #17). See docs/ARCHITECTURE.md §8.
 # Bare `make` prints this help; it never starts anything.
 .DEFAULT_GOAL := help
-.PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint fmt check ui world fixtures extract linking
+.PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint fmt check ui world fixtures extract linking compare
 
 # The generator UI uses a local indah checkout when one exists (its Graph component is not on PyPI
 # until indah 0.12), else PyPI indah. Override: INDAH=/path/to/indah-python-ui, or INDAH= for PyPI.
@@ -118,3 +118,7 @@ extract: ## Score extraction (mentions, entities, triples) against generated gol
 
 linking: ## Score entity linking (B-cubed) per difficulty setting (PRESET=...).
 	uv run kgbench linking --preset $(PRESET)
+
+# bge needs the embed extra and `make embed-model`; EMBEDDER=fake is fast and for checking only.
+compare: ## Compare BM25, dense and graph-rag retrieval over seeds (PRESET, EMBEDDER=bge|fake).
+	uv run --extra embed kgbench compare --preset $(PRESET) --embedder $(or $(EMBEDDER),bge)

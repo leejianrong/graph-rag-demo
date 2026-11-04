@@ -23,6 +23,7 @@ from kggen.world import generate
 
 from graph_rag.wiring import build_offline_components, build_real_components
 from kgbench import __version__
+from kgbench.compare import compare
 from kgbench.dataset import SUBSETS, load_examples, select_subset
 from kgbench.extraction import gold_from, run_pipeline, score
 from kgbench.harness import BenchmarkHarness
@@ -66,6 +67,21 @@ def build_parser() -> argparse.ArgumentParser:
     extract.add_argument("--seed", type=int, help="Override the preset's seed.")
     extract.add_argument("--real", action="store_true", help="Score the real adapter stack.")
     extract.add_argument("--json", action="store_true", help="Print the report as JSON.")
+    cmp = commands.add_parser(
+        "compare", help="Compare BM25, dense and graph-rag retrieval on generated questions."
+    )
+    cmp.add_argument("--preset", choices=PRESET_NAMES, default="medium", help="Base world.")
+    cmp.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2], help="World seeds to run.")
+    cmp.add_argument("--questions", type=int, default=200, help="Questions per seed.")
+    cmp.add_argument(
+        "--embedder",
+        choices=("fake", "bge"),
+        default="fake",
+        help="fake: deterministic hashing (fast, tests). bge: the real local model (embed extra).",
+    )
+    cmp.add_argument("--k", type=int, default=5, help="The k for the headline table.")
+    cmp.add_argument("--out", type=Path, help="Write the markdown report here.")
+    cmp.add_argument("--json", type=Path, help="Write every number as JSON here.")
     linking = commands.add_parser(
         "linking", help="Score entity linking (B-cubed) per difficulty setting."
     )
@@ -80,6 +96,30 @@ def build_parser() -> argparse.ArgumentParser:
     linking.add_argument("--real", action="store_true", help="Score the real adapter stack.")
     linking.add_argument("--json", action="store_true", help="Print the reports as JSON.")
     return parser
+
+
+def _compare(args: argparse.Namespace) -> int:
+    ks = sorted({1, 3, 5, 10, args.k})
+    result = compare(
+        load_preset(args.preset),
+        args.seeds,
+        preset=args.preset,
+        n_questions=args.questions,
+        real_embedder=args.embedder == "bge",
+        ks=ks,
+    )
+    print(result.format_table(args.k))
+    if args.out:
+        command = (
+            f"uv run --extra embed kgbench compare --preset {args.preset} "
+            f"--seeds {' '.join(map(str, args.seeds))} --questions {args.questions} "
+            f"--embedder {args.embedder} --k {args.k} --out {args.out}"
+        )
+        args.out.parent.mkdir(parents=True, exist_ok=True)
+        args.out.write_text(result.to_markdown(k=args.k, command=command))
+    if args.json:
+        args.json.write_text(json.dumps(result.to_dict(), indent=1) + "\n")
+    return 0
 
 
 def _linking(args: argparse.Namespace) -> int:
@@ -130,5 +170,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _extract(args)
     if args.command == "linking":
         return _linking(args)
+    if args.command == "compare":
+        return _compare(args)
     parser.print_help()
     return 0
