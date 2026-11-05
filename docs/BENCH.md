@@ -54,3 +54,11 @@ pre-push hook run it as a test. After a change that is meant to move the numbers
 --update` rewrites the floors, so raising or lowering one shows up in the diff.
 
 `kgbench judge` measures an optional LLM judge for open-ended answers: false positive and negative rates on 69 labelled cases, replayed offline from committed Haiku answers ([docs/results/judge.md](results/judge.md)). It is off unless asked for.
+
+`kgbench hard` scores the same world as template text and as the harder Haiku-written text in `datagen/examples/hard-small` ([docs/results/hard-small.md](results/hard-small.md); one world, 300 questions, 75 per hop count, bge embeddings, offline graph-rag). What it shows:
+
+- **Extraction gets worse with the text.** Mention F1 falls from 0.91 to 0.76 and entity F1 from 0.74 to 0.57. Linking F1 barely moves (0.84 to 0.83), and entity-pair F1 is unchanged (0.68 to 0.69).
+- **Strict triple F1 is 0.000 on both.** The offline pipeline finds the right entity pairs but never the right relation name; I have not investigated why, so treat it as a known gap, not a finding about the text.
+- **Retrieval: harder text costs the 1-hop questions a little** (BM25 and dense 0.95/0.96 to 0.89, graph-rag graph 0.77 to 0.75). Past 1 hop nobody recovers more than a few percent of whole paths, and with 75 questions per row the 2-hop differences (0.03 to 0.08) are noise.
+- **graph-rag has no 2-hop lead on this world.** The sweep above found one (about 18% against 1%) on the plain `small` world. This world adds homonyms (0.15), aliases and distractors, so ambiguity is the likely cause, but I did not isolate it.
+- **Not covered:** one world, template and LLM text only, no real-stack run, and Haiku rarely used pronouns, so coreference is barely tested.

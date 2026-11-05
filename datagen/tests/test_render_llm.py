@@ -229,3 +229,12 @@ def test_committed_hard_dataset_replays_to_the_same_documents() -> None:
     assert chat.calls == 0 and chat.hits == len(docs) == 145
     written = json.loads((folder / "documents.json").read_text())
     assert [d.to_dict() for d in docs] == written
+
+
+def test_documents_round_trip_through_json() -> None:
+    from kggen.render import Document
+
+    folder = Path(__file__).parents[1] / "examples" / "hard-small"
+    raw = json.loads((folder / "documents.json").read_text())
+    docs = [Document.from_dict(d) for d in raw]
+    assert [d.to_dict() for d in docs] == raw

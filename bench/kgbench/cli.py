@@ -26,6 +26,7 @@ from kggen.world import generate
 
 from graph_rag.wiring import build_embedder, build_offline_components, build_real_components
 from kgbench import __version__, gate
+from kgbench import hard as hards
 from kgbench import judge as judges
 from kgbench import order as orders
 from kgbench import sweep as sweeps
@@ -38,6 +39,7 @@ from kgbench.linking import DIFFICULTY, linking_gold, score_linking
 
 # The bundled mini fixture, so the command runs offline with no download.
 _DEFAULT_DATASET = Path(__file__).resolve().parent / "data" / "wiki2_mini.json"
+_HARD_DIR = Path(__file__).resolve().parents[2] / "datagen" / "examples" / "hard-small"
 _JUDGE_CASES = Path(__file__).resolve().parent / "data" / "judge_cases.json"
 _JUDGE_CACHE = Path(__file__).resolve().parent / "data" / "judge-cache"
 
@@ -133,6 +135,14 @@ def build_parser() -> argparse.ArgumentParser:
     sw.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
     sw.add_argument("--k", type=int, default=5, help="The k for path@k.")
     sw.add_argument("--out", type=Path, help="Directory for sweep.md, one SVG per knob and JSON.")
+    hd = commands.add_parser(
+        "hard", help="Score the committed harder LLM-written text against template text."
+    )
+    hd.add_argument("--dir", type=Path, default=_HARD_DIR, help="The dataset folder.")
+    hd.add_argument("--questions", type=int, default=300, help="Questions for retrieval.")
+    hd.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
+    hd.add_argument("--k", type=int, default=5, help="The k for the retrieval table.")
+    hd.add_argument("--out", type=Path, help="Write the markdown report here.")
     jd = commands.add_parser(
         "judge",
         help="Measure an LLM judge's error rates on labelled open-ended cases (opt-in).",
@@ -322,6 +332,24 @@ def _linking(args: argparse.Namespace) -> int:
     return 0
 
 
+def _hard(args: argparse.Namespace) -> int:
+    ks = sorted({1, 3, 5, 10, args.k})
+    real = args.embedder == "bge"
+    embedder = CachingEmbedder(build_embedder(real=real))
+    result = hards.measure(args.dir, embedder, args.questions, ks)
+    command = (
+        f"uv run --extra embed kgbench hard --questions {args.questions} "
+        f"--embedder {args.embedder} --k {args.k}"
+    )
+    text = hards.to_markdown(
+        result, args.k, command, "bge-small-en-v1.5" if real else "hashing-fake"
+    )
+    print(text)
+    if args.out:
+        args.out.write_text(text)
+    return 0
+
+
 def _judge(args: argparse.Namespace) -> int:
     if args.build:
         world = generate(load_preset(args.build))
@@ -390,6 +418,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _order(args)
     if args.command == "sweep":
         return _sweep(args)
+    if args.command == "hard":
+        return _hard(args)
     if args.command == "judge":
         return _judge(args)
     if args.command == "gate":
