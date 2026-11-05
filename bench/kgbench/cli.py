@@ -239,6 +239,19 @@ def build_parser() -> argparse.ArgumentParser:
     rl.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
     rl.add_argument("--k", type=int, default=5, help="The k for the table.")
     rl.add_argument("--out", type=Path, help="Write the markdown report here.")
+    hc = commands.add_parser(
+        "human-check", help="Sample questions for a human to label, then compare with the ratings."
+    )
+    hc.add_argument(
+        "--dir", type=Path, required=True, help="A dataset folder with critique ratings."
+    )
+    hc.add_argument("--n", type=int, default=50, help="Questions to sample.")
+    hc.add_argument("--seed", type=int, default=0, help="Sampling seed.")
+    hc.add_argument(
+        "--sheet", type=Path, help="Write the reading sheet here (and labels.csv beside)."
+    )
+    hc.add_argument("--labels", type=Path, help="A filled labels.csv: compare with the ratings.")
+    hc.add_argument("--model", default="claude-haiku", help="The model name the cache uses.")
     ct = commands.add_parser(
         "critique",
         help="Rate a dataset's questions for groundedness, relevance and standalone (opt-in).",
@@ -689,6 +702,32 @@ def _real(args: argparse.Namespace) -> int:
     return 0
 
 
+def _human_check(args: argparse.Namespace) -> int:
+    folder = args.dir.resolve()
+    questions = json.loads((folder / "questions.json").read_text())
+    documents = json.loads((folder / "documents.json").read_text())
+    picked = critiques.sample(questions, args.n, args.seed)
+    if args.sheet:
+        args.sheet.parent.mkdir(parents=True, exist_ok=True)
+        args.sheet.write_text(critiques.sheet(picked, documents))
+        labels = args.sheet.with_name("labels.csv")
+        labels.write_text("id,label,notes\n" + "".join(f"{q['id']},,\n" for q in picked))
+        print(f"wrote {len(picked)} questions to {args.sheet} and a template to {labels}")
+    if args.labels:
+        given = {}
+        for line in args.labels.read_text().splitlines()[1:]:
+            qid, label, *_ = line.split(",")
+            if label.strip():
+                given[qid] = label.strip()
+        bad = set(given.values()) - set(critiques.LABELS)
+        if bad:
+            raise SystemExit(f"unknown labels {sorted(bad)}; use {critiques.LABELS}")
+        chat = CachedChat(ResponseCache(_DATA / f"critique-cache-{folder.name}"), None, args.model)
+        rows = critiques.critique(chat, [q for q in picked if q["id"] in given], documents)
+        print(critiques.agreement(rows, given))
+    return 0
+
+
 def _critique(args: argparse.Namespace) -> int:
     folder = args.dir.resolve()
     questions = json.loads((folder / "questions.json").read_text())
@@ -766,6 +805,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _judge(args)
     if args.command == "shortcut":
         return _shortcut(args)
+    if args.command == "human-check":
+        return _human_check(args)
     if args.command == "real":
         return _real(args)
     if args.command == "judge-scaled":

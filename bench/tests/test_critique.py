@@ -19,6 +19,7 @@ QUESTION = {
     "type": "entity",
     "question": "Where is Aa's holding?",
     "supporting_facts": ["F1", "F2"],
+    "accepted_answers": ["Cc"],
 }
 
 
@@ -105,3 +106,24 @@ def test_the_committed_hard_tiny_ratings_replay_offline():
     rows = critique.critique(replay, questions, documents)
     assert replay.calls == 0 and replay.hits >= 180
     assert sum((r["groundedness"] or 0) >= 4 for r in rows) == 45
+
+
+def test_the_sample_is_even_across_hops_and_seeded():
+    questions = [{"id": f"Q{i:02d}", "hops": 1 + i % 4} for i in range(40)]
+    picked = critique.sample(questions, 10, seed=1)
+    assert len(picked) == 10 and [q["hops"] for q in picked].count(1) == 3
+    assert picked == critique.sample(questions, 10, seed=1)
+    assert picked != critique.sample(questions, 10, seed=2)
+
+
+def test_the_sheet_hides_the_ratings_and_agreement_counts_the_cells():
+    sheet = critique.sheet([QUESTION], DOCS)
+    assert "Aa owns Bb." in sheet and "Total rating" not in sheet
+    rows = [
+        {"id": "a", "groundedness": 5},
+        {"id": "b", "groundedness": 2},
+        {"id": "c", "groundedness": 5},
+    ]
+    labels = {"a": "answerable", "b": "ambiguous", "c": "not_answerable"}
+    text = critique.agreement(rows, labels)
+    assert "3 labelled" in text and "2/3" in text
