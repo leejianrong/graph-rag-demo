@@ -1,0 +1,7 @@
+graph-rag-demo (including kggen and kgbench)
+Copyright 2026 Jian Lee
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+docker-compose.yml starts Elasticsearch, MinIO, Kafka and Neo4j as separate containers under their
+own licences. None of their code is included in or linked into this project.
