@@ -1,0 +1,35 @@
+alias_rate: 0.7
+aliases_per_entity: 2
+avg_degree: 4.0
+churn_rate: 0.0
+community_mixing: 0.1
+cycle_rate: 0.02
+degree_skew: 0.5
+distractor_rate: 0.2
+end_year: 2024
+homonym_rate: 0.15
+homonym_same_type: 0.5
+n_communities: 4
+n_entities: 150
+noise_rate: 0.0
+predicate_mix:
+  AFFILIATED_WITH: 1.0
+  FOUNDED: 1.0
+  GOVERNED_BY: 1.0
+  LOCATED_IN: 1.0
+  MEMBER_OF: 1.0
+  OWNS: 1.0
+  PARTICIPATED_IN: 1.0
+  PART_OF: 1.0
+  PRODUCES: 1.0
+  WORKS_FOR: 1.0
+retraction_rate: 0.0
+seed: 0
+start_year: 2000
+type_mix:
+  EVENT: 0.1
+  LOCATION: 0.15
+  NORP: 0.05
+  ORG: 0.25
+  PERSON: 0.35
+  PRODUCT: 0.1

@@ -89,6 +89,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--base-url", help="llm: an OpenAI-compatible endpoint; omit to use only the cache."
     )
     d_gen.add_argument("--model", help="llm: the model name (required).")
+    d_gen.add_argument(
+        "--style",
+        choices=("plain", "rich"),
+        default="plain",
+        help="llm: plain = one sentence per fact; rich = merged facts, pronouns, background prose.",
+    )
+    d_gen.add_argument("--workers", type=int, default=1, help="llm: calls asked at once.")
     d_gen.add_argument("--out", type=Path, help="Write here instead of stdout.")
     export = commands.add_parser(
         "export", help="Write a reproducible dataset zip: world, questions, documents and specs."
@@ -133,7 +140,7 @@ def _render_llm(args: argparse.Namespace, spec: RenderSpec):
     )
     chat = CachedChat(ResponseCache(args.cache_dir), client, args.model)
     try:
-        docs = render_documents_llm(_world(args), chat, spec)
+        docs = render_documents_llm(_world(args), chat, spec, args.style, args.workers)
     except (CacheMiss, InvalidRendering) as error:
         raise SystemExit(f"error: {error}") from error
     print(f"llm renderer: {chat.calls} endpoint calls, {chat.hits} cache hits", file=sys.stderr)

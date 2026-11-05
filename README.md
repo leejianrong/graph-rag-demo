@@ -274,7 +274,9 @@ and where each entity is mentioned, so scoring has exact gold. Scenarios add fac
 forgotten, or arrive in any order, with the graph a memory store should end up with.
 [`datagen/fixtures/`](datagen/fixtures/README.md) holds committed small and medium sets, and
 [`datagen/examples/llm-cache-tiny/`](datagen/examples/llm-cache-tiny/README.md) a cached
-LLM-written set for the tiny preset.
+LLM-written set for the tiny preset, and
+[`datagen/examples/hard-small/`](datagen/examples/hard-small/README.md) a harder one (`--style rich`: merged facts,
+background prose, more ambiguity) written by Haiku through semula.
 
 ## Benchmarking
 

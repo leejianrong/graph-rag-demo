@@ -1,0 +1,15 @@
+{
+ "messages": [
+  {
+   "content": "You write short, factual encyclopedia-style articles from structured facts. Reply with JSON only, no commentary and no code fences.",
+   "role": "system"
+  },
+  {
+   "content": "Write a short article that states every fact below exactly once. You may put several facts in one sentence, reorder them, and, once an entity has been named in the article, refer back to it with a pronoun or a description (\"the company\", \"the city\"). Name each entity exactly as written the first time. A sentence that states a fact must contain that fact's object name exactly as written, and its subject must have been named exactly as written in that sentence or an earlier one. State the years given for a fact in its sentence. Add two or three background sentences of general context that name no person, organisation, place or event. Do not add facts, merge distinct facts into one claim, or name anything that is not listed.\n\nF1: Zibu Firezo | founded | Vaka Partners\nF2: Firezo | founded | Suvu Doveku\nF3: Firezo | works for | Dune Partners\n\nReply as JSON in reading order: {\"sentences\": [{\"facts\": [\"F1\"], \"text\": \"...\"}, {\"facts\": [], \"text\": \"background sentence\"}, ...]}",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "prompt_version": 2,
+ "response": "{\"sentences\": [{\"facts\": [], \"text\": \"Founders of small consultancies often start with one anchor client and build the rest of the business around that first contract.\"}, {\"facts\": [\"F1\"], \"text\": \"Zibu Firezo founded Vaka Partners.\"}, {\"facts\": [\"F2\"], \"text\": \"Firezo founded Suvu Doveku.\"}, {\"facts\": [\"F3\"], \"text\": \"Firezo works for Dune Partners.\"}, {\"facts\": [], \"text\": \"Such overlapping careers are common in the field, and they can make a small market feel smaller than it really is.\"}]}\n"
+}

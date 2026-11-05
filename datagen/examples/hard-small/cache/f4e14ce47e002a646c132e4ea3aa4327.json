@@ -1,0 +1,15 @@
+{
+ "messages": [
+  {
+   "content": "You write short, factual encyclopedia-style articles from structured facts. Reply with JSON only, no commentary and no code fences.",
+   "role": "system"
+  },
+  {
+   "content": "Write a short article that states every fact below exactly once. You may put several facts in one sentence, reorder them, and, once an entity has been named in the article, refer back to it with a pronoun or a description (\"the company\", \"the city\"). Name each entity exactly as written the first time. A sentence that states a fact must contain that fact's object name exactly as written, and its subject must have been named exactly as written in that sentence or an earlier one. State the years given for a fact in its sentence. Add two or three background sentences of general context that name no person, organisation, place or event. Do not add facts, merge distinct facts into one claim, or name anything that is not listed.\n\nF1: Begu Labs | is affiliated with | Rilo Partners\nF2: Begu | owns | Kuda-Z64\nF3: Begu Labs | participated in | Gaze\nF4: BL | produces | KudaZ64\n\nReply as JSON in reading order: {\"sentences\": [{\"facts\": [\"F1\"], \"text\": \"...\"}, {\"facts\": [], \"text\": \"background sentence\"}, ...]}",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "prompt_version": 2,
+ "response": "{\"sentences\": [{\"facts\": [], \"text\": \"Research groups often pair senior scientists with junior staff, which spreads know-how across projects.\"}, {\"facts\": [\"F1\", \"F3\"], \"text\": \"Begu Labs is affiliated with Rilo Partners and participated in Gaze.\"}, {\"facts\": [], \"text\": \"Collaboration agreements tend to be drafted carefully, because each side wants clear terms on credit and data.\"}, {\"facts\": [\"F2\"], \"text\": \"Begu owns Kuda-Z64.\"}, {\"facts\": [\"F4\"], \"text\": \"BL produces KudaZ64.\"}]}\n"
+}

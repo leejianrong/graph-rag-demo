@@ -1,0 +1,15 @@
+{
+ "messages": [
+  {
+   "content": "You write short, factual encyclopedia-style articles from structured facts. Reply with JSON only, no commentary and no code fences.",
+   "role": "system"
+  },
+  {
+   "content": "Write a short article that states every fact below exactly once. You may put several facts in one sentence, reorder them, and, once an entity has been named in the article, refer back to it with a pronoun or a description (\"the company\", \"the city\"). Name each entity exactly as written the first time. A sentence that states a fact must contain that fact's object name exactly as written, and its subject must have been named exactly as written in that sentence or an earlier one. State the years given for a fact in its sentence. Add two or three background sentences of general context that name no person, organisation, place or event. Do not add facts, merge distinct facts into one claim, or name anything that is not listed.\n\nF1: Busu Toroni | is affiliated with | Dodaese\nF2: Busu Toroni | founded | Gebo\nF3: Busu Toroni | founded | Gedo Works\nF4: Busu Toroni | founded | Gaze Industries\nF5: Busu Toroni | is a member of | Gedo Works\nF6: Busu Toroni | participated in | Veta Conference\n\nReply as JSON in reading order: {\"sentences\": [{\"facts\": [\"F1\"], \"text\": \"...\"}, {\"facts\": [], \"text\": \"background sentence\"}, ...]}",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "prompt_version": 2,
+ "response": "{\"sentences\": [{\"facts\": [], \"text\": \"Serial founders often keep a few small firms running at once, passing day-to-day work to trusted managers.\"}, {\"facts\": [\"F1\"], \"text\": \"Busu Toroni is affiliated with Dodaese.\"}, {\"facts\": [\"F2\"], \"text\": \"Busu Toroni founded Gebo.\"}, {\"facts\": [\"F3\"], \"text\": \"Busu Toroni founded Gedo Works.\"}, {\"facts\": [\"F4\"], \"text\": \"Busu Toroni founded Gaze Industries.\"}, {\"facts\": [\"F5\"], \"text\": \"Busu Toroni is a member of Gedo Works.\"}, {\"facts\": [\"F6\"], \"text\": \"Busu Toroni participated in Veta Conference.\"}, {\"facts\": [], \"text\": \"Such a web of ventures can be hard to follow, but each entry usually reflects a specific market the founder wanted to test.\"}]}\n"
+}

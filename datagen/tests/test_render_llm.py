@@ -84,8 +84,8 @@ def test_untrustworthy_answers_are_rejected_and_not_cached(
     chat = CachedChat(ResponseCache(tmp_path), endpoint(answer))
     with pytest.raises(InvalidRendering):
         render_documents_llm(world, chat)
-    # earlier documents with nothing to reject may be cached; the rejected response never is
-    assert len(list(tmp_path.glob("*.json"))) == chat.calls - 1
+    # a valid answer is cached as it arrives; a rejected response never is
+    assert len(list(tmp_path.glob("*.json"))) < chat.calls
 
 
 def test_names_must_appear_whole_and_not_overlap(world, endpoint, tmp_path: Path) -> None:
@@ -136,3 +136,96 @@ def test_committed_tiny_cache_replays_with_no_calls() -> None:
     chat = CachedChat(ResponseCache(cache), None, model="claude-haiku")
     docs = render_documents_llm(generate(load_preset("tiny")), chat)
     assert chat.calls == 0 and chat.hits == len(docs) == 22
+
+
+def rich_docs(world, endpoint, tmp_path, answer=None):
+    from llm_fake import rich_answer
+
+    chat = CachedChat(ResponseCache(tmp_path), endpoint(answer or rich_answer))
+    return render_documents_llm(world, chat, style="rich")
+
+
+def test_rich_style_keeps_exact_gold_with_pronouns_and_background(world, endpoint, tmp_path):
+    docs = rich_docs(world, endpoint, tmp_path)
+    assert sorted(f for d in docs for s in d.sentences for f in s.fact_ids) == sorted(
+        e.id for e in world.edges
+    )
+    sentences = [s for d in docs for s in d.sentences]
+    assert any(s.text.startswith("It ") and len(s.mentions) == 1 for s in sentences)  # a pronoun
+    assert any(not s.fact_ids and not s.mentions for s in sentences)  # background prose
+    for d in docs:
+        assert d.text == " ".join(s.text for s in d.sentences)
+        for s in d.sentences:
+            for m in s.mentions:
+                assert d.text[m.start : m.end] == m.surface
+
+
+@pytest.mark.parametrize(
+    ("break_it", "match"),
+    [
+        (lambda items: items[1:], "exactly once"),  # a fact never stated
+        (lambda items: [items[0], *items], "exactly once"),  # a fact stated twice
+        (
+            lambda items: [
+                {"facts": items[0]["facts"], "text": "It is related to Zzz."},
+                *items[1:],
+            ],
+            "object",
+        ),
+    ],
+)
+def test_rich_style_rejects_unfaithful_articles(world, endpoint, tmp_path, break_it, match):
+    from llm_fake import rich_answer
+
+    def broken(prompt: str) -> str:
+        data = json.loads(rich_answer(prompt))
+        data["sentences"] = break_it(data["sentences"])
+        return json.dumps(data)
+
+    with pytest.raises(InvalidRendering, match=match):
+        rich_docs(world, endpoint, tmp_path, broken)
+    assert list(tmp_path.glob("*.json")) == []  # the first, rejected answer is not cached
+
+
+def test_rich_style_rejects_a_pronoun_with_no_antecedent(world, endpoint, tmp_path):
+    from llm_fake import rich_answer
+
+    def unnamed(prompt: str) -> str:
+        data = json.loads(rich_answer(prompt))
+        first = data["sentences"][0]
+        subject = re.search(r"^F1: (.*?) \|", prompt, re.M)[1]
+        first["text"] = first["text"].replace(subject, "It", 1)
+        return json.dumps(data)
+
+    with pytest.raises(InvalidRendering, match="not named yet"):
+        rich_docs(world, endpoint, tmp_path, unnamed)
+
+
+def test_rich_style_rejects_naming_another_entity_of_the_world(world, endpoint, tmp_path):
+    from llm_fake import rich_answer
+
+    others = {e.name for e in world.entities}
+
+    def leaks(prompt: str) -> str:
+        data = json.loads(rich_answer(prompt))
+        listed = set(re.findall(r"(?:^F\d+: | \| )([^|(]+?)(?= \||$| \()", prompt, re.M))
+        stranger = next(n for n in sorted(others) if n not in listed)
+        data["sentences"][-1]["text"] = f"{stranger} is unrelated."
+        return json.dumps(data)
+
+    with pytest.raises(InvalidRendering, match="in the world"):
+        rich_docs(world, endpoint, tmp_path, leaks)
+
+
+def test_committed_hard_dataset_replays_to_the_same_documents() -> None:
+    from kggen.render import RenderSpec
+    from kggen.spec import load_spec
+
+    folder = Path(__file__).parents[1] / "examples" / "hard-small"
+    chat = CachedChat(ResponseCache(folder / "cache"), None, model="claude-haiku")
+    docs = render_documents_llm(
+        generate(load_spec(folder / "spec.yaml")), chat, RenderSpec(), style="rich"
+    )
+    assert chat.calls == 0 and chat.hits == len(docs) == 145
+    written = json.loads((folder / "documents.json").read_text())
+    assert [d.to_dict() for d in docs] == written

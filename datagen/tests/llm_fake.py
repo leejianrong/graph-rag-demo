@@ -59,3 +59,18 @@ def serve() -> Iterator[Callable[[Callable[[str], str] | None], OpenAICompatible
         yield make
     finally:
         server.shutdown()
+
+
+def rich_answer(prompt: str) -> str:
+    """The rich style done well: the first sentence names the subject, later facts say "It",
+    and one background sentence closes the article."""
+    sentences, named = [], set()
+    for n, subject, relation, obj, notes in _FACT.findall(prompt):
+        since = re.search(r"since (\d+)", notes)
+        until = re.search(r"ended (\d+)", notes)
+        tail = (f" since {since[1]}" if since else "") + (f" until {until[1]}" if until else "")
+        lead = "It" if subject in named else subject
+        named.add(subject)
+        sentences.append({"facts": [f"F{n}"], "text": f"{lead} {relation} {obj}{tail}."})
+    sentences.append({"facts": [], "text": "Records of this kind are kept for many years."})
+    return json.dumps({"sentences": sentences})
