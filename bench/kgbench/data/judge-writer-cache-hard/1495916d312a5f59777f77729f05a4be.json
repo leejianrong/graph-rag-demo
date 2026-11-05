@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a short paragraph that states these facts and nothing else: Pidu Works participated in Nolu Accord Talks; Kite Fumada founded Zolu Industries; Zolu Industries owns Keme Group",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Pidu Works participated in Nolu Accord Talks. Kite Fumada founded Zolu Industries, and Zolu Industries owns Keme Group."
+}

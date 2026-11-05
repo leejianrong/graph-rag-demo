@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Leni Works is part of Keme Group. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Many small studios spend their first years trying to find a steady rhythm for releases. Planning tends to work better when the team agrees on a few fixed dates instead of chasing every request as it arrives. Leni Works is part of Keme Group. Shared tools can cut down on repeated setup, though they also need someone to keep them current. Good notes from each meeting make it easier for newcomers to catch up without asking the same questions twice."
+}

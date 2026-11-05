@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a written answer against one fact. Reply with the single word YES or NO.",
+   "role": "system"
+  },
+  {
+   "content": "Fact: Sepa Z82 is part of Kipe Q67\n\nAnswer:\nLate autumn brings shorter days and a steady wind off the water, and most households in the valley have already stacked their firewood by the back door. Farmers gather the last of the root vegetables before the first hard frost arrives. Sepa Z82 is part of Kipe Q67, and its components are assembled as one unit before shipping. Schools reopen after the holiday break with new timetables posted on every corridor wall. Evenings grow quiet, and the lamps in the old square stay lit until the early hours.\n\nDoes the answer state this fact, in the same words or a paraphrase? Reply NO if the fact is absent, denied, said to be untrue or unknown, or if the answer only mentions the names without stating the relation. Reply with YES or NO.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "YES"
+}

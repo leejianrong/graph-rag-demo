@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Kite Fumada founded Zolu Industries. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Good notes make a project easier to revisit months later. A clear title and a date at the top help a lot. Kite Fumada founded Zolu Industries. Consistent naming across files saves time when searching. Reviewing old material now and then often reveals ideas worth reusing."
+}

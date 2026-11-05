@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Zolu Industries produces Gori X18. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Autumn rain softened the riverbanks, and the footpaths along the old canal grew slick with fallen leaves. Walkers pulled their collars higher and hurried toward the covered market. Zolu Industries produces Gori X18, a product that has become a common sight in workshops across the region. Cafes filled early as the light faded behind the rooftops. By the time the streetlamps flickered on, most of the stalls had already packed away their wares."
+}

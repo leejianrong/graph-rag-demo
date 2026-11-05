@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that say this is NOT the case, naming both entities: Geki Mazera owns Sepa Z82",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "It is not the case that Geki Mazera owns Sepa Z82, since the ownership records list someone else entirely. Sepa Z82 has never been held by Geki Mazera, despite the rumours that circulated in the trade press."
+}

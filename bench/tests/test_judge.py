@@ -6,7 +6,7 @@ import json
 
 import pytest
 from kgbench import judge
-from kgbench.cli import _JUDGE_CASES, main
+from kgbench.cli import _DATA, main
 from kggen.llm import CachedChat, ResponseCache
 from kggen.questions import QuestionSpec, generate_questions
 from kggen.spec import load_preset
@@ -72,7 +72,7 @@ def cases():
 
 
 def test_the_committed_cases_are_the_ones_the_code_builds(cases):
-    assert json.loads(_JUDGE_CASES.read_text()) == cases
+    assert json.loads((_DATA / "judge_cases.json").read_text()) == cases
 
 
 def test_the_matcher_is_fooled_where_the_cases_say_it_is(cases):
@@ -93,6 +93,51 @@ def test_a_perfect_judge_has_no_errors(cases):
 
 def test_replaying_the_committed_answers_reproduces_the_published_rates(capsys):
     assert main(["judge"]) == 0  # no endpoint: every answer must come from the cache
-    published = json.loads((_JUDGE_CASES.parents[3] / "docs/results/judge.json").read_text())
+    published = json.loads((_DATA.parents[2] / "docs/results/judge.json").read_text())
     out = capsys.readouterr().out
     assert f"{published['judge']['fp']}/" in out and f"{published['judge']['fn']}/" in out
+
+
+def test_hard_cases_keep_only_answers_that_name_the_right_entities(tmp_path, cases):
+    from kgbench import judge_hard
+
+    world = generate(load_preset("small"))
+    spec = QuestionSpec(n_questions=12, type_mix={"open_ended": 1.0}, hop_mix={1: 1.0, 2: 1.0})
+    questions = generate_questions(world, spec)
+
+    # a writer that echoes its instruction names every entity the instruction mentions
+    echo, _ = chat(tmp_path / "echo", lambda m: m[-1]["content"])
+    made, rejected = judge_hard.build_hard_cases(world, questions, echo, facts=6)
+    # the echo of a reversal quotes the true fact in its original order, so that kind is rejected
+    assert {c["kind"] for c in made} == set(judge_hard.HARD_KINDS) - {"reversed"}
+    assert all(c["label"] == judge_hard.HARD_KINDS[c["kind"]] for c in made)
+    assert len(made) + rejected >= 6 * (len(judge_hard.HARD_KINDS) - 1)
+    # accepted answers are cached and a rejected one is not: a re-run asks only for the latter
+    again, client = chat(tmp_path / "echo", lambda m: "unused")
+    judge_hard.build_hard_cases(world, questions, again, facts=6)
+    assert client.calls == rejected
+
+    # a writer that names nobody is rejected throughout, and caches nothing
+    mute, _ = chat(tmp_path / "mute", lambda m: "Nothing of note.")
+    none, rejected = judge_hard.build_hard_cases(world, questions, mute, facts=6)
+    assert [c for c in none if c["kind"] != "other_only"] == []
+    assert not list((tmp_path / "mute").glob("*.json")) or all(
+        c["kind"] == "other_only" for c in none
+    )
+
+
+def test_a_symmetric_relation_is_never_reversed():
+    from kgbench.judge_hard import _pool
+
+    world = generate(load_preset("small"))
+    spec = QuestionSpec(n_questions=12, type_mix={"open_ended": 1.0}, hop_mix={1: 1.0, 2: 1.0})
+    pool = _pool(world, generate_questions(world, spec))
+    assert pool and all(f["predicate"] != "AFFILIATED_WITH" for f in pool)
+
+
+def test_replaying_the_committed_hard_answers_reproduces_the_published_rates(capsys):
+    assert main(["judge", "--hard"]) == 0
+    published = json.loads((_DATA.parents[2] / "docs/results/judge-hard.json").read_text())
+    out = capsys.readouterr().out
+    assert f"{published['judge']['fp']}/" in out and f"{published['judge']['fn']}/" in out
+    assert published["cases"] == 99 and published["judge"]["fp"] <= 1

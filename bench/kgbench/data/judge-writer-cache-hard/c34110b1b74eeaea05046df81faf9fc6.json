@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that state this fact in your own words, without copying its phrasing (use the two names exactly): Leni Works owns Novu Q87",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Novu Q87 is held by Leni Works. Leni Works is the one with title over Novu Q87."
+}

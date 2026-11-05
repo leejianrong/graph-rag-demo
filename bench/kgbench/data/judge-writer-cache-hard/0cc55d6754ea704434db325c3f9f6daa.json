@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Pidu Works participated in Nolu Accord Talks. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Mentoring works best when both sides agree on a clear goal. Short check-ins keep progress visible without taking much time. Pidu Works participated in Nolu Accord Talks. Notes from each session help people pick up where they left off. Honest feedback, given early, saves effort later on."
+}

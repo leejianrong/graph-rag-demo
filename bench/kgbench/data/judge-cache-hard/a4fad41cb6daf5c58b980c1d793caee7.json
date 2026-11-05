@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a written answer against one fact. Reply with the single word YES or NO.",
+   "role": "system"
+  },
+  {
+   "content": "Fact: Zolu Industries participated in Nolu Accord Talks\n\nAnswer:\nLong-running projects often accumulate small decisions that shape how they feel to work on. Regular check-ins help teams notice when those decisions start to drift apart. Documenting the reasons behind a choice makes it easier to revisit later. Zolu Industries participated in Nolu Accord Talks. Clear notes and steady rhythms keep the work moving even when people change roles.\n\nDoes the answer state this fact, in the same words or a paraphrase? Reply NO if the fact is absent, denied, said to be untrue or unknown, or if the answer only mentions the names without stating the relation. Reply with YES or NO.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "YES"
+}

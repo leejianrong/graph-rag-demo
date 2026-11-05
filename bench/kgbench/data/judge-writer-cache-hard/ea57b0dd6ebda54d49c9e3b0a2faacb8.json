@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a short paragraph that states these facts and nothing else: Leni Works owns Novu Q87; Leni Works is part of Keme Group; Nato Z5 is part of Sepa Z82",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Leni Works owns Novu Q87, and Leni Works is part of Keme Group. Nato Z5 is part of Sepa Z82."
+}

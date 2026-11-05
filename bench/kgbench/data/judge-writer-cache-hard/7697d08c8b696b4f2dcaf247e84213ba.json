@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that say this is NOT the case, naming both entities: Mado Systems produces Sepa Z82",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Mado Systems does not produce Sepa Z82, and its catalogue contains no product by that name. Sepa Z82 comes from a different manufacturer, and Mado Systems has never been involved in building it."
+}

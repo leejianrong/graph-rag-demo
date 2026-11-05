@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a written answer against one fact. Reply with the single word YES or NO.",
+   "role": "system"
+  },
+  {
+   "content": "Fact: Zolu Industries owns Keme Group\n\nAnswer:\nIt is unclear whether Zolu Industries owns Keme Group, since the sources offer conflicting accounts of the arrangement. Neither confirming nor denying the claim, the reports leave the ownership question open.\n\nDoes the answer state this fact, in the same words or a paraphrase? Reply NO if the fact is absent, denied, said to be untrue or unknown, or if the answer only mentions the names without stating the relation. Reply with YES or NO.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "NO"
+}

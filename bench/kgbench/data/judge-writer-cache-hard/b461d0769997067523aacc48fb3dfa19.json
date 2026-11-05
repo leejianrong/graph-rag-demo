@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that say this is NOT the case, naming both entities: Zolu Industries owns Keme Group",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "It is not the case that Zolu Industries owns Keme Group, since no shareholding between the two appears in any registry. Keme Group operates entirely independently of Zolu Industries."
+}

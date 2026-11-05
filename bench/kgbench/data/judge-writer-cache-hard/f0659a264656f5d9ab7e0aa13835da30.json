@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Gori X18 is part of Leze Z87. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "The seaside promenade was busy with families that afternoon, and the ice cream vendors had already run low on cones. Kites tugged at their strings above the dunes while the tide slowly crept back in. Gori X18 is part of Leze Z87, and the two share a single assembly schedule each quarter. A few fishermen sat on the breakwater mending nets and trading stories about the weather. As the sun dipped, the lighthouse beam swept across the water and the last walkers headed home."
+}

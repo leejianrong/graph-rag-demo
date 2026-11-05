@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that say this is NOT the case, naming both entities: Nolu Accord Talks is located in Lina",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "It is not the case that Nolu Accord Talks is located in Lina. Lina has no link to the venue of Nolu Accord Talks, which was held elsewhere."
+}

@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that say this is NOT the case, naming both entities: Zolu Industries produces Gori X18",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "It is not the case that Zolu Industries produces Gori X18, since the product is built by an unrelated contractor. Zolu Industries has never had a production line for Gori X18 at any of its sites."
+}

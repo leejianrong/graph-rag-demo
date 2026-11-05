@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences asserting that Kipe Q67 is part of Sepa Z82. That is the reverse of 'Sepa Z82 is part of Kipe Q67'; assert the reverse as if it were true, naming both.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Kipe Q67 is part of Sepa Z82, according to the internal reorganisation notes circulated last quarter. The notes place Kipe Q67 under the operational control of Sepa Z82 for all regional logistics."
+}

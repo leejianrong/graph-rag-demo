@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that state this fact in your own words, without copying its phrasing (use the two names exactly): Leni Works is part of Keme Group",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Keme Group includes Leni Works among its units. Leni Works sits inside the larger structure that Keme Group forms."
+}

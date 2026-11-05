@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a short paragraph that states these facts and nothing else: Zolu Industries owns Keme Group; Zolu Industries produces Gori X18; Gori X18 is part of Leze Z87",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Zolu Industries owns Keme Group. Zolu Industries produces Gori X18. Gori X18 is part of Leze Z87."
+}

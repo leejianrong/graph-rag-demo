@@ -30,9 +30,9 @@ from dataclasses import dataclass
 
 from kggen.llm import CachedChat
 
+from kgbench.charts import grouped_bars, wilson
 from kgbench.openended import Judge, covers
 
-KINDS = ("stated", "pronoun", "negated", "co_mention", "wrong_object", "absent")
 _SYSTEM = "You check a written answer against one fact. Reply with the single word YES or NO."
 _ASK = (
     "Fact: {fact}\n\nAnswer:\n{answer}\n\n"
@@ -149,6 +149,7 @@ class JudgeReport:
     matcher: Rates
     judge: Rates
     by_kind: dict[str, dict[str, tuple[int, int]]]  # kind -> scorer -> (correct, total)
+    kind_labels: dict[str, bool]  # kind -> whether the fact is stated in its cases
 
     def to_dict(self) -> dict:
         return {
@@ -157,21 +158,25 @@ class JudgeReport:
             "matcher": self.matcher.to_dict(),
             "judge": self.judge.to_dict(),
             "by_kind": {k: {s: list(v) for s, v in d.items()} for k, d in self.by_kind.items()},
+            "kind_labels": self.kind_labels,
         }
 
     def format_table(self) -> str:
         rows = ["| scorer | false positive rate | false negative rate |", "|---|---|---|"]
         for name, r in (("offline matcher", self.matcher), ("LLM judge", self.judge)):
+            fp_lo, fp_hi = wilson(r.fp, r.fp + r.tn)
+            fn_lo, fn_hi = wilson(r.fn, r.fn + r.tp)
             rows.append(
-                f"| {name} | {r.false_positive_rate:.0%} ({r.fp}/{r.fp + r.tn}) "
-                f"| {r.false_negative_rate:.0%} ({r.fn}/{r.fn + r.tp}) |"
+                f"| {name} | {r.false_positive_rate:.1%} ({r.fp}/{r.fp + r.tn}; "
+                f"95% CI {fp_lo:.1%} to {fp_hi:.1%}) "
+                f"| {r.false_negative_rate:.1%} ({r.fn}/{r.fn + r.tp}; "
+                f"95% CI {fn_lo:.1%} to {fn_hi:.1%}) |"
             )
         kinds = ["", "| case kind | label | matcher right | judge right |", "|---|---|---|---|"]
-        for kind in KINDS:
-            if kind in self.by_kind:
-                m, j = self.by_kind[kind]["matcher"], self.by_kind[kind]["judge"]
-                label = "covered" if kind in ("stated", "pronoun") else "not covered"
-                kinds.append(f"| {kind} | {label} | {m[0]}/{m[1]} | {j[0]}/{j[1]} |")
+        for kind, scores in self.by_kind.items():
+            m, j = scores["matcher"], scores["judge"]
+            label = "covered" if self.kind_labels[kind] else "not covered"
+            kinds.append(f"| {kind} | {label} | {m[0]}/{m[1]} | {j[0]}/{j[1]} |")
         note = f"\n{self.n} cases; the judge gave no usable verdict on {self.abstained}."
         return "\n".join([*rows, *kinds]) + note
 
@@ -187,17 +192,36 @@ def evaluate(
     judged = [m if v is None else v for m, v in zip(matched, verdicts, strict=True)]
     labels = [c["label"] for c in cases]
     by_kind: dict[str, dict[str, tuple[int, int]]] = {}
-    for kind in KINDS:
+    for kind in dict.fromkeys(c["kind"] for c in cases):
         idx = [i for i, c in enumerate(cases) if c["kind"] == kind]
-        if idx:
-            by_kind[kind] = {
-                name: (sum(got[i] == labels[i] for i in idx), len(idx))
-                for name, got in (("matcher", matched), ("judge", judged))
-            }
+        by_kind[kind] = {
+            name: (sum(got[i] == labels[i] for i in idx), len(idx))
+            for name, got in (("matcher", matched), ("judge", judged))
+        }
     return JudgeReport(
         n=len(cases),
         abstained=sum(v is None for v in verdicts),
         matcher=_rates(list(zip(labels, matched, strict=True))),
         judge=_rates(list(zip(labels, judged, strict=True))),
         by_kind=by_kind,
+        kind_labels={c["kind"]: c["label"] for c in cases},
+    )
+
+
+def chart_svg(report: JudgeReport, title: str) -> str:
+    """Accuracy per case kind for the matcher and the judge, with 95% intervals."""
+    kinds = list(report.by_kind)
+    acc = {
+        name: [report.by_kind[k][name][0] / report.by_kind[k][name][1] for k in kinds]
+        for name in ("matcher", "judge")
+    }
+    ivals = {name: [wilson(*report.by_kind[k][name]) for k in kinds] for name in acc}
+    counts = [f"n={report.by_kind[k]['judge'][1]}" for k in kinds]
+    return grouped_bars(
+        title,
+        kinds,
+        {"offline matcher": acc["matcher"], "LLM judge": acc["judge"]},
+        ylabel="share of cases scored correctly",
+        intervals={"offline matcher": ivals["matcher"], "LLM judge": ivals["judge"]},
+        counts=counts,
     )

@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a written answer against one fact. Reply with the single word YES or NO.",
+   "role": "system"
+  },
+  {
+   "content": "Fact: Geki Mazera owns Sepa Z82\n\nAnswer:\nThe harbor town woke slowly that morning, with fishing boats knocking against the stone quay and gulls circling the market stalls. Shopkeepers rolled up their awnings and swept the cobbles outside their doors. Geki Mazera owns Sepa Z82, a small workshop that repairs marine radios along the eastern wharf. Children from the nearby school ran past the bakery, shouting over the sound of the bells. By noon the fog had lifted and the hills behind the town showed their first green.\n\nDoes the answer state this fact, in the same words or a paraphrase? Reply NO if the fact is absent, denied, said to be untrue or unknown, or if the answer only mentions the names without stating the relation. Reply with YES or NO.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "YES"
+}

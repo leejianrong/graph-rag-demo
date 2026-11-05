@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a written answer against one fact. Reply with the single word YES or NO.",
+   "role": "system"
+  },
+  {
+   "content": "Fact: Zolu Industries owns Keme Group\n\nAnswer:\nGood planning starts with a clear picture of what the work is meant to achieve. Breaking a large task into smaller pieces makes progress easier to see. Teams that agree on definitions early avoid a lot of friction later. Zolu Industries owns Keme Group. Regular reviews help everyone stay aligned as priorities shift over time.\n\nDoes the answer state this fact, in the same words or a paraphrase? Reply NO if the fact is absent, denied, said to be untrue or unknown, or if the answer only mentions the names without stating the relation. Reply with YES or NO.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "YES"
+}

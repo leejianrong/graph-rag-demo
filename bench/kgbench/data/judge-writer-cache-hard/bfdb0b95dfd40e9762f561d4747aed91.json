@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences in which a source (\"according to the filing\", \"the records say\") reports this fact, and the passage presents it as true: Leni Works owns Novu Q87",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "According to the filing, Leni Works owns Novu Q87."
+}

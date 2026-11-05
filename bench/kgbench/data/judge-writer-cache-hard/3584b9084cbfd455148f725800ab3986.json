@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Leni Works owns Novu Q87. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Many small tools rely on shared conventions that keep their output readable across different systems. Good naming tends to matter more than clever shortcuts once a project grows past a handful of contributors. Leni Works owns Novu Q87. Records are easier to review when each one carries a clear label and a short description of what it holds. Teams that write down their decisions early usually spend less time reconstructing them later."
+}

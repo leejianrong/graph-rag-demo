@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences asserting that Sepa Z82 produces Gedo Works. That is the reverse of 'Gedo Works produces Sepa Z82'; assert the reverse as if it were true, naming both.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Sepa Z82 produces Gedo Works. The plant at Gedo Works is the company that turns out Sepa Z82 as its main product line."
+}
