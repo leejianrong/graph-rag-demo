@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a careful rater. Follow the requested answer format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "You will be given a question.\nYour task is to provide a 'total rating' representing how context-independent this question is.\nGive your answer on a scale of 1 to 5, where 1 means that the question depends on additional information to be understood, and 5 means that the question makes sense by itself.\nFor instance, if the question refers to a particular setting, like 'in the context' or 'in the document', the rating must be 1. The questions can contain obscure technical nouns or acronyms and still be a 5: it must simply be clear to an operator with access to documentation what the question is about.\n\nProvide your answer as follows:\n\nAnswer:::\nEvaluation: (your rationale for the rating, as a text)\nTotal rating: (your rating, as a number between 1 and 5)\n\nYou MUST provide values for 'Evaluation:' and 'Total rating:' in your answer.\n\nNow here is the question.\n\nQuestion: Name the organization that participated in the event that is located in the location that Rage Taneta is located in.\nAnswer:::",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Answer:::\nEvaluation: The question refers to a named person, Rage Taneta, and asks a self-contained question with no reference to a document or setting. It makes sense on its own.\nTotal rating: 5\n"
+}

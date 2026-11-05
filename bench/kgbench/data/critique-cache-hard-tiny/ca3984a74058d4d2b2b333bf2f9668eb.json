@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a careful rater. Follow the requested answer format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "You will be given a question.\nYour task is to provide a 'total rating' representing how useful this question can be to someone querying a knowledge base built from documents about companies, people, products and places.\nGive your answer on a scale of 1 to 5, where 1 means that the question is not useful at all, and 5 means that the question is extremely useful.\n\nProvide your answer as follows:\n\nAnswer:::\nEvaluation: (your rationale for the rating, as a text)\nTotal rating: (your rating, as a number between 1 and 5)\n\nYou MUST provide values for 'Evaluation:' and 'Total rating:' in your answer.\n\nNow here is the question.\n\nQuestion: Name the organization that the person that is located in the location that the location that Busu Festival is located in is part of works for.\nAnswer:::",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Answer:::\nEvaluation: This is a four-hop chain (festival location, containing location, a person in that location, the person's employer) that is convoluted and reads as a machine-generated stress test. Its usefulness to an end user is low.\nTotal rating: 2\n"
+}

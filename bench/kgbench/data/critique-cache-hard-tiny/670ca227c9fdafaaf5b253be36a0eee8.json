@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a careful rater. Follow the requested answer format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "You will be given a context and a question.\nYour task is to provide a 'total rating' scoring how well one can answer the given question unambiguously with the given context.\nGive your answer on a scale of 1 to 5, where 1 means that the question is not answerable at all given the context, and 5 means that the question is clearly and unambiguously answerable with the context.\n\nProvide your answer as follows:\n\nAnswer:::\nEvaluation: (your rationale for the rating, as a text)\nTotal rating: (your rating, as a number between 1 and 5)\n\nYou MUST provide values for 'Evaluation:' and 'Total rating:' in your answer.\n\nNow here are the question and context.\n\nQuestion: Name the person that founded the organization that Lelo Zadeze is affiliated with.\nContext: Lelo Zadeze\nProfessional networks often form around shared interests and common work. Lelo Zadeze is affiliated with Dalu. Such ties can make it easier to exchange ideas across different teams.\n\nSilo Fapobu\nMany companies begin with a single idea and a small group of people willing to test it. Silo Fapobu founded Dalu Industries. Silo Fapobu works for Dalu Industries. Growth in any organisation usually brings new questions about structure and roles.\nAnswer:::",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Answer:::\nEvaluation: The context states that Lelo Zadeze is affiliated with Dalu and that Silo Fapobu founded Dalu Industries, so the answer is Silo Fapobu. The link from \"Dalu\" to \"Dalu Industries\" is a name bridge the reader must make, which keeps it just short of a perfect score.\nTotal rating: 4\n"
+}

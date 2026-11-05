@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a careful rater. Follow the requested answer format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "You will be given a context and a question.\nYour task is to provide a 'total rating' scoring how well one can answer the given question unambiguously with the given context.\nGive your answer on a scale of 1 to 5, where 1 means that the question is not answerable at all given the context, and 5 means that the question is clearly and unambiguously answerable with the context.\n\nProvide your answer as follows:\n\nAnswer:::\nEvaluation: (your rationale for the rating, as a text)\nTotal rating: (your rating, as a number between 1 and 5)\n\nYou MUST provide values for 'Evaluation:' and 'Total rating:' in your answer.\n\nNow here are the question and context.\n\nQuestion: Name the product that the organization that the organization that is a member of the organization that Seva Works is a member of owns produces.\nContext: Dide Holdings\nMany industries depend on a mix of established firms and newcomers. Dide participated in Gebu Forum. Dide produces Diza. Products and events like these often draw attention from people across a field.\n\nDide Holdings\nShort profiles are a common way to introduce people and groups in a sector. DH is affiliated with Dalu. DH is a member of Muzu Labs. DH produces Golu Z87. Dide Holdings owns Dide. A clear list of names and roles helps a reader keep track of who does what.\n\nSeva Works\nGroups that bring people together often rely on clear goals and open communication. Seva is affiliated with Lapi Group. Seva is a member of Muzu. Membership in such circles can vary a great deal from one place to another.\nAnswer:::",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Answer:::\nEvaluation: The likely path is Seva Works, member of Muzu, then Dide Holdings (a member of Muzu Labs), which owns Dide, and Dide produces Diza. However, each hop depends on matching a different name to the one in the text (Seva vs Seva Works, Muzu vs Muzu Labs, Dide Holdings vs Dide), so the answer is plausible but not unambiguous.\nTotal rating: 3\n"
+}

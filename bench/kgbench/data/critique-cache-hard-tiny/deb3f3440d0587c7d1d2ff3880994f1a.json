@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a careful rater. Follow the requested answer format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "You will be given a context and a question.\nYour task is to provide a 'total rating' scoring how well one can answer the given question unambiguously with the given context.\nGive your answer on a scale of 1 to 5, where 1 means that the question is not answerable at all given the context, and 5 means that the question is clearly and unambiguously answerable with the context.\n\nProvide your answer as follows:\n\nAnswer:::\nEvaluation: (your rationale for the rating, as a text)\nTotal rating: (your rating, as a number between 1 and 5)\n\nYou MUST provide values for 'Evaluation:' and 'Total rating:' in your answer.\n\nNow here are the question and context.\n\nQuestion: Name the product that Muzu Labs produces.\nContext: Muzu Labs\nProduct names often say a lot about how a team thinks about its users. Muzu Labs owns DIZA. Muzu produces DIZA. Careful naming tends to make a product easier to find and to remember.\nAnswer:::",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Answer:::\nEvaluation: The context states directly that Muzu produces DIZA under the Muzu Labs heading, so the answer is clear. The only minor gap is that the text says \"Muzu\" rather than \"Muzu Labs\", which an reader would readily equate.\nTotal rating: 5\n"
+}

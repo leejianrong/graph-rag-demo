@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a careful rater. Follow the requested answer format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "You will be given a context and a question.\nYour task is to provide a 'total rating' scoring how well one can answer the given question unambiguously with the given context.\nGive your answer on a scale of 1 to 5, where 1 means that the question is not answerable at all given the context, and 5 means that the question is clearly and unambiguously answerable with the context.\n\nProvide your answer as follows:\n\nAnswer:::\nEvaluation: (your rationale for the rating, as a text)\nTotal rating: (your rating, as a number between 1 and 5)\n\nYou MUST provide values for 'Evaluation:' and 'Total rating:' in your answer.\n\nNow here are the question and context.\n\nQuestion: Name the group that Vefa Zatuso is a member of.\nContext: Vefa Zatuso\nMany people who start new projects first look for ideas in the everyday problems around them. Vefa Zatuso founded Seze Labs. Vefa Zatuso founded Lapi. V. Zatuso is a member of Pidueses. V. Zatuso participated in the Busu Festival. Communities tend to benefit when people share their time and skills.\nAnswer:::",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Answer:::\nEvaluation: The context states that V. Zatuso (the same person as Vefa Zatuso, by the abbreviated name) is a member of Pidueses, and that is the only group membership given. The answer is clear, with a small naming step needed to link V. Zatuso to Vefa Zatuso.\nTotal rating: 5\n"
+}
