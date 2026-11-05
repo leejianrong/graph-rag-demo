@@ -48,7 +48,7 @@ Rules that keep gold honest:
   scorer credits a chain that matches one of them.
 - Open-ended answers are scored by `kgbench.openended`: a required fact is covered when one sentence of the answer
   names its subject and object, and a forbidden claim is made when one sentence states a stale pair without marking
-  it as past. It is a heuristic. A judge can be passed in to decide instead; none ships, and no provider is called.
+  it as past. It is a heuristic. A judge can be passed in to decide instead: `kgbench.judge.llm_judge` asks a chat model about each required fact, is off unless asked for, and has its false positive and negative rates measured on committed labelled cases (`kgbench judge`, `docs/results/judge.md`). Stale claims stay with the matcher.
   Stale claims between two entities that a current fact also links are not asked about, since names cannot tell
   them apart.
 - `kgbench.answers` scores an answer to any question by its `answer_kind` (entity, set F1, number, abstain and

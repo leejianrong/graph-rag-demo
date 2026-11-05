@@ -1,0 +1,1175 @@
+[
+ {
+  "id": "F086-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F086",
+   "text": "Leni Works is affiliated with Mami Partners",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Mami Partners"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works is affiliated with Mami Partners.",
+  "label": true
+ },
+ {
+  "id": "F086-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F086",
+   "text": "Leni Works is affiliated with Mami Partners",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Mami Partners"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works appears in the records. It is affiliated with Mami Partners.",
+  "label": true
+ },
+ {
+  "id": "F086-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F086",
+   "text": "Leni Works is affiliated with Mami Partners",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Mami Partners"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Leni Works is affiliated with Mami Partners.",
+  "label": false
+ },
+ {
+  "id": "F086-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F086",
+   "text": "Leni Works is affiliated with Mami Partners",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Mami Partners"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works and Mami Partners both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F086-wrong_object",
+  "kind": "wrong_object",
+  "fact": {
+   "fact_id": "F086",
+   "text": "Leni Works is affiliated with Mami Partners",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Mami Partners"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works is affiliated with Novu Q87.",
+  "label": false
+ },
+ {
+  "id": "F086-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F086",
+   "text": "Leni Works is affiliated with Mami Partners",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Mami Partners"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works owns Novu Q87.",
+  "label": false
+ },
+ {
+  "id": "F087-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works owns Novu Q87.",
+  "label": true
+ },
+ {
+  "id": "F087-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works appears in the records. It owns Novu Q87.",
+  "label": true
+ },
+ {
+  "id": "F087-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Leni Works owns Novu Q87.",
+  "label": false
+ },
+ {
+  "id": "F087-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works and Novu Q87 both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F087-wrong_object",
+  "kind": "wrong_object",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works owns Keme Group.",
+  "label": false
+ },
+ {
+  "id": "F087-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works is part of Keme Group.",
+  "label": false
+ },
+ {
+  "id": "F088-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works is part of Keme Group.",
+  "label": true
+ },
+ {
+  "id": "F088-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works appears in the records. It is part of Keme Group.",
+  "label": true
+ },
+ {
+  "id": "F088-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Leni Works is part of Keme Group.",
+  "label": false
+ },
+ {
+  "id": "F088-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works and Keme Group both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F088-wrong_object",
+  "kind": "wrong_object",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works is part of Leni Works.",
+  "label": false
+ },
+ {
+  "id": "F088-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Saba Industries is affiliated with Leni Works.",
+  "label": false
+ },
+ {
+  "id": "F089-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F089",
+   "text": "Saba Industries is affiliated with Leni Works",
+   "subject_names": [
+    "Saba Industries"
+   ],
+   "object_names": [
+    "Leni Works"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Saba Industries is affiliated with Leni Works.",
+  "label": true
+ },
+ {
+  "id": "F089-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F089",
+   "text": "Saba Industries is affiliated with Leni Works",
+   "subject_names": [
+    "Saba Industries"
+   ],
+   "object_names": [
+    "Leni Works"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Saba Industries appears in the records. It is affiliated with Leni Works.",
+  "label": true
+ },
+ {
+  "id": "F089-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F089",
+   "text": "Saba Industries is affiliated with Leni Works",
+   "subject_names": [
+    "Saba Industries"
+   ],
+   "object_names": [
+    "Leni Works"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Saba Industries is affiliated with Leni Works.",
+  "label": false
+ },
+ {
+  "id": "F089-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F089",
+   "text": "Saba Industries is affiliated with Leni Works",
+   "subject_names": [
+    "Saba Industries"
+   ],
+   "object_names": [
+    "Leni Works"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Saba Industries and Leni Works both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F089-wrong_object",
+  "kind": "wrong_object",
+  "fact": {
+   "fact_id": "F089",
+   "text": "Saba Industries is affiliated with Leni Works",
+   "subject_names": [
+    "Saba Industries"
+   ],
+   "object_names": [
+    "Leni Works"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Saba Industries is affiliated with Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F089-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F089",
+   "text": "Saba Industries is affiliated with Leni Works",
+   "subject_names": [
+    "Saba Industries"
+   ],
+   "object_names": [
+    "Leni Works"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nato Z5 is part of Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F023-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nato Z5 is part of Sepa Z82.",
+  "label": true
+ },
+ {
+  "id": "F023-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nato Z5 appears in the records. It is part of Sepa Z82.",
+  "label": true
+ },
+ {
+  "id": "F023-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Nato Z5 is part of Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F023-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nato Z5 and Sepa Z82 both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F023-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Geki Mazera owns Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F141-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Geki Mazera owns Sepa Z82.",
+  "label": true
+ },
+ {
+  "id": "F141-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Geki Mazera appears in the records. It owns Sepa Z82.",
+  "label": true
+ },
+ {
+  "id": "F141-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Geki Mazera owns Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F141-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Geki Mazera and Sepa Z82 both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F141-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Gedo Works produces Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F183-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Gedo Works produces Sepa Z82.",
+  "label": true
+ },
+ {
+  "id": "F183-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Gedo Works appears in the records. It produces Sepa Z82.",
+  "label": true
+ },
+ {
+  "id": "F183-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Gedo Works produces Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F183-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Gedo Works and Sepa Z82 both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F183-wrong_object",
+  "kind": "wrong_object",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Gedo Works produces Kipe Q67.",
+  "label": false
+ },
+ {
+  "id": "F183-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Sepa Z82 is part of Kipe Q67.",
+  "label": false
+ },
+ {
+  "id": "F185-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Sepa Z82 is part of Kipe Q67.",
+  "label": true
+ },
+ {
+  "id": "F185-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Sepa Z82 appears in the records. It is part of Kipe Q67.",
+  "label": true
+ },
+ {
+  "id": "F185-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Sepa Z82 is part of Kipe Q67.",
+  "label": false
+ },
+ {
+  "id": "F185-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Sepa Z82 and Kipe Q67 both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F185-wrong_object",
+  "kind": "wrong_object",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Sepa Z82 is part of Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F185-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Mado Systems produces Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F255-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Mado Systems produces Sepa Z82.",
+  "label": true
+ },
+ {
+  "id": "F255-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Mado Systems appears in the records. It produces Sepa Z82.",
+  "label": true
+ },
+ {
+  "id": "F255-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Mado Systems produces Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F255-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Mado Systems and Sepa Z82 both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F255-wrong_object",
+  "kind": "wrong_object",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Mado Systems produces Lina.",
+  "label": false
+ },
+ {
+  "id": "F255-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nolu Accord Talks is located in Lina.",
+  "label": false
+ },
+ {
+  "id": "F041-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nolu Accord Talks is located in Lina.",
+  "label": true
+ },
+ {
+  "id": "F041-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nolu Accord Talks appears in the records. It is located in Lina.",
+  "label": true
+ },
+ {
+  "id": "F041-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Nolu Accord Talks is located in Lina.",
+  "label": false
+ },
+ {
+  "id": "F041-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nolu Accord Talks and Lina both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F041-wrong_object",
+  "kind": "wrong_object",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nolu Accord Talks is located in Nolu Accord Talks.",
+  "label": false
+ },
+ {
+  "id": "F041-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Zolu Industries participated in Nolu Accord Talks.",
+  "label": false
+ },
+ {
+  "id": "F060-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Zolu Industries participated in Nolu Accord Talks.",
+  "label": true
+ },
+ {
+  "id": "F060-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Zolu Industries appears in the records. It participated in Nolu Accord Talks.",
+  "label": true
+ },
+ {
+  "id": "F060-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Zolu Industries participated in Nolu Accord Talks.",
+  "label": false
+ },
+ {
+  "id": "F060-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Zolu Industries and Nolu Accord Talks both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F060-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Pidu Works participated in Nolu Accord Talks.",
+  "label": false
+ },
+ {
+  "id": "F166-stated",
+  "kind": "stated",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Pidu Works participated in Nolu Accord Talks.",
+  "label": true
+ },
+ {
+  "id": "F166-pronoun",
+  "kind": "pronoun",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Pidu Works appears in the records. It participated in Nolu Accord Talks.",
+  "label": true
+ },
+ {
+  "id": "F166-negated",
+  "kind": "negated",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not true that Pidu Works participated in Nolu Accord Talks.",
+  "label": false
+ },
+ {
+  "id": "F166-co_mention",
+  "kind": "co_mention",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Pidu Works and Nolu Accord Talks both appear in the records, but how they relate is unknown.",
+  "label": false
+ },
+ {
+  "id": "F166-wrong_object",
+  "kind": "wrong_object",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Pidu Works participated in Zolu Industries.",
+  "label": false
+ },
+ {
+  "id": "F166-absent",
+  "kind": "absent",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Kite Fumada founded Zolu Industries.",
+  "label": false
+ }
+]

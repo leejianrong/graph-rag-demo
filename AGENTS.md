@@ -16,8 +16,11 @@ Direction (2026-11): turning the demo into a product — a memory/knowledge stor
 
 **Build status:** V1–V8 are done and the pipeline is feature-complete ([`agent_docs/build-status.md`](agent_docs/build-status.md)).
 The generator (`datagen/`, `kggen`) and its indah UI (`kggen ui`, extra `kggen[ui]`) are done; the UI's graph view needs
-indah 0.12, unreleased, so it runs against the local indah checkout (`make ui` picks it up). The bench (`bench/`, ADR-0011) is
-partly built: extraction and linking scoring (`kgbench extract`, `kgbench linking`) are done, and retrieval scoring (`kgbench.retrieval`, defines the `Retriever` interface) is built; a BM25 baseline (`kgbench.baselines`) is built; a dense baseline (`DenseRetriever`, via `graph_rag.wiring.build_embedder`) is built; graph-rag is a `Retriever` too (`graph_retriever.py`), and `kgbench compare` ranks all of them per hop count over several seeds (report: `docs/results/`). A quality gate (`kgbench gate`, floors in `bench/kgbench/gate.json`, run by the fast suite; `--update` after an intended change) fails a drop in graph-rag's retrieval, extraction or linking scores. `kgbench order` ingests one corpus in shuffled orders and reports the spread, `kgbench sweep` varies one world knob at a time and scores every system (reports: `docs/results/`), and `kgbench.answers` scores an answer to any typed question. Every result carries cost and latency (`kgbench.cost`; LLM calls, dollars and waiting come from the LLM clients' counters). Real-stack runs are still to build.
+indah 0.12, unreleased, so it runs against the local indah checkout (`make ui` picks it up). The bench (`bench/`, ADR-0011) scores
+extraction, linking, retrieval (BM25, dense and graph-rag as `Retriever`s), ingest order, complexity sweeps, typed answers and an
+optional LLM judge; method and results are in [`docs/BENCH.md`](docs/BENCH.md). A quality gate (`kgbench gate`, floors in
+`bench/kgbench/gate.json`, run by the fast suite; `--update` after an intended change) fails a drop in graph-rag's scores. Real-stack
+runs are still to build, and so are the `/v1` agent API facade, MCP, CLI and SDK (contract: ADR-0014).
 
 > **Trust the code over the docs.** `docs/` is design intent; where they disagree, the code is the truth and
 > the doc should be fixed in the same PR. Read `graph_rag/ports.py` before coding against a port.
@@ -26,9 +29,9 @@ partly built: extraction and linking scoring (`kgbench extract`, `kgbench linkin
 
 - **Commit with the GitHub noreply email** (`85485699+leejianrong@users.noreply.github.com`). Pushes with the
   private address are rejected. The repo-local git config is already set; check it in a fresh clone.
-- **`main` is protected and PR-only.** Merge (squash) once the required checks `lint`, `fast`, `contract`,
-  `secret-scan` are green. `dep-audit` is advisory but should be green too, and so should `image` (the Dockerfile builds and the package
-  imports inside it). Never merge on stale green checks.
+- **`main` is protected and PR-only, for admins too.** No direct pushes, linear history, conversation
+  resolution. Squash-merge once `lint`, `fast`, `contract`, `secret-scan` and `image` are green on the exact pushed SHA, never on stale
+  green checks; `dep-audit` is advisory but should be green. Never `--admin`-merge.
 - **Never let a slow check gate a local push.** The pre-push hook is the cheap mirror of CI only.
 - **`datagen/` (`kggen`) must never import `graph_rag`, `kgbench` or `litellm`** (enforced by
   `datagen/tests/test_isolation.py`); it owns its vocabulary. **`bench/` may import `graph_rag` only via ports
@@ -71,7 +74,7 @@ behaviour at the seam, never internal call order. See `docs/TESTING.md`. Markers
 
 ## Workflow
 
-- Branch per slice off fresh `main`; small, reversible; risky changes ship behind a flag defaulting off.
+- Branch per slice off fresh `main`; stage by explicit path, not `git add -A`, while a background job writes into the repo; small, reversible; risky changes ship behind a flag defaulting off.
 - Parallelise only across provably disjoint file sets; use worktrees; serialise the landing.
 - Update docs, README and this brief in the same PR that changes what they describe.
 

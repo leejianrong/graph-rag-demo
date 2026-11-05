@@ -11,8 +11,8 @@ were replaced or withdrawn. The matcher is offline and deterministic, and works 
   errs toward not flagging; it cannot tell a careful denial from an assertion in every phrasing.
 
 A judge can replace the matcher for any fact: a callable ``judge(text, fact) -> bool | None`` is
-asked first, and ``None`` falls back to the matcher. The bench ships no judge and makes no
-provider call.
+asked first, and ``None`` falls back to the matcher. ``kgbench.judge`` builds one that asks a
+chat model; without it nothing here calls a provider.
 """
 
 from __future__ import annotations
@@ -33,6 +33,11 @@ def _together(sentences: list[str], fact: dict) -> list[str]:
         for s in sentences
         if mentions(s, fact["subject_names"]) and mentions(s, fact["object_names"])
     ]
+
+
+def covers(answer: str, fact: dict) -> bool:
+    """Whether the offline matcher counts ``fact`` as covered by ``answer``."""
+    return bool(_together(sentences_of(answer), fact))
 
 
 @dataclass(frozen=True)
