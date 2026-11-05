@@ -38,17 +38,23 @@ def measure(
     ks: Sequence[int],
     settings: Settings | None = None,
     spacy_model: str | None = None,
+    texts_wanted: Sequence[str] = TEXTS,
+    pipelines_wanted: Sequence[str] | None = None,
 ) -> dict[str, dict]:
     """Per ``text + pipeline``: extraction, linking and the retrieval comparison.
 
-    The offline pipeline always runs. ``settings`` (the coref and graph-build models pointed at an
-    endpoint and a cache) adds the real LLM stages; ``spacy_model`` adds real spaCy NER; both add
-    the two together.
+    ``settings`` (the coref and graph-build models pointed at an endpoint and a cache) adds the
+    real LLM stages; ``spacy_model`` adds real spaCy NER; both add the two together. The
+    ``*_wanted`` arguments leave texts or pipelines out (the LLM ones cost a prompt each).
     """
     spec_path, hard = load(folder)
     spec = load_spec(spec_path)
     world = generate(spec)
-    texts = {"template": render_documents(world), "hard": hard}
+    texts = {
+        t: docs
+        for t, docs in (("template", render_documents(world)), ("hard", hard))
+        if t in texts_wanted
+    }
 
     def pipeline(llm: bool, spacy: bool) -> Callable[[], BenchmarkComponents]:
         base = settings or Settings()
@@ -64,6 +70,8 @@ def measure(
         pipelines[" + LLM"] = pipeline(True, False)
     if settings and spacy_model:
         pipelines[" + LLM + spaCy"] = pipeline(True, True)
+    if pipelines_wanted:
+        pipelines = {k: v for k, v in pipelines.items() if _key(k) in pipelines_wanted}
     out = {}
     for suffix, build in pipelines.items():
         for text, documents in texts.items():
@@ -85,6 +93,13 @@ def measure(
                 "words": sum(len(d.text.split()) for d in documents) // len(documents),
             }
     return out
+
+
+PIPELINES = ("offline", "spacy", "llm", "llm+spacy")
+
+
+def _key(suffix: str) -> str:
+    return suffix.removeprefix(" + ").replace(" + ", "+").lower() or "offline"
 
 
 def typed(report) -> bool:

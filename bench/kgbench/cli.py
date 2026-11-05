@@ -151,6 +151,12 @@ def build_parser() -> argparse.ArgumentParser:
     hd.add_argument(
         "--spacy", metavar="MODEL", help="Also run real spaCy NER, e.g. en_core_web_sm."
     )
+    hd.add_argument(
+        "--texts", nargs="+", choices=hards.TEXTS, default=list(hards.TEXTS), help="Texts to run."
+    )
+    hd.add_argument(
+        "--pipelines", nargs="+", choices=hards.PIPELINES, help="Pipelines to run (default: all)."
+    )
     hd.add_argument("--charts", type=Path, help="Write the extraction and retrieval charts here.")
     jd = commands.add_parser(
         "judge",
@@ -362,12 +368,16 @@ def _hard(args: argparse.Namespace) -> int:
             llm_cache_dir=str(args.llm_cache),
             openai_api_key=os.environ.get("OPENAI_API_KEY", "semula-local"),
         )
-    result = hards.measure(args.dir, embedder, args.questions, ks, settings, args.spacy)
+    result = hards.measure(
+        args.dir, embedder, args.questions, ks, settings, args.spacy, args.texts, args.pipelines
+    )
     command = (
         f"uv run --extra embed kgbench hard --dir {args.dir.resolve().relative_to(_REPO)} "
         f"--questions {args.questions} --embedder {args.embedder} --k {args.k}"
         + (f" --llm-cache {args.llm_cache.resolve().relative_to(_REPO)}" if args.llm_cache else "")
         + (f" --spacy {args.spacy}" if args.spacy else "")
+        + (f" --texts {' '.join(args.texts)}" if args.texts != list(hards.TEXTS) else "")
+        + (f" --pipelines {' '.join(args.pipelines)}" if args.pipelines else "")
     )
     prefix = f"{args.out.stem}-" if args.charts and args.out else None
     text = hards.to_markdown(
