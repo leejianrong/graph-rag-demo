@@ -22,7 +22,7 @@ from pathlib import Path
 from kggen.llm import CachedChat, CacheMiss, OpenAICompatible, ResponseCache
 from kggen.questions import QuestionSpec, generate_questions
 from kggen.render import render_documents
-from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
+from kggen.spec import PRESET_NAMES, WorldSpec, load_preset, load_spec
 from kggen.world import generate
 
 from graph_rag.config import Settings
@@ -32,6 +32,7 @@ from kgbench import critique as critiques
 from kgbench import hard as hards
 from kgbench import judge as judges
 from kgbench import order as orders
+from kgbench import shortcut as shortcuts
 from kgbench import sweep as sweeps
 from kgbench.compare import CachingEmbedder, compare
 from kgbench.cost import Meter
@@ -179,6 +180,15 @@ def build_parser() -> argparse.ArgumentParser:
     jd.add_argument("--out", type=Path, help="Write the markdown report here.")
     jd.add_argument("--json", type=Path, help="Write every number as JSON here.")
     jd.add_argument("--chart", type=Path, help="Write the accuracy-per-kind chart (SVG) here.")
+    sc = commands.add_parser(
+        "shortcut", help="How much of a multi-hop score needs no chain? (no LLM)"
+    )
+    sc.add_argument("--dir", type=Path, default=_HARD_DIR, help="The dataset folder.")
+    sc.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
+    sc.add_argument("--k", type=int, default=5, help="Sentences retrieved per question.")
+    sc.add_argument("--texts", nargs="+", choices=hards.TEXTS, default=["hard"], help="Texts.")
+    sc.add_argument("--out", type=Path, help="Write the markdown report here.")
+    sc.add_argument("--charts", type=Path, help="Write one chart per system and text here.")
     ct = commands.add_parser(
         "critique",
         help="Rate a dataset's questions for groundedness, relevance and standalone (opt-in).",
@@ -458,6 +468,43 @@ def _judge(args: argparse.Namespace) -> int:
     return 0
 
 
+def _shortcut(args: argparse.Namespace) -> int:
+    folder = args.dir.resolve()
+    real = args.embedder == "bge"
+    embedder = CachingEmbedder(build_embedder(real=real))
+    questions = json.loads((folder / "questions.json").read_text())
+    world = json.loads((folder / "world.json").read_text())
+    spec_path, hard = hards.load(folder)
+    texts = {
+        "template": render_documents(generate(load_spec(spec_path))),
+        "hard": hard,
+    }
+    sections = [
+        f"# Single-hop shortcuts: {folder.name}\n\n"
+        f"{len(questions)} questions, k = {args.k}, "
+        f"{'bge-small-en-v1.5' if real else 'hashing-fake'} embeddings, no LLM. "
+        f"`uv run --extra embed kgbench shortcut --dir {folder.relative_to(_REPO)} "
+        f"--embedder {args.embedder} --k {args.k} --texts {' '.join(args.texts)}`."
+    ]
+    for text in args.texts:
+        result = shortcuts.measure(
+            questions, world, texts[text], shortcuts.build_retrievers(texts[text], embedder), args.k
+        )
+        sections.append(f"## {text} text\n\n{shortcuts.format_table(result, args.k)}")
+        if args.charts:
+            args.charts.mkdir(parents=True, exist_ok=True)
+            for system in shortcuts.SYSTEMS:
+                title = f"{folder.name}, {text} text, {system}: found in the top {args.k}"
+                (args.charts / f"shortcut-{folder.name}-{text}-{system.lower()}.svg").write_text(
+                    shortcuts.chart_svg(result, system, title)
+                )
+    report = "\n\n".join(sections) + "\n"
+    print(report)
+    if args.out:
+        args.out.write_text(report)
+    return 0
+
+
 def _critique(args: argparse.Namespace) -> int:
     folder = args.dir.resolve()
     questions = json.loads((folder / "questions.json").read_text())
@@ -534,6 +581,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _hard(args)
     if args.command == "judge":
         return _judge(args)
+    if args.command == "shortcut":
+        return _shortcut(args)
     if args.command == "critique":
         return _critique(args)
     if args.command == "gate":

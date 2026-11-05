@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 630 300" role="img" aria-label="hard-small, template text, BM25: found in the top 5" font-family="sans-serif" font-size="11">
+<rect width="630" height="300" fill="#fffdf9"/>
+<text x="46" y="18" fill="#2a241f" font-size="13" font-weight="bold">hard-small, template text, BM25: found in the top 5</text>
+<line x1="46" x2="480" y1="238.0" y2="238.0" stroke="#e2d9d0"/><text x="40" y="242.0" text-anchor="end" fill="#5b5148">0.00</text>
+<line x1="46" x2="480" y1="187.0" y2="187.0" stroke="#e2d9d0"/><text x="40" y="191.0" text-anchor="end" fill="#5b5148">0.25</text>
+<line x1="46" x2="480" y1="136.0" y2="136.0" stroke="#e2d9d0"/><text x="40" y="140.0" text-anchor="end" fill="#5b5148">0.50</text>
+<line x1="46" x2="480" y1="85.0" y2="85.0" stroke="#e2d9d0"/><text x="40" y="89.0" text-anchor="end" fill="#5b5148">0.75</text>
+<line x1="46" x2="480" y1="34.0" y2="34.0" stroke="#e2d9d0"/><text x="40" y="38.0" text-anchor="end" fill="#5b5148">1.00</text>
+<text x="12" y="136.0" transform="rotate(-90 12 136.0)" text-anchor="middle" fill="#2a241f">share of questions</text>
+<text x="100.2" y="254" text-anchor="middle" fill="#2a241f">1 hop</text>
+<text x="100.2" y="268" text-anchor="middle" fill="#5b5148">n=75</text>
+<rect x="59.0" y="44.9" width="17.4" height="193.1" fill="#2a6f97"><title>whole path: 0.947</title></rect>
+<line x1="67.7" x2="67.7" y1="60.4" y2="38.3" stroke="#2a241f" stroke-width="1.2"/><line x1="64.7" x2="70.7" y1="38.3" y2="38.3" stroke="#2a241f"/><line x1="64.7" x2="70.7" y1="60.4" y2="60.4" stroke="#2a241f"/>
+<rect x="80.7" y="44.9" width="17.4" height="193.1" fill="#c26a3d"><title>last fact: 0.947</title></rect>
+<line x1="89.4" x2="89.4" y1="60.4" y2="38.3" stroke="#2a241f" stroke-width="1.2"/><line x1="86.4" x2="92.4" y1="38.3" y2="38.3" stroke="#2a241f"/><line x1="86.4" x2="92.4" y1="60.4" y2="60.4" stroke="#2a241f"/>
+<rect x="102.4" y="42.2" width="17.4" height="195.8" fill="#5b8e4a"><title>answer text: 0.960</title></rect>
+<line x1="111.1" x2="111.1" y1="56.7" y2="36.8" stroke="#2a241f" stroke-width="1.2"/><line x1="108.1" x2="114.1" y1="36.8" y2="36.8" stroke="#2a241f"/><line x1="108.1" x2="114.1" y1="56.7" y2="56.7" stroke="#2a241f"/>
+<rect x="124.1" y="211.8" width="17.4" height="26.2" fill="#8a5a9e"><title>chance: answer text: 0.128</title></rect>
+<line x1="132.8" x2="132.8" y1="211.8" y2="211.8" stroke="#2a241f" stroke-width="1.2"/><line x1="129.8" x2="135.8" y1="211.8" y2="211.8" stroke="#2a241f"/><line x1="129.8" x2="135.8" y1="211.8" y2="211.8" stroke="#2a241f"/>
+<text x="208.8" y="254" text-anchor="middle" fill="#2a241f">2 hop</text>
+<text x="208.8" y="268" text-anchor="middle" fill="#5b5148">n=75</text>
+<rect x="167.5" y="229.8" width="17.4" height="8.2" fill="#2a6f97"><title>whole path: 0.040</title></rect>
+<line x1="176.2" x2="176.2" y1="235.2" y2="215.3" stroke="#2a241f" stroke-width="1.2"/><line x1="173.2" x2="179.2" y1="215.3" y2="215.3" stroke="#2a241f"/><line x1="173.2" x2="179.2" y1="235.2" y2="235.2" stroke="#2a241f"/>
+<rect x="189.2" y="227.1" width="17.4" height="10.9" fill="#c26a3d"><title>last fact: 0.053</title></rect>
+<line x1="197.9" x2="197.9" y1="233.7" y2="211.6" stroke="#2a241f" stroke-width="1.2"/><line x1="194.9" x2="200.9" y1="211.6" y2="211.6" stroke="#2a241f"/><line x1="194.9" x2="200.9" y1="233.7" y2="233.7" stroke="#2a241f"/>
+<rect x="210.9" y="180.9" width="17.4" height="57.1" fill="#5b8e4a"><title>answer text: 0.280</title></rect>
+<line x1="219.6" x2="219.6" y1="199.0" y2="158.4" stroke="#2a241f" stroke-width="1.2"/><line x1="216.6" x2="222.6" y1="158.4" y2="158.4" stroke="#2a241f"/><line x1="216.6" x2="222.6" y1="199.0" y2="199.0" stroke="#2a241f"/>
+<rect x="232.6" y="209.5" width="17.4" height="28.5" fill="#8a5a9e"><title>chance: answer text: 0.140</title></rect>
+<line x1="241.3" x2="241.3" y1="209.5" y2="209.5" stroke="#2a241f" stroke-width="1.2"/><line x1="238.3" x2="244.3" y1="209.5" y2="209.5" stroke="#2a241f"/><line x1="238.3" x2="244.3" y1="209.5" y2="209.5" stroke="#2a241f"/>
+<text x="317.2" y="254" text-anchor="middle" fill="#2a241f">3 hop</text>
+<text x="317.2" y="268" text-anchor="middle" fill="#5b5148">n=75</text>
+<rect x="276.0" y="238.0" width="17.4" height="0.6" fill="#2a6f97"><title>whole path: 0.000</title></rect>
+<line x1="284.7" x2="284.7" y1="238.0" y2="228.1" stroke="#2a241f" stroke-width="1.2"/><line x1="281.7" x2="287.7" y1="228.1" y2="228.1" stroke="#2a241f"/><line x1="281.7" x2="287.7" y1="238.0" y2="238.0" stroke="#2a241f"/>
+<rect x="297.7" y="232.6" width="17.4" height="5.4" fill="#c26a3d"><title>last fact: 0.027</title></rect>
+<line x1="306.4" x2="306.4" y1="236.5" y2="219.2" stroke="#2a241f" stroke-width="1.2"/><line x1="303.4" x2="309.4" y1="219.2" y2="219.2" stroke="#2a241f"/><line x1="303.4" x2="309.4" y1="236.5" y2="236.5" stroke="#2a241f"/>
+<rect x="319.4" y="210.8" width="17.4" height="27.2" fill="#5b8e4a"><title>answer text: 0.133</title></rect>
+<line x1="328.1" x2="328.1" y1="222.9" y2="191.4" stroke="#2a241f" stroke-width="1.2"/><line x1="325.1" x2="331.1" y1="191.4" y2="191.4" stroke="#2a241f"/><line x1="325.1" x2="331.1" y1="222.9" y2="222.9" stroke="#2a241f"/>
+<rect x="341.1" y="213.1" width="17.4" height="24.9" fill="#8a5a9e"><title>chance: answer text: 0.122</title></rect>
+<line x1="349.8" x2="349.8" y1="213.1" y2="213.1" stroke="#2a241f" stroke-width="1.2"/><line x1="346.8" x2="352.8" y1="213.1" y2="213.1" stroke="#2a241f"/><line x1="346.8" x2="352.8" y1="213.1" y2="213.1" stroke="#2a241f"/>
+<text x="425.8" y="254" text-anchor="middle" fill="#2a241f">4 hop</text>
+<text x="425.8" y="268" text-anchor="middle" fill="#5b5148">n=75</text>
+<rect x="384.5" y="238.0" width="17.4" height="0.6" fill="#2a6f97"><title>whole path: 0.000</title></rect>
+<line x1="393.2" x2="393.2" y1="238.0" y2="228.1" stroke="#2a241f" stroke-width="1.2"/><line x1="390.2" x2="396.2" y1="228.1" y2="228.1" stroke="#2a241f"/><line x1="390.2" x2="396.2" y1="238.0" y2="238.0" stroke="#2a241f"/>
+<rect x="406.2" y="232.6" width="17.4" height="5.4" fill="#c26a3d"><title>last fact: 0.027</title></rect>
+<line x1="414.9" x2="414.9" y1="236.5" y2="219.2" stroke="#2a241f" stroke-width="1.2"/><line x1="411.9" x2="417.9" y1="219.2" y2="219.2" stroke="#2a241f"/><line x1="411.9" x2="417.9" y1="236.5" y2="236.5" stroke="#2a241f"/>
+<rect x="427.9" y="205.4" width="17.4" height="32.6" fill="#5b8e4a"><title>answer text: 0.160</title></rect>
+<line x1="436.6" x2="436.6" y1="218.8" y2="185.1" stroke="#2a241f" stroke-width="1.2"/><line x1="433.6" x2="439.6" y1="185.1" y2="185.1" stroke="#2a241f"/><line x1="433.6" x2="439.6" y1="218.8" y2="218.8" stroke="#2a241f"/>
+<rect x="449.6" y="210.1" width="17.4" height="27.9" fill="#8a5a9e"><title>chance: answer text: 0.137</title></rect>
+<line x1="458.3" x2="458.3" y1="210.1" y2="210.1" stroke="#2a241f" stroke-width="1.2"/><line x1="455.3" x2="461.3" y1="210.1" y2="210.1" stroke="#2a241f"/><line x1="455.3" x2="461.3" y1="210.1" y2="210.1" stroke="#2a241f"/>
+<rect x="494" y="40" width="14" height="10" fill="#2a6f97"/><text x="514" y="49" fill="#2a241f">whole path</text>
+<rect x="494" y="58" width="14" height="10" fill="#c26a3d"/><text x="514" y="67" fill="#2a241f">last fact</text>
+<rect x="494" y="76" width="14" height="10" fill="#5b8e4a"/><text x="514" y="85" fill="#2a241f">answer text</text>
+<rect x="494" y="94" width="14" height="10" fill="#8a5a9e"/><text x="514" y="103" fill="#2a241f">chance: answer text</text>
+</svg>
