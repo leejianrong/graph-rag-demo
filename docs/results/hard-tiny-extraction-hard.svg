@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 300" role="img" aria-label="hard-tiny: extraction and linking, hard text" font-family="sans-serif" font-size="11">
+<rect width="740" height="300" fill="#fffdf9"/>
+<text x="46" y="18" fill="#2a241f" font-size="13" font-weight="bold">hard-tiny: extraction and linking, hard text</text>
+<line x1="46" x2="590" y1="238.0" y2="238.0" stroke="#e2d9d0"/><text x="40" y="242.0" text-anchor="end" fill="#5b5148">0.00</text>
+<line x1="46" x2="590" y1="187.0" y2="187.0" stroke="#e2d9d0"/><text x="40" y="191.0" text-anchor="end" fill="#5b5148">0.25</text>
+<line x1="46" x2="590" y1="136.0" y2="136.0" stroke="#e2d9d0"/><text x="40" y="140.0" text-anchor="end" fill="#5b5148">0.50</text>
+<line x1="46" x2="590" y1="85.0" y2="85.0" stroke="#e2d9d0"/><text x="40" y="89.0" text-anchor="end" fill="#5b5148">0.75</text>
+<line x1="46" x2="590" y1="34.0" y2="34.0" stroke="#e2d9d0"/><text x="40" y="38.0" text-anchor="end" fill="#5b5148">1.00</text>
+<text x="12" y="136.0" transform="rotate(-90 12 136.0)" text-anchor="middle" fill="#2a241f">F1 against gold</text>
+<text x="100.4" y="254" text-anchor="middle" fill="#2a241f">mention F1</text>
+<rect x="59.1" y="84.4" width="17.4" height="153.6" fill="#2a6f97"><title>offline: 0.753</title></rect>
+<rect x="80.8" y="73.9" width="17.4" height="164.1" fill="#c26a3d"><title>spaCy: 0.804</title></rect>
+<rect x="102.6" y="84.4" width="17.4" height="153.6" fill="#5b8e4a"><title>LLM: 0.753</title></rect>
+<rect x="124.3" y="73.9" width="17.4" height="164.1" fill="#8a5a9e"><title>LLM + spaCy: 0.804</title></rect>
+<text x="209.2" y="254" text-anchor="middle" fill="#2a241f">entity F1</text>
+<rect x="167.9" y="113.7" width="17.4" height="124.3" fill="#2a6f97"><title>offline: 0.610</title></rect>
+<rect x="189.6" y="96.8" width="17.4" height="141.2" fill="#c26a3d"><title>spaCy: 0.692</title></rect>
+<rect x="211.4" y="107.4" width="17.4" height="130.6" fill="#5b8e4a"><title>LLM: 0.640</title></rect>
+<rect x="233.1" y="91.1" width="17.4" height="146.9" fill="#8a5a9e"><title>LLM + spaCy: 0.720</title></rect>
+<text x="318.0" y="254" text-anchor="middle" fill="#2a241f">entity-pair F1</text>
+<rect x="276.7" y="84.5" width="17.4" height="153.5" fill="#2a6f97"><title>offline: 0.752</title></rect>
+<rect x="298.4" y="120.4" width="17.4" height="117.6" fill="#c26a3d"><title>spaCy: 0.577</title></rect>
+<rect x="320.2" y="42.8" width="17.4" height="195.2" fill="#5b8e4a"><title>LLM: 0.957</title></rect>
+<rect x="341.9" y="102.3" width="17.4" height="135.7" fill="#8a5a9e"><title>LLM + spaCy: 0.665</title></rect>
+<text x="426.8" y="254" text-anchor="middle" fill="#2a241f">triple F1*</text>
+<rect x="385.5" y="238.0" width="17.4" height="0.6" fill="#2a6f97"><title>offline: 0.000</title></rect>
+<rect x="407.2" y="238.0" width="17.4" height="0.6" fill="#c26a3d"><title>spaCy: 0.000</title></rect>
+<rect x="429.0" y="42.3" width="17.4" height="195.7" fill="#5b8e4a"><title>LLM: 0.959</title></rect>
+<rect x="450.7" y="95.4" width="17.4" height="142.6" fill="#8a5a9e"><title>LLM + spaCy: 0.699</title></rect>
+<text x="535.6" y="254" text-anchor="middle" fill="#2a241f">linking F1</text>
+<rect x="494.3" y="53.3" width="17.4" height="184.7" fill="#2a6f97"><title>offline: 0.905</title></rect>
+<rect x="516.0" y="65.2" width="17.4" height="172.8" fill="#c26a3d"><title>spaCy: 0.847</title></rect>
+<rect x="537.8" y="52.7" width="17.4" height="185.3" fill="#5b8e4a"><title>LLM: 0.908</title></rect>
+<rect x="559.5" y="61.2" width="17.4" height="176.8" fill="#8a5a9e"><title>LLM + spaCy: 0.867</title></rect>
+<rect x="604" y="40" width="14" height="10" fill="#2a6f97"/><text x="624" y="49" fill="#2a241f">offline</text>
+<rect x="604" y="58" width="14" height="10" fill="#c26a3d"/><text x="624" y="67" fill="#2a241f">spaCy</text>
+<rect x="604" y="76" width="14" height="10" fill="#5b8e4a"/><text x="624" y="85" fill="#2a241f">LLM</text>
+<rect x="604" y="94" width="14" height="10" fill="#8a5a9e"/><text x="624" y="103" fill="#2a241f">LLM + spaCy</text>
+</svg>

@@ -42,3 +42,15 @@ def test_the_default_pipeline_makes_no_provider_call(monkeypatch):
 
     monkeypatch.setattr(LiteLLMClient, "_default_completion", forbidden)
     assert process(build_offline_components()) is not None
+
+
+import pytest  # noqa: E402
+
+
+@pytest.mark.model
+def test_spacy_ner_option_finds_mentions_in_a_document():
+    components = build_offline_components(
+        settings=Settings(ner_model="en_core_web_sm"), spacy_ner=True
+    )
+    result = process(components)
+    assert result is not None and len(result.mentions) > 0

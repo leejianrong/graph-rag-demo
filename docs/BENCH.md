@@ -70,3 +70,11 @@ pre-push hook run it as a test. After a change that is meant to move the numbers
 - **Retrieval: a small, unproven gain on the hard text.** graph-rag graph path@5 / recall@5 goes from 0.20 / 0.45 to 0.25 / 0.53 over all 60 questions. At 15 questions per hop count and one world, that is one sample, not a result.
 - **Cost:** 104 recorded Haiku answers for 48 documents, no API spend; I did not measure the time per document.
 - **Not covered:** `hard-small` (145 documents, about 290 sequential prompts), a different model, the real stores and real spaCy NER.
+
+**Real NER changes the picture** (`build_offline_components(spacy_ner=True)`, `kgbench hard --spacy en_core_web_sm`; [docs/results/hard-tiny.md](results/hard-tiny.md), with charts). On `hard-tiny`, spaCy's small model against the offline heuristic NER:
+
+- **Heuristic NER is nearly an oracle on this data.** The generator's names are invented, capitalised words, which a capitalisation heuristic finds almost perfectly. So the LLM-stage numbers above (triple F1 0.92 and 0.96) were flattered by the NER stage beneath them.
+- **spaCy loses mentions on template text, gains on the harder text.** Mention F1 0.985 to 0.907 on template sentences (it misses some invented names) and 0.753 to 0.804 on the harder prose.
+- **Relations cost most.** With Haiku building the graph and spaCy finding the entities, strict triple F1 on the harder text falls from 0.96 to 0.70 and entity-pair F1 from 0.96 to 0.67. Graph building cannot link entities NER never found.
+- **graph-rag retrieval with spaCy** is no better than without: on the hard text graph-rag's whole-path@5 is 0.22 with spaCy and the LLM builder, against 0.25 with the heuristic NER and the LLM builder, and BM25 stays at 0.30 (60 questions, 15 per hop count: differences of a few points are noise).
+- **Not covered:** the transformer model (`en_core_web_trf`, the product default; a much larger download), one world, and the `small` world (145 documents, about 290 plus further sequential prompts per pipeline).

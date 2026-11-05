@@ -148,6 +148,10 @@ def build_parser() -> argparse.ArgumentParser:
     hd.add_argument("--llm-cache", type=Path, help="Also run the real LLM stages, caching here.")
     hd.add_argument("--llm-base-url", help="OpenAI-compatible endpoint (semula); omit to replay.")
     hd.add_argument("--llm-model", default="openai/claude-haiku", help="LiteLLM model string.")
+    hd.add_argument(
+        "--spacy", metavar="MODEL", help="Also run real spaCy NER, e.g. en_core_web_sm."
+    )
+    hd.add_argument("--charts", type=Path, help="Write the extraction and retrieval charts here.")
     jd = commands.add_parser(
         "judge",
         help="Measure an LLM judge's error rates on labelled open-ended cases (opt-in).",
@@ -358,16 +362,32 @@ def _hard(args: argparse.Namespace) -> int:
             llm_cache_dir=str(args.llm_cache),
             openai_api_key=os.environ.get("OPENAI_API_KEY", "semula-local"),
         )
-    result = hards.measure(args.dir, embedder, args.questions, ks, settings)
+    result = hards.measure(args.dir, embedder, args.questions, ks, settings, args.spacy)
     command = (
         f"uv run --extra embed kgbench hard --dir {args.dir.resolve().relative_to(_REPO)} "
         f"--questions {args.questions} --embedder {args.embedder} --k {args.k}"
         + (f" --llm-cache {args.llm_cache.resolve().relative_to(_REPO)}" if args.llm_cache else "")
+        + (f" --spacy {args.spacy}" if args.spacy else "")
     )
+    prefix = f"{args.out.stem}-" if args.charts and args.out else None
     text = hards.to_markdown(
-        result, args.k, command, "bge-small-en-v1.5" if real else "hashing-fake"
+        result,
+        args.k,
+        command,
+        "bge-small-en-v1.5" if real else "hashing-fake",
+        chart_dir=prefix,
     )
     print(text)
+    if args.charts:
+        args.charts.mkdir(parents=True, exist_ok=True)
+        stem = args.out.stem if args.out else "hard"
+        name = args.dir.name
+        (args.charts / f"{stem}-extraction-hard.svg").write_text(
+            hards.extraction_chart(result, "hard", f"{name}: extraction and linking, hard text")
+        )
+        (args.charts / f"{stem}-retrieval-hard.svg").write_text(
+            hards.retrieval_chart(result, "hard", args.k, f"{name}: whole-path@{args.k}, hard text")
+        )
     if args.out:
         args.out.write_text(text)
     return 0
