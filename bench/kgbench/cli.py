@@ -516,8 +516,7 @@ def _critique(args: argparse.Namespace) -> int:
         rows = critiques.critique(chat, questions, documents, args.workers)
     except CacheMiss as exc:
         raise SystemExit(f"{exc}; pass --base-url to ask an endpoint") from exc
-    world = json.loads((folder / "world.json").read_text())
-    rows = critiques.tag_shared_names(rows, questions, world)
+    rows = critiques.tag_shared_names(rows, questions)
     text = critiques.format_table(rows)
     print(text)
     if args.out:

@@ -87,24 +87,9 @@ def test_table_and_chart_report_pass_rates():
     assert critique.chart_svg(rows, "t").startswith("<svg")
 
 
-def test_a_path_through_a_shared_name_is_tagged():
-    world = {
-        "entities": [
-            {"id": "E1", "name": "Dide Holdings", "aliases": ["Dide"]},
-            {"id": "E2", "name": "Dide Holdings", "aliases": []},
-            {"id": "E3", "name": "Other", "aliases": []},
-        ],
-        "edges": [
-            {"id": "F1", "subject": "E1", "object": "E3"},
-            {"id": "F2", "subject": "E3", "object": "E3"},
-        ],
-    }
-    questions = [
-        {"id": "a", "supporting_facts": ["F1"]},
-        {"id": "b", "supporting_facts": ["F2"]},
-    ]
-    rows = [{"id": "a"}, {"id": "b"}]
-    tagged = critique.tag_shared_names(rows, questions, world)
+def test_rows_are_tagged_from_the_datasets_flag():
+    questions = [{"id": "a", "shared_name": True}, {"id": "b", "shared_name": False}]
+    tagged = critique.tag_shared_names([{"id": "a"}, {"id": "b"}], questions)
     assert [r["shared_name"] for r in tagged] == ["yes", "no"]
 
 

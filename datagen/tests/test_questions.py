@@ -476,3 +476,23 @@ def test_a_two_hop_open_ended_question_adds_facts_about_connected_entities(churn
         for r in q.required_facts
         if r["weight"] == 0.5
     )
+
+
+def test_shared_name_flags_paths_through_entities_that_share_a_name() -> None:
+    homonyms = generate(make(n_entities=300, homonym_rate=0.2, homonym_same_type=1.0))
+    holders: dict[str, set[str]] = {}
+    for e in homonyms.entities:
+        for label in (e.name, *e.aliases):
+            holders.setdefault(label.casefold(), set()).add(e.id)
+    clash = {i for ids in holders.values() if len(ids) > 1 for i in ids}
+    edges = {e.id: e for e in homonyms.edges}
+    questions = generate_questions(homonyms, QuestionSpec(n_questions=80))
+    flagged = []
+    for q in questions:
+        ends = {x for f in q.supporting_facts for x in (edges[f].subject, edges[f].object)}
+        assert q.shared_name == bool(ends & clash)
+        flagged.append(q.shared_name)
+    assert any(flagged) and not all(flagged)
+    assert not any(
+        q.shared_name for q in generate_questions(generate(make(alias_rate=0.0)), QuestionSpec())
+    )

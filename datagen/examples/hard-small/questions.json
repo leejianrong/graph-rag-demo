@@ -32,6 +32,7 @@
   "premise": null,
   "question": "Name the organization that owns Dune Partners.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E024",
   "supporting_facts": [
@@ -73,6 +74,7 @@
   "premise": null,
   "question": "Name the organization that the person that owns the product that is part of Golu Q17 is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E135",
   "supporting_facts": [
@@ -117,6 +119,7 @@
   "premise": null,
   "question": "Name the event that the organization that is located in Mitaburg participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E044",
   "supporting_facts": [
@@ -162,6 +165,7 @@
   "premise": null,
   "question": "Name the organization that the person that is located in the location that the location that Buriton is part of is located in is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E137",
   "supporting_facts": [
@@ -208,6 +212,7 @@
   "premise": null,
   "question": "Name the person that owns Boke Q64.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E090",
   "supporting_facts": [
@@ -250,6 +255,7 @@
   "premise": null,
   "question": "Name the organization that the person that owns the product that is part of the product that Gori X18 is part of founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E007",
   "supporting_facts": [
@@ -298,6 +304,7 @@
   "premise": null,
   "question": "Name the product that the organization that participated in the event that Tobo Nonada participated in produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E114",
   "supporting_facts": [
@@ -339,6 +346,7 @@
   "premise": null,
   "question": "Name the organization that Libu Belagu works for.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E109",
   "supporting_facts": [
@@ -378,6 +386,7 @@
   "premise": null,
   "question": "Name the organization that Fido Tebifu founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E011",
   "supporting_facts": [
@@ -424,6 +433,7 @@
   "premise": null,
   "question": "Name the person that is a member of the organization that the organization that the organization that Tidi Dalali is affiliated with is affiliated with is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E054",
   "supporting_facts": [
@@ -470,6 +480,7 @@
   "premise": null,
   "question": "Name the location that is located in Pubu.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E032",
   "supporting_facts": [
@@ -513,6 +524,7 @@
   "premise": null,
   "question": "Name the location that is part of the location that the organization that Lomo Industries is a member of is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E098",
   "supporting_facts": [
@@ -556,6 +568,7 @@
   "premise": null,
   "question": "Name the person that founded Vevo Partners.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E133",
   "supporting_facts": [
@@ -602,6 +615,7 @@
   "premise": null,
   "question": "Name the location that the person that is a member of the organization that is located in the location that Gipi Luzazu is located in is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E004",
   "supporting_facts": [
@@ -649,6 +663,7 @@
   "premise": null,
   "question": "Name the organization that owns the organization that the organization that the person that works for Seka Labs founded is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E142",
   "supporting_facts": [
@@ -696,6 +711,7 @@
   "premise": null,
   "question": "Name the organization that the organization that is located in the location that the location that Takomere is part of is part of is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E012",
   "supporting_facts": [
@@ -744,6 +760,7 @@
   "premise": null,
   "question": "Name the event that the person that is affiliated with the organization that Libu Belagu works for participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E109",
   "supporting_facts": [
@@ -792,6 +809,7 @@
   "premise": null,
   "question": "Name the location that is part of the location that the event that the organization that Ladu Bizite founded participated in is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E093",
   "supporting_facts": [
@@ -839,6 +857,7 @@
   "premise": null,
   "question": "Name the organization that the organization that Nibe Pesovo is a member of is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E138",
   "supporting_facts": [
@@ -883,6 +902,7 @@
   "premise": null,
   "question": "Name the location that Gipi Luzazu is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E004",
   "supporting_facts": [
@@ -924,6 +944,7 @@
   "premise": null,
   "question": "Name the location that Pubu is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E032",
   "supporting_facts": [
@@ -969,6 +990,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that the person that is a member of Lare Group is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E056",
   "supporting_facts": [
@@ -1015,6 +1037,7 @@
   "premise": null,
   "question": "Name the organization that the organization that Fumi Sideni founded is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [
@@ -1058,6 +1081,7 @@
   "premise": null,
   "question": "Name the person that founded the organization that produces the product that is part of the product that Mami Partners produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E146",
   "supporting_facts": [
@@ -1106,6 +1130,7 @@
   "premise": null,
   "question": "Name the product that the organization that produces the product that is part of Boke Q64 owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E090",
   "supporting_facts": [
@@ -1149,6 +1174,7 @@
   "premise": null,
   "question": "Name the organization that the organization that is part of the organization that Fumi Sideni founded owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [
@@ -1195,6 +1221,7 @@
   "premise": null,
   "question": "Name the product that the product that Mizu Group produces is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E006",
   "supporting_facts": [
@@ -1238,6 +1265,7 @@
   "premise": null,
   "question": "Name the organization that owns the organization that Sodu Works is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E136",
   "supporting_facts": [
@@ -1284,6 +1312,7 @@
   "premise": null,
   "question": "Name the organization that owns the organization that is affiliated with the organization that Bimu Ronati founded.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E077",
   "supporting_facts": [
@@ -1329,6 +1358,7 @@
   "premise": null,
   "question": "Name the group that Fume Zivima is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E140",
   "supporting_facts": [
@@ -1373,6 +1403,7 @@
   "premise": null,
   "question": "Name the organization that the person that owns the product that the product that Mami Partners produces is part of founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E146",
   "supporting_facts": [
@@ -1420,6 +1451,7 @@
   "premise": null,
   "question": "Name the organization that the person that founded Sodu Works works for.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E136",
   "supporting_facts": [
@@ -1463,6 +1495,7 @@
   "premise": null,
   "question": "Name the organization that the organization that participated in Satu Festival is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E125",
   "supporting_facts": [
@@ -1507,6 +1540,7 @@
   "premise": null,
   "question": "Name the location that the organization that the person that works for Dune Partners works for is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E024",
   "supporting_facts": [
@@ -1550,6 +1584,7 @@
   "premise": null,
   "question": "Name the location that Miga Verede is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E022",
   "supporting_facts": [
@@ -1596,6 +1631,7 @@
   "premise": null,
   "question": "Name the product that the person that is affiliated with the group that the person that participated in Ludu Summit is a member of owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E107",
   "supporting_facts": [
@@ -1641,6 +1677,7 @@
   "premise": null,
   "question": "Name the organization that the person that participated in Veta Conference is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E052",
   "supporting_facts": [
@@ -1686,6 +1723,7 @@
   "premise": null,
   "question": "Name the group that the person that works for Dako Works is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E001",
   "supporting_facts": [
@@ -1733,6 +1771,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that the organization that Tidi Dalali works for is affiliated with is a member of produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E054",
   "supporting_facts": [
@@ -1780,6 +1819,7 @@
   "premise": null,
   "question": "Name the location that is part of the location that is part of Bane.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E040",
   "supporting_facts": [
@@ -1827,6 +1867,7 @@
   "premise": null,
   "question": "Name the organization that the organization that the organization that participated in the event that is located in Lina owns is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E069",
   "supporting_facts": [
@@ -1870,6 +1911,7 @@
   "premise": null,
   "question": "Name the person that founded the organization that Bimu Ronati is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E077",
   "supporting_facts": [
@@ -1915,6 +1957,7 @@
   "premise": null,
   "question": "Name the product that the organization that Bimu Ronati founded produces.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E077",
   "supporting_facts": [
@@ -1960,6 +2003,7 @@
   "premise": null,
   "question": "Name the organization that owns the organization that Leni Works is part of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E046",
   "supporting_facts": [
@@ -2006,6 +2050,7 @@
   "premise": null,
   "question": "Name the person that is a member of the organization that participated in the event that Mipo Systems participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E066",
   "supporting_facts": [
@@ -2049,6 +2094,7 @@
   "premise": null,
   "question": "Name the event that the person that is affiliated with the group that Fido Tebifu is a member of participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E011",
   "supporting_facts": [
@@ -2097,6 +2143,7 @@
   "premise": null,
   "question": "Name the person that is affiliated with the organization that is part of the organization that the person that owns Sepa Z82 works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E083",
   "supporting_facts": [
@@ -2139,6 +2186,7 @@
   "premise": null,
   "question": "Name the product that is part of Duva X94.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E123",
   "supporting_facts": [
@@ -2185,6 +2233,7 @@
   "premise": null,
   "question": "Name the product that the person that works for the organization that the person that participated in Soto Forum founded owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E005",
   "supporting_facts": [
@@ -2229,6 +2278,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with the organization that is a member of the organization that participated in Tiku Conference.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E111",
   "supporting_facts": [
@@ -2275,6 +2325,7 @@
   "premise": null,
   "question": "Name the event that the organization that Guvo Kadisa is affiliated with participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E076",
   "supporting_facts": [
@@ -2319,6 +2370,7 @@
   "premise": null,
   "question": "Name the event that Lomo Industries participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E098",
   "supporting_facts": [
@@ -2360,6 +2412,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that owns the organization that Fido Tebifu founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E011",
   "supporting_facts": [
@@ -2403,6 +2456,7 @@
   "premise": null,
   "question": "Name the group that the person that founded the organization that Lada Povedo is affiliated with is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E021",
   "supporting_facts": [
@@ -2449,6 +2503,7 @@
   "premise": null,
   "question": "Name the organization that is part of the organization that Fili Vitalu works for.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E008",
   "supporting_facts": [
@@ -2490,6 +2545,7 @@
   "premise": null,
   "question": "Name the person that founded the organization that Fozu Systems owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E038",
   "supporting_facts": [
@@ -2532,6 +2588,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with the organization that participated in the event that Zedi Gegave participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E149",
   "supporting_facts": [
@@ -2574,6 +2631,7 @@
   "premise": null,
   "question": "Name the person that founded the organization that produces Kipe Q67.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E082",
   "supporting_facts": [
@@ -2619,6 +2677,7 @@
   "premise": null,
   "question": "Name the product that the person that works for Bisa Group owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E105",
   "supporting_facts": [
@@ -2666,6 +2725,7 @@
   "premise": null,
   "question": "Name the product that the organization that participated in the event that is located in the location that is located in Dozoford produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E000",
   "supporting_facts": [
@@ -2714,6 +2774,7 @@
   "premise": null,
   "question": "Name the group that the person that is affiliated with the organization that Lomo Industries owns is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E098",
   "supporting_facts": [
@@ -2759,6 +2820,7 @@
   "premise": null,
   "question": "Name the product that Pita Labs produces.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E139",
   "supporting_facts": [
@@ -2801,6 +2863,7 @@
   "premise": null,
   "question": "Name the organization that is part of the organization that Ladu Bizite founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E093",
   "supporting_facts": [
@@ -2847,6 +2910,7 @@
   "premise": null,
   "question": "Name the event that the organization that the person that founded Keme Group works for participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E062",
   "supporting_facts": [
@@ -2895,6 +2959,7 @@
   "premise": null,
   "question": "Name the product that the person that works for the organization that is a member of the organization that Gipi Luzazu founded owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E004",
   "supporting_facts": [
@@ -2940,6 +3005,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with the organization that participated in Veta Conference.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E052",
   "supporting_facts": [
@@ -2982,6 +3048,7 @@
   "premise": null,
   "question": "Name the product that is part of the product that the person that is a member of Lomo Industries owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E098",
   "supporting_facts": [
@@ -3025,6 +3092,7 @@
   "premise": null,
   "question": "Name the organization that Rozo Zoruga is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E034",
   "supporting_facts": [
@@ -3069,6 +3137,7 @@
   "premise": null,
   "question": "Name the product that the person that is affiliated with Megiish owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E124",
   "supporting_facts": [
@@ -3111,6 +3180,7 @@
   "premise": null,
   "question": "Name the organization that the person that founded the organization that is located in Vegemere works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E134",
   "supporting_facts": [
@@ -3159,6 +3229,7 @@
   "premise": null,
   "question": "Name the location that the location that the location that the organization that Revo Mevome is a member of is located in is located in is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E071",
   "supporting_facts": [
@@ -3203,6 +3274,7 @@
   "premise": null,
   "question": "Name the event that Fozu Systems participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E038",
   "supporting_facts": [
@@ -3242,6 +3314,7 @@
   "premise": null,
   "question": "Name the product that Gebi Boleve owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E030",
   "supporting_facts": [
@@ -3282,6 +3355,7 @@
   "premise": null,
   "question": "Name the event that the person that works for Mata Group participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E065",
   "supporting_facts": [
@@ -3326,6 +3400,7 @@
   "premise": null,
   "question": "Name the organization that the person that owns the product that is part of Duva X94 founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E123",
   "supporting_facts": [
@@ -3374,6 +3449,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that is affiliated with the organization that the person that works for Mipo Systems founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E066",
   "supporting_facts": [
@@ -3420,6 +3496,7 @@
   "premise": null,
   "question": "Name the product that Bisa Group produces.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E105",
   "supporting_facts": [
@@ -3459,6 +3536,7 @@
   "premise": null,
   "question": "Name the organization that Revo Mevome is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E071",
   "supporting_facts": [
@@ -3505,6 +3583,7 @@
   "premise": null,
   "question": "Name the location that the person that founded the organization that the person that is affiliated with Fozu Systems founded is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E038",
   "supporting_facts": [
@@ -3552,6 +3631,7 @@
   "premise": null,
   "question": "Name the person that is affiliated with the organization that is affiliated with the organization that participated in the event that Zedi Gegave participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E149",
   "supporting_facts": [
@@ -3598,6 +3678,7 @@
   "premise": null,
   "question": "Name the organization that the organization that owns the organization that Dose Ropene is affiliated with is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E106",
   "supporting_facts": [
@@ -3644,6 +3725,7 @@
   "premise": null,
   "question": "Name the organization that the organization that Kazo Robeka is affiliated with is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E073",
   "supporting_facts": [
@@ -3691,6 +3773,7 @@
   "premise": null,
   "question": "Name the product that the organization that is affiliated with the organization that is a member of the organization that Fumi Sideni founded produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [
@@ -3733,6 +3816,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with Saba Industries.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E047",
   "supporting_facts": [
@@ -3775,6 +3859,7 @@
   "premise": null,
   "question": "Name the organization that the person that participated in Veta Conference works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E052",
   "supporting_facts": [
@@ -3819,6 +3904,7 @@
   "premise": null,
   "question": "Name the group that Fido Tebifu is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E011",
   "supporting_facts": [
@@ -3863,6 +3949,7 @@
   "premise": null,
   "question": "Name the location that the event that Bagi Dalofe participated in is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E144",
   "supporting_facts": [
@@ -3904,6 +3991,7 @@
   "premise": null,
   "question": "Name the organization that is part of the organization that Gedo Works owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E081",
   "supporting_facts": [
@@ -3951,6 +4039,7 @@
   "premise": null,
   "question": "Name the product that the person that works for the organization that the person that works for Begu Labs is affiliated with owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E101",
   "supporting_facts": [
@@ -4000,6 +4089,7 @@
   "premise": null,
   "question": "Name the product that is part of the product that the person that works for the organization that is affiliated with Zolu Industries owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E031",
   "supporting_facts": [
@@ -4046,6 +4136,7 @@
   "premise": null,
   "question": "Name the location that Nogoton is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E088",
   "supporting_facts": [
@@ -4090,6 +4181,7 @@
   "premise": null,
   "question": "Name the organization that is a member of the organization that the person that is located in the location that Lina is located in founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E069",
   "supporting_facts": [
@@ -4135,6 +4227,7 @@
   "premise": null,
   "question": "Name the location that the organization that Teve Nerama founded is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E099",
   "supporting_facts": [
@@ -4182,6 +4275,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that the person that founded the organization that is affiliated with Muvo Holdings is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E117",
   "supporting_facts": [
@@ -4231,6 +4325,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that the organization that Muvo Holdings is part of is affiliated with is affiliated with owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E117",
   "supporting_facts": [
@@ -4275,6 +4370,7 @@
   "premise": null,
   "question": "Name the product that the product that the organization that Pita Labs is affiliated with produces is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E139",
   "supporting_facts": [
@@ -4322,6 +4418,7 @@
   "premise": null,
   "question": "Name the organization that is part of the organization that the person that is affiliated with Rave Industries founded.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E131",
   "supporting_facts": [
@@ -4365,6 +4462,7 @@
   "premise": null,
   "question": "Name the product that the product that the product that Gebi Boleve owns is part of is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E030",
   "supporting_facts": [
@@ -4412,6 +4510,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that Fumi Sideni founded is affiliated with owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [
@@ -4458,6 +4557,7 @@
   "premise": null,
   "question": "Name the location that the organization that the organization that participated in the event that Seka Labs participated in is a member of is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E142",
   "supporting_facts": [
@@ -4505,6 +4605,7 @@
   "premise": null,
   "question": "Name the organization that is part of the organization that Fumi Sideni founded.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [
@@ -4548,6 +4649,7 @@
   "premise": null,
   "question": "Name the person that is affiliated with the organization that is affiliated with the organization that owns the product that Fili Vitalu owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E008",
   "supporting_facts": [
@@ -4595,6 +4697,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that is a member of Fozu Systems.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E038",
   "supporting_facts": [
@@ -4641,6 +4744,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that Fumi Sideni founded is affiliated with produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [
@@ -4685,6 +4789,7 @@
   "premise": null,
   "question": "Name the product that the product that the person that is located in the location that Pubu is located in owns is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E032",
   "supporting_facts": [
@@ -4732,6 +4837,7 @@
   "premise": null,
   "question": "Name the organization that the organization that the person that works for the organization that produces Vipu X55 works for is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E074",
   "supporting_facts": [
@@ -4778,6 +4884,7 @@
   "premise": null,
   "question": "Name the product that Pidu Works owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E080",
   "supporting_facts": [
@@ -4819,6 +4926,7 @@
   "premise": null,
   "question": "Name the organization that Rave Industries is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E131",
   "supporting_facts": [
@@ -4861,6 +4969,7 @@
   "premise": null,
   "question": "Name the event that the organization that is a member of the organization that the person that is located in Buriton founded participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E137",
   "supporting_facts": [
@@ -4907,6 +5016,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with the organization that participated in the event that is located in Tuloford.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E089",
   "supporting_facts": [
@@ -4951,6 +5061,7 @@
   "premise": null,
   "question": "Name the organization that is a member of the organization that is located in Vegemere.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E134",
   "supporting_facts": [
@@ -4997,6 +5108,7 @@
   "premise": null,
   "question": "Name the product that is part of the product that is part of the product that Libu Belagu owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E109",
   "supporting_facts": [
@@ -5041,6 +5153,7 @@
   "premise": null,
   "question": "Name the organization that the organization that Rozo Zoruga is a member of is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E034",
   "supporting_facts": [
@@ -5084,6 +5197,7 @@
   "premise": null,
   "question": "Name the organization that the organization that the organization that is located in the location that is located in Pubu owns is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E032",
   "supporting_facts": [
@@ -5133,6 +5247,7 @@
   "premise": null,
   "question": "Name the person that is a member of the organization that the person that owns the product that is part of Duva X94 works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E123",
   "supporting_facts": [
@@ -5179,6 +5294,7 @@
   "premise": null,
   "question": "Name the product that Mami Partners owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E146",
   "supporting_facts": [
@@ -5221,6 +5337,7 @@
   "premise": null,
   "question": "Name the organization that the person that participated in Soto Forum is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E005",
   "supporting_facts": [
@@ -5265,6 +5382,7 @@
   "premise": null,
   "question": "Name the organization that Pita Labs is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E139",
   "supporting_facts": [
@@ -5310,6 +5428,7 @@
   "premise": null,
   "question": "Name the group that the person that works for the organization that Ladu Bizite founded is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E093",
   "supporting_facts": [
@@ -5356,6 +5475,7 @@
   "premise": null,
   "question": "Name the product that the product that Sepa Z82 is part of is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E083",
   "supporting_facts": [
@@ -5403,6 +5523,7 @@
   "premise": null,
   "question": "Name the person that is a member of the organization that the organization that is part of the organization that Fili Vitalu works for owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E008",
   "supporting_facts": [
@@ -5451,6 +5572,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that is affiliated with Leni Works is a member of owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E046",
   "supporting_facts": [
@@ -5494,6 +5616,7 @@
   "premise": null,
   "question": "Name the organization that Lomo Industries is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E098",
   "supporting_facts": [
@@ -5533,6 +5656,7 @@
   "premise": null,
   "question": "Name the event that is located in Tuloford.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E089",
   "supporting_facts": [
@@ -5576,6 +5700,7 @@
   "premise": null,
   "question": "Name the organization that is part of Sodu Works.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E136",
   "supporting_facts": [
@@ -5617,6 +5742,7 @@
   "premise": null,
   "question": "Name the person that owns Sepa Z82.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E083",
   "supporting_facts": [
@@ -5663,6 +5789,7 @@
   "premise": null,
   "question": "Name the product that is part of the product that the organization that is affiliated with the organization that owns Keme Group produces.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E062",
   "supporting_facts": [
@@ -5708,6 +5835,7 @@
   "premise": null,
   "question": "Name the organization that the organization that produces the product that is part of the product that is part of Sepa Z82 is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E083",
   "supporting_facts": [
@@ -5752,6 +5880,7 @@
   "premise": null,
   "question": "Name the person that is affiliated with Keme Group.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E062",
   "supporting_facts": [
@@ -5796,6 +5925,7 @@
   "premise": null,
   "question": "Name the event that the organization that Gedu Tumuka works for participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E049",
   "supporting_facts": [
@@ -5838,6 +5968,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with the organization that owns the product that Libu Belagu owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E109",
   "supporting_facts": [
@@ -5883,6 +6014,7 @@
   "premise": null,
   "question": "Name the product that Nibe Pesovo owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E138",
   "supporting_facts": [
@@ -5925,6 +6057,7 @@
   "premise": null,
   "question": "Name the organization that the person that is affiliated with the organization that the organization that Ladu Bizite founded owns is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E093",
   "supporting_facts": [
@@ -5972,6 +6105,7 @@
   "premise": null,
   "question": "Name the group that the person that participated in Ludu Summit is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E107",
   "supporting_facts": [
@@ -6014,6 +6148,7 @@
   "premise": null,
   "question": "Name the product that the organization that the person that works for Seka Labs founded owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E142",
   "supporting_facts": [
@@ -6062,6 +6197,7 @@
   "premise": null,
   "question": "Name the product that the person that works for the organization that the person that participated in Soto Forum is affiliated with owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E005",
   "supporting_facts": [
@@ -6107,6 +6243,7 @@
   "premise": null,
   "question": "Name the organization that the organization that Rozo Zoruga works for owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E034",
   "supporting_facts": [
@@ -6154,6 +6291,7 @@
   "premise": null,
   "question": "Name the organization that is part of the organization that is a member of the organization that the person that is affiliated with Dodaese is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E051",
   "supporting_facts": [
@@ -6203,6 +6341,7 @@
   "premise": null,
   "question": "Name the organization that the person that founded the organization that is part of the organization that is located in Bane works for.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E040",
   "supporting_facts": [
@@ -6250,6 +6389,7 @@
   "premise": null,
   "question": "Name the product that the organization that Fume Zivima is a member of produces.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E140",
   "supporting_facts": [
@@ -6293,6 +6433,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that is located in Vegemere.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E134",
   "supporting_facts": [
@@ -6333,6 +6474,7 @@
   "premise": null,
   "question": "Name the person that participated in Ludu Summit.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E107",
   "supporting_facts": [
@@ -6376,6 +6518,7 @@
   "premise": null,
   "question": "Name the organization that is located in Vegemere.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E134",
   "supporting_facts": [
@@ -6419,6 +6562,7 @@
   "premise": null,
   "question": "Name the person that works for Lare Group.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E056",
   "supporting_facts": [
@@ -6463,6 +6607,7 @@
   "premise": null,
   "question": "Name the organization that the person that is located in the location that the person that participated in Rito Summit is located in founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E028",
   "supporting_facts": [
@@ -6511,6 +6656,7 @@
   "premise": null,
   "question": "Name the group that the person that founded the organization that participated in Satu Festival is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E125",
   "supporting_facts": [
@@ -6553,6 +6699,7 @@
   "premise": null,
   "question": "Name the organization that produces the product that Kipe Q67 is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E082",
   "supporting_facts": [
@@ -6594,6 +6741,7 @@
   "premise": null,
   "question": "Name the person that is affiliated with the organization that Fili Vitalu works for.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E008",
   "supporting_facts": [
@@ -6640,6 +6788,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with the organization that is a member of the organization that Luse Group is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E085",
   "supporting_facts": [
@@ -6687,6 +6836,7 @@
   "premise": null,
   "question": "Name the event that the organization that the person that is affiliated with Rave Industries is a member of participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E131",
   "supporting_facts": [
@@ -6729,6 +6879,7 @@
   "premise": null,
   "question": "Name the organization that is part of the organization that Fido Tebifu founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E011",
   "supporting_facts": [
@@ -6773,6 +6924,7 @@
   "premise": null,
   "question": "Name the organization that the person that founded the organization that Gipi Luzazu founded is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E004",
   "supporting_facts": [
@@ -6821,6 +6973,7 @@
   "premise": null,
   "question": "Name the organization that is part of the organization that the person that participated in the event that is located in Mopoford works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E025",
   "supporting_facts": [
@@ -6868,6 +7021,7 @@
   "premise": null,
   "question": "Name the location that the event that Zedi Gegave participated in is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E149",
   "supporting_facts": [
@@ -6914,6 +7068,7 @@
   "premise": null,
   "question": "Name the person that is affiliated with the organization that the organization that Sodu Works is part of is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E136",
   "supporting_facts": [
@@ -6959,6 +7114,7 @@
   "premise": null,
   "question": "Name the organization that the organization that the person that is affiliated with Mami Partners works for is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E146",
   "supporting_facts": [
@@ -7005,6 +7161,7 @@
   "premise": null,
   "question": "Name the event that the organization that owns the organization that is part of the organization that is located in Bane participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E040",
   "supporting_facts": [
@@ -7051,6 +7208,7 @@
   "premise": null,
   "question": "Name the organization that produces the product that is part of the product that Mami Partners owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E146",
   "supporting_facts": [
@@ -7095,6 +7253,7 @@
   "premise": null,
   "question": "Name the location that the organization that Gebi Boleve founded is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E030",
   "supporting_facts": [
@@ -7135,6 +7294,7 @@
   "premise": null,
   "question": "Name the person that works for Seka Labs.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E142",
   "supporting_facts": [
@@ -7178,6 +7338,7 @@
   "premise": null,
   "question": "Name the product that Begu Labs produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E101",
   "supporting_facts": [
@@ -7222,6 +7383,7 @@
   "premise": null,
   "question": "Name the product that the person that founded the organization that the organization that Muvo Holdings is part of is a member of owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E117",
   "supporting_facts": [
@@ -7264,6 +7426,7 @@
   "premise": null,
   "question": "Name the person that participated in Soto Forum.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E005",
   "supporting_facts": [
@@ -7306,6 +7469,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with the organization that owns the organization that the person that is affiliated with Pita Labs founded.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E139",
   "supporting_facts": [
@@ -7351,6 +7515,7 @@
   "premise": null,
   "question": "Name the person that is affiliated with the organization that Lomo Industries owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E098",
   "supporting_facts": [
@@ -7398,6 +7563,7 @@
   "premise": null,
   "question": "Name the organization that the person that is located in the location that the location that Pubu is located in is located in founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E032",
   "supporting_facts": [
@@ -7447,6 +7613,7 @@
   "premise": null,
   "question": "Name the location that is located in the location that is located in the location that is located in the location that Kapu Festival is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E048",
   "supporting_facts": [
@@ -7493,6 +7660,7 @@
   "premise": null,
   "question": "Name the organization that is a member of the organization that participated in the event that Zedi Gegave participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E149",
   "supporting_facts": [
@@ -7539,6 +7707,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with the organization that is affiliated with the organization that the person that participated in Pova Festival is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E147",
   "supporting_facts": [
@@ -7585,6 +7754,7 @@
   "premise": null,
   "question": "Name the product that Leni Works owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E046",
   "supporting_facts": [
@@ -7628,6 +7798,7 @@
   "premise": null,
   "question": "Name the organization that the person that works for the organization that Kazo Robeka is a member of founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E073",
   "supporting_facts": [
@@ -7673,6 +7844,7 @@
   "premise": null,
   "question": "Name the product that the organization that the person that is a member of Gedo Works works for produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E081",
   "supporting_facts": [
@@ -7718,6 +7890,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that is affiliated with the organization that Tidi Dalali is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E054",
   "supporting_facts": [
@@ -7763,6 +7936,7 @@
   "premise": null,
   "question": "Name the location that the location that the location that Nogoton is located in is part of is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E088",
   "supporting_facts": [
@@ -7808,6 +7982,7 @@
   "premise": null,
   "question": "Name the organization that Bimu Ronati founded.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E077",
   "supporting_facts": [
@@ -7850,6 +8025,7 @@
   "premise": null,
   "question": "Name the organization that the organization that Teve Nerama is a member of is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E099",
   "supporting_facts": [
@@ -7892,6 +8068,7 @@
   "premise": null,
   "question": "Name the event that Fili Vitalu participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E008",
   "supporting_facts": [
@@ -7933,6 +8110,7 @@
   "premise": null,
   "question": "Name the event that the organization that the person that participated in Vilu Conference works for participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E108",
   "supporting_facts": [
@@ -7978,6 +8156,7 @@
   "premise": null,
   "question": "Name the organization that is part of Bisa Group.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E105",
   "supporting_facts": [
@@ -8019,6 +8198,7 @@
   "premise": null,
   "question": "Name the event that the organization that the organization that Godi Gireme is a member of is part of participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E020",
   "supporting_facts": [
@@ -8062,6 +8242,7 @@
   "premise": null,
   "question": "Name the person that owns Lima X72.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E013",
   "supporting_facts": [
@@ -8106,6 +8287,7 @@
   "premise": null,
   "question": "Name the product that is part of the product that Libu Belagu owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E109",
   "supporting_facts": [
@@ -8152,6 +8334,7 @@
   "premise": null,
   "question": "Name the location that is part of the location that the location that Pubu is located in is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E032",
   "supporting_facts": [
@@ -8198,6 +8381,7 @@
   "premise": null,
   "question": "Name the location that the person that is affiliated with the group that the person that participated in Ludu Summit is a member of is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E107",
   "supporting_facts": [
@@ -8242,6 +8426,7 @@
   "premise": null,
   "question": "Name the organization that Zibu Firezo works for.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E027",
   "supporting_facts": [
@@ -8283,6 +8468,7 @@
   "premise": null,
   "question": "Name the location that Fepa is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E132",
   "supporting_facts": [
@@ -8328,6 +8514,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that Zolu Industries owns is affiliated with produces.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E031",
   "supporting_facts": [
@@ -8376,6 +8563,7 @@
   "premise": null,
   "question": "Name the organization that the person that founded the organization that the organization that Kazo Robeka is affiliated with is affiliated with works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E073",
   "supporting_facts": [
@@ -8422,6 +8610,7 @@
   "premise": null,
   "question": "Name the person that is affiliated with the group that the person that participated in Ludu Summit is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E107",
   "supporting_facts": [
@@ -8468,6 +8657,7 @@
   "premise": null,
   "question": "Name the location that the location that the location that the location that is part of Tuloford is part of is located in is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E089",
   "supporting_facts": [
@@ -8517,6 +8707,7 @@
   "premise": null,
   "question": "Name the product that the organization that the person that participated in the event that is located in Fazemere is a member of owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E055",
   "supporting_facts": [
@@ -8562,6 +8753,7 @@
   "premise": null,
   "question": "Name the event that the person that is affiliated with the group that the person that founded Gedo Works is a member of participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E081",
   "supporting_facts": [
@@ -8610,6 +8802,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that owns Pidu Works is affiliated with owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E080",
   "supporting_facts": [
@@ -8656,6 +8849,7 @@
   "premise": null,
   "question": "Name the organization that the organization that the person that is a member of the group that Kusi Fudapu is a member of is a member of is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E061",
   "supporting_facts": [
@@ -8703,6 +8897,7 @@
   "premise": null,
   "question": "Name the location that the person that founded Vevo Partners is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E133",
   "supporting_facts": [
@@ -8750,6 +8945,7 @@
   "premise": null,
   "question": "Name the event that the person that founded the organization that is part of the organization that Revo Mevome is a member of participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E071",
   "supporting_facts": [
@@ -8796,6 +8992,7 @@
   "premise": null,
   "question": "Name the organization that the person that works for the organization that Fido Tebifu founded founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E011",
   "supporting_facts": [
@@ -8839,6 +9036,7 @@
   "premise": null,
   "question": "Name the event that is located in Mopoford.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E025",
   "supporting_facts": [
@@ -8885,6 +9083,7 @@
   "premise": null,
   "question": "Name the location that the location that the location that the organization that Gebi Boleve founded is located in is part of is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E030",
   "supporting_facts": [
@@ -8929,6 +9128,7 @@
   "premise": null,
   "question": "Name the organization that is a member of Fozu Systems.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E038",
   "supporting_facts": [
@@ -8972,6 +9172,7 @@
   "premise": null,
   "question": "Name the event that Seka Labs participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E142",
   "supporting_facts": [
@@ -9014,6 +9215,7 @@
   "premise": null,
   "question": "Name the location that the location that Mata Group is located in is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E065",
   "supporting_facts": [
@@ -9060,6 +9262,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with the organization that is a member of the organization that Fumi Sideni founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [
@@ -9104,6 +9307,7 @@
   "premise": null,
   "question": "Name the event that the person that works for Gilo Labs participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E060",
   "supporting_facts": [
@@ -9148,6 +9352,7 @@
   "premise": null,
   "question": "Name the product that Libu Belagu owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E109",
   "supporting_facts": [
@@ -9191,6 +9396,7 @@
   "premise": null,
   "question": "Name the product that is part of Novu Q87.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E019",
   "supporting_facts": [
@@ -9233,6 +9439,7 @@
   "premise": null,
   "question": "Name the organization that the person that owns Sepa Z82 founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E083",
   "supporting_facts": [
@@ -9277,6 +9484,7 @@
   "premise": null,
   "question": "Name the organization that Gipi Luzazu founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E004",
   "supporting_facts": [
@@ -9318,6 +9526,7 @@
   "premise": null,
   "question": "Name the event that the organization that the organization that Zibu Firezo works for is part of participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E027",
   "supporting_facts": [
@@ -9362,6 +9571,7 @@
   "premise": null,
   "question": "Name the organization that produces the product that Bimu Ronati owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E077",
   "supporting_facts": [
@@ -9405,6 +9615,7 @@
   "premise": null,
   "question": "Name the organization that the person that is affiliated with the organization that the organization that Katu Lesusi founded owns is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E127",
   "supporting_facts": [
@@ -9450,6 +9661,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that owns the organization that the person that owns Sepa Z82 works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E083",
   "supporting_facts": [
@@ -9499,6 +9711,7 @@
   "premise": null,
   "question": "Name the product that the organization that the person that is affiliated with the organization that Libu Belagu works for founded owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E109",
   "supporting_facts": [
@@ -9545,6 +9758,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that the organization that is located in Mitaburg is part of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E044",
   "supporting_facts": [
@@ -9591,6 +9805,7 @@
   "premise": null,
   "question": "Name the product that the organization that Nibe Pesovo is a member of produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E138",
   "supporting_facts": [
@@ -9632,6 +9847,7 @@
   "premise": null,
   "question": "Name the organization that the person that owns Gori X18 works for.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E007",
   "supporting_facts": [
@@ -9672,6 +9888,7 @@
   "premise": null,
   "question": "Name the person that works for Mipo Systems.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E066",
   "supporting_facts": [
@@ -9714,6 +9931,7 @@
   "premise": null,
   "question": "Name the organization that the organization that Leni Works is affiliated with is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E046",
   "supporting_facts": [
@@ -9758,6 +9976,7 @@
   "premise": null,
   "question": "Name the location that the event that the organization that Pita Labs is affiliated with participated in is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E139",
   "supporting_facts": [
@@ -9803,6 +10022,7 @@
   "premise": null,
   "question": "Name the group that Katu Lesusi is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E127",
   "supporting_facts": [
@@ -9845,6 +10065,7 @@
   "premise": null,
   "question": "Name the organization that the organization that the person that owns the product that Begu Labs owns is a member of is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E101",
   "supporting_facts": [
@@ -9889,6 +10110,7 @@
   "premise": null,
   "question": "Name the organization that Fumi Sideni founded.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [
@@ -9931,6 +10153,7 @@
   "premise": null,
   "question": "Name the organization that the person that is located in Buriton founded.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E137",
   "supporting_facts": [
@@ -9973,6 +10196,7 @@
   "premise": null,
   "question": "Name the organization that the person that owns the product that Mizu Group produces founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E006",
   "supporting_facts": [
@@ -10018,6 +10242,7 @@
   "premise": null,
   "question": "Name the event that Mipo Systems participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E066",
   "supporting_facts": [
@@ -10064,6 +10289,7 @@
   "premise": null,
   "question": "Name the organization that owns the organization that is a member of the organization that the person that works for Gilo Labs works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E060",
   "supporting_facts": [
@@ -10109,6 +10335,7 @@
   "premise": null,
   "question": "Name the product that is part of the product that the person that works for the organization that Togi Kabafi founded owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E104",
   "supporting_facts": [
@@ -10158,6 +10385,7 @@
   "premise": null,
   "question": "Name the product that is part of the product that the person that works for the organization that Rozo Zoruga works for owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E034",
   "supporting_facts": [
@@ -10200,6 +10428,7 @@
   "premise": null,
   "question": "Name the person that founded Zolu Industries.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E031",
   "supporting_facts": [
@@ -10245,6 +10474,7 @@
   "premise": null,
   "question": "Name the product that the person that participated in the event that is located in Mopoford owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E025",
   "supporting_facts": [
@@ -10291,6 +10521,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that is affiliated with Zolu Industries.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E031",
   "supporting_facts": [
@@ -10334,6 +10565,7 @@
   "premise": null,
   "question": "Name the person that founded the organization that owns the organization that is affiliated with the organization that participated in Tiku Conference.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E111",
   "supporting_facts": [
@@ -10383,6 +10615,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with the organization that is part of the organization that the organization that Sodu Works is affiliated with is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E136",
   "supporting_facts": [
@@ -10431,6 +10664,7 @@
   "premise": null,
   "question": "Name the location that the location that the location that Mata Group is located in is located in is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E065",
   "supporting_facts": [
@@ -10474,6 +10708,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that is affiliated with Muvo Holdings is part of owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E117",
   "supporting_facts": [
@@ -10519,6 +10754,7 @@
   "premise": null,
   "question": "Name the person that owns the product that is part of the product that Mizu Group owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E006",
   "supporting_facts": [
@@ -10562,6 +10798,7 @@
   "premise": null,
   "question": "Name the event that Zedi Gegave participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E149",
   "supporting_facts": [
@@ -10604,6 +10841,7 @@
   "premise": null,
   "question": "Name the person that owns the product that is part of Kipe Q67.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E082",
   "supporting_facts": [
@@ -10649,6 +10887,7 @@
   "premise": null,
   "question": "Name the product that the organization that Fumi Sideni founded produces.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [
@@ -10695,6 +10934,7 @@
   "premise": null,
   "question": "Name the event that the person that is affiliated with the organization that is located in Mitaburg participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E044",
   "supporting_facts": [
@@ -10736,6 +10976,7 @@
   "premise": null,
   "question": "Name the organization that Leni Works is part of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E046",
   "supporting_facts": [
@@ -10779,6 +11020,7 @@
   "premise": null,
   "question": "Name the location that Kapu Festival is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E048",
   "supporting_facts": [
@@ -10820,6 +11062,7 @@
   "premise": null,
   "question": "Name the organization that Muvo Holdings is part of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E117",
   "supporting_facts": [
@@ -10861,6 +11104,7 @@
   "premise": null,
   "question": "Name the event that Tobo Nonada participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E114",
   "supporting_facts": [
@@ -10907,6 +11151,7 @@
   "premise": null,
   "question": "Name the organization that the organization that owns the organization that is a member of the organization that Fumi Sideni founded is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E067",
   "supporting_facts": [
@@ -10954,6 +11199,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that Kazo Robeka is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E073",
   "supporting_facts": [
@@ -10996,6 +11242,7 @@
   "premise": null,
   "question": "Name the organization that Rave Industries is part of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E131",
   "supporting_facts": [
@@ -11037,6 +11284,7 @@
   "premise": null,
   "question": "Name the person that founded the organization that the organization that Libu Belagu works for is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E109",
   "supporting_facts": [
@@ -11083,6 +11331,7 @@
   "premise": null,
   "question": "Name the location that the location that Buriton is part of is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E137",
   "supporting_facts": [
@@ -11126,6 +11375,7 @@
   "premise": null,
   "question": "Name the organization that the person that works for Seka Labs founded.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E142",
   "supporting_facts": [
@@ -11172,6 +11422,7 @@
   "premise": null,
   "question": "Name the group that the person that works for the organization that Fume Zivima is a member of is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E140",
   "supporting_facts": [
@@ -11213,6 +11464,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with Pidu Works.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E080",
   "supporting_facts": [
@@ -11255,6 +11507,7 @@
   "premise": null,
   "question": "Name the organization that the organization that the person that participated in the event that is located in Mopoford is a member of is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E025",
   "supporting_facts": [
@@ -11300,6 +11553,7 @@
   "premise": null,
   "question": "Name the event that the organization that owns the organization that is affiliated with the organization that is affiliated with Muvo Holdings participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E117",
   "supporting_facts": [
@@ -11344,6 +11598,7 @@
   "premise": null,
   "question": "Name the organization that Kazo Robeka is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E073",
   "supporting_facts": [
@@ -11388,6 +11643,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that the person that is affiliated with the organization that owns Sodu Works founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E136",
   "supporting_facts": [
@@ -11437,6 +11693,7 @@
   "premise": null,
   "question": "Name the group that the person that is located in the location that the location that Vapa is located in is located in is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E029",
   "supporting_facts": [
@@ -11485,6 +11742,7 @@
   "premise": null,
   "question": "Name the event that the organization that the person that participated in Vilu Conference founded participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E108",
   "supporting_facts": [
@@ -11531,6 +11789,7 @@
   "premise": null,
   "question": "Name the person that is affiliated with the organization that produces Kipe Q67.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E082",
   "supporting_facts": [
@@ -11574,6 +11833,7 @@
   "premise": null,
   "question": "Name the organization that is a member of the organization that Lada Povedo founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E021",
   "supporting_facts": [
@@ -11620,6 +11880,7 @@
   "premise": null,
   "question": "Name the location that the person that founded the organization that is located in Vegemere is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E134",
   "supporting_facts": [
@@ -11667,6 +11928,7 @@
   "premise": null,
   "question": "Name the location that is located in the location that is located in the location that is located in Dozoford.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E000",
   "supporting_facts": [
@@ -11711,6 +11973,7 @@
   "premise": null,
   "question": "Name the organization that is a member of the organization that participated in Tiku Conference.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E111",
   "supporting_facts": [
@@ -11756,6 +12019,7 @@
   "premise": null,
   "question": "Name the product that the person that works for Gilo Labs owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E060",
   "supporting_facts": [
@@ -11798,6 +12062,7 @@
   "premise": null,
   "question": "Name the organization that participated in Satu Festival.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E125",
   "supporting_facts": [
@@ -11841,6 +12106,7 @@
   "premise": null,
   "question": "Name the organization that is affiliated with Muvo Holdings.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E117",
   "supporting_facts": [
@@ -11884,6 +12150,7 @@
   "premise": null,
   "question": "Name the event that Kazo Robeka participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E073",
   "supporting_facts": [
@@ -11925,6 +12192,7 @@
   "premise": null,
   "question": "Name the organization that the organization that is a member of the organization that is located in Vegemere is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E134",
   "supporting_facts": [
@@ -11968,6 +12236,7 @@
   "premise": null,
   "question": "Name the organization that Katu Lesusi founded.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E127",
   "supporting_facts": [
@@ -12007,6 +12276,7 @@
   "premise": null,
   "question": "Name the product that Sodu Works owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E136",
   "supporting_facts": [
@@ -12046,6 +12316,7 @@
   "premise": null,
   "question": "Name the product that Vevo Partners produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E133",
   "supporting_facts": [
@@ -12087,6 +12358,7 @@
   "premise": null,
   "question": "Name the organization that owns Novu Q87.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E019",
   "supporting_facts": [
@@ -12130,6 +12402,7 @@
   "premise": null,
   "question": "Name the product that is part of the product that is part of the product that Mami Partners produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E146",
   "supporting_facts": [
@@ -12174,6 +12447,7 @@
   "premise": null,
   "question": "Name the organization that the organization that the organization that the person that owns Gori X18 works for is affiliated with owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E007",
   "supporting_facts": [
@@ -12219,6 +12493,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that Luse Group is part of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E085",
   "supporting_facts": [
@@ -12265,6 +12540,7 @@
   "premise": null,
   "question": "Name the event that the person that is affiliated with the organization that is affiliated with Zolu Industries participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E031",
   "supporting_facts": [
@@ -12313,6 +12589,7 @@
   "premise": null,
   "question": "Name the organization that the person that is affiliated with the organization that the person that is affiliated with Megiish founded founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E124",
   "supporting_facts": [
@@ -12356,6 +12633,7 @@
   "premise": null,
   "question": "Name the product that the product that Miga Verede owns is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E022",
   "supporting_facts": [
@@ -12401,6 +12679,7 @@
   "premise": null,
   "question": "Name the product that the organization that Keme Group is affiliated with owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E062",
   "supporting_facts": [
@@ -12444,6 +12723,7 @@
   "premise": null,
   "question": "Name the person that is a member of the group that the person that is located in the location that Pubu is located in is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E032",
   "supporting_facts": [
@@ -12491,6 +12771,7 @@
   "premise": null,
   "question": "Name the location that the location that Veta Conference is located in is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E052",
   "supporting_facts": [
@@ -12538,6 +12819,7 @@
   "premise": null,
   "question": "Name the product that the organization that participated in the event that is located in the location that is located in Dozoford produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E000",
   "supporting_facts": [
@@ -12587,6 +12869,7 @@
   "premise": null,
   "question": "Name the product that the organization that produces the product that the organization that Sodu Works is affiliated with produces owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E136",
   "supporting_facts": [
@@ -12635,6 +12918,7 @@
   "premise": null,
   "question": "Name the product that the product that the organization that is affiliated with Saba Industries produces is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E047",
   "supporting_facts": [
@@ -12676,6 +12960,7 @@
   "premise": null,
   "question": "Name the product that Lima X72 is part of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E013",
   "supporting_facts": [
@@ -12717,6 +13002,7 @@
   "premise": null,
   "question": "Name the organization that the person that owns the product that Rave Industries produces founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E131",
   "supporting_facts": [
@@ -12763,6 +13049,7 @@
   "premise": null,
   "question": "Name the event that the organization that Bagi Dalofe founded participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E144",
   "supporting_facts": [
@@ -12808,6 +13095,7 @@
   "premise": null,
   "question": "Name the product that the person that works for Pita Labs owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E139",
   "supporting_facts": [
@@ -12853,6 +13141,7 @@
   "premise": null,
   "question": "Name the product that is part of the product that is part of Boke Q64.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E090",
   "supporting_facts": [
@@ -12895,6 +13184,7 @@
   "premise": null,
   "question": "Name the location that is part of Bane.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E040",
   "supporting_facts": [
@@ -12940,6 +13230,7 @@
   "premise": null,
   "question": "Name the event that the organization that owns the organization that Dose Ropene is affiliated with participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E106",
   "supporting_facts": [
@@ -12987,6 +13278,7 @@
   "premise": null,
   "question": "Name the organization that is part of the organization that is a member of the organization that produces Vipu X55.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E074",
   "supporting_facts": [
@@ -13032,6 +13324,7 @@
   "premise": null,
   "question": "Name the person that is a member of the organization that the person that founded Vaka Partners founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E070",
   "supporting_facts": [
@@ -13078,6 +13371,7 @@
   "premise": null,
   "question": "Name the person that owns the product that is part of Boke Q64.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E090",
   "supporting_facts": [
@@ -13122,6 +13416,7 @@
   "premise": null,
   "question": "Name the product that Mizu Group owns.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E006",
   "supporting_facts": [
@@ -13164,6 +13459,7 @@
   "premise": null,
   "question": "Name the organization that is part of the organization that Zibu Firezo founded.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E027",
   "supporting_facts": [
@@ -13206,6 +13502,7 @@
   "premise": null,
   "question": "Name the product that is part of Kipe Q67.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E082",
   "supporting_facts": [
@@ -13247,6 +13544,7 @@
   "premise": null,
   "question": "Name the organization that Lomo Industries owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E098",
   "supporting_facts": [
@@ -13289,6 +13587,7 @@
   "premise": null,
   "question": "Name the location that the location that Takomere is part of is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E012",
   "supporting_facts": [
@@ -13333,6 +13632,7 @@
   "premise": null,
   "question": "Name the location that the person that is affiliated with the group that Buga Lomazu is a member of is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E091",
   "supporting_facts": [
