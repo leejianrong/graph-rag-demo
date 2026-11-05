@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nKusi Fudapu is a member of Suvu Doveku. Membership in professional bodies can open doors, though it rarely replaces hands-on experience. K. Fudapu is a member of Megiish and owns Kuda Z64. Kusi Fudapu participated in Mobo Expo and Bila Festival. Events like these give people a chance to meet peers and compare notes on recent work. K. Fudapu works for Velu Group.\n\nFacts the article should state (an entity may appear under an alias: Velu Group = Velu, VG; Kuda Z64 = Kuda-Z64, KudaZ64; Mobo Expo = Mobo; Bila Festival = Bila, BF; Kusi Fudapu = K. Fudapu):\n1. Kusi Fudapu is a member of Suvu Doveku\n2. Kusi Fudapu is a member of Megiish\n3. Kusi Fudapu owns Kuda Z64\n4. Kusi Fudapu participated in Mobo Expo\n5. Kusi Fudapu participated in Bila Festival\n6. Kusi Fudapu works for Velu Group\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Kusi Fudapu is a member of Suvu Doveku\"\n2: STATED | \"K. Fudapu is a member of Megiish\"\n3: STATED | \"K. Fudapu is a member of Megiish and owns Kuda Z64\"\n4: STATED | \"Kusi Fudapu participated in Mobo Expo and Bila Festival\"\n5: STATED | \"Kusi Fudapu participated in Mobo Expo and Bila Festival\"\n6: STATED | \"K. Fudapu works for Velu Group\"\nExtra: NONE\n"
+}

@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nCompanies in crowded markets often look for partners that can widen their reach. Saba Industries is affiliated with Leni. Saba Industries is a member of Dako. Saba Industries is also a member of Pidu. Saba owns Dune Partners. Saba Industries owns Pidu Works. Such arrangements are usually easiest to follow in annual reports and public registers.\n\nFacts the article should state (an entity may appear under an alias: Dako Works = Dako; Dune Partners = Dune; Leni Works = Leni; Saba Industries = Saba; Pidu Works = Pidu, PW):\n1. Saba Industries is affiliated with Leni Works\n2. Saba Industries is a member of Dako Works\n3. Saba Industries is a member of Pidu Works\n4. Saba Industries owns Dune Partners\n5. Saba Industries owns Pidu Works\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Saba Industries is affiliated with Leni\"\n2: STATED | \"Saba Industries is a member of Dako\"\n3: STATED | \"Saba Industries is also a member of Pidu\"\n4: STATED | \"Saba owns Dune Partners\"\n5: STATED | \"Saba Industries owns Pidu Works\"\nExtra: NONE\n"
+}

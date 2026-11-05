@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nMany professionals spend their careers moving between organisations, each move adding to a broader set of skills. K. Fudapu works for Velu Group and, at another point, for Vaka Partners. Changing employers can refresh a career, though it also means learning new habits and routines. The same person has also worked for Luse Group and Suvu Doveku.\n\nFacts the article should state (an entity may appear under an alias: Kusi Fudapu = K. Fudapu; Velu Group = Velu; Luse Group = Luse, LG):\n1. Kusi Fudapu works for Velu Group\n2. Kusi Fudapu works for Vaka Partners\n3. Kusi Fudapu works for Luse Group\n4. Kusi Fudapu works for Suvu Doveku\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"K. Fudapu works for Velu Group\"\n2: STATED | \"works for Velu Group and, at another point, for Vaka Partners\"\n3: MISSING | none\n4: MISSING | none\nExtra: The same person has also worked for Luse Group and Suvu Doveku\n"
+}

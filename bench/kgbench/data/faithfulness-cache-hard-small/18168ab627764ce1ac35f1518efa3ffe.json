@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nSerial founders often keep a few small firms running at once, passing day-to-day work to trusted managers. Busu Toroni is affiliated with Dodaese. Busu Toroni founded Gebo. Busu Toroni founded Gedo Works. Busu Toroni founded Gaze Industries. Busu Toroni is a member of Gedo Works. Busu Toroni participated in Veta Conference. Such a web of ventures can be hard to follow, but each entry usually reflects a specific market the founder wanted to test.\n\nFacts the article should state (an entity may appear under an alias: Gebo Holdings = Gebo; Dodaese = Dodaeses, DODAESE; Gedo Works = Gedo):\n1. Busu Toroni is affiliated with Dodaese\n2. Busu Toroni founded Gebo Holdings\n3. Busu Toroni founded Gedo Works\n4. Busu Toroni founded Gaze Industries\n5. Busu Toroni is a member of Gedo Works\n6. Busu Toroni participated in Veta Conference\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Busu Toroni is affiliated with Dodaese\"\n2: STATED | \"Busu Toroni founded Gebo\"\n3: STATED | \"Busu Toroni founded Gedo Works\"\n4: STATED | \"Busu Toroni founded Gaze Industries\"\n5: STATED | \"Busu Toroni is a member of Gedo Works\"\n6: STATED | \"Busu Toroni participated in Veta Conference\"\nExtra: NONE\n"
+}

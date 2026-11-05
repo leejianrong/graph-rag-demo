@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nCareers in technical fields often move between founding a venture, joining a lab and speaking at events. Tidi Dalali is affiliated with Bisa, and Tidi Dalali founded Bisa. Tidi Dalali founded Suvu Doveku. Founders who stay involved in several places tend to build a wide network over time. Tidi Dalali is a member of Begu Labs. Tidi Dalali participated in Soto and Gaze Expo.\n\nFacts the article should state (an entity may appear under an alias: Soto Forum = Soto; Gaze Expo = Gaze; Begu Labs = Begu, BL; Bisa Group = Bisa):\n1. Tidi Dalali is affiliated with Bisa Group\n2. Tidi Dalali founded Bisa Group\n3. Tidi Dalali founded Suvu Doveku\n4. Tidi Dalali is a member of Begu Labs\n5. Tidi Dalali participated in Soto Forum\n6. Tidi Dalali participated in Gaze Expo\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Tidi Dalali is affiliated with Bisa\"\n2: STATED | \"Tidi Dalali founded Bisa\"\n3: STATED | \"Tidi Dalali founded Suvu Doveku\"\n4: STATED | \"Tidi Dalali is a member of Begu Labs\"\n5: STATED | \"Tidi Dalali participated in Soto\"\n6: STATED | \"Tidi Dalali participated in Gaze Expo\"\nExtra: NONE\n"
+}

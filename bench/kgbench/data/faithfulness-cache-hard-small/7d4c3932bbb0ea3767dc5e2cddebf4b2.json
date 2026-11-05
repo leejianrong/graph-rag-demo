@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nSerial founders often treat each company as a test of an idea rather than a lifelong commitment. Tibano founded Dune Partners. Segi Tibano founded Mata Group, and Tibano also founded Muvo Holdings. Investors in such ventures often look closely at the track record of the people behind them. Segi Tibano participated in RS.\n\nFacts the article should state (an entity may appear under an alias: Dune Partners = Dune; Rito Summit = Rito, RS; Segi Tibano = S. Tibano, Tibano; Muvo Holdings = Muvo, MH):\n1. Segi Tibano founded Dune Partners\n2. Segi Tibano founded Mata Group\n3. Segi Tibano founded Muvo Holdings\n4. Segi Tibano participated in Rito Summit\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Tibano founded Dune Partners\"\n2: STATED | \"Segi Tibano founded Mata Group\"\n3: STATED | \"Tibano also founded Muvo Holdings\"\n4: STATED | \"Segi Tibano participated in RS\"\nExtra: NONE\n"
+}

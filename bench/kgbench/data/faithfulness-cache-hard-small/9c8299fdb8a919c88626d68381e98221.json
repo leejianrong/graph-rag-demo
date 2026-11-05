@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nCareers in engineering management often start with a technical role and shift gradually toward planning. Nerama is affiliated with Legeeses. Nerama is a member of Lomo Industries. Titles in this area vary widely, so people often describe their role in their own words. Teve Nerama is affiliated with Rave Industries and founded Mata Group. Teve Nerama owns BokeQ64. Teve Nerama works for Dune.\n\nFacts the article should state (an entity may appear under an alias: Dune Partners = Dune; Boke Q64 = Boke-Q64, BokeQ64; Legeese = Legeeses; Teve Nerama = T. Nerama, Nerama):\n1. Teve Nerama is affiliated with Legeese\n2. Teve Nerama is a member of Lomo Industries\n3. Teve Nerama is affiliated with Rave Industries\n4. Teve Nerama founded Mata Group\n5. Teve Nerama owns Boke Q64\n6. Teve Nerama works for Dune Partners\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Nerama is affiliated with Legeeses\"\n2: STATED | \"Nerama is a member of Lomo Industries\"\n3: STATED | \"Teve Nerama is affiliated with Rave Industries\"\n4: STATED | \"Teve Nerama is affiliated with Rave Industries and founded Mata Group\"\n5: STATED | \"Teve Nerama owns BokeQ64\"\n6: STATED | \"Teve Nerama works for Dune\"\nExtra: NONE\n"
+}

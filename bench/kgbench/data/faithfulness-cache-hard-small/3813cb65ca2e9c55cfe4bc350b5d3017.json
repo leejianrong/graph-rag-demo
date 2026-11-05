@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nStartup histories often read as a sequence of bold bets, some paying off and some quietly abandoned. Gale Loseki founded Dune Partners and also founded Mata Group. Founders who keep building new ventures tend to carry lessons from one into the next. Gale Loseki participated in Pova Festival. Gale Loseki works for Dune Partners and works for Mata Group.\n\nFacts the article should state (an entity may appear under an alias: Dune Partners = Dune):\n1. Gale Loseki founded Dune Partners\n2. Gale Loseki founded Mata Group\n3. Gale Loseki participated in Pova Festival\n4. Gale Loseki works for Dune Partners\n5. Gale Loseki works for Mata Group\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Gale Loseki founded Dune Partners\"\n2: STATED | \"Gale Loseki founded Mata Group\"\n3: STATED | \"Gale Loseki participated in Pova Festival\"\n4: STATED | \"Gale Loseki works for Dune Partners\"\n5: STATED | \"Gale Loseki works for Mata Group\"\nExtra: NONE\n"
+}

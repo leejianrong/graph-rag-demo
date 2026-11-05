@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nHolding structures in manufacturing often leave a parent company with a mix of product makers and service arms. Zolu Industries owns Keme Group. Zolu Industries produces Gori X18. ZI participated in Kole. Readers who follow the sector usually check a group's filings before drawing conclusions about its focus.\n\nFacts the article should state (an entity may appear under an alias: Gori X18 = Gori-X18, GoriX18; Zolu Industries = Zolu, ZI):\n1. Zolu Industries owns Keme Group\n2. Zolu Industries produces Gori X18\n3. Zolu Industries participated in Kole\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Zolu Industries owns Keme Group\"\n2: STATED | \"Zolu Industries produces Gori X18\"\n3: STATED | \"ZI participated in Kole\"\nExtra: NONE\n"
+}

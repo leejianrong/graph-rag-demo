@@ -54,17 +54,27 @@ def _relation(predicate: str) -> str:
     return _READABLE.get(predicate, "is connected to")
 
 
+def _when(edge: Edge, start_year: int) -> str:
+    when = ""
+    if edge.valid_from > start_year:
+        when += f" (since {edge.valid_from})"
+    if edge.valid_to is not None:
+        when += f" (ended {edge.valid_to}; use the past tense)"
+    return when
+
+
+def statement(edge: Edge, subject: str, obj: str, start_year: int) -> str:
+    """A fact as a plain sentence-like line (the wording the writer is given, years included)."""
+    return f"{subject} {_relation(edge.predicate)} {obj}{_when(edge, start_year)}"
+
+
 def build_messages(
     facts: list[tuple[Edge, str, str]], start_year: int, style: str = "plain"
 ) -> Messages:
-    lines = []
-    for i, (edge, subject, obj) in enumerate(facts, 1):
-        when = ""
-        if edge.valid_from > start_year:
-            when += f" (since {edge.valid_from})"
-        if edge.valid_to is not None:
-            when += f" (ended {edge.valid_to}; use the past tense)"
-        lines.append(f"F{i}: {subject} | {_relation(edge.predicate)} | {obj}{when}")
+    lines = [
+        f"F{i}: {subject} | {_relation(edge.predicate)} | {obj}{_when(edge, start_year)}"
+        for i, (edge, subject, obj) in enumerate(facts, 1)
+    ]
     if style == "rich":
         user = (
             "Write a short article that states every fact below exactly once. You may put several "
