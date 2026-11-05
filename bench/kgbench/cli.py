@@ -30,6 +30,7 @@ from graph_rag.wiring import build_embedder, build_offline_components, build_rea
 from kgbench import __version__, gate, judge_hard
 from kgbench import ambiguity as ambiguities
 from kgbench import critique as critiques
+from kgbench import difficulty as difficulties
 from kgbench import faithfulness as faithful
 from kgbench import hard as hards
 from kgbench import judge as judges
@@ -211,6 +212,12 @@ def build_parser() -> argparse.ArgumentParser:
     am.add_argument("--n", type=int, default=300, help="Questions to generate.")
     am.add_argument("--types", default="entity:2,set:1,count:1", help="Question type mix.")
     am.add_argument("--out", type=Path, help="Write the markdown report here.")
+    df = commands.add_parser(
+        "difficulty", help="Alias, look-alike and distractor statistics of a dataset (no LLM)."
+    )
+    df.add_argument("--dir", type=Path, required=True, help="A dataset folder.")
+    df.add_argument("--texts", nargs="+", choices=hards.TEXTS, default=list(hards.TEXTS))
+    df.add_argument("--out", type=Path, help="Write the markdown report here.")
     ct = commands.add_parser(
         "critique",
         help="Rate a dataset's questions for groundedness, relevance and standalone (opt-in).",
@@ -580,6 +587,30 @@ def _ambiguity(args: argparse.Namespace) -> int:
     return 0
 
 
+def _difficulty(args: argparse.Namespace) -> int:
+    folder = args.dir.resolve()
+    spec_path, hard = hards.load(folder)
+    world = generate(load_spec(spec_path))
+    world_json = json.loads(world.to_json())
+    questions = json.loads((folder / "questions.json").read_text())
+    texts = {"template": render_documents(world), "hard": hard}
+    per_text = {
+        t: (
+            difficulties.text_stats(texts[t], world_json),
+            difficulties.question_stats(questions, world_json, texts[t]),
+        )
+        for t in args.texts
+    }
+    report = (
+        f"# Corpus difficulty: {folder.name}\n\n{len(questions)} committed questions.\n\n"
+        f"{difficulties.format_report(difficulties.world_stats(world_json), per_text)}\n"
+    )
+    print(report)
+    if args.out:
+        args.out.write_text(report)
+    return 0
+
+
 def _critique(args: argparse.Namespace) -> int:
     folder = args.dir.resolve()
     questions = json.loads((folder / "questions.json").read_text())
@@ -657,6 +688,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _judge(args)
     if args.command == "shortcut":
         return _shortcut(args)
+    if args.command == "difficulty":
+        return _difficulty(args)
     if args.command == "ambiguity":
         return _ambiguity(args)
     if args.command == "faithfulness":
