@@ -20,5 +20,6 @@ What it is not: Haiku mostly names entities again instead of using pronouns (5 o
 fewer than two names), so coreference is lightly tested; and the facts are the same synthetic ones, so
 it is harder prose, not harder reasoning.
 
-Two of the 145 articles add a small claim that was not in the facts ("at another point", "which has drawn attention from
-several buyers"). Neither names an entity, so the gold is unaffected, but the text says slightly more than the gold does.
+At least three of the 145 articles add a small claim that was not in the facts ("at another point", "which has drawn attention from
+several buyers", "a product that buyers often compare with similar equipment"). Those are the ones the writers reported or I checked;
+the rest were not audited for it. None names an entity, so the gold is unaffected, but the text can say slightly more than the gold does.

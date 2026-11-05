@@ -125,6 +125,23 @@ class Document:
     distractor: bool
     subject: str = ""  # the entity id the document is about
 
+    @classmethod
+    def from_dict(cls, data: dict) -> Document:
+        """The inverse of ``to_dict`` (what ``documents.json`` holds)."""
+        sentences = tuple(
+            Sentence(
+                s["text"],
+                s["start"],
+                s["end"],
+                tuple(s["fact_ids"]),
+                tuple(Mention(**m) for m in s["mentions"]),
+            )
+            for s in data["sentences"]
+        )
+        return cls(
+            data["id"], data["title"], data["text"], sentences, data["distractor"], data["subject"]
+        )
+
     def to_dict(self) -> dict:
         return {
             "id": self.id,

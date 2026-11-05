@@ -13,7 +13,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 from kggen.questions import QuestionSpec, generate_questions
-from kggen.render import render_documents
+from kggen.render import Document, render_documents
 from kggen.spec import WorldSpec
 from kggen.world import generate
 
@@ -221,10 +221,16 @@ class Comparison:
 
 
 def run_seed(
-    spec: WorldSpec, *, n_questions: int, embedder: Embedder, ks: Sequence[int]
+    spec: WorldSpec,
+    *,
+    n_questions: int,
+    embedder: Embedder,
+    ks: Sequence[int],
+    documents: tuple[Document, ...] | None = None,
 ) -> SeedRun:
+    """Score every system on one world; ``documents`` replaces the template text for it."""
     world = generate(spec)
-    documents = render_documents(world)
+    documents = documents or render_documents(world)
     questions = generate_questions(world, QuestionSpec(n_questions=n_questions))
     # Each system is (the pipeline it runs, which has an LLM bill, or None; how to build it).
     graph = {m: build_offline_components(embedder=embedder) for m in ("passages", "graph")}
