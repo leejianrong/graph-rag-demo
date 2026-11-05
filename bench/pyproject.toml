@@ -3,6 +3,7 @@ name = "kgbench"
 version = "0.1.0"
 description = "Evaluation bench for graph-rag (ADR-0011): scores a pipeline on data from kggen."
 requires-python = ">=3.12"
+license = "Apache-2.0"
 dependencies = ["graph-rag-demo", "kggen", "pydantic>=2", "pyyaml"]
 
 [project.scripts]

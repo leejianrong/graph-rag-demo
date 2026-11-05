@@ -396,4 +396,5 @@ Changes land through pull requests with the checks green; see [CONTRIBUTING.md](
 
 ## License
 
-None chosen yet, so the code is not licensed for reuse.
+Apache License 2.0; see [LICENSE](LICENSE) and [NOTICE](NOTICE). The third-party Python packages it installs are
+MIT, BSD, Apache-2.0, PSF or MPL-2.0, and the optional `embed` extra pulls in NVIDIA's CUDA libraries through torch under NVIDIA's own terms.

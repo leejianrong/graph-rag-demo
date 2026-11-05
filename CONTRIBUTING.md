@@ -21,6 +21,7 @@ make check      # lint, format check and the fast suite: fakes only, no Docker, 
 
 ## Pull requests
 
+- By opening a pull request you license your contribution under Apache-2.0 (section 5 of the licence).
 - One branch per change, off fresh `main`; `main` is protected, so everything lands by pull request.
 - Merge (squash) once `lint`, `fast`, `contract` and `secret-scan` are green on the commit you pushed.
 - Commit with your GitHub noreply address; pushes with a private address are rejected.

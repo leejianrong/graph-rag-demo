@@ -3,6 +3,7 @@ name = "kggen"
 version = "0.1.0"
 description = "Standalone seeded generator of synthetic knowledge graphs, documents and questions."
 requires-python = ">=3.12"
+license = "Apache-2.0"
 dependencies = ["pydantic>=2", "pyyaml"]
 
 [project.optional-dependencies]
