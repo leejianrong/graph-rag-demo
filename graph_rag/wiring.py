@@ -58,7 +58,7 @@ from graph_rag.query.retriever import QueryRetriever
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.entity_linking import EntityLinkingStage
 from graph_rag.stages.kg_build import KgStage
-from graph_rag.stages.ner import NerResult
+from graph_rag.stages.ner import NerResult, NerStage
 
 if TYPE_CHECKING:
     from graph_rag.models import CanonicalEntity
@@ -304,6 +304,7 @@ def build_offline_components(
     settings: Settings | None = None,
     embedder: Embedder | None = None,
     llm_stages: bool = False,
+    spacy_ner: bool = False,
 ) -> BenchmarkComponents:
     """Wire the fully offline, deterministic benchmark pipeline (fakes + heuristics).
 
@@ -322,6 +323,9 @@ def build_offline_components(
             whatever endpoint LiteLLM is pointed at, a recording server such as semula
             included) while NER, linking and the stores stay in-memory. Off by default: the
             offline pipeline makes no provider call.
+        spacy_ner: Use the real spaCy NER stage (``settings.ner_model``, falling back to a
+            smaller installed model) instead of the heuristic one. Needs a model from
+            ``make models``.
 
     Returns:
         The wired :class:`BenchmarkComponents`.
@@ -349,10 +353,16 @@ def build_offline_components(
         )
         llm_client, kg_stage, usage = coref_llm, KgBuildStage(kg_llm), usage_of(coref_llm, kg_llm)
 
+    ner_stage: NerStage = HeuristicNerStage()
+    if spacy_ner:
+        from graph_rag.stages.ner import SpacyNerStage
+
+        ner_stage = SpacyNerStage.from_settings(settings)
+
     orchestrator = Orchestrator(
         object_store=object_store,
         document_store=document_store,
-        ner_stage=HeuristicNerStage(),
+        ner_stage=ner_stage,
         coref_stage=LLMCorefStage(llm_client),
         # Merge-by-name: threshold -1 + kNN off → same surface ⇒ one canonical id
         # (the deterministic cross-document bridge, robust under the FakeEmbedder).

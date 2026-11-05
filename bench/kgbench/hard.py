@@ -1,8 +1,9 @@
-"""The same world as template text and as harder LLM-written text, scored side by side (GRA-115).
+"""The same world as template and as harder LLM-written text, through several pipelines (GRA-115).
 
-Everything but the prose is identical (the world, its gold, the questions), so a difference in a
-score is the effect of the text. The harder text is a committed dataset (``kggen docs generate
---style rich``, in ``datagen/examples/hard-small``), so this needs no model and no endpoint.
+Everything but the prose and the pipeline is identical (the world, its gold, the questions), so a
+difference in a score is the effect of the text or of the stage swapped in. The harder text is a
+committed dataset (``kggen docs generate --style rich``, in ``datagen/examples/hard-*``), and the
+LLM stages answer from a committed cache, so a replay needs no model and no endpoint.
 """
 
 from __future__ import annotations
@@ -17,11 +18,12 @@ from kggen.world import generate
 
 from graph_rag.config import Settings
 from graph_rag.wiring import BenchmarkComponents, build_offline_components
+from kgbench.charts import grouped_bars, wilson
 from kgbench.compare import Comparison, run_seed
 from kgbench.extraction import gold_from, run_pipeline, score
 from kgbench.linking import linking_gold, score_linking
 
-STYLES = ("template", "hard", "template + LLM", "hard + LLM")
+TEXTS = ("template", "hard")
 
 
 def load(folder: Path) -> tuple[Path, tuple[Document, ...]]:
@@ -30,27 +32,41 @@ def load(folder: Path) -> tuple[Path, tuple[Document, ...]]:
 
 
 def measure(
-    folder: Path, embedder, n_questions: int, ks: Sequence[int], settings: Settings | None = None
+    folder: Path,
+    embedder,
+    n_questions: int,
+    ks: Sequence[int],
+    settings: Settings | None = None,
+    spacy_model: str | None = None,
 ) -> dict[str, dict]:
-    """Per text style: extraction, linking and the retrieval comparison for the committed world.
+    """Per ``text + pipeline``: extraction, linking and the retrieval comparison.
 
-    With ``settings`` (pointing the coref and graph-build models at an endpoint and a cache), each
-    text is also run through the real LLM stages, so relations can be scored.
+    The offline pipeline always runs. ``settings`` (the coref and graph-build models pointed at an
+    endpoint and a cache) adds the real LLM stages; ``spacy_model`` adds real spaCy NER; both add
+    the two together.
     """
     spec_path, hard = load(folder)
     spec = load_spec(spec_path)
     world = generate(spec)
     texts = {"template": render_documents(world), "hard": hard}
-    pipelines: dict[str, Callable[[], BenchmarkComponents]] = {
-        "": lambda: build_offline_components(embedder=embedder)
-    }
-    if settings:
-        pipelines[" + LLM"] = lambda: build_offline_components(
-            settings=settings, embedder=embedder, llm_stages=True
+
+    def pipeline(llm: bool, spacy: bool) -> Callable[[], BenchmarkComponents]:
+        base = settings or Settings()
+        used = base.model_copy(update={"ner_model": spacy_model}) if spacy and spacy_model else base
+        return lambda: build_offline_components(
+            settings=used, embedder=embedder, llm_stages=llm, spacy_ner=spacy
         )
+
+    pipelines = {"": pipeline(False, False)}
+    if spacy_model:
+        pipelines[" + spaCy"] = pipeline(False, True)
+    if settings:
+        pipelines[" + LLM"] = pipeline(True, False)
+    if settings and spacy_model:
+        pipelines[" + LLM + spaCy"] = pipeline(True, True)
     out = {}
     for suffix, build in pipelines.items():
-        for style, documents in texts.items():
+        for text, documents in texts.items():
             extraction = run_pipeline(build(), documents)
             run = run_seed(
                 spec,
@@ -60,7 +76,9 @@ def measure(
                 documents=documents,
                 pipeline=build,
             )
-            out[style + suffix] = {
+            out[text + suffix] = {
+                "text": text,
+                "pipeline": suffix.removeprefix(" + ") or "offline",
                 "extraction": score(gold_from(world, documents), extraction),
                 "linking": score_linking(linking_gold(world, documents), extraction),
                 "retrieval": Comparison(folder.name, "", tuple(ks), (run,)),
@@ -74,40 +92,95 @@ def typed(report) -> bool:
     return any(p.predicted for name, p in report.by_predicate.items() if name != "RELATED_TO")
 
 
-def to_markdown(result: dict[str, dict], k: int, command: str, embedder: str) -> str:
-    styles = [s for s in STYLES if s in result]
+def _metrics(r: dict) -> dict[str, float]:
+    e = r["extraction"]
+    return {
+        "mention F1": e.mentions.f1,
+        "entity F1": e.entities.f1,
+        "entity-pair F1": e.edges.f1,
+        "triple F1*": e.triples.f1 if typed(e) else 0.0,
+        "linking F1": r["linking"].overall.f1,
+    }
+
+
+def extraction_chart(result: dict[str, dict], text: str, title: str) -> str:
+    """Extraction and linking scores of every pipeline on one text."""
+    rows = {r["pipeline"]: _metrics(r) for r in result.values() if r["text"] == text}
+    names = list(next(iter(rows.values())))
+    return grouped_bars(
+        title, names, {p: [m[n] for n in names] for p, m in rows.items()}, ylabel="F1 against gold"
+    )
+
+
+def retrieval_chart(result: dict[str, dict], text: str, k: int, title: str) -> str:
+    """Whole-path@k per hop count: BM25, dense and graph-rag under each pipeline, with intervals."""
+    picked = {r["pipeline"]: r["retrieval"] for r in result.values() if r["text"] == text}
+    first = next(iter(picked.values()))
+    hops = first.hop_counts()
+    ns = [first.questions_at(h) for h in hops]
+
+    def column(comparison: Comparison, system: str):
+        values = [comparison.mean(system, h, k, "path") for h in hops]
+        return values, [wilson(round(v * n), n) for v, n in zip(values, ns, strict=True)]
+
+    series, intervals = {}, {}
+    for name, system in (("BM25", "BM25"), ("Dense", "Dense")):
+        series[name], intervals[name] = column(first, system)
+    for pipeline, comparison in picked.items():
+        label = f"graph-rag ({pipeline})"
+        series[label], intervals[label] = column(comparison, "graph-rag graph")
+    return grouped_bars(
+        title,
+        [f"{h}-hop" for h in hops],
+        series,
+        ylabel=f"whole-path@{k}",
+        intervals=intervals,
+        counts=[f"n={n}" for n in ns],
+    )
+
+
+def to_markdown(
+    result: dict[str, dict], k: int, command: str, embedder: str, chart_dir: str | None = None
+) -> str:
+    columns = list(result)
     lines = [
-        f"# {' vs '.join(styles)}: the same world as different text and pipelines",
+        f"# {Path(command.split('--dir ')[-1].split()[0]).name}: one world, two texts, "
+        "several pipelines",
         "",
         f"`{command}`; graph-rag with {embedder} embeddings, one world, so the differences are one "
-        "sample, not a distribution. A `+ LLM` column runs the real coref and graph-build stages "
-        "(Claude Haiku through semula, answers cached); the others use the offline heuristics.",
+        "sample, not a distribution. `LLM` is the real coref and graph-build stages (Claude Haiku "
+        "through semula, answers cached); `spaCy` is the real NER stage; the rest are the offline "
+        "heuristics.",
         "",
-        "| | " + " | ".join(styles) + " |",
-        "|---|" + "---|" * len(styles),
+        "| | " + " | ".join(columns) + " |",
+        "|---|" + "---|" * len(columns),
     ]
-    show_triples = any(typed(result[s]["extraction"]) for s in styles)
-    rows = [
-        ("words per document", lambda r: str(r["words"])),
-        ("mention F1", lambda r: f"{r['extraction'].mentions.f1:.3f}"),
-        ("entity F1", lambda r: f"{r['extraction'].entities.f1:.3f}"),
-        ("entity pair F1 (relation ignored)", lambda r: f"{r['extraction'].edges.f1:.3f}"),
-        (
-            "triple F1 (strict)",
-            lambda r: f"{r['extraction'].triples.f1:.3f}" if typed(r["extraction"]) else "n/a",
-        ),
-        ("linking B-cubed F1", lambda r: f"{r['linking'].overall.f1:.3f}"),
-    ]
-    for name, cell in rows:
-        if name.startswith("triple") and not show_triples:
-            continue
-        lines.append(f"| {name} | " + " | ".join(cell(result[s]) for s in styles) + " |")
+    lines.append(
+        "| words per document | " + " | ".join(str(result[c]["words"]) for c in columns) + " |"
+    )
+    for name in _metrics(result[columns[0]]):
+        label = "triple F1 (strict)*" if name == "triple F1*" else name
+        cells = " | ".join(_cell(result[c], name) for c in columns)
+        lines.append(f"| {label} | {cells} |")
     lines += [
         "",
-        "`n/a`: that pipeline's graph builder emits only the `RELATED_TO` fallback, so strict "
-        "triple F1 is 0 by construction.",
+        "\\* `n/a`: that pipeline's graph builder emits only the `RELATED_TO` fallback, so strict "
+        "triple F1 is 0 by construction (drawn as 0 in the charts).",
     ]
-    for style in styles:
-        r = result[style]["retrieval"]
-        lines += ["", f"## Retrieval: {style}", "", "```", r.format_table(k), "```"]
+    if chart_dir is not None:
+        lines += [
+            "",
+            f"![extraction and linking, hard text]({chart_dir}extraction-hard.svg)",
+            "",
+            f"![whole-path@{k} by hop count, hard text]({chart_dir}retrieval-hard.svg)",
+        ]
+    for column in columns:
+        r = result[column]["retrieval"]
+        lines += ["", f"## Retrieval: {column}", "", "```", r.format_table(k), "```"]
     return "\n".join(lines) + "\n"
+
+
+def _cell(r: dict, name: str) -> str:
+    if name == "triple F1*" and not typed(r["extraction"]):
+        return "n/a"
+    return f"{_metrics(r)[name]:.3f}"
