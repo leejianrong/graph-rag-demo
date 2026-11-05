@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a fair evaluator language model.",
+   "role": "system"
+  },
+  {
+   "content": "###Task Description:\nAn instruction (might include an Input inside it), a response to evaluate, a reference answer that gets a score of 5, and a score rubric representing a evaluation criteria are given.\n1. Write a detailed feedback that assess the quality of the response strictly based on the given score rubric, not evaluating in general.\n2. After writing a feedback, write a score that is an integer between 1 and 5. You should refer to the score rubric.\n3. The output format should look as follows: \"Feedback: {write a feedback for criteria} [RESULT] {an integer number between 1 and 5}\"\n4. Please do not generate any other opening, closing, and explanations. Be sure to include [RESULT] in your output.\n\n###The instruction to evaluate:\nState the fact given in the reference answer.\n\n###Response to evaluate:\nSmall workshops often rely on a handful of shared tools that everyone learns to treat with care. Good habits in a shared space tend to matter more than any single rule posted on the wall. Over time, people settle into routines that reduce wasted effort and repeated mistakes. Nato Z5 is part of Sepa Z82. Careful upkeep keeps such arrangements easy to follow for newcomers who arrive later.\n\n###Reference Answer (Score 5):\nNato Z5 is part of Sepa Z82\n\n###Score Rubrics:\n[Is the response correct, accurate, and factual based on the reference answer?]\nScore 1: The response is completely incorrect, inaccurate, and/or not factual.\nScore 2: The response is mostly incorrect, inaccurate, and/or not factual.\nScore 3: The response is somewhat correct, accurate, and/or factual.\nScore 4: The response is mostly correct, accurate, and factual.\nScore 5: The response is completely correct, accurate, and factual.\n\n###Feedback:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Feedback: The reference answer states that Nato Z5 is part of Sepa Z82. The response contains this exact fact in its fourth sentence, with the subject, relation, and object all correct. The surrounding sentences are generic remarks about workshops and shared tools. They make no specific factual claim that conflicts with the reference, though they are padding beyond what was asked. Since the required fact is stated accurately and nothing in the response is incorrect, the response is completely correct, accurate, and factual with respect to the reference. [RESULT] 5"
+}

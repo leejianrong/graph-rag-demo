@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a fair evaluator language model.",
+   "role": "system"
+  },
+  {
+   "content": "###Task Description:\nAn instruction (might include an Input inside it), a response to evaluate, a reference answer that gets a score of 5, and a score rubric representing a evaluation criteria are given.\n1. Write a detailed feedback that assess the quality of the response strictly based on the given score rubric, not evaluating in general.\n2. After writing a feedback, write a score that is an integer between 1 and 5. You should refer to the score rubric.\n3. The output format should look as follows: \"Feedback: {write a feedback for criteria} [RESULT] {an integer number between 1 and 5}\"\n4. Please do not generate any other opening, closing, and explanations. Be sure to include [RESULT] in your output.\n\n###The instruction to evaluate:\nState the fact given in the reference answer.\n\n###Response to evaluate:\nLeze Z87 includes Gori X18 among the units it holds. Gori X18 belongs to the Leze Z87 group.\n\n###Reference Answer (Score 5):\nGori X18 is part of Leze Z87\n\n###Score Rubrics:\n[Is the response correct, accurate, and factual based on the reference answer?]\nScore 1: The response is completely incorrect, inaccurate, and/or not factual.\nScore 2: The response is mostly incorrect, inaccurate, and/or not factual.\nScore 3: The response is somewhat correct, accurate, and/or factual.\nScore 4: The response is mostly correct, accurate, and factual.\nScore 5: The response is completely correct, accurate, and factual.\n\n###Feedback:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Feedback: The reference answer states that Gori X18 is part of Leze Z87. The response states that Leze Z87 includes Gori X18 among its units, which is the same part-of relation expressed from the group's side. Its second sentence restates the fact directly: Gori X18 belongs to the Leze Z87 group. The entities and the direction of the relation are correct, and the response adds nothing inaccurate. The response is completely correct, accurate, and factual with respect to the reference. [RESULT] 5"
+}

@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a fair evaluator language model.",
+   "role": "system"
+  },
+  {
+   "content": "###Task Description:\nAn instruction (might include an Input inside it), a response to evaluate, a reference answer that gets a score of 5, and a score rubric representing a evaluation criteria are given.\n1. Write a detailed feedback that assess the quality of the response strictly based on the given score rubric, not evaluating in general.\n2. After writing a feedback, write a score that is an integer between 1 and 5. You should refer to the score rubric.\n3. The output format should look as follows: \"Feedback: {write a feedback for criteria} [RESULT] {an integer number between 1 and 5}\"\n4. Please do not generate any other opening, closing, and explanations. Be sure to include [RESULT] in your output.\n\n###The instruction to evaluate:\nState the fact given in the reference answer.\n\n###Response to evaluate:\nIt is not true that Sepa Z82 is part of Kipe Q67.\n\n###Reference Answer (Score 5):\nSepa Z82 is part of Kipe Q67\n\n###Score Rubrics:\n[Is the response correct, accurate, and factual based on the reference answer?]\nScore 1: The response is completely incorrect, inaccurate, and/or not factual.\nScore 2: The response is mostly incorrect, inaccurate, and/or not factual.\nScore 3: The response is somewhat correct, accurate, and/or factual.\nScore 4: The response is mostly correct, accurate, and factual.\nScore 5: The response is completely correct, accurate, and factual.\n\n###Feedback:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Feedback: The instruction asks the response to state the fact given in the reference answer, which is that Sepa Z82 is part of Kipe Q67. The response instead asserts the opposite, that it is not true that Sepa Z82 is part of Kipe Q67. This contradicts the reference answer on the only point that matters, so the response is completely incorrect and not factual relative to the reference. It does not state the fact at all, and it does not partially match it. Under the rubric, this is the lowest level. [RESULT] 1"
+}

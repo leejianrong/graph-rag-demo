@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a fair evaluator language model.",
+   "role": "system"
+  },
+  {
+   "content": "###Task Description:\nAn instruction (might include an Input inside it), a response to evaluate, a reference answer that gets a score of 5, and a score rubric representing a evaluation criteria are given.\n1. Write a detailed feedback that assess the quality of the response strictly based on the given score rubric, not evaluating in general.\n2. After writing a feedback, write a score that is an integer between 1 and 5. You should refer to the score rubric.\n3. The output format should look as follows: \"Feedback: {write a feedback for criteria} [RESULT] {an integer number between 1 and 5}\"\n4. Please do not generate any other opening, closing, and explanations. Be sure to include [RESULT] in your output.\n\n###The instruction to evaluate:\nState the fact given in the reference answer.\n\n###Response to evaluate:\nLeni Works is part of Keme Group. Nato Z5 is part of Sepa Z82, and Geki Mazera owns Sepa Z82.\n\n###Reference Answer (Score 5):\nKite Fumada founded Zolu Industries\n\n###Score Rubrics:\n[Is the response correct, accurate, and factual based on the reference answer?]\nScore 1: The response is completely incorrect, inaccurate, and/or not factual.\nScore 2: The response is mostly incorrect, inaccurate, and/or not factual.\nScore 3: The response is somewhat correct, accurate, and/or factual.\nScore 4: The response is mostly correct, accurate, and factual.\nScore 5: The response is completely correct, accurate, and factual.\n\n###Feedback:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Feedback: The instruction asks the response to state the fact given in the reference answer, which is that Kite Fumada founded Zolu Industries. The response never mentions Kite Fumada or Zolu Industries. It instead states that Leni Works is part of Keme Group, that Nato Z5 is part of Sepa Z82, and that Geki Mazera owns Sepa Z82. None of these matches the reference answer, so the response does not provide the requested fact and is not correct, accurate, or factual relative to the reference on the point asked. Under the rubric, it is completely incorrect. [RESULT] 1"
+}

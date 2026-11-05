@@ -34,6 +34,7 @@ from kgbench import difficulty as difficulties
 from kgbench import faithfulness as faithful
 from kgbench import hard as hards
 from kgbench import judge as judges
+from kgbench import judge_scaled as scaled
 from kgbench import order as orders
 from kgbench import shortcut as shortcuts
 from kgbench import sweep as sweeps
@@ -218,6 +219,17 @@ def build_parser() -> argparse.ArgumentParser:
     df.add_argument("--dir", type=Path, required=True, help="A dataset folder.")
     df.add_argument("--texts", nargs="+", choices=hards.TEXTS, default=list(hards.TEXTS))
     df.add_argument("--out", type=Path, help="Write the markdown report here.")
+    sj = commands.add_parser(
+        "judge-scaled",
+        help="The cookbook's 1-5 judge beside the yes/no judge on the labelled cases (opt-in).",
+    )
+    sj.add_argument("--cache-dir", type=Path, help="Cached 1-5 replies (default: bench data).")
+    sj.add_argument("--model", default="claude-haiku", help="The model name the caches use.")
+    sj.add_argument("--base-url", help="An OpenAI-compatible endpoint; omit to replay the cache.")
+    sj.add_argument("--workers", type=int, default=4, help="Calls asked at once.")
+    sj.add_argument("--out", type=Path, help="Write the markdown report here.")
+    sj.add_argument("--json", type=Path, help="Write every row as JSON here.")
+    sj.add_argument("--chart", type=Path, help="Write the chart (SVG) here.")
     ct = commands.add_parser(
         "critique",
         help="Rate a dataset's questions for groundedness, relevance and standalone (opt-in).",
@@ -611,6 +623,33 @@ def _difficulty(args: argparse.Namespace) -> int:
     return 0
 
 
+def _judge_scaled(args: argparse.Namespace) -> int:
+    client = OpenAICompatible(args.base_url, args.model) if args.base_url else None
+    chat = CachedChat(
+        ResponseCache(args.cache_dir or _DATA / "judge-scaled-cache"), client, args.model
+    )
+    rows: list[dict] = []
+    try:
+        for suffix, folder in (("", "judge-cache"), ("_hard", "judge-cache-hard")):
+            cases = json.loads((_DATA / f"judge_cases{suffix}.json").read_text())
+            yes_no = judges.llm_judge(CachedChat(ResponseCache(_DATA / folder), None, args.model))
+            rows += scaled.compare(cases, chat, yes_no, args.workers)
+    except CacheMiss as exc:
+        raise SystemExit(f"{exc}; pass --base-url to ask an endpoint") from exc
+    text = f"{scaled.format_table(rows)}\n\n{scaled.distribution(rows)}"
+    print(text)
+    if args.out:
+        args.out.write_text(
+            f"# The cookbook's 1-5 judge against the yes/no judge\n\nModel `{args.model}`, "
+            f"{len(rows)} labelled cases (plain and harder).\n\n{text}\n"
+        )
+    if args.json:
+        args.json.write_text(json.dumps(rows, indent=1) + "\n")
+    if args.chart:
+        args.chart.write_text(scaled.chart_svg(rows, "Judges against the labels"))
+    return 0
+
+
 def _critique(args: argparse.Namespace) -> int:
     folder = args.dir.resolve()
     questions = json.loads((folder / "questions.json").read_text())
@@ -688,6 +727,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _judge(args)
     if args.command == "shortcut":
         return _shortcut(args)
+    if args.command == "judge-scaled":
+        return _judge_scaled(args)
     if args.command == "difficulty":
         return _difficulty(args)
     if args.command == "ambiguity":
