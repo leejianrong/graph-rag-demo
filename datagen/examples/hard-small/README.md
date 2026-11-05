@@ -19,3 +19,6 @@ Replay with no endpoint (0 calls) and get `documents.json` back byte for byte:
 What it is not: Haiku mostly names entities again instead of using pronouns (5 of 602 sentences have
 fewer than two names), so coreference is lightly tested; and the facts are the same synthetic ones, so
 it is harder prose, not harder reasoning.
+
+Two of the 145 articles add a small claim that was not in the facts ("at another point", "which has drawn attention from
+several buyers"). Neither names an entity, so the gold is unaffected, but the text says slightly more than the gold does.
