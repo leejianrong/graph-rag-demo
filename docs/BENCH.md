@@ -122,3 +122,11 @@ pre-push hook run it as a test. After a change that is meant to move the numbers
 - **Every one of these sits inside the `shared_name` flag** (10 of the 76 flagged entity questions, 14 of 30 set, 13 of 36 count), and the flag is set for 40–51% of each type. So the flag over-warns: of the flagged ones, 13% of entity, 47% of set and 36% of count questions have an extra answer.
 - **A bug I made on the way:** the first version ignored the types the question names and reported 10% for entity questions, from "the event ..." matching other events. I found it by tracing one case, added the type filter, and the figures above are after it.
 - **Not covered:** compare and superlative questions (no chain to re-walk), the temporal types (this world has no churn), and a second world. Whether the answer *string* is also ambiguous for a name-matching grader is a separate question; this counts different answers, not different entities with the same name.
+
+**How confusable is the `hard-small` corpus? Alias, look-alike and distractor statistics** (`kgbench difficulty --dir datagen/examples/hard-small`; [docs/results/difficulty-hard-small.md](results/difficulty-hard-small.md); no LLM). Counted from the world and the text, for the committed 300 questions:
+
+- **The world (180 entities, including the generator's look-alike distractors):** 58% have aliases, 24% carry a name or alias that another entity also carries, and 7 pairs of different same-type names are almost the same (`difflib` ratio 0.85 or more).
+- **The text:** 19% of the 145 documents are distractors, and 33–34% of the mentions use an alias (template 33%, hard 34%).
+- **Per question:** the number of documents that do not hold a supporting fact but name an entity on its path grows with hops: a mean of 7.2 at 1 hop, 10.3 at 2, 12.4 at 3 and 15.2 at 4 (hard text; template 15.1 at 4). Distractor documents are among them for 15%, 27%, 29% and 35% of questions.
+- **Template and hard text are almost identical on every count here.** The same world and fact grouping drive these numbers, so they do not explain why the hard text scores differently; the prose is what differs.
+- **Not covered:** these are counts, not a measured effect on retrieval; a second world; the name matching is a plain string search, as a retriever sees it.
