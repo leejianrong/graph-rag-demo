@@ -7,9 +7,10 @@
 | words per document | 13 | 43 |
 | mention F1 | 0.907 | 0.756 |
 | entity F1 | 0.740 | 0.573 |
-| triple F1 (strict) | 0.000 | 0.000 |
 | entity pair F1 (relation ignored) | 0.681 | 0.690 |
 | linking B-cubed F1 | 0.843 | 0.833 |
+
+Strict triple F1 is left out: the offline graph builder links co-occurring entities with `RELATED_TO` only, so it is 0 by construction. Judge relations with an LLM graph builder (`kgbench extract --real`).
 
 ## Retrieval on template text
 

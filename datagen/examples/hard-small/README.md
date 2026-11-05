@@ -11,6 +11,16 @@ fact appears once, its object and years are in its sentence, its subject has bee
 entity of the world is named), and mention offsets are found by the code, so the gold is as exact as the
 template renderer's.
 
+The folder is the whole dataset, the same files `kggen export` writes: `world.json` (the gold graph),
+`questions.json` (300 questions, 75 per hop count), `documents.json` (the Haiku text, with gold mentions and
+fact ids), `world.stats.json`, and the three specs (`spec.yaml`, `questions_spec.json`, `render_spec.json`).
+A fast test fails if any of them drifts from what the specs and the cache produce.
+
+Use it:
+
+    kgbench hard                      # template text against this text, on this world
+    python -c "import json; docs = json.load(open('datagen/examples/hard-small/documents.json'))"
+
 Replay with no endpoint (0 calls) and get `documents.json` back byte for byte:
 
     kggen docs generate --spec datagen/examples/hard-small/spec.yaml --renderer llm --style rich \
