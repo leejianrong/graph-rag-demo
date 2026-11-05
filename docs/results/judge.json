@@ -1,0 +1,82 @@
+{
+ "cases": 69,
+ "abstained": 0,
+ "matcher": {
+  "tp": 12,
+  "fp": 24,
+  "fn": 12,
+  "tn": 21,
+  "false_positive_rate": 0.5333,
+  "false_negative_rate": 0.5
+ },
+ "judge": {
+  "tp": 24,
+  "fp": 0,
+  "fn": 0,
+  "tn": 45,
+  "false_positive_rate": 0.0,
+  "false_negative_rate": 0.0
+ },
+ "by_kind": {
+  "stated": {
+   "matcher": [
+    12,
+    12
+   ],
+   "judge": [
+    12,
+    12
+   ]
+  },
+  "pronoun": {
+   "matcher": [
+    0,
+    12
+   ],
+   "judge": [
+    12,
+    12
+   ]
+  },
+  "negated": {
+   "matcher": [
+    0,
+    12
+   ],
+   "judge": [
+    12,
+    12
+   ]
+  },
+  "co_mention": {
+   "matcher": [
+    0,
+    12
+   ],
+   "judge": [
+    12,
+    12
+   ]
+  },
+  "wrong_object": {
+   "matcher": [
+    9,
+    9
+   ],
+   "judge": [
+    9,
+    9
+   ]
+  },
+  "absent": {
+   "matcher": [
+    12,
+    12
+   ],
+   "judge": [
+    12,
+    12
+   ]
+  }
+ }
+}

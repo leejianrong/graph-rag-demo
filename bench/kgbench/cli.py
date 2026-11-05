@@ -18,12 +18,15 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
+from kggen.llm import CachedChat, CacheMiss, OpenAICompatible, ResponseCache
+from kggen.questions import QuestionSpec, generate_questions
 from kggen.render import render_documents
 from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
 from kggen.world import generate
 
 from graph_rag.wiring import build_embedder, build_offline_components, build_real_components
 from kgbench import __version__, gate
+from kgbench import judge as judges
 from kgbench import order as orders
 from kgbench import sweep as sweeps
 from kgbench.compare import CachingEmbedder, compare
@@ -35,6 +38,8 @@ from kgbench.linking import DIFFICULTY, linking_gold, score_linking
 
 # The bundled mini fixture, so the command runs offline with no download.
 _DEFAULT_DATASET = Path(__file__).resolve().parent / "data" / "wiki2_mini.json"
+_JUDGE_CASES = Path(__file__).resolve().parent / "data" / "judge_cases.json"
+_JUDGE_CACHE = Path(__file__).resolve().parent / "data" / "judge-cache"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -128,6 +133,19 @@ def build_parser() -> argparse.ArgumentParser:
     sw.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
     sw.add_argument("--k", type=int, default=5, help="The k for path@k.")
     sw.add_argument("--out", type=Path, help="Directory for sweep.md, one SVG per knob and JSON.")
+    jd = commands.add_parser(
+        "judge",
+        help="Measure an LLM judge's error rates on labelled open-ended cases (opt-in).",
+    )
+    jd.add_argument("--cases", type=Path, default=_JUDGE_CASES, help="The labelled cases (JSON).")
+    jd.add_argument(
+        "--build", choices=PRESET_NAMES, help="Write the cases from this preset, then exit."
+    )
+    jd.add_argument("--cache-dir", type=Path, default=_JUDGE_CACHE, help="Cached judge answers.")
+    jd.add_argument("--model", default="claude-haiku", help="The model name the cache is keyed by.")
+    jd.add_argument("--base-url", help="An OpenAI-compatible endpoint; omit to replay the cache.")
+    jd.add_argument("--out", type=Path, help="Write the markdown report here.")
+    jd.add_argument("--json", type=Path, help="Write every number as JSON here.")
     gate_cmd = commands.add_parser(
         "gate", help="Fail if graph-rag scores below the stored floors (offline, no provider)."
     )
@@ -304,6 +322,30 @@ def _linking(args: argparse.Namespace) -> int:
     return 0
 
 
+def _judge(args: argparse.Namespace) -> int:
+    if args.build:
+        world = generate(load_preset(args.build))
+        spec = QuestionSpec(n_questions=12, type_mix={"open_ended": 1.0}, hop_mix={1: 1.0, 2: 1.0})
+        cases = judges.build_cases(generate_questions(world, spec))
+        args.cases.write_text(json.dumps(cases, indent=1) + "\n")
+        print(f"wrote {len(cases)} labelled cases to {args.cases}")
+        return 0
+    cases = json.loads(args.cases.read_text())
+    client = OpenAICompatible(args.base_url, args.model) if args.base_url else None
+    chat = CachedChat(ResponseCache(args.cache_dir), client, args.model)
+    try:
+        report = judges.evaluate(cases, judges.llm_judge(chat))
+    except CacheMiss as exc:
+        raise SystemExit(f"{exc}; pass --base-url to ask an endpoint") from exc
+    text = report.format_table()
+    print(text)
+    if args.out:
+        args.out.write_text(f"# LLM judge error rates\n\nModel `{args.model}`.\n\n{text}\n")
+    if args.json:
+        args.json.write_text(json.dumps(report.to_dict(), indent=1) + "\n")
+    return 0
+
+
 def _extract(args: argparse.Namespace) -> int:
     spec = load_preset(args.preset)
     world = generate(spec.model_copy(update={"seed": args.seed}) if args.seed is not None else spec)
@@ -348,6 +390,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _order(args)
     if args.command == "sweep":
         return _sweep(args)
+    if args.command == "judge":
+        return _judge(args)
     if args.command == "gate":
         return _gate(args)
     parser.print_help()

@@ -51,6 +51,12 @@ captures and a bag of text chunks throws away.
 
 ## How it works
 
+```mermaid
+flowchart LR
+  F[document] --> M[MinIO + Kafka trigger] --> R[read] --> N[NER] --> C[coref] --> L[entity linking] --> K[KG build] --> G[(Neo4j graph)]
+  Q[/query/] --> V[vector seeds] --> T[graph hops] --> G
+```
+
 Ingestion is one in-process consumer that runs five stages for each document,
 in order. Keeping it in a single process was a deliberate choice: for a
 local demo, being able to trace one document through the whole flow in one
@@ -218,23 +224,7 @@ A few things trip people up the first time:
 - **Elasticsearch wants memory.** It runs single-node with security off for local
   use. If the container keeps exiting, it usually needs more RAM given to Docker.
 
-### Tests
-
-The fast suite runs against in-memory fakes: no Docker, no model, no API key. It's
-the gate to run before pushing.
-
-```bash
-uv sync --frozen --extra dev
-uv run pytest -m "not contract and not model and not llm and not benchmark"  # make test
-```
-
-The slower layers are opt-in and split by pytest marker: `contract` proves each
-real adapter against a throwaway container (MinIO, Elasticsearch, Kafka, Neo4j),
-`model` loads real spaCy and embedding models, `llm` hits a real provider and skips
-cleanly without a key, and `benchmark` runs the whole pipeline over a fixture.
-[AGENTS.md](AGENTS.md) has the full command list and the reasoning behind the
-layering. Tests for the generator and the evaluation bench live in `datagen/tests` and `bench/tests` and run in the fast
-suite.
+The test layers and how to run them are in [CONTRIBUTING.md](CONTRIBUTING.md#tests).
 
 ## Synthetic data generator
 
@@ -311,60 +301,22 @@ normalisation. Corpus-local entity linking is order-sensitive, so benchmark runs
 fix the ingestion order and the linking thresholds to stay reproducible. A warm
 run reuses the pre-built graph and the response cache, so it costs about nothing.
 
-### The evaluation bench (in progress)
+### The evaluation bench
 
-2WikiMultihopQA only tells you how the pipeline does on someone else's questions.
-To measure retrieval against ground truth we control, the repo is gaining its own
-bench in [`bench/`](bench/) (command `kgbench`, design in
-[ADR-0011](docs/adr/0011-in-repo-evaluation-bench.md)). Instead of grading against
-an extraction of our own, it scores the pipeline on a synthetic world graph made by the
-standalone [generator](#synthetic-data-generator), so the gold answer never depends on the
-pipeline under test. Extraction scoring is built; try it with no Docker or key:
-
-```bash
-make extract PRESET=small        # kgbench extract: P/R/F1 for mentions, entities and triples, per predicate
-make linking PRESET=small        # kgbench linking: B-cubed precision/recall per difficulty setting
-make order PRESET=small          # kgbench order: ingest one corpus in shuffled orders, report the spread
-```
-
-`kgbench sweep` changes one world knob at a time and scores every system at each value
-([docs/results/sweeps/sweep.md](docs/results/sweeps/sweep.md), with a chart and the realised stats of every world). It
-reads 2-hop paths, the only hop count where the systems differ: BM25 and dense solve about 1% of them, offline graph-rag
-18% on the base world. graph-rag's lead shrinks steadily as the graph gets denser (average degree 2 to 10: +0.28 to
-+0.03), and as homonyms (0.5: +0.02) and churn (0.3: +0.03) rise; it is flat across degree skew. The lead over size is
-not monotone (+0.15, +0.12, +0.09, +0.20 for 100 to 2,000 entities), which at about 120 questions per point is noise.
-A first run scored every question and was mostly noise; it is not published. `make sweep KNOB=avg_degree` runs one
-knob (about 10 minutes with bge; all six take over an hour).
-
-`kgbench order` ingests the same corpus as generated and in shuffled orders, each into a fresh pipeline, and reports how much each score moves. The offline pipeline shows none ([docs/results/order-medium.md](docs/results/order-medium.md)); merging by name cannot depend on order, so the question stays open for the real stack (`--real`).
-
-It reports mentions (exact span), entities (distinct gold entities recovered per canonical made) and
-triples, strictly and by entity pair only, so you can see a relation found but not named. Entity
-linking is scored with B-cubed (merged homonyms cost precision, split aliases cost recall), on a clean,
-an alias-heavy and an ambiguous version of the world. Retrieval scoring (recall@k and
-whole-path@k per hop count, `kgbench.retrieval`) is built, and a BM25 baseline (`kgbench.baselines`) sits behind the same interface. On the small set it
-finds every 1-hop path in the top 5 and almost no 3-hop or 4-hop path: the headroom a graph is meant to
-close. A dense baseline (`DenseRetriever`) uses the project's own embedder port: the fake in tests and
-bge-small for published numbers (`pip install` the `embed` extra and run `make embed-model`). graph-rag itself is wrapped as a retriever too, in two views: its
-passages, and the sentences behind its retrieved subgraph's edges. The first comparison, on `medium`
-worlds over three seeds, is in [docs/results/retrieval-medium.md](docs/results/retrieval-medium.md):
+2WikiMultihopQA only measures the pipeline on someone else's questions. [`bench/`](bench/) (command
+`kgbench`, [ADR-0011](docs/adr/0011-in-repo-evaluation-bench.md)) scores it on a synthetic world graph whose gold
+the pipeline never touches: extraction and linking F1, retrieval per hop count against BM25 and dense baselines,
+ingest-order sensitivity, complexity sweeps, typed-answer scoring and an optional LLM judge. Every result carries
+its cost. On 1-hop questions every system does well; at 2 hops only graph-rag recovers whole paths (about 18% on the
+base world), and at 3 and 4 hops nobody does. Offline graph-rag is a floor: the real stack's LLM-built graph is
+unmeasured. A quality drop fails the build (`make gate`, floors in [`bench/kgbench/gate.json`](bench/kgbench/gate.json)).
 
 ```bash
-make compare                     # kgbench compare: path@k and recall@k per hop count, every system
+make compare    # path@k and recall@k per hop count, every system
+make gate       # the CI quality floors, about 15 seconds
 ```
 
-It took about 8 minutes on a 4 vCPU cloud CPU, and about half an hour on a busy laptop, with bge (`EMBEDDER=fake` is quick and only for checking). The committed numbers came from the cloud run and match an earlier laptop run cell for cell. What it
-shows so far: every system finds 1-hop answers (whole-path@5 of 0.94 to 0.99). At 2 hops only the
-graph view recovers any whole path (0.11, against 0.00 to 0.01 for BM25 and dense), and at 3 and 4
-hops no system recovers one in the top 5. The offline graph-rag does not yet beat the baselines, and
-its graph view costs about 4 points at 1 hop. That is the offline heuristic graph, a floor; whether
-the real stack's LLM-built graph closes the gap is the open question.
-
-A quality drop fails the build. `make gate` runs the small world offline (no provider, about 15 seconds)
-and compares graph-rag's retrieval recall and path recovery per hop count, extraction F1 and linking F1
-with the floors stored in [`bench/kgbench/gate.json`](bench/kgbench/gate.json). The fast CI job and the
-pre-push hook run it as a test. After a change that is meant to move the numbers, `uv run kgbench gate
---update` rewrites the floors, so raising or lowering one shows up in the diff.
+Method, numbers and every command: [docs/BENCH.md](docs/BENCH.md).
 
 ## Where the design lives
 
