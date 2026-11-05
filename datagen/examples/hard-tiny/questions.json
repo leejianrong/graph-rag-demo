@@ -34,6 +34,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that the organization that is a member of Muzu Labs owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E26",
   "supporting_facts": [
@@ -80,6 +81,7 @@
   "premise": null,
   "question": "Name the group that the person that works for the organization that the organization that Koni Diranu is affiliated with owns is a member of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E10",
   "supporting_facts": [
@@ -127,6 +129,7 @@
   "premise": null,
   "question": "Name the organization that the person that is located in the location that the event that Seze Labs participated in is located in works for.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E23",
   "supporting_facts": [
@@ -173,6 +176,7 @@
   "premise": null,
   "question": "Name the product that the person that is affiliated with the organization that is part of Seva Works owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E22",
   "supporting_facts": [
@@ -220,6 +224,7 @@
   "premise": null,
   "question": "Name the organization that owns the organization that the person that is a member of Piduese works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E24",
   "supporting_facts": [
@@ -264,6 +269,7 @@
   "premise": null,
   "question": "Name the product that the organization that Rage Taneta works for produces.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E16",
   "supporting_facts": [
@@ -306,6 +312,7 @@
   "premise": null,
   "question": "Name the product that the organization that the person that is located in Sapoburg founded produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E17",
   "supporting_facts": [
@@ -349,6 +356,7 @@
   "premise": null,
   "question": "Name the location that Sebo Forum is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E25",
   "supporting_facts": [
@@ -393,6 +401,7 @@
   "premise": null,
   "question": "Name the event that the organization that Gupu Koduvo works for participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E03",
   "supporting_facts": [
@@ -436,6 +445,7 @@
   "premise": null,
   "question": "Name the person that works for the organization that participated in Gebu Forum.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E05",
   "supporting_facts": [
@@ -478,6 +488,7 @@
   "premise": null,
   "question": "Name the organization that participated in the event that is located in the location that Rage Taneta is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E16",
   "supporting_facts": [
@@ -522,6 +533,7 @@
   "premise": null,
   "question": "Name the organization that the person that is located in Sapoburg works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E17",
   "supporting_facts": [
@@ -565,6 +577,7 @@
   "premise": null,
   "question": "Name the event that the organization that Silo Fapobu founded participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E19",
   "supporting_facts": [
@@ -608,6 +621,7 @@
   "premise": null,
   "question": "Name the event that is located in the location that is part of Sapoburg.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E17",
   "supporting_facts": [
@@ -652,6 +666,7 @@
   "premise": null,
   "question": "Name the location that is part of Sapoburg.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E17",
   "supporting_facts": [
@@ -696,6 +711,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that the organization that Vefa Zatuso founded is part of is a member of owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E07",
   "supporting_facts": [
@@ -743,6 +759,7 @@
   "premise": null,
   "question": "Name the location that the event that the organization that the person that participated in Busu Festival founded participated in is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E13",
   "supporting_facts": [
@@ -787,6 +804,7 @@
   "premise": null,
   "question": "Name the organization that Seva Works is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E22",
   "supporting_facts": [
@@ -831,6 +849,7 @@
   "premise": null,
   "question": "Name the organization that the person that founded the organization that produces the product that Size Gatide owns works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E11",
   "supporting_facts": [
@@ -875,6 +894,7 @@
   "premise": null,
   "question": "Name the group that Gupu Koduvo is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E03",
   "supporting_facts": [
@@ -916,6 +936,7 @@
   "premise": null,
   "question": "Name the location that Rage Taneta is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E16",
   "supporting_facts": [
@@ -960,6 +981,7 @@
   "premise": null,
   "question": "Name the person that is located in the location that the location that the event that Vefa Zatuso participated in is located in is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E07",
   "supporting_facts": [
@@ -1008,6 +1030,7 @@
   "premise": null,
   "question": "Name the event that the organization that the organization that is a member of Muzu Labs owns participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E26",
   "supporting_facts": [
@@ -1052,6 +1075,7 @@
   "premise": null,
   "question": "Name the location that the location that Busu Festival is located in is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E13",
   "supporting_facts": [
@@ -1096,6 +1120,7 @@
   "premise": null,
   "question": "Name the product that the organization that the person that is a member of Piduese works for produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E24",
   "supporting_facts": [
@@ -1142,6 +1167,7 @@
   "premise": null,
   "question": "Name the person that founded the organization that is part of Seva Works.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E22",
   "supporting_facts": [
@@ -1185,6 +1211,7 @@
   "premise": null,
   "question": "Name the event that the organization that Silo Fapobu works for participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E19",
   "supporting_facts": [
@@ -1227,6 +1254,7 @@
   "premise": null,
   "question": "Name the organization that participated in Gebu Forum.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E05",
   "supporting_facts": [
@@ -1268,6 +1296,7 @@
   "premise": null,
   "question": "Name the group that Vefa Zatuso is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E07",
   "supporting_facts": [
@@ -1312,6 +1341,7 @@
   "premise": null,
   "question": "Name the organization that the person that is a member of the group that the person that participated in Busu Festival is a member of works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E13",
   "supporting_facts": [
@@ -1360,6 +1390,7 @@
   "premise": null,
   "question": "Name the person that founded the organization that is part of the organization that is a member of Muzu Labs.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E26",
   "supporting_facts": [
@@ -1406,6 +1437,7 @@
   "premise": null,
   "question": "Name the organization that the person that is located in the location that the location that Busu Festival is located in is part of works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E13",
   "supporting_facts": [
@@ -1453,6 +1485,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that the person that is located in Sapoburg founded is a member of produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E17",
   "supporting_facts": [
@@ -1500,6 +1533,7 @@
   "premise": null,
   "question": "Name the product that the person that is affiliated with the organization that the person that participated in Busu Festival founded owns.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E13",
   "supporting_facts": [
@@ -1542,6 +1576,7 @@
   "premise": null,
   "question": "Name the organization that participated in Sebo Forum.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E25",
   "supporting_facts": [
@@ -1586,6 +1621,7 @@
   "premise": null,
   "question": "Name the location that the person that founded the organization that owns the organization that participated in Gebu Forum is located in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E05",
   "supporting_facts": [
@@ -1631,6 +1667,7 @@
   "premise": null,
   "question": "Name the person that is affiliated with the organization that is a member of the organization that owns the product that Tozu X90 is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E21",
   "supporting_facts": [
@@ -1677,6 +1714,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that is affiliated with Lapi Group is a member of produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E28",
   "supporting_facts": [
@@ -1723,6 +1761,7 @@
   "premise": null,
   "question": "Name the organization that owns the organization that participated in Gebu Forum.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E05",
   "supporting_facts": [
@@ -1768,6 +1807,7 @@
   "premise": null,
   "question": "Name the organization that is part of the organization that is a member of the organization that produces the product that Golu Z87 is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E29",
   "supporting_facts": [
@@ -1814,6 +1854,7 @@
   "premise": null,
   "question": "Name the organization that the person that is a member of the group that Vefa Zatuso is a member of works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E07",
   "supporting_facts": [
@@ -1858,6 +1899,7 @@
   "premise": null,
   "question": "Name the organization that the person that is a member of Piduese works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E24",
   "supporting_facts": [
@@ -1900,6 +1942,7 @@
   "premise": null,
   "question": "Name the organization that Lapi Group is part of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E28",
   "supporting_facts": [
@@ -1941,6 +1984,7 @@
   "premise": null,
   "question": "Name the organization that Lelo Zadeze is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E12",
   "supporting_facts": [
@@ -1984,6 +2028,7 @@
   "premise": null,
   "question": "Name the product that the product that the person that is affiliated with Dogiese owns is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E20",
   "supporting_facts": [
@@ -2028,6 +2073,7 @@
   "premise": null,
   "question": "Name the product that the organization that Lelo Zadeze is affiliated with produces.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E12",
   "supporting_facts": [
@@ -2070,6 +2116,7 @@
   "premise": null,
   "question": "Name the organization that Rage Taneta works for.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E16",
   "supporting_facts": [
@@ -2114,6 +2161,7 @@
   "premise": null,
   "question": "Name the organization that the person that is a member of the group that the person that founded Seze Labs is a member of works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E23",
   "supporting_facts": [
@@ -2156,6 +2204,7 @@
   "premise": null,
   "question": "Name the person that is affiliated with Dogiese.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E20",
   "supporting_facts": [
@@ -2198,6 +2247,7 @@
   "premise": null,
   "question": "Name the location that the event that Seze Labs participated in is located in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E23",
   "supporting_facts": [
@@ -2243,6 +2293,7 @@
   "premise": null,
   "question": "Name the product that the organization that the organization that is a member of the organization that Seva Works is a member of owns produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E22",
   "supporting_facts": [
@@ -2289,6 +2340,7 @@
   "premise": null,
   "question": "Name the organization that the person that founded the organization that Koni Diranu is affiliated with works for.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E10",
   "supporting_facts": [
@@ -2334,6 +2386,7 @@
   "premise": null,
   "question": "Name the organization that Koni Diranu is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E10",
   "supporting_facts": [
@@ -2377,6 +2430,7 @@
   "premise": null,
   "question": "Name the person that is located in the location that the location that Busu Festival is located in is part of.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E13",
   "supporting_facts": [
@@ -2422,6 +2476,7 @@
   "premise": null,
   "question": "Name the organization that Seva Works is a member of.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E22",
   "supporting_facts": [
@@ -2462,6 +2517,7 @@
   "premise": null,
   "question": "Name the person that founded the organization that Lelo Zadeze is affiliated with.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E12",
   "supporting_facts": [
@@ -2504,6 +2560,7 @@
   "premise": null,
   "question": "Name the product that Muzu Labs produces.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E26",
   "supporting_facts": [
@@ -2547,6 +2604,7 @@
   "premise": null,
   "question": "Name the event that the organization that the person that is located in Lugi works for participated in.",
   "required_facts": [],
+  "shared_name": false,
   "stale_values": [],
   "start": "E04",
   "supporting_facts": [
@@ -2594,6 +2652,7 @@
   "premise": null,
   "question": "Name the event that the organization that the organization that Koni Diranu is affiliated with owns participated in.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E10",
   "supporting_facts": [
@@ -2638,6 +2697,7 @@
   "premise": null,
   "question": "Name the person that founded the organization that Koni Diranu is affiliated with.",
   "required_facts": [],
+  "shared_name": true,
   "stale_values": [],
   "start": "E10",
   "supporting_facts": [

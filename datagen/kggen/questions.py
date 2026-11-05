@@ -139,6 +139,9 @@ class Question:
     as_of: int | None = None  # the year a temporal question asks about
     stale_values: tuple[str, ...] = ()  # names that held earlier and must not be given as current
     answer_names: tuple[tuple[str, ...], ...] = ()  # each answer's name and aliases, as `answers`
+    # A fact on the path involves an entity whose name or alias another entity also carries, so
+    # the text alone cannot tell the two apart (the generator's homonym case).
+    shared_name: bool = False
 
     def to_dict(self) -> dict:
         return {
@@ -876,8 +879,25 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
     rng.shuffle(questions)
     width = len(str(len(questions) - 1))
 
+    owners: dict[str, set[str]] = {}
+    for holder in world.entities:
+        for label in (holder.name, *holder.aliases):
+            owners.setdefault(label.casefold(), set()).add(holder.id)
+    clash = {i for ids in owners.values() if len(ids) > 1 for i in ids}
+    edge_by_id = {edge.id: edge for edge in world.edges}
+
     def numbered(i: int, q: Question) -> Question:
         who = tuple((names[a], *entities[a].aliases) for a in q.answers)
-        return Question(**{**vars(q), "id": f"Q{i:0{width}d}", "answer_names": who})
+        ends = {
+            x for f in q.supporting_facts for x in (edge_by_id[f].subject, edge_by_id[f].object)
+        }
+        return Question(
+            **{
+                **vars(q),
+                "id": f"Q{i:0{width}d}",
+                "answer_names": who,
+                "shared_name": bool(ends & clash),
+            }
+        )
 
     return tuple(numbered(i, q) for i, q in enumerate(questions))

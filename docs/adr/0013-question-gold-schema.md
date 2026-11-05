@@ -30,6 +30,7 @@ plain entity question is unchanged.
 | `as_of` | The date a temporal question asks about |
 | `stale_values` | Names that were true earlier and must not be given as current |
 | `required_facts`, `forbidden_claims` | For open-ended questions: fact ids an answer must cover (weighted), and claims it must not make |
+| `shared_name` | True when a fact on the path involves an entity whose name or alias another entity also carries; the text alone cannot tell the two apart. A score can be reported with and without these |
 | `grading` | `{primary: exact|set_f1|numeric|path|abstain|nugget, judge: null|llm}` |
 
 Rules that keep gold honest:

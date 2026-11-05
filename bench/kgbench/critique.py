@@ -108,26 +108,11 @@ def text_ok(row: Mapping) -> bool:
     return all((row[c] or 0) >= KEEP_AT for c in ("groundedness", "standalone"))
 
 
-def tag_shared_names(
-    rows: Sequence[Mapping], questions: Sequence[Mapping], world: Mapping
-) -> list[dict]:
-    """Add ``shared_name``: does the question's path touch an entity whose name or alias another
-    entity also carries? Text alone cannot tell such entities apart."""
-    owners: dict[str, set[str]] = defaultdict(set)
-    for e in world["entities"]:
-        for name in (e["name"], *e["aliases"]):
-            owners[name].add(e["id"])
-    clash = {i for ids in owners.values() if len(ids) > 1 for i in ids}
-    edges = {e["id"]: e for e in world["edges"]}
-    by_id = {q["id"]: q for q in questions}
-
-    def touches(q: Mapping) -> bool:
-        ends = {
-            end for f in q["supporting_facts"] for end in (edges[f]["subject"], edges[f]["object"])
-        }
-        return bool(ends & clash)
-
-    return [{**r, "shared_name": "yes" if touches(by_id[r["id"]]) else "no"} for r in rows]
+def tag_shared_names(rows: Sequence[Mapping], questions: Sequence[Mapping]) -> list[dict]:
+    """Add ``shared_name`` from the dataset's own per-question flag: the path touches an entity
+    whose name another entity also carries, which the text alone cannot resolve."""
+    flag = {q["id"]: q["shared_name"] for q in questions}
+    return [{**r, "shared_name": "yes" if flag[r["id"]] else "no"} for r in rows]
 
 
 def _groups(rows: Sequence[Mapping], key: str) -> dict:
