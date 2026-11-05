@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -24,6 +25,7 @@ from kggen.render import render_documents
 from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
 from kggen.world import generate
 
+from graph_rag.config import Settings
 from graph_rag.wiring import build_embedder, build_offline_components, build_real_components
 from kgbench import __version__, gate
 from kgbench import hard as hards
@@ -39,7 +41,8 @@ from kgbench.linking import DIFFICULTY, linking_gold, score_linking
 
 # The bundled mini fixture, so the command runs offline with no download.
 _DEFAULT_DATASET = Path(__file__).resolve().parent / "data" / "wiki2_mini.json"
-_HARD_DIR = Path(__file__).resolve().parents[2] / "datagen" / "examples" / "hard-small"
+_REPO = Path(__file__).resolve().parents[2]
+_HARD_DIR = _REPO / "datagen" / "examples" / "hard-small"
 _JUDGE_CASES = Path(__file__).resolve().parent / "data" / "judge_cases.json"
 _JUDGE_CACHE = Path(__file__).resolve().parent / "data" / "judge-cache"
 
@@ -143,6 +146,9 @@ def build_parser() -> argparse.ArgumentParser:
     hd.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
     hd.add_argument("--k", type=int, default=5, help="The k for the retrieval table.")
     hd.add_argument("--out", type=Path, help="Write the markdown report here.")
+    hd.add_argument("--llm-cache", type=Path, help="Also run the real LLM stages, caching here.")
+    hd.add_argument("--llm-base-url", help="OpenAI-compatible endpoint (semula); omit to replay.")
+    hd.add_argument("--llm-model", default="openai/claude-haiku", help="LiteLLM model string.")
     jd = commands.add_parser(
         "judge",
         help="Measure an LLM judge's error rates on labelled open-ended cases (opt-in).",
@@ -336,10 +342,21 @@ def _hard(args: argparse.Namespace) -> int:
     ks = sorted({1, 3, 5, 10, args.k})
     real = args.embedder == "bge"
     embedder = CachingEmbedder(build_embedder(real=real))
-    result = hards.measure(args.dir, embedder, args.questions, ks)
+    settings = None
+    if args.llm_cache:
+        if args.llm_base_url:
+            os.environ["OPENAI_API_BASE"] = args.llm_base_url  # LiteLLM reads the endpoint here
+        settings = Settings(
+            coref_model=args.llm_model,
+            kg_build_model=args.llm_model,
+            llm_cache_dir=str(args.llm_cache),
+            openai_api_key=os.environ.get("OPENAI_API_KEY", "semula-local"),
+        )
+    result = hards.measure(args.dir, embedder, args.questions, ks, settings)
     command = (
-        f"uv run --extra embed kgbench hard --questions {args.questions} "
-        f"--embedder {args.embedder} --k {args.k}"
+        f"uv run --extra embed kgbench hard --dir {args.dir.resolve().relative_to(_REPO)} "
+        f"--questions {args.questions} --embedder {args.embedder} --k {args.k}"
+        + (f" --llm-cache {args.llm_cache.resolve().relative_to(_REPO)}" if args.llm_cache else "")
     )
     text = hards.to_markdown(
         result, args.k, command, "bge-small-en-v1.5" if real else "hashing-fake"

@@ -1,0 +1,2650 @@
+[
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Gupu Koduvo",
+   "G. Koduvo"
+  ],
+  "answer": "E03",
+  "answer_kind": "entity",
+  "answer_name": "Gupu Koduvo",
+  "answer_names": [
+   [
+    "Gupu Koduvo",
+    "G. Koduvo"
+   ]
+  ],
+  "answers": [
+   "E03"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F25",
+    "F26",
+    "F07"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q00",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the person that works for the organization that the organization that is a member of Muzu Labs owns.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E26",
+  "supporting_facts": [
+   "F25",
+   "F26",
+   "F07"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Piduese",
+   "Pidueses"
+  ],
+  "answer": "E24",
+  "answer_kind": "entity",
+  "answer_name": "Piduese",
+  "answer_names": [
+   [
+    "Piduese",
+    "Pidueses"
+   ]
+  ],
+  "answers": [
+   "E24"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F14",
+    "F26",
+    "F07",
+    "F06"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q01",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the group that the person that works for the organization that the organization that Koni Diranu is affiliated with owns is a member of.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E10",
+  "supporting_facts": [
+   "F14",
+   "F26",
+   "F07",
+   "F06"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dalu Industries",
+   "Dalu"
+  ],
+  "answer": "E01",
+  "answer_kind": "entity",
+  "answer_name": "Dalu Industries",
+  "answer_names": [
+   [
+    "Dalu Industries",
+    "Dalu"
+   ]
+  ],
+  "answers": [
+   "E01"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F33",
+    "F36",
+    "F22",
+    "F23"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q02",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that the person that is located in the location that the event that Seze Labs participated in is located in works for.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E23",
+  "supporting_facts": [
+   "F33",
+   "F36",
+   "F22",
+   "F23"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Tozu X90",
+   "Tozu-X90"
+  ],
+  "answer": "E21",
+  "answer_kind": "entity",
+  "answer_name": "Tozu X90",
+  "answer_names": [
+   [
+    "Tozu X90",
+    "Tozu-X90"
+   ]
+  ],
+  "answers": [
+   "E21"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F41",
+    "F20",
+    "F21"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q03",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that the person that is affiliated with the organization that is part of Seva Works owns.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E22",
+  "supporting_facts": [
+   "F41",
+   "F20",
+   "F21"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dide Holdings",
+   "Dide",
+   "DH"
+  ],
+  "answer": "E18",
+  "answer_kind": "entity",
+  "answer_name": "Dide Holdings",
+  "answer_names": [
+   [
+    "Dide Holdings",
+    "Dide",
+    "DH"
+   ]
+  ],
+  "answers": [
+   "E18"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F06",
+    "F07",
+    "F26"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q04",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that owns the organization that the person that is a member of Piduese works for.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E24",
+  "supporting_facts": [
+   "F06",
+   "F07",
+   "F26"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Tozu X90",
+   "Tozu-X90"
+  ],
+  "answer": "E21",
+  "answer_kind": "entity",
+  "answer_name": "Tozu X90",
+  "answer_names": [
+   [
+    "Tozu X90",
+    "Tozu-X90"
+   ]
+  ],
+  "answers": [
+   "E21"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F23",
+    "F02"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q05",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that the organization that Rage Taneta works for produces.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E16",
+  "supporting_facts": [
+   "F23",
+   "F02"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Golu Z87"
+  ],
+  "answer": "E29",
+  "answer_kind": "entity",
+  "answer_name": "Golu Z87",
+  "answer_names": [
+   [
+    "Golu Z87"
+   ]
+  ],
+  "answers": [
+   "E29"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F04",
+    "F03",
+    "F27"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q06",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that the organization that the person that is located in Sapoburg founded produces.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E17",
+  "supporting_facts": [
+   "F04",
+   "F03",
+   "F27"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Lugi",
+   "Greater Lugi"
+  ],
+  "answer": "E04",
+  "answer_kind": "entity",
+  "answer_name": "Lugi",
+  "answer_names": [
+   [
+    "Lugi",
+    "Greater Lugi"
+   ]
+  ],
+  "answers": [
+   "E04"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F36"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q07",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the location that Sebo Forum is located in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E25",
+  "supporting_facts": [
+   "F36"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Gebu Forum",
+   "Gebu",
+   "GF"
+  ],
+  "answer": "E05",
+  "answer_kind": "entity",
+  "answer_name": "Gebu Forum",
+  "answer_names": [
+   [
+    "Gebu Forum",
+    "Gebu",
+    "GF"
+   ]
+  ],
+  "answers": [
+   "E05"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F07",
+    "F12"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q08",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the event that the organization that Gupu Koduvo works for participated in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E03",
+  "supporting_facts": [
+   "F07",
+   "F12"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Gupu Koduvo",
+   "G. Koduvo"
+  ],
+  "answer": "E03",
+  "answer_kind": "entity",
+  "answer_name": "Gupu Koduvo",
+  "answer_names": [
+   [
+    "Gupu Koduvo",
+    "G. Koduvo"
+   ]
+  ],
+  "answers": [
+   "E03"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F12",
+    "F07"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q09",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the person that works for the organization that participated in Gebu Forum.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E05",
+  "supporting_facts": [
+   "F12",
+   "F07"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Seze Labs"
+  ],
+  "answer": "E23",
+  "answer_kind": "entity",
+  "answer_name": "Seze Labs",
+  "answer_names": [
+   [
+    "Seze Labs"
+   ]
+  ],
+  "answers": [
+   "E23"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F22",
+    "F36",
+    "F33"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q10",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that participated in the event that is located in the location that Rage Taneta is located in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E16",
+  "supporting_facts": [
+   "F22",
+   "F36",
+   "F33"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dalu Industries",
+   "Dalu"
+  ],
+  "answer": "E01",
+  "answer_kind": "entity",
+  "answer_name": "Dalu Industries",
+  "answer_names": [
+   [
+    "Dalu Industries",
+    "Dalu"
+   ]
+  ],
+  "answers": [
+   "E01"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F04",
+    "F05"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q11",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that the person that is located in Sapoburg works for.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E17",
+  "supporting_facts": [
+   "F04",
+   "F05"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Busu Festival",
+   "Busu"
+  ],
+  "answer": "E13",
+  "answer_kind": "entity",
+  "answer_name": "Busu Festival",
+  "answer_names": [
+   [
+    "Busu Festival",
+    "Busu"
+   ]
+  ],
+  "answers": [
+   "E13"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F28",
+    "F01"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q12",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the event that the organization that Silo Fapobu founded participated in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E19",
+  "supporting_facts": [
+   "F28",
+   "F01"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Busu Festival",
+   "Busu"
+  ],
+  "answer": "E13",
+  "answer_kind": "entity",
+  "answer_name": "Busu Festival",
+  "answer_names": [
+   [
+    "Busu Festival",
+    "Busu"
+   ]
+  ],
+  "answers": [
+   "E13"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F00",
+    "F19"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q13",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the event that is located in the location that is part of Sapoburg.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E17",
+  "supporting_facts": [
+   "F00",
+   "F19"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Gevuton",
+   "Greater Gevuton",
+   "GEVUTON"
+  ],
+  "answer": "E00",
+  "answer_kind": "entity",
+  "answer_name": "Gevuton",
+  "answer_names": [
+   [
+    "Gevuton",
+    "Greater Gevuton",
+    "GEVUTON"
+   ]
+  ],
+  "answers": [
+   "E00"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F00"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q14",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the location that is part of Sapoburg.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E17",
+  "supporting_facts": [
+   "F00"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Diza",
+   "DIZA"
+  ],
+  "answer": "E08",
+  "answer_kind": "entity",
+  "answer_name": "Diza",
+  "answer_names": [
+   [
+    "Diza",
+    "DIZA"
+   ]
+  ],
+  "answers": [
+   "E08"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F09",
+    "F41",
+    "F32",
+    "F37"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q15",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that the organization that the organization that the organization that Vefa Zatuso founded is part of is a member of owns.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E07",
+  "supporting_facts": [
+   "F09",
+   "F41",
+   "F32",
+   "F37"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Lugi",
+   "Greater Lugi"
+  ],
+  "answer": "E04",
+  "answer_kind": "entity",
+  "answer_name": "Lugi",
+  "answer_names": [
+   [
+    "Lugi",
+    "Greater Lugi"
+   ]
+  ],
+  "answers": [
+   "E04"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F11",
+    "F08",
+    "F33",
+    "F36"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q16",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the location that the event that the organization that the person that participated in Busu Festival founded participated in is located in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E13",
+  "supporting_facts": [
+   "F11",
+   "F08",
+   "F33",
+   "F36"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Lapi Group",
+   "Lapi"
+  ],
+  "answer": "E28",
+  "answer_kind": "entity",
+  "answer_name": "Lapi Group",
+  "answer_names": [
+   [
+    "Lapi Group",
+    "Lapi"
+   ]
+  ],
+  "answers": [
+   "E28"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F31"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q17",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that Seva Works is affiliated with.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E22",
+  "supporting_facts": [
+   "F31"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dalu Industries",
+   "Dalu"
+  ],
+  "answer": "E01",
+  "answer_kind": "entity",
+  "answer_name": "Dalu Industries",
+  "answer_names": [
+   [
+    "Dalu Industries",
+    "Dalu"
+   ]
+  ],
+  "answers": [
+   "E01"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F17",
+    "F27",
+    "F03",
+    "F05"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q18",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that the person that founded the organization that produces the product that Size Gatide owns works for.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E11",
+  "supporting_facts": [
+   "F17",
+   "F27",
+   "F03",
+   "F05"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Piduese",
+   "Pidueses"
+  ],
+  "answer": "E24",
+  "answer_kind": "entity",
+  "answer_name": "Piduese",
+  "answer_names": [
+   [
+    "Piduese",
+    "Pidueses"
+   ]
+  ],
+  "answers": [
+   "E24"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F06"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q19",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the group that Gupu Koduvo is a member of.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E03",
+  "supporting_facts": [
+   "F06"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Lugi",
+   "Greater Lugi"
+  ],
+  "answer": "E04",
+  "answer_kind": "entity",
+  "answer_name": "Lugi",
+  "answer_names": [
+   [
+    "Lugi",
+    "Greater Lugi"
+   ]
+  ],
+  "answers": [
+   "E04"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F22"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q20",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the location that Rage Taneta is located in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E16",
+  "supporting_facts": [
+   "F22"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Gevuton",
+   "GEVUTON"
+  ],
+  "answer": "E02",
+  "answer_kind": "entity",
+  "answer_name": "Gevuton",
+  "answer_names": [
+   [
+    "Gevuton",
+    "GEVUTON"
+   ]
+  ],
+  "answers": [
+   "E02"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F11",
+    "F19",
+    "F00",
+    "F04"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q21",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the person that is located in the location that the location that the event that Vefa Zatuso participated in is located in is part of.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E07",
+  "supporting_facts": [
+   "F11",
+   "F19",
+   "F00",
+   "F04"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Gebu Forum",
+   "Gebu",
+   "GF"
+  ],
+  "answer": "E05",
+  "answer_kind": "entity",
+  "answer_name": "Gebu Forum",
+  "answer_names": [
+   [
+    "Gebu Forum",
+    "Gebu",
+    "GF"
+   ]
+  ],
+  "answers": [
+   "E05"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F25",
+    "F26",
+    "F12"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q22",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the event that the organization that the organization that is a member of Muzu Labs owns participated in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E26",
+  "supporting_facts": [
+   "F25",
+   "F26",
+   "F12"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Sapoburg",
+   "Greater Sapoburg"
+  ],
+  "answer": "E17",
+  "answer_kind": "entity",
+  "answer_name": "Sapoburg",
+  "answer_names": [
+   [
+    "Sapoburg",
+    "Greater Sapoburg"
+   ]
+  ],
+  "answers": [
+   "E17"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F19",
+    "F00"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q23",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the location that the location that Busu Festival is located in is part of.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E13",
+  "supporting_facts": [
+   "F19",
+   "F00"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Diza",
+   "DIZA"
+  ],
+  "answer": "E08",
+  "answer_kind": "entity",
+  "answer_name": "Diza",
+  "answer_names": [
+   [
+    "Diza",
+    "DIZA"
+   ]
+  ],
+  "answers": [
+   "E08"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F06",
+    "F07",
+    "F13"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q24",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that the organization that the person that is a member of Piduese works for produces.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E24",
+  "supporting_facts": [
+   "F06",
+   "F07",
+   "F13"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Vefa Zatuso",
+   "V. Zatuso",
+   "Zatuso"
+  ],
+  "answer": "E07",
+  "answer_kind": "entity",
+  "answer_name": "Vefa Zatuso",
+  "answer_names": [
+   [
+    "Vefa Zatuso",
+    "V. Zatuso",
+    "Zatuso"
+   ]
+  ],
+  "answers": [
+   "E07"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F41",
+    "F09"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q25",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the person that founded the organization that is part of Seva Works.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E22",
+  "supporting_facts": [
+   "F41",
+   "F09"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Busu Festival",
+   "Busu"
+  ],
+  "answer": "E13",
+  "answer_kind": "entity",
+  "answer_name": "Busu Festival",
+  "answer_names": [
+   [
+    "Busu Festival",
+    "Busu"
+   ]
+  ],
+  "answers": [
+   "E13"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F29",
+    "F01"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q26",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the event that the organization that Silo Fapobu works for participated in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E19",
+  "supporting_facts": [
+   "F29",
+   "F01"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dide Holdings",
+   "Dide"
+  ],
+  "answer": "E09",
+  "answer_kind": "entity",
+  "answer_name": "Dide Holdings",
+  "answer_names": [
+   [
+    "Dide Holdings",
+    "Dide"
+   ]
+  ],
+  "answers": [
+   "E09"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F12"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q27",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that participated in Gebu Forum.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E05",
+  "supporting_facts": [
+   "F12"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Piduese",
+   "Pidueses"
+  ],
+  "answer": "E24",
+  "answer_kind": "entity",
+  "answer_name": "Piduese",
+  "answer_names": [
+   [
+    "Piduese",
+    "Pidueses"
+   ]
+  ],
+  "answers": [
+   "E24"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F10"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q28",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the group that Vefa Zatuso is a member of.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E07",
+  "supporting_facts": [
+   "F10"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dide Holdings",
+   "Dide"
+  ],
+  "answer": "E09",
+  "answer_kind": "entity",
+  "answer_name": "Dide Holdings",
+  "answer_names": [
+   [
+    "Dide Holdings",
+    "Dide"
+   ]
+  ],
+  "answers": [
+   "E09"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F11",
+    "F10",
+    "F06",
+    "F07"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q29",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that the person that is a member of the group that the person that participated in Busu Festival is a member of works for.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E13",
+  "supporting_facts": [
+   "F11",
+   "F10",
+   "F06",
+   "F07"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Vefa Zatuso",
+   "V. Zatuso",
+   "Zatuso"
+  ],
+  "answer": "E07",
+  "answer_kind": "entity",
+  "answer_name": "Vefa Zatuso",
+  "answer_names": [
+   [
+    "Vefa Zatuso",
+    "V. Zatuso",
+    "Zatuso"
+   ]
+  ],
+  "answers": [
+   "E07"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F32",
+    "F41",
+    "F09"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q30",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the person that founded the organization that is part of the organization that is a member of Muzu Labs.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E26",
+  "supporting_facts": [
+   "F32",
+   "F41",
+   "F09"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dalu Industries",
+   "Dalu"
+  ],
+  "answer": "E01",
+  "answer_kind": "entity",
+  "answer_name": "Dalu Industries",
+  "answer_names": [
+   [
+    "Dalu Industries",
+    "Dalu"
+   ]
+  ],
+  "answers": [
+   "E01"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F19",
+    "F00",
+    "F04",
+    "F05"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q31",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that the person that is located in the location that the location that Busu Festival is located in is part of works for.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E13",
+  "supporting_facts": [
+   "F19",
+   "F00",
+   "F04",
+   "F05"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Diza",
+   "DIZA"
+  ],
+  "answer": "E08",
+  "answer_kind": "entity",
+  "answer_name": "Diza",
+  "answer_names": [
+   [
+    "Diza",
+    "DIZA"
+   ]
+  ],
+  "answers": [
+   "E08"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F04",
+    "F03",
+    "F25",
+    "F38"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q32",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that the organization that the organization that the person that is located in Sapoburg founded is a member of produces.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E17",
+  "supporting_facts": [
+   "F04",
+   "F03",
+   "F25",
+   "F38"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Tozu X90",
+   "Tozu-X90"
+  ],
+  "answer": "E21",
+  "answer_kind": "entity",
+  "answer_name": "Tozu X90",
+  "answer_names": [
+   [
+    "Tozu X90",
+    "Tozu-X90"
+   ]
+  ],
+  "answers": [
+   "E21"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F11",
+    "F09",
+    "F20",
+    "F21"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q33",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that the person that is affiliated with the organization that the person that participated in Busu Festival founded owns.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E13",
+  "supporting_facts": [
+   "F11",
+   "F09",
+   "F20",
+   "F21"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Seze Labs"
+  ],
+  "answer": "E23",
+  "answer_kind": "entity",
+  "answer_name": "Seze Labs",
+  "answer_names": [
+   [
+    "Seze Labs"
+   ]
+  ],
+  "answers": [
+   "E23"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F33"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q34",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that participated in Sebo Forum.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E25",
+  "supporting_facts": [
+   "F33"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Sapoburg",
+   "Greater Sapoburg"
+  ],
+  "answer": "E17",
+  "answer_kind": "entity",
+  "answer_name": "Sapoburg",
+  "answer_names": [
+   [
+    "Sapoburg",
+    "Greater Sapoburg"
+   ]
+  ],
+  "answers": [
+   "E17"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F12",
+    "F26",
+    "F03",
+    "F04"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q35",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the location that the person that founded the organization that owns the organization that participated in Gebu Forum is located in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E05",
+  "supporting_facts": [
+   "F12",
+   "F26",
+   "F03",
+   "F04"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Koni Diranu"
+  ],
+  "answer": "E10",
+  "answer_kind": "entity",
+  "answer_name": "Koni Diranu",
+  "answer_names": [
+   [
+    "Koni Diranu"
+   ]
+  ],
+  "answers": [
+   "E10"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F30",
+    "F37",
+    "F25",
+    "F14"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q36",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the person that is affiliated with the organization that is a member of the organization that owns the product that Tozu X90 is part of.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E21",
+  "supporting_facts": [
+   "F30",
+   "F37",
+   "F25",
+   "F14"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Diza",
+   "DIZA"
+  ],
+  "answer": "E08",
+  "answer_kind": "entity",
+  "answer_name": "Diza",
+  "answer_names": [
+   [
+    "Diza",
+    "DIZA"
+   ]
+  ],
+  "answers": [
+   "E08"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F31",
+    "F32",
+    "F38"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q37",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that the organization that the organization that is affiliated with Lapi Group is a member of produces.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E28",
+  "supporting_facts": [
+   "F31",
+   "F32",
+   "F38"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dide Holdings",
+   "Dide",
+   "DH"
+  ],
+  "answer": "E18",
+  "answer_kind": "entity",
+  "answer_name": "Dide Holdings",
+  "answer_names": [
+   [
+    "Dide Holdings",
+    "Dide",
+    "DH"
+   ]
+  ],
+  "answers": [
+   "E18"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F12",
+    "F26"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q38",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that owns the organization that participated in Gebu Forum.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E05",
+  "supporting_facts": [
+   "F12",
+   "F26"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Lapi Group",
+   "Lapi"
+  ],
+  "answer": "E28",
+  "answer_kind": "entity",
+  "answer_name": "Lapi Group",
+  "answer_names": [
+   [
+    "Lapi Group",
+    "Lapi"
+   ]
+  ],
+  "answers": [
+   "E28"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F44",
+    "F38",
+    "F32",
+    "F41"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q39",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that is part of the organization that is a member of the organization that produces the product that Golu Z87 is part of.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E29",
+  "supporting_facts": [
+   "F44",
+   "F38",
+   "F32",
+   "F41"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dide Holdings",
+   "Dide"
+  ],
+  "answer": "E09",
+  "answer_kind": "entity",
+  "answer_name": "Dide Holdings",
+  "answer_names": [
+   [
+    "Dide Holdings",
+    "Dide"
+   ]
+  ],
+  "answers": [
+   "E09"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F10",
+    "F06",
+    "F07"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q40",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that the person that is a member of the group that Vefa Zatuso is a member of works for.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E07",
+  "supporting_facts": [
+   "F10",
+   "F06",
+   "F07"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dide Holdings",
+   "Dide"
+  ],
+  "answer": "E09",
+  "answer_kind": "entity",
+  "answer_name": "Dide Holdings",
+  "answer_names": [
+   [
+    "Dide Holdings",
+    "Dide"
+   ]
+  ],
+  "answers": [
+   "E09"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F06",
+    "F07"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q41",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that the person that is a member of Piduese works for.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E24",
+  "supporting_facts": [
+   "F06",
+   "F07"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Seva Works",
+   "Seva"
+  ],
+  "answer": "E22",
+  "answer_kind": "entity",
+  "answer_name": "Seva Works",
+  "answer_names": [
+   [
+    "Seva Works",
+    "Seva"
+   ]
+  ],
+  "answers": [
+   "E22"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F41"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q42",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that Lapi Group is part of.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E28",
+  "supporting_facts": [
+   "F41"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dalu Industries",
+   "Dalu"
+  ],
+  "answer": "E01",
+  "answer_kind": "entity",
+  "answer_name": "Dalu Industries",
+  "answer_names": [
+   [
+    "Dalu Industries",
+    "Dalu"
+   ]
+  ],
+  "answers": [
+   "E01"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F18"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q43",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that Lelo Zadeze is affiliated with.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E12",
+  "supporting_facts": [
+   "F18"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Diza",
+   "DIZA"
+  ],
+  "answer": "E08",
+  "answer_kind": "entity",
+  "answer_name": "Diza",
+  "answer_names": [
+   [
+    "Diza",
+    "DIZA"
+   ]
+  ],
+  "answers": [
+   "E08"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F15",
+    "F16",
+    "F30"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q44",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that the product that the person that is affiliated with Dogiese owns is part of.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E20",
+  "supporting_facts": [
+   "F15",
+   "F16",
+   "F30"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Tozu X90",
+   "Tozu-X90"
+  ],
+  "answer": "E21",
+  "answer_kind": "entity",
+  "answer_name": "Tozu X90",
+  "answer_names": [
+   [
+    "Tozu X90",
+    "Tozu-X90"
+   ]
+  ],
+  "answers": [
+   "E21"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F18",
+    "F02"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q45",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that the organization that Lelo Zadeze is affiliated with produces.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E12",
+  "supporting_facts": [
+   "F18",
+   "F02"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dalu Industries",
+   "Dalu"
+  ],
+  "answer": "E01",
+  "answer_kind": "entity",
+  "answer_name": "Dalu Industries",
+  "answer_names": [
+   [
+    "Dalu Industries",
+    "Dalu"
+   ]
+  ],
+  "answers": [
+   "E01"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F23"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q46",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that Rage Taneta works for.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E16",
+  "supporting_facts": [
+   "F23"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dide Holdings",
+   "Dide"
+  ],
+  "answer": "E09",
+  "answer_kind": "entity",
+  "answer_name": "Dide Holdings",
+  "answer_names": [
+   [
+    "Dide Holdings",
+    "Dide"
+   ]
+  ],
+  "answers": [
+   "E09"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F08",
+    "F10",
+    "F06",
+    "F07"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q47",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that the person that is a member of the group that the person that founded Seze Labs is a member of works for.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E23",
+  "supporting_facts": [
+   "F08",
+   "F10",
+   "F06",
+   "F07"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Size Gatide"
+  ],
+  "answer": "E11",
+  "answer_kind": "entity",
+  "answer_name": "Size Gatide",
+  "answer_names": [
+   [
+    "Size Gatide"
+   ]
+  ],
+  "answers": [
+   "E11"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F15"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q48",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the person that is affiliated with Dogiese.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E20",
+  "supporting_facts": [
+   "F15"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Lugi",
+   "Greater Lugi"
+  ],
+  "answer": "E04",
+  "answer_kind": "entity",
+  "answer_name": "Lugi",
+  "answer_names": [
+   [
+    "Lugi",
+    "Greater Lugi"
+   ]
+  ],
+  "answers": [
+   "E04"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F33",
+    "F36"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q49",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the location that the event that Seze Labs participated in is located in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E23",
+  "supporting_facts": [
+   "F33",
+   "F36"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Diza",
+   "DIZA"
+  ],
+  "answer": "E08",
+  "answer_kind": "entity",
+  "answer_name": "Diza",
+  "answer_names": [
+   [
+    "Diza",
+    "DIZA"
+   ]
+  ],
+  "answers": [
+   "E08"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F32",
+    "F25",
+    "F26",
+    "F13"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 4,
+  "id": "Q50",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that the organization that the organization that is a member of the organization that Seva Works is a member of owns produces.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E22",
+  "supporting_facts": [
+   "F32",
+   "F25",
+   "F26",
+   "F13"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dalu Industries",
+   "Dalu"
+  ],
+  "answer": "E01",
+  "answer_kind": "entity",
+  "answer_name": "Dalu Industries",
+  "answer_names": [
+   [
+    "Dalu Industries",
+    "Dalu"
+   ]
+  ],
+  "answers": [
+   "E01"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F14",
+    "F03",
+    "F05"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q51",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that the person that founded the organization that Koni Diranu is affiliated with works for.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E10",
+  "supporting_facts": [
+   "F14",
+   "F03",
+   "F05"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Dide Holdings",
+   "Dide",
+   "DH"
+  ],
+  "answer": "E18",
+  "answer_kind": "entity",
+  "answer_name": "Dide Holdings",
+  "answer_names": [
+   [
+    "Dide Holdings",
+    "Dide",
+    "DH"
+   ]
+  ],
+  "answers": [
+   "E18"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F14"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q52",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that Koni Diranu is affiliated with.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E10",
+  "supporting_facts": [
+   "F14"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Gevuton",
+   "GEVUTON"
+  ],
+  "answer": "E02",
+  "answer_kind": "entity",
+  "answer_name": "Gevuton",
+  "answer_names": [
+   [
+    "Gevuton",
+    "GEVUTON"
+   ]
+  ],
+  "answers": [
+   "E02"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F19",
+    "F00",
+    "F04"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q53",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the person that is located in the location that the location that Busu Festival is located in is part of.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E13",
+  "supporting_facts": [
+   "F19",
+   "F00",
+   "F04"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Muzu Labs",
+   "Muzu",
+   "ML"
+  ],
+  "answer": "E26",
+  "answer_kind": "entity",
+  "answer_name": "Muzu Labs",
+  "answer_names": [
+   [
+    "Muzu Labs",
+    "Muzu",
+    "ML"
+   ]
+  ],
+  "answers": [
+   "E26"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F32"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q54",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the organization that Seva Works is a member of.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E22",
+  "supporting_facts": [
+   "F32"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Silo Fapobu"
+  ],
+  "answer": "E19",
+  "answer_kind": "entity",
+  "answer_name": "Silo Fapobu",
+  "answer_names": [
+   [
+    "Silo Fapobu"
+   ]
+  ],
+  "answers": [
+   "E19"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F18",
+    "F28"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q55",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the person that founded the organization that Lelo Zadeze is affiliated with.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E12",
+  "supporting_facts": [
+   "F18",
+   "F28"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Diza",
+   "DIZA"
+  ],
+  "answer": "E08",
+  "answer_kind": "entity",
+  "answer_name": "Diza",
+  "answer_names": [
+   [
+    "Diza",
+    "DIZA"
+   ]
+  ],
+  "answers": [
+   "E08"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F38"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 1,
+  "id": "Q56",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the product that Muzu Labs produces.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E26",
+  "supporting_facts": [
+   "F38"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Busu Festival",
+   "Busu"
+  ],
+  "answer": "E13",
+  "answer_kind": "entity",
+  "answer_name": "Busu Festival",
+  "answer_names": [
+   [
+    "Busu Festival",
+    "Busu"
+   ]
+  ],
+  "answers": [
+   "E13"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F22",
+    "F23",
+    "F01"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q57",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the event that the organization that the person that is located in Lugi works for participated in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E04",
+  "supporting_facts": [
+   "F22",
+   "F23",
+   "F01"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Gebu Forum",
+   "Gebu",
+   "GF"
+  ],
+  "answer": "E05",
+  "answer_kind": "entity",
+  "answer_name": "Gebu Forum",
+  "answer_names": [
+   [
+    "Gebu Forum",
+    "Gebu",
+    "GF"
+   ]
+  ],
+  "answers": [
+   "E05"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F14",
+    "F26",
+    "F12"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 3,
+  "id": "Q58",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the event that the organization that the organization that Koni Diranu is affiliated with owns participated in.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E10",
+  "supporting_facts": [
+   "F14",
+   "F26",
+   "F12"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ },
+ {
+  "abstain": null,
+  "accepted_answers": [
+   "Gevuton",
+   "GEVUTON"
+  ],
+  "answer": "E02",
+  "answer_kind": "entity",
+  "answer_name": "Gevuton",
+  "answer_names": [
+   [
+    "Gevuton",
+    "GEVUTON"
+   ]
+  ],
+  "answers": [
+   "E02"
+  ],
+  "as_of": null,
+  "forbidden_claims": [],
+  "gold_paths": [
+   [
+    "F14",
+    "F03"
+   ]
+  ],
+  "grading": "exact",
+  "hops": 2,
+  "id": "Q59",
+  "number": null,
+  "ordered": false,
+  "premise": null,
+  "question": "Name the person that founded the organization that Koni Diranu is affiliated with.",
+  "required_facts": [],
+  "stale_values": [],
+  "start": "E10",
+  "supporting_facts": [
+   "F14",
+   "F03"
+  ],
+  "tie_rule": "",
+  "type": "entity"
+ }
+]

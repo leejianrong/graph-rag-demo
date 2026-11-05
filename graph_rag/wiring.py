@@ -57,6 +57,7 @@ from graph_rag.predicates import Predicate
 from graph_rag.query.retriever import QueryRetriever
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.entity_linking import EntityLinkingStage
+from graph_rag.stages.kg_build import KgStage
 from graph_rag.stages.ner import NerResult
 
 if TYPE_CHECKING:
@@ -299,7 +300,10 @@ class BenchmarkComponents:
 
 
 def build_offline_components(
-    *, settings: Settings | None = None, embedder: Embedder | None = None
+    *,
+    settings: Settings | None = None,
+    embedder: Embedder | None = None,
+    llm_stages: bool = False,
 ) -> BenchmarkComponents:
     """Wire the fully offline, deterministic benchmark pipeline (fakes + heuristics).
 
@@ -314,6 +318,10 @@ def build_offline_components(
         embedder: Optional embedder shared by linking and retrieval (default: the
             deterministic :class:`~graph_rag.fakes.FakeEmbedder`); pass a real one to
             measure retrieval with real vectors while the stages stay offline.
+        llm_stages: Use the real LLM coref and KG-build stages (through the response cache and
+            whatever endpoint LiteLLM is pointed at, a recording server such as semula
+            included) while NER, linking and the stores stay in-memory. Off by default: the
+            offline pipeline makes no provider call.
 
     Returns:
         The wired :class:`BenchmarkComponents`.
@@ -325,7 +333,21 @@ def build_offline_components(
     entity_store = InMemoryEntityStore()
     graph_store = InMemoryGraphStore()
     embedder = embedder or FakeEmbedder(dim=settings.embed_dim)
-    llm_client = FakeLLMClient()  # empty coref clusters; counts one call per document.
+    llm_client: Any = FakeLLMClient()  # empty coref clusters; counts one call per document.
+    usage: Callable[[], LlmUsage] = LlmUsage  # the fake stands in for a provider: nothing is spent
+    kg_stage: KgStage = HeuristicKgBuildStage()
+    if llm_stages:
+        from graph_rag.adapters.llm_client import LiteLLMClient
+        from graph_rag.stages.kg_build import KgBuildStage
+
+        coref_llm = LiteLLMClient.from_settings(settings)
+        kg_llm = LiteLLMClient(
+            model=settings.kg_build_model,
+            cache_dir=settings.llm_cache_dir,
+            max_retries=settings.llm_max_retries,
+            api_key=settings.openai_api_key,
+        )
+        llm_client, kg_stage, usage = coref_llm, KgBuildStage(kg_llm), usage_of(coref_llm, kg_llm)
 
     orchestrator = Orchestrator(
         object_store=object_store,
@@ -338,7 +360,7 @@ def build_offline_components(
             entity_store, embedder, threshold=-1.0, knn_top_k=0
         ),
         graph_store=graph_store,
-        kg_build_stage=HeuristicKgBuildStage(),
+        kg_build_stage=kg_stage,
         entity_store=entity_store,
     )
     retriever = QueryRetriever.from_settings(
@@ -354,7 +376,7 @@ def build_offline_components(
         retriever=retriever,
         bucket=settings.minio_bucket,
         llm_calls=lambda: llm_client.calls,
-        llm_usage=LlmUsage,  # the fake stands in for a provider: nothing is spent
+        llm_usage=usage,
     )
 
 

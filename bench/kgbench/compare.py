@@ -227,13 +227,16 @@ def run_seed(
     embedder: Embedder,
     ks: Sequence[int],
     documents: tuple[Document, ...] | None = None,
+    pipeline: Callable[[], BenchmarkComponents] | None = None,
 ) -> SeedRun:
-    """Score every system on one world; ``documents`` replaces the template text for it."""
+    """Score every system on one world; ``documents`` replaces the template text for it and
+    ``pipeline`` builds graph-rag's components (default: the offline ones)."""
     world = generate(spec)
     documents = documents or render_documents(world)
     questions = generate_questions(world, QuestionSpec(n_questions=n_questions))
     # Each system is (the pipeline it runs, which has an LLM bill, or None; how to build it).
-    graph = {m: build_offline_components(embedder=embedder) for m in ("passages", "graph")}
+    make = pipeline or (lambda: build_offline_components(embedder=embedder))
+    graph = {m: make() for m in ("passages", "graph")}
     systems: dict[str, tuple[BenchmarkComponents | None, Callable[[], Retriever]]] = {
         "BM25": (None, lambda: BM25Retriever(documents)),
         "Dense": (None, lambda: DenseRetriever(documents, embedder)),
