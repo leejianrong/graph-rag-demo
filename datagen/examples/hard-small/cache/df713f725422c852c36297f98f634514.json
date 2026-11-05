@@ -1,0 +1,15 @@
+{
+ "messages": [
+  {
+   "content": "You write short, factual encyclopedia-style articles from structured facts. Reply with JSON only, no commentary and no code fences.",
+   "role": "system"
+  },
+  {
+   "content": "Write a short article that states every fact below exactly once. You may put several facts in one sentence, reorder them, and, once an entity has been named in the article, refer back to it with a pronoun or a description (\"the company\", \"the city\"). Name each entity exactly as written the first time. A sentence that states a fact must contain that fact's object name exactly as written, and its subject must have been named exactly as written in that sentence or an earlier one. State the years given for a fact in its sentence. Add two or three background sentences of general context that name no person, organisation, place or event. Do not add facts, merge distinct facts into one claim, or name anything that is not listed.\n\nF1: Gaze Industries | is affiliated with | Gaze Industries\nF2: Industries | is a member of | Lone Pugali\n\nReply as JSON in reading order: {\"sentences\": [{\"facts\": [\"F1\"], \"text\": \"...\"}, {\"facts\": [], \"text\": \"background sentence\"}, ...]}",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "prompt_version": 2,
+ "response": "{\"sentences\": [{\"facts\": [], \"text\": \"Trade bodies and industry groups often list their members on public pages, so outsiders can see who belongs to which network.\"}, {\"facts\": [\"F1\"], \"text\": \"Gaze Industries is affiliated with Gaze Industries.\"}, {\"facts\": [\"F2\"], \"text\": \"Industries is a member of Lone Pugali.\"}, {\"facts\": [], \"text\": \"Membership records like these change over time as firms merge, split or leave a group.\"}]}\n"
+}
