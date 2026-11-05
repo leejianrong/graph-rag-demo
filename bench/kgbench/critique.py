@@ -174,3 +174,64 @@ def chart_svg(rows: Sequence[Mapping], title: str) -> str:
         intervals={n: [wilson(a, b) for a, b in s] for n, s in shares.items()},
         counts=[f"n={len(g)}" for g in groups.values()],
     )
+
+
+LABELS = ("answerable", "ambiguous", "not_answerable")
+
+
+def sample(questions: Sequence[Mapping], n: int, seed: int = 0) -> list[Mapping]:
+    """``n`` questions, an equal share per hop count (the remainder to the lowest), seeded."""
+    import random
+
+    rng = random.Random(f"{seed}:human-check")
+    hops = sorted({q["hops"] for q in questions})
+    picked: list[Mapping] = []
+    for i, h in enumerate(hops):
+        pool = sorted((q for q in questions if q["hops"] == h), key=lambda q: q["id"])
+        share = n // len(hops) + (1 if i < n % len(hops) else 0)
+        picked += rng.sample(pool, min(share, len(pool)))
+    return sorted(picked, key=lambda q: q["id"])
+
+
+def sheet(picked: Sequence[Mapping], documents: Sequence[Mapping]) -> str:
+    """A reading sheet: each question, its gold answer and the documents it rests on. The model's
+    ratings are left out so they cannot anchor the reader."""
+    parts = [
+        "# Question check\n",
+        "For each question, read the documents and write one label in `labels.csv`: "
+        f"`{'`, `'.join(LABELS)}`. *answerable*: the documents answer it and the gold answer is "
+        "right. *ambiguous*: more than one answer fits what the text says, or a name could be "
+        "two entities. *not_answerable*: the documents do not support the gold answer.\n",
+    ]
+    for q in picked:
+        names = " / ".join(q["accepted_answers"][:2])
+        parts.append(
+            f"## {q['id']} ({q['hops']} hops)\n\n**{q['question']}**\n\nGold answer: {names}\n\n"
+            + "\n>\n".join(
+                "\n".join(f"> {line}" for line in chunk.split("\n"))
+                for chunk in context_for(q, documents).split("\n\n")
+            )
+            + "\n"
+        )
+    return "\n".join(parts)
+
+
+def agreement(rows: Sequence[Mapping], labels: Mapping[str, str]) -> str:
+    """Human labels against the model's groundedness (``answerable`` vs a rating of 4 or more)."""
+    scored = [r for r in rows if r["id"] in labels]
+    cells: dict[tuple[str, bool], int] = defaultdict(int)
+    for r in scored:
+        cells[(labels[r["id"]], (r["groundedness"] or 0) >= KEEP_AT)] += 1
+    lines = [
+        f"{len(scored)} labelled questions.\n",
+        f"| human label | model rated groundedness ≥ {KEEP_AT} | model rated lower |",
+        "|---|---|---|",
+    ]
+    lines += [f"| {k} | {cells[(k, True)]} | {cells[(k, False)]} |" for k in LABELS]
+    same = cells[("answerable", True)] + sum(cells[(k, False)] for k in LABELS if k != "answerable")
+    low, high = wilson(same, len(scored)) if scored else (0.0, 1.0)
+    lines.append(
+        f"\nThe model agrees with the human on answerable versus not: {same}/{len(scored)} "
+        f"({low:.0%}–{high:.0%})."
+    )
+    return "\n".join(lines)
