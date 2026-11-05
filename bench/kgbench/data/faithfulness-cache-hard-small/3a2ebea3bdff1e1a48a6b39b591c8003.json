@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nWorkshops and small plants often grew out of a single trade that a family already knew well. Gedu Tumuka founded Sodu Works. Early owners in this line of work usually kept the books themselves and learned the machines by hand. Gedu Tumuka works for Seka.\n\nFacts the article should state (an entity may appear under an alias: Sodu Works = Sodu; Seka Labs = Seka, SL):\n1. Gedu Tumuka founded Sodu Works\n2. Gedu Tumuka works for Seka Labs\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Gedu Tumuka founded Sodu Works\"\n2: STATED | \"Gedu Tumuka works for Seka\"\nExtra: NONE\n"
+}

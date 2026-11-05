@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nFounders often build their networks through the people they meet early in their careers. Kusi Fudapu is affiliated with Megiish. K. Fudapu founded Fozu. K. Fudapu founded Velu Group. K. Fudapu also founded Luse Group. Kusi Fudapu founded Suvu Doveku. K. Fudapu is located in Fazemere. Records of such ventures are usually kept in company registries and trade press archives.\n\nFacts the article should state (an entity may appear under an alias: Fozu Systems = Fozu; Fazemere = Greater Fazemere; Kusi Fudapu = K. Fudapu; Velu Group = Velu; Luse Group = Luse, LG):\n1. Kusi Fudapu is affiliated with Megiish\n2. Kusi Fudapu founded Fozu Systems\n3. Kusi Fudapu founded Velu Group\n4. Kusi Fudapu founded Luse Group\n5. Kusi Fudapu founded Suvu Doveku\n6. Kusi Fudapu is located in Fazemere\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Kusi Fudapu is affiliated with Megiish\"\n2: STATED | \"K. Fudapu founded Fozu\"\n3: STATED | \"K. Fudapu founded Velu Group\"\n4: STATED | \"K. Fudapu also founded Luse Group\"\n5: STATED | \"Kusi Fudapu founded Suvu Doveku\"\n6: STATED | \"K. Fudapu is located in Fazemere\"\nExtra: NONE\n"
+}

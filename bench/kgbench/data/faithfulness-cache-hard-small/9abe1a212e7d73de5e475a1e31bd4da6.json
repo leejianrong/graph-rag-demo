@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nProfessional networks in small markets often overlap, with the same faces turning up at several events each year. Dolifa is affiliated with Dune Partners. Gefo Dolifa is affiliated with Luse Group. Gefo Dolifa is located in Buriton. Gefo Dolifa participated in Rito. Event programmes of this kind are usually published a few weeks ahead, so attendees can plan their days.\n\nFacts the article should state (an entity may appear under an alias: Dune Partners = Dune; Rito Summit = Rito, RS; Gefo Dolifa = G. Dolifa, Dolifa; Luse Group = Luse, LG; Buriton = Greater Buriton):\n1. Gefo Dolifa is affiliated with Dune Partners\n2. Gefo Dolifa is affiliated with Luse Group\n3. Gefo Dolifa is located in Buriton\n4. Gefo Dolifa participated in Rito Summit\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Dolifa is affiliated with Dune Partners\"\n2: STATED | \"Gefo Dolifa is affiliated with Luse Group\"\n3: STATED | \"Gefo Dolifa is located in Buriton\"\n4: STATED | \"Gefo Dolifa participated in Rito\"\nExtra: NONE\n"
+}

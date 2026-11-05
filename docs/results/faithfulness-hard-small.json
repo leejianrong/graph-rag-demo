@@ -1,0 +1,2671 @@
+{
+ "documents": [
+  {
+   "id": "D00000",
+   "facts": [
+    "Dako Works produces Vipu X55"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    [
+     "a product that buyers often compare with similar equipment"
+    ]
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00001",
+   "facts": [
+    "Velu Group is located in Vegemere",
+    "Velu Group produces Kuda Z64"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00002",
+   "facts": [
+    "Gaze Industries is affiliated with Gaze Industries",
+    "Gaze Industries is a member of Lone Pugali"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00003",
+   "facts": [
+    "Gipi Luzazu founded Velu Group",
+    "Gipi Luzazu is located in Vapa"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00004",
+   "facts": [
+    "Soto Forum is located in Fazemere"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00005",
+   "facts": [
+    "Mizu Group owns Golu Q17",
+    "Mizu Group produces Poti Z57"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00006",
+   "facts": [
+    "Gori X18 is part of Poti Z57"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00007",
+   "facts": [
+    "Fili Vitalu owns Kuda Z64",
+    "Fili Vitalu participated in Gaze Expo",
+    "Fili Vitalu works for Gilo Labs",
+    "Fili Vitalu works for Bisa Group"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00008",
+   "facts": [
+    "Rilo Partners is a member of Bisa Group"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00009",
+   "facts": [
+    "Fido Tebifu founded Lone Pugali",
+    "Fido Tebifu is a member of Dodaese"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00010",
+   "facts": [
+    "Takomere is part of Vapa",
+    "Takomere is part of Tuloford",
+    "Takomere is part of Fene"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00011",
+   "facts": [
+    "Lima X72 is part of Duva X94"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00012",
+   "facts": [
+    "Noli is located in Fepa"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00013",
+   "facts": [
+    "Nato Z5 is part of Sepa Z82"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00014",
+   "facts": [
+    "Bake founded Zolu Industries",
+    "Bake founded Keme Group",
+    "Bake works for Mipo Systems"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00015",
+   "facts": [
+    "Gebo Holdings owns Gedo Works",
+    "Gebo Holdings participated in Veta Conference"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00016",
+   "facts": [
+    "Novu Q87 is part of Gori X18"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00017",
+   "facts": [
+    "Godi Gireme is affiliated with Dune Partners",
+    "Godi Gireme is affiliated with Nato Z5",
+    "Godi Gireme is affiliated with Legeese",
+    "Godi Gireme is affiliated with Megiish",
+    "Godi Gireme is a member of Dune Partners"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00018",
+   "facts": [
+    "Lada Povedo is affiliated with Fozu Systems",
+    "Lada Povedo founded Velu Group",
+    "Lada Povedo works for Vaka Partners"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00019",
+   "facts": [
+    "Miga Verede is affiliated with Legeese",
+    "Miga Verede is located in Lina",
+    "Miga Verede owns Gori X18"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00020",
+   "facts": [
+    "Kole is located in Lina"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00021",
+   "facts": [
+    "Dune Partners is a member of Rave Industries",
+    "Dune Partners is a member of Sodu Works",
+    "Dune Partners owns Rave Industries",
+    "Dune Partners participated in Rito Summit",
+    "Dune Partners participated in Pova Festival",
+    "Dune Partners is part of Damo Partners"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00022",
+   "facts": [
+    "Dune Partners produces Gori X18",
+    "Dune Partners produces Kuda Z64",
+    "Dune Partners produces Golu Q17"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00023",
+   "facts": [
+    "Lone Pugali works for Devi Maromo"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00024",
+   "facts": [
+    "Zibu Firezo founded Vaka Partners",
+    "Zibu Firezo founded Suvu Doveku",
+    "Zibu Firezo works for Dune Partners"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00025",
+   "facts": [
+    "Rito Summit is located in Buriton"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00026",
+   "facts": [
+    "Vapa is located in Pubu"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00027",
+   "facts": [
+    "Gebi Boleve founded Mata Group",
+    "Gebi Boleve owns Poti Z57"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00028",
+   "facts": [
+    "Zolu Industries owns Keme Group",
+    "Zolu Industries produces Gori X18",
+    "Zolu Industries participated in Kole"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00029",
+   "facts": [
+    "Pubu is located in Lina"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00030",
+   "facts": [
+    "Suvu Doveku founded Vevo Partners",
+    "Suvu Doveku is located in Kole",
+    "Suvu Doveku is a member of Dodaese",
+    "Suvu Doveku is a member of Gedo Works"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00031",
+   "facts": [
+    "Rozo Zoruga founded Gedo Works",
+    "Rozo Zoruga is a member of Gedo Works",
+    "Rozo Zoruga works for Lone Pugali"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00032",
+   "facts": [
+    "Busu Toroni is a member of Rilo Partners",
+    "Busu Toroni is a member of Megiish"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00033",
+   "facts": [
+    "Segi Tibano founded Dune Partners",
+    "Segi Tibano founded Mata Group",
+    "Segi Tibano founded Muvo Holdings",
+    "Segi Tibano participated in Rito Summit"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00034",
+   "facts": [
+    "Fozu Systems owns Sodu Works",
+    "Fozu Systems participated in Mobo Expo",
+    "Fozu Systems produces Kuda Z64"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00035",
+   "facts": [
+    "Devi Maromo founded Vaka Partners",
+    "Devi Maromo works for Fozu Systems",
+    "Devi Maromo works for Luse Group"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00036",
+   "facts": [
+    "Bure Sidusi founded Luse Group",
+    "Bure Sidusi is a member of Luse Group"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00037",
+   "facts": [
+    "Mitaburg is located in Fazemere",
+    "Mitaburg is part of Bake"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00038",
+   "facts": [
+    "Leni Works is affiliated with Mami Partners",
+    "Leni Works owns Novu Q87",
+    "Leni Works is part of Keme Group"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00039",
+   "facts": [
+    "Saba Industries is affiliated with Leni Works",
+    "Saba Industries is a member of Dako Works",
+    "Saba Industries is a member of Pidu Works",
+    "Saba Industries owns Dune Partners",
+    "Saba Industries owns Pidu Works"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00040",
+   "facts": [
+    "Kapu Festival is located in Dozoford"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00041",
+   "facts": [
+    "Gedu Tumuka founded Sodu Works",
+    "Gedu Tumuka works for Seka Labs"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00042",
+   "facts": [
+    "Noli participated in Mobo Expo"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00043",
+   "facts": [
+    "Veta Conference is located in Vapa",
+    "Veta Conference is located in Tuloford"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00044",
+   "facts": [
+    "Tidi Dalali is affiliated with Bisa Group",
+    "Tidi Dalali founded Bisa Group",
+    "Tidi Dalali founded Suvu Doveku",
+    "Tidi Dalali is a member of Begu Labs",
+    "Tidi Dalali participated in Soto Forum",
+    "Tidi Dalali participated in Gaze Expo"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00045",
+   "facts": [
+    "Tidi Dalali works for Velu Group",
+    "Tidi Dalali works for Begu Labs"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00046",
+   "facts": [
+    "Lare Group is located in Bane",
+    "Lare Group is a member of Fozu Systems",
+    "Lare Group produces Gori X18",
+    "Lare Group produces Poti Z57"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00047",
+   "facts": [
+    "Gefo Dolifa is affiliated with Dune Partners",
+    "Gefo Dolifa is affiliated with Luse Group",
+    "Gefo Dolifa is located in Buriton",
+    "Gefo Dolifa participated in Rito Summit"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00048",
+   "facts": [
+    "Kusi Fudapu is affiliated with Megiish",
+    "Kusi Fudapu founded Fozu Systems",
+    "Kusi Fudapu founded Velu Group",
+    "Kusi Fudapu founded Luse Group",
+    "Kusi Fudapu founded Suvu Doveku",
+    "Kusi Fudapu is located in Fazemere"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00049",
+   "facts": [
+    "Kusi Fudapu is a member of Suvu Doveku",
+    "Kusi Fudapu is a member of Megiish",
+    "Kusi Fudapu owns Kuda Z64",
+    "Kusi Fudapu participated in Mobo Expo",
+    "Kusi Fudapu participated in Bila Festival",
+    "Kusi Fudapu works for Velu Group"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00050",
+   "facts": [
+    "Kusi Fudapu works for Velu Group",
+    "Kusi Fudapu works for Vaka Partners",
+    "Kusi Fudapu works for Luse Group",
+    "Kusi Fudapu works for Suvu Doveku"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "MISSING",
+     "MISSING"
+    ],
+    [
+     "The same person has also worked for Luse Group and Suvu Doveku"
+    ]
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00051",
+   "facts": [
+    "Keme Group produces Gori X18",
+    "Keme Group produces Novu Q87",
+    "Keme Group produces Poti Z57",
+    "Keme Group is affiliated with Pidu Works"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00052",
+   "facts": [
+    "Velu Group is a member of Velu Group",
+    "Velu Group is part of Vaka Partners",
+    "Velu Group produces Kuda Z64"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00053",
+   "facts": [
+    "Bure Sidusi founded Gedo Works",
+    "Bure Sidusi owns Sepa Z82",
+    "Bure Sidusi owns Lima X72",
+    "Bure Sidusi works for Lone Pugali"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00054",
+   "facts": [
+    "Mata Group is located in Buriton"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00055",
+   "facts": [
+    "Mipo Systems participated in Gaze Expo"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00056",
+   "facts": [
+    "Fumi Sideni founded Bisa Group"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00057",
+   "facts": [
+    "Lina is located in Dozoford",
+    "Lina is located in Vapa"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00058",
+   "facts": [
+    "Vaka Partners produces Kuda Z64"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00059",
+   "facts": [
+    "Revo Mevome is affiliated with Dune Partners",
+    "Revo Mevome is a member of Mata Group"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00060",
+   "facts": [
+    "Rilo Partners founded Mata Group"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00061",
+   "facts": [
+    "Kazo Robeka is affiliated with Pita Labs",
+    "Kazo Robeka founded Pidu Works",
+    "Kazo Robeka is a member of Lare Group",
+    "Kazo Robeka participated in Bila Festival"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00062",
+   "facts": [
+    "Guvo Kadisa founded Dune Partners",
+    "Guvo Kadisa is affiliated with Mami Partners",
+    "Guvo Kadisa participated in Pova Festival",
+    "Guvo Kadisa works for Dune Partners",
+    "Guvo Kadisa works for Devi Maromo"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00063",
+   "facts": [
+    "Bimu Ronati is affiliated with Keme Group",
+    "Bimu Ronati owns Kuda Z64",
+    "Bimu Ronati founded Pidu Works"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00064",
+   "facts": [
+    "Pidu Works is affiliated with Muvo Holdings",
+    "Pidu Works owns Gori X18",
+    "Pidu Works participated in Kole",
+    "Pidu Works participated in Tiku Conference",
+    "Pidu Works is part of Keme Group",
+    "Pidu Works is part of Mata Group"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00065",
+   "facts": [
+    "Pidu Works is part of Sodu Works",
+    "Pidu Works produces Gori X18"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00066",
+   "facts": [
+    "Gedo Works is affiliated with Gebo Holdings",
+    "Gedo Works is located in Takomere",
+    "Gedo Works is located in Vapa",
+    "Gedo Works owns Gaze Industries",
+    "Gedo Works owns Lone Pugali",
+    "Gedo Works participated in Veta Conference"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00067",
+   "facts": [
+    "Gedo Works participated in Vilu Conference",
+    "Gedo Works produces Novu Q87",
+    "Gedo Works participated in Satu Festival",
+    "Gedo Works produces Vipu X55",
+    "Gedo Works is part of Gebo Holdings",
+    "Gedo Works produces Sepa Z82"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    [
+     "which has drawn attention from several buyers"
+    ]
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00068",
+   "facts": [
+    "Kipe Q67 is part of Nato Z5"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00069",
+   "facts": [
+    "Sepa Z82 is part of Kipe Q67"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00070",
+   "facts": [
+    "Poti Z57 is part of Boke Q64"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00071",
+   "facts": [
+    "Luse Group is located in Mitaburg",
+    "Luse Group is part of Gilo Labs",
+    "Luse Group is part of Bisa Group",
+    "Luse Group owns Rilo Partners",
+    "Luse Group is a member of Begu Labs",
+    "Luse Group participated in Mobo Expo"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00072",
+   "facts": [
+    "Damo Partners is a member of Dune Partners",
+    "Damo Partners participated in Pova Festival",
+    "Damo Partners produces Gori X18"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00073",
+   "facts": [
+    "Nogoton is located in Takomere"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00074",
+   "facts": [
+    "Boke Q64 is part of Poti Z57"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00075",
+   "facts": [
+    "Buga Lomazu is a member of Legeese",
+    "Buga Lomazu participated in Gaze Expo",
+    "Buga Lomazu participated in Ludu Summit"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00076",
+   "facts": [
+    "Ladu Bizite founded Gebo Holdings",
+    "Ladu Bizite founded Gedo Works",
+    "Ladu Bizite is a member of Dodaese",
+    "Ladu Bizite works for Dako Works",
+    "Ladu Bizite works for Gedo Works"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00077",
+   "facts": [
+    "Gefo Dolifa is affiliated with Dune Partners",
+    "Gefo Dolifa is located in Fepa"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00078",
+   "facts": [
+    "Lomo Industries is a member of Lare Group",
+    "Lomo Industries owns Noli",
+    "Lomo Industries participated in Gaze Expo"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00079",
+   "facts": [
+    "Teve Nerama is affiliated with Legeese",
+    "Teve Nerama is a member of Lomo Industries",
+    "Teve Nerama is affiliated with Rave Industries",
+    "Teve Nerama founded Mata Group",
+    "Teve Nerama owns Boke Q64",
+    "Teve Nerama works for Dune Partners"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00080",
+   "facts": [
+    "Teve Nerama works for Mata Group",
+    "Teve Nerama works for Devi Maromo"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00081",
+   "facts": [
+    "Gaze Expo is located in Mopoford",
+    "Gaze Expo is located in Fazemere"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00082",
+   "facts": [
+    "Begu Labs is affiliated with Rilo Partners",
+    "Begu Labs participated in Gaze Expo",
+    "Begu Labs owns Kuda Z64",
+    "Begu Labs produces Kuda Z64"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00083",
+   "facts": [
+    "Busu Toroni is affiliated with Dodaese",
+    "Busu Toroni founded Gebo Holdings",
+    "Busu Toroni founded Gedo Works",
+    "Busu Toroni founded Gaze Industries",
+    "Busu Toroni is a member of Gedo Works",
+    "Busu Toroni participated in Veta Conference"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00084",
+   "facts": [
+    "Busu Toroni works for Gebo Holdings"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00085",
+   "facts": [
+    "Togi Kabafi founded Dune Partners",
+    "Togi Kabafi is located in Buriton"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00086",
+   "facts": [
+    "Bisa Group is affiliated with Begu Labs",
+    "Bisa Group produces Golu Q17"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00087",
+   "facts": [
+    "Dose Ropene is affiliated with Noli",
+    "Dose Ropene is affiliated with Nato Z5",
+    "Dose Ropene is a member of Nato Z5"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00088",
+   "facts": [
+    "Vilu Conference is located in Takomere"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00089",
+   "facts": [
+    "Libu Belagu owns Gori X18",
+    "Libu Belagu works for Pita Labs"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00090",
+   "facts": [
+    "Tiku Conference is located in Dozoford"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00091",
+   "facts": [
+    "Kuda Z64 is part of Golu Q17"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00092",
+   "facts": [
+    "Tobo Nonada participated in Mobo Expo"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00093",
+   "facts": [
+    "Gaze Industries is part of Lone Pugali",
+    "Gaze Industries produces Kipe Q67"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00094",
+   "facts": [
+    "Muvo Holdings is part of Saba Industries"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00095",
+   "facts": [
+    "Damo Partners is affiliated with Legeese",
+    "Damo Partners is a member of Dune Partners",
+    "Damo Partners works for Dune Partners"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00096",
+   "facts": [
+    "Devi Maromo is affiliated with Dune Partners"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00097",
+   "facts": [
+    "Gebo Holdings participated in Rito Summit"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00098",
+   "facts": [
+    "Lone Pugali owns Gedo Works",
+    "Lone Pugali produces Sepa Z82",
+    "Lone Pugali participated in Vilu Conference"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00099",
+   "facts": [
+    "Katu Lesusi founded Gedo Works",
+    "Katu Lesusi is a member of Dodaese",
+    "Katu Lesusi works for Dune Partners"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00100",
+   "facts": [
+    "Gedu Kigiso founded Fozu Systems",
+    "Gedu Kigiso founded Luse Group",
+    "Gedu Kigiso is affiliated with Megiish"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00101",
+   "facts": [
+    "Fene is located in Bane",
+    "Fene is part of Bane"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00102",
+   "facts": [
+    "Rave Industries is affiliated with Saba Industries",
+    "Rave Industries is part of Dune Partners",
+    "Rave Industries produces Poti Z57"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00103",
+   "facts": [
+    "Fepa is located in Buriton"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00104",
+   "facts": [
+    "Vevo Partners produces Poti Z57"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00105",
+   "facts": [
+    "Golu Q17 is part of Novu Q87",
+    "Golu Q17 is part of Poti Z57"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00106",
+   "facts": [
+    "Sodu Works is affiliated with Rave Industries",
+    "Sodu Works is part of Lare Group",
+    "Sodu Works produces Gori X18",
+    "Sodu Works owns Poti Z57"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00107",
+   "facts": [
+    "Buriton is located in Noli",
+    "Buriton is part of Noli"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00108",
+   "facts": [
+    "Nibe Pesovo is a member of Velu Group",
+    "Nibe Pesovo owns Kuda Z64"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00109",
+   "facts": [
+    "Pita Labs is affiliated with Zolu Industries",
+    "Pita Labs produces Gori X18"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00110",
+   "facts": [
+    "Fume Zivima is affiliated with Dodaese",
+    "Fume Zivima is a member of Dako Works"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00111",
+   "facts": [
+    "Gale Loseki founded Dune Partners",
+    "Gale Loseki founded Mata Group",
+    "Gale Loseki participated in Pova Festival",
+    "Gale Loseki works for Dune Partners",
+    "Gale Loseki works for Mata Group"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00112",
+   "facts": [
+    "Seka Labs participated in Gaze Expo"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00113",
+   "facts": [
+    "Bagi Dalofe founded Gebo Holdings",
+    "Bagi Dalofe participated in Vilu Conference",
+    "Bagi Dalofe works for Lare Group",
+    "Bagi Dalofe works for Gebo Holdings"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00114",
+   "facts": [
+    "Mami Partners is affiliated with Dune Partners",
+    "Mami Partners owns Golu Q17",
+    "Mami Partners produces Nato Z5",
+    "Mami Partners participated in Rito Summit"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00115",
+   "facts": [
+    "Gale Loseki is affiliated with Legeese",
+    "Gale Loseki founded Dune Partners"
+   ],
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00116",
+   "facts": [
+    "Zedi Gegave participated in Tiku Conference"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": false
+  },
+  {
+   "id": "D00117",
+   "facts": [
+    "TakomeLe is located in VaLo"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00118",
+   "facts": [
+    "Rilo Mumudu works for Fozu Industries"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00119",
+   "facts": [
+    "Duva Z1 is part of Duva Q36"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00120",
+   "facts": [
+    "Duva Q36 is part of Novu Q73"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00121",
+   "facts": [
+    "FeLi is part of TakomeLe"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00122",
+   "facts": [
+    "VaLo is located in MitabuDi"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00123",
+   "facts": [
+    "Teve Gunugi is located in TakomeLe"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00124",
+   "facts": [
+    "Miga Gifige works for Bisa Works"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00125",
+   "facts": [
+    "Rilo Volege owns Duva Z1"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00126",
+   "facts": [
+    "Fozu Industries is affiliated with Luse Industries"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00127",
+   "facts": [
+    "Soto Conference is located in VaRe"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00128",
+   "facts": [
+    "Kapu Conference is located in VaLo"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00129",
+   "facts": [
+    "Luse Industries is a member of Rilo Works"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00130",
+   "facts": [
+    "MitabuDi is located in VaRe"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    [
+     "Life there moves with the tides and the seasons, which shapes how people plan their weeks"
+    ]
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00131",
+   "facts": [
+    "Suvu Viruzi is a member of NoVi"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00132",
+   "facts": [
+    "Bisa Works is part of Luse Industries"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00133",
+   "facts": [
+    "Novu Q73 is part of Duva Q36"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00134",
+   "facts": [
+    "Gefo Dakozo founded Rilo Works"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00135",
+   "facts": [
+    "Bimu Rorika is affiliated with Luse Industries"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00136",
+   "facts": [
+    "Gebo Group is part of Fozu Industries"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00137",
+   "facts": [
+    "Gaze Festival is located in VaLo"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00138",
+   "facts": [
+    "Zedi Tafava is affiliated with LegeeLa"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00139",
+   "facts": [
+    "NoVi is a member of Fozu Industries"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00140",
+   "facts": [
+    "Bure Ruramo is a member of Fozu Industries"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00141",
+   "facts": [
+    "Rori Gipabo is a member of Luse Industries"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00142",
+   "facts": [
+    "Rilo Works owns Novu Q73"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00143",
+   "facts": [
+    "VaRe is located in VaLo"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  },
+  {
+   "id": "D00144",
+   "facts": [
+    "Fumi Piloso works for Rilo Works"
+   ],
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ],
+   "distractor": true
+  }
+ ],
+ "controls": [
+  {
+   "id": "D00001",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00002",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00003",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00005",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "MISSING"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00007",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00009",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00010",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00014",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00015",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "MISSING"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00017",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00018",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00019",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00021",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "WRONG",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00022",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "MISSING",
+     "STATED"
+    ],
+    [
+     "The firm also produces Kuda Z64"
+    ]
+   ]
+  },
+  {
+   "id": "D00024",
+   "kind": "missing",
+   "expected": "MISSING",
+   "index": 0,
+   "parsed": [
+    [
+     "MISSING",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00000",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED"
+    ],
+    [
+     "a product that buyers often compare with similar equipment"
+    ]
+   ]
+  },
+  {
+   "id": "D00001",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00003",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00004",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00005",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00006",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00007",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00008",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00009",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00010",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00011",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00012",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00013",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00014",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED",
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  },
+  {
+   "id": "D00015",
+   "kind": "wrong",
+   "expected": "WRONG",
+   "index": 0,
+   "parsed": [
+    [
+     "STATED",
+     "STATED"
+    ],
+    []
+   ]
+  }
+ ]
+}

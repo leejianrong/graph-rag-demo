@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nAffiliations like this one often shape which projects a person gets invited to join. M. Verede is located in Greater Lina. People who move between regions often keep a foot in both communities for years. Miga Verede owns GoriX18.\n\nFacts the article should state (an entity may appear under an alias: Gori X18 = Gori-X18, GoriX18; Miga Verede = M. Verede; Legeese = Legeeses, LEGEESE; Lina = Greater Lina):\n1. Miga Verede is affiliated with Legeese\n2. Miga Verede is located in Lina\n3. Miga Verede owns Gori X18\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: MISSING | none\n2: STATED | \"M. Verede is located in Greater Lina\"\n3: STATED | \"Miga Verede owns GoriX18\"\nExtra: NONE\n"
+}

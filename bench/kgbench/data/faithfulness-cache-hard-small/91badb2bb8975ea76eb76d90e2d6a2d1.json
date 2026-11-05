@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a short article against a list of facts. Follow the reply format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "Article:\nSmaller operators often rely on a web of partnerships to stay competitive. Gedo Works is affiliated with Gebo Holdings. Gedo is located in Greater Takomere. Gedo Works is located in VAPA. Gedo owns Gaze Industries. Gedo Works owns Lone Pugali. Gedo Works participated in Veta Conference. Arrangements of this kind are often described in annual disclosures and trade reports.\n\nFacts the article should state (an entity may appear under an alias: Takomere = Greater Takomere, TAKOMERE; Gebo Holdings = Gebo; Vapa = Greater Vapa, VAPA; Gedo Works = Gedo):\n1. Gedo Works is affiliated with Gebo Holdings\n2. Gedo Works is located in Takomere\n3. Gedo Works is located in Vapa\n4. Gedo Works owns Gaze Industries\n5. Gedo Works owns Lone Pugali\n6. Gedo Works participated in Veta Conference\n\nFor each numbered fact, find the words of the article that state it, then give a verdict. STATED: the article states it with the same relation, the same direction (who does it to whom), the same tense and the same years. WRONG: the article says something different or opposite about those entities (\"A owns B\" is not \"B owns A\"). MISSING: it is not in the article. Then read the article again, clause by clause, and list every clause that adds detail about an entity beyond the facts, including descriptions such as \"a product that buyers compare\" or \"which has drawn attention\". Only remarks that mention no entity (and no \"it\", \"the company\" or \"the product\") may be ignored. Reply in exactly this form:\n1: STATED | \"words from the article\"\n2: MISSING | none\nExtra: NONE\n(for the last line write NONE, or the clauses separated by ' ; ').",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "1: STATED | \"Gedo Works is affiliated with Gebo Holdings\"\n2: STATED | \"Gedo is located in Greater Takomere\"\n3: STATED | \"Gedo Works is located in VAPA\"\n4: STATED | \"Gedo owns Gaze Industries\"\n5: STATED | \"Gedo Works owns Lone Pugali\"\n6: STATED | \"Gedo Works participated in Veta Conference\"\nExtra: NONE\n"
+}

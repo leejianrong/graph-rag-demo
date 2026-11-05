@@ -29,6 +29,7 @@ from graph_rag.config import Settings
 from graph_rag.wiring import build_embedder, build_offline_components, build_real_components
 from kgbench import __version__, gate, judge_hard
 from kgbench import critique as critiques
+from kgbench import faithfulness as faithful
 from kgbench import hard as hards
 from kgbench import judge as judges
 from kgbench import order as orders
@@ -189,6 +190,19 @@ def build_parser() -> argparse.ArgumentParser:
     sc.add_argument("--texts", nargs="+", choices=hards.TEXTS, default=["hard"], help="Texts.")
     sc.add_argument("--out", type=Path, help="Write the markdown report here.")
     sc.add_argument("--charts", type=Path, help="Write one chart per system and text here.")
+    fa = commands.add_parser(
+        "faithfulness",
+        help="Check each document states its facts and nothing more (opt-in LLM).",
+    )
+    fa.add_argument("--dir", type=Path, required=True, help="A dataset folder (e.g. hard-small).")
+    fa.add_argument("--cache-dir", type=Path, help="Cached replies (default: bench data).")
+    fa.add_argument("--model", default="claude-haiku", help="The model name the cache is keyed by.")
+    fa.add_argument("--base-url", help="An OpenAI-compatible endpoint; omit to replay the cache.")
+    fa.add_argument("--workers", type=int, default=4, help="Calls asked at once.")
+    fa.add_argument("--controls", type=int, default=15, help="Altered documents of each kind.")
+    fa.add_argument("--out", type=Path, help="Write the markdown report here.")
+    fa.add_argument("--json", type=Path, help="Write every verdict as JSON here.")
+    fa.add_argument("--chart", type=Path, help="Write the chart (SVG) here.")
     ct = commands.add_parser(
         "critique",
         help="Rate a dataset's questions for groundedness, relevance and standalone (opt-in).",
@@ -505,6 +519,38 @@ def _shortcut(args: argparse.Namespace) -> int:
     return 0
 
 
+def _faithfulness(args: argparse.Namespace) -> int:
+    folder = args.dir.resolve()
+    world = generate(load_spec(folder / "spec.yaml"))
+    _, documents = hards.load(folder)
+    cache_dir = args.cache_dir or _DATA / f"faithfulness-cache-{folder.name}"
+    client = OpenAICompatible(args.base_url, args.model) if args.base_url else None
+    chat = CachedChat(ResponseCache(cache_dir), client, args.model)
+    try:
+        result = faithful.evaluate(chat, documents, world, args.controls, args.workers)
+    except CacheMiss as exc:
+        raise SystemExit(f"{exc}; pass --base-url to ask an endpoint") from exc
+    order = faithful.word_order(documents, world)
+    text = faithful.format_table(result) + (
+        f"\n\nBy code, no model: of {order['sentences']} sentences that state one fact, "
+        f"{order['object_first']} name the object before the subject and "
+        f"{order['subject_not_named']} do not name the subject in the sentence."
+    )
+    claims = faithful.tally(result)["claims"]
+    listing = "\n".join(f"- {doc}: {claim}" for doc, claim in claims)
+    print(text)
+    if args.out:
+        args.out.write_text(
+            f"# Document faithfulness: {folder.name}\n\nModel `{args.model}`.\n\n{text}\n\n"
+            f"## Unlisted claims the judge reported\n\n{listing or 'none'}\n"
+        )
+    if args.json:
+        args.json.write_text(json.dumps(result, indent=1) + "\n")
+    if args.chart:
+        args.chart.write_text(faithful.chart_svg(result, f"Document faithfulness ({folder.name})"))
+    return 0
+
+
 def _critique(args: argparse.Namespace) -> int:
     folder = args.dir.resolve()
     questions = json.loads((folder / "questions.json").read_text())
@@ -582,6 +628,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _judge(args)
     if args.command == "shortcut":
         return _shortcut(args)
+    if args.command == "faithfulness":
+        return _faithfulness(args)
     if args.command == "critique":
         return _critique(args)
     if args.command == "gate":
