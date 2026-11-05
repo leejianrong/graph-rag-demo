@@ -28,6 +28,7 @@ from kggen.world import generate
 from graph_rag.config import Settings
 from graph_rag.wiring import build_embedder, build_offline_components, build_real_components
 from kgbench import __version__, gate, judge_hard
+from kgbench import critique as critiques
 from kgbench import hard as hards
 from kgbench import judge as judges
 from kgbench import order as orders
@@ -178,6 +179,18 @@ def build_parser() -> argparse.ArgumentParser:
     jd.add_argument("--out", type=Path, help="Write the markdown report here.")
     jd.add_argument("--json", type=Path, help="Write every number as JSON here.")
     jd.add_argument("--chart", type=Path, help="Write the accuracy-per-kind chart (SVG) here.")
+    ct = commands.add_parser(
+        "critique",
+        help="Rate a dataset's questions for groundedness, relevance and standalone (opt-in).",
+    )
+    ct.add_argument("--dir", type=Path, required=True, help="A dataset folder (e.g. hard-small).")
+    ct.add_argument("--cache-dir", type=Path, help="Cached ratings (default: bench data).")
+    ct.add_argument("--model", default="claude-haiku", help="The model name the cache is keyed by.")
+    ct.add_argument("--base-url", help="An OpenAI-compatible endpoint; omit to replay the cache.")
+    ct.add_argument("--workers", type=int, default=4, help="Calls asked at once.")
+    ct.add_argument("--out", type=Path, help="Write the markdown report here.")
+    ct.add_argument("--json", type=Path, help="Write every rating as JSON here.")
+    ct.add_argument("--chart", type=Path, help="Write the share-kept chart (SVG) here.")
     gate_cmd = commands.add_parser(
         "gate", help="Fail if graph-rag scores below the stored floors (offline, no provider)."
     )
@@ -445,6 +458,34 @@ def _judge(args: argparse.Namespace) -> int:
     return 0
 
 
+def _critique(args: argparse.Namespace) -> int:
+    folder = args.dir.resolve()
+    questions = json.loads((folder / "questions.json").read_text())
+    documents = json.loads((folder / "documents.json").read_text())
+    cache_dir = args.cache_dir or _DATA / f"critique-cache-{folder.name}"
+    client = OpenAICompatible(args.base_url, args.model) if args.base_url else None
+    chat = CachedChat(ResponseCache(cache_dir), client, args.model)
+    try:
+        rows = critiques.critique(chat, questions, documents, args.workers)
+    except CacheMiss as exc:
+        raise SystemExit(f"{exc}; pass --base-url to ask an endpoint") from exc
+    world = json.loads((folder / "world.json").read_text())
+    rows = critiques.tag_shared_names(rows, questions, world)
+    text = critiques.format_table(rows)
+    print(text)
+    if args.out:
+        args.out.write_text(
+            f"# Question critique: {folder.name}\n\nModel `{args.model}`, the Hugging Face "
+            f"cookbook's three ratings; a question is kept when all are at least "
+            f"{critiques.KEEP_AT}.\n\n{text}\n"
+        )
+    if args.json:
+        args.json.write_text(json.dumps(rows, indent=1) + "\n")
+    if args.chart:
+        args.chart.write_text(critiques.chart_svg(rows, f"Questions kept ({folder.name})"))
+    return 0
+
+
 def _extract(args: argparse.Namespace) -> int:
     spec = load_preset(args.preset)
     world = generate(spec.model_copy(update={"seed": args.seed}) if args.seed is not None else spec)
@@ -493,6 +534,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _hard(args)
     if args.command == "judge":
         return _judge(args)
+    if args.command == "critique":
+        return _critique(args)
     if args.command == "gate":
         return _gate(args)
     parser.print_help()

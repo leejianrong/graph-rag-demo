@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a careful rater. Follow the requested answer format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "You will be given a context and a question.\nYour task is to provide a 'total rating' scoring how well one can answer the given question unambiguously with the given context.\nGive your answer on a scale of 1 to 5, where 1 means that the question is not answerable at all given the context, and 5 means that the question is clearly and unambiguously answerable with the context.\n\nProvide your answer as follows:\n\nAnswer:::\nEvaluation: (your rationale for the rating, as a text)\nTotal rating: (your rating, as a number between 1 and 5)\n\nYou MUST provide values for 'Evaluation:' and 'Total rating:' in your answer.\n\nNow here are the question and context.\n\nQuestion: Name the organization that the person that founded the organization that produces the product that Size Gatide owns works for.\nContext: Gevuton\nMany towns and cities have a long history of local trade and craft. GEVUTON founded Dide. GEVUTON is located in Greater Sapoburg. GEVUTON works for Dalu. Work in many fields depends on skilled staff and steady planning.\n\nSize Gatide\nLocal markets have changed a great deal over the past few decades. Size Gatide is affiliated with DOGIESE. Size Gatide owns Tozu-X90. Size Gatide also owns Golu Z87. Many readers prefer short pieces that get to the point quickly.\n\nDide Holdings\nShort profiles are a common way to introduce people and groups in a sector. DH is affiliated with Dalu. DH is a member of Muzu Labs. DH produces Golu Z87. Dide Holdings owns Dide. A clear list of names and roles helps a reader keep track of who does what.\nAnswer:::",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Answer:::\nEvaluation: Size Gatide owns Golu Z87, which Dide Holdings produces, but the context never says who founded Dide Holdings. It only says GEVUTON founded Dide, a different entity that Dide Holdings owns, and Tozu-X90 has no producer stated here. The chain breaks at the founder step, so the answer is not supported.\nTotal rating: 2\n"
+}

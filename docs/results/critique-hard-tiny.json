@@ -1,0 +1,542 @@
+[
+ {
+  "id": "Q00",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 3,
+  "relevance": 3,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q01",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 2,
+  "relevance": 2,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q02",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 2,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q03",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q04",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 1,
+  "relevance": 3,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q05",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 4,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q06",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 2,
+  "relevance": 3,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q07",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q08",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 3,
+  "relevance": 4,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q09",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 3,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q10",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q11",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q12",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q13",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q14",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q15",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 3,
+  "relevance": 2,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q16",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 2,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q17",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q18",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 2,
+  "relevance": 2,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q19",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q20",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 4,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q21",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q22",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 2,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q23",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 3,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q24",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q25",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 3,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q26",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 4,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q27",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q28",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q29",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 2,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q30",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q31",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 2,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q32",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 2,
+  "relevance": 2,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q33",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 2,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q34",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q35",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 2,
+  "relevance": 2,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q36",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 2,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q37",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 2,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q38",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q39",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 3,
+  "relevance": 2,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q40",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q41",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 4,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q42",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 4,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q43",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q44",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 2,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q45",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q46",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 4,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q47",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 2,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q48",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q49",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 4,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q50",
+  "hops": 4,
+  "type": "entity",
+  "groundedness": 3,
+  "relevance": 1,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q51",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 2,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q52",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q53",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 2,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q54",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q55",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q56",
+  "hops": 1,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 4,
+  "standalone": 5,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q57",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 4,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "no"
+ },
+ {
+  "id": "Q58",
+  "hops": 3,
+  "type": "entity",
+  "groundedness": 5,
+  "relevance": 2,
+  "standalone": 4,
+  "shared_name": "yes"
+ },
+ {
+  "id": "Q59",
+  "hops": 2,
+  "type": "entity",
+  "groundedness": 2,
+  "relevance": 3,
+  "standalone": 5,
+  "shared_name": "yes"
+ }
+]

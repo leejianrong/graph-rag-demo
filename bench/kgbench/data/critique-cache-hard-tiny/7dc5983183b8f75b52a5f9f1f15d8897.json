@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a careful rater. Follow the requested answer format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "You will be given a context and a question.\nYour task is to provide a 'total rating' scoring how well one can answer the given question unambiguously with the given context.\nGive your answer on a scale of 1 to 5, where 1 means that the question is not answerable at all given the context, and 5 means that the question is clearly and unambiguously answerable with the context.\n\nProvide your answer as follows:\n\nAnswer:::\nEvaluation: (your rationale for the rating, as a text)\nTotal rating: (your rating, as a number between 1 and 5)\n\nYou MUST provide values for 'Evaluation:' and 'Total rating:' in your answer.\n\nNow here are the question and context.\n\nQuestion: Name the group that the person that works for the organization that the organization that Koni Diranu is affiliated with owns is a member of.\nContext: Gupu Koduvo\nPeople often belong to more than one group at a time. G. Koduvo is a member of Pidueses. Such groups can shape how people spend their time and who they work with. Gupu Koduvo works for Dide Holdings.\n\nKoni Diranu\nMany small businesses rely on clear records to keep their work on track. Koni Diranu is affiliated with Dide Holdings. Good planning tends to matter more than sheer size when a team is starting out.\n\nDide Holdings\nShort profiles are a common way to introduce people and groups in a sector. DH is affiliated with Dalu. DH is a member of Muzu Labs. DH produces Golu Z87. Dide Holdings owns Dide. A clear list of names and roles helps a reader keep track of who does what.\nAnswer:::",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Answer:::\nEvaluation: Koni Diranu is affiliated with Dide Holdings, and Gupu Koduvo works for Dide Holdings and is a member of Pidueses, so the likely intended answer is Pidueses. However, the chain as worded says the organization is one \"owns\" (Dide), and the context never says anyone works for Dide, so the question only resolves by reading \"owns\" loosely.\nTotal rating: 2\n"
+}

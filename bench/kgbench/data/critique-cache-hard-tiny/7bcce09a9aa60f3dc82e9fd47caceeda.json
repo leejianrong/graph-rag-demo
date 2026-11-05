@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a careful rater. Follow the requested answer format exactly.",
+   "role": "system"
+  },
+  {
+   "content": "You will be given a context and a question.\nYour task is to provide a 'total rating' scoring how well one can answer the given question unambiguously with the given context.\nGive your answer on a scale of 1 to 5, where 1 means that the question is not answerable at all given the context, and 5 means that the question is clearly and unambiguously answerable with the context.\n\nProvide your answer as follows:\n\nAnswer:::\nEvaluation: (your rationale for the rating, as a text)\nTotal rating: (your rating, as a number between 1 and 5)\n\nYou MUST provide values for 'Evaluation:' and 'Total rating:' in your answer.\n\nNow here are the question and context.\n\nQuestion: Name the event that the organization that the organization that Koni Diranu is affiliated with owns participated in.\nContext: Dide Holdings\nMany industries depend on a mix of established firms and newcomers. Dide participated in Gebu Forum. Dide produces Diza. Products and events like these often draw attention from people across a field.\n\nKoni Diranu\nMany small businesses rely on clear records to keep their work on track. Koni Diranu is affiliated with Dide Holdings. Good planning tends to matter more than sheer size when a team is starting out.\n\nDide Holdings\nShort profiles are a common way to introduce people and groups in a sector. DH is affiliated with Dalu. DH is a member of Muzu Labs. DH produces Golu Z87. Dide Holdings owns Dide. A clear list of names and roles helps a reader keep track of who does what.\nAnswer:::",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Answer:::\nEvaluation: The chain is stated in the context: Koni Diranu is affiliated with Dide Holdings, Dide Holdings owns Dide, and Dide participated in Gebu Forum. The answer Gebu Forum is clear and unambiguous.\nTotal rating: 5\n"
+}
