@@ -1,0 +1,776 @@
+{
+ "edges": [
+  {
+   "id": "F00",
+   "object": "E17",
+   "predicate": "PART_OF",
+   "subject": "E00",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F01",
+   "object": "E13",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E01",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F02",
+   "object": "E21",
+   "predicate": "PRODUCES",
+   "subject": "E01",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F03",
+   "object": "E18",
+   "predicate": "FOUNDED",
+   "subject": "E02",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F04",
+   "object": "E17",
+   "predicate": "LOCATED_IN",
+   "subject": "E02",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F05",
+   "object": "E01",
+   "predicate": "WORKS_FOR",
+   "subject": "E02",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F06",
+   "object": "E24",
+   "predicate": "MEMBER_OF",
+   "subject": "E03",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F07",
+   "object": "E09",
+   "predicate": "WORKS_FOR",
+   "subject": "E03",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F08",
+   "object": "E23",
+   "predicate": "FOUNDED",
+   "subject": "E07",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F09",
+   "object": "E28",
+   "predicate": "FOUNDED",
+   "subject": "E07",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F10",
+   "object": "E24",
+   "predicate": "MEMBER_OF",
+   "subject": "E07",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F11",
+   "object": "E13",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E07",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F12",
+   "object": "E05",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E09",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F13",
+   "object": "E08",
+   "predicate": "PRODUCES",
+   "subject": "E09",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F14",
+   "object": "E18",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E10",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F15",
+   "object": "E20",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E11",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F16",
+   "object": "E21",
+   "predicate": "OWNS",
+   "subject": "E11",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F17",
+   "object": "E29",
+   "predicate": "OWNS",
+   "subject": "E11",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F18",
+   "object": "E01",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E12",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F19",
+   "object": "E00",
+   "predicate": "LOCATED_IN",
+   "subject": "E13",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F20",
+   "object": "E28",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E14",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F21",
+   "object": "E21",
+   "predicate": "OWNS",
+   "subject": "E14",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F22",
+   "object": "E04",
+   "predicate": "LOCATED_IN",
+   "subject": "E16",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F23",
+   "object": "E01",
+   "predicate": "WORKS_FOR",
+   "subject": "E16",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F24",
+   "object": "E01",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E18",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F25",
+   "object": "E26",
+   "predicate": "MEMBER_OF",
+   "subject": "E18",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F26",
+   "object": "E09",
+   "predicate": "OWNS",
+   "subject": "E18",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F27",
+   "object": "E29",
+   "predicate": "PRODUCES",
+   "subject": "E18",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F28",
+   "object": "E01",
+   "predicate": "FOUNDED",
+   "subject": "E19",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F29",
+   "object": "E01",
+   "predicate": "WORKS_FOR",
+   "subject": "E19",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F30",
+   "object": "E08",
+   "predicate": "PART_OF",
+   "subject": "E21",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F31",
+   "object": "E28",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E22",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F32",
+   "object": "E26",
+   "predicate": "MEMBER_OF",
+   "subject": "E22",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F33",
+   "object": "E25",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E23",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F34",
+   "object": "E21",
+   "predicate": "PRODUCES",
+   "subject": "E23",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F35",
+   "object": "E29",
+   "predicate": "PRODUCES",
+   "subject": "E23",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F36",
+   "object": "E04",
+   "predicate": "LOCATED_IN",
+   "subject": "E25",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F37",
+   "object": "E08",
+   "predicate": "OWNS",
+   "subject": "E26",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F38",
+   "object": "E08",
+   "predicate": "PRODUCES",
+   "subject": "E26",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F39",
+   "object": "E21",
+   "predicate": "OWNS",
+   "subject": "E27",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F40",
+   "object": "E08",
+   "predicate": "OWNS",
+   "subject": "E28",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F41",
+   "object": "E22",
+   "predicate": "PART_OF",
+   "subject": "E28",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F42",
+   "object": "E08",
+   "predicate": "PRODUCES",
+   "subject": "E28",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F43",
+   "object": "E29",
+   "predicate": "PRODUCES",
+   "subject": "E28",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F44",
+   "object": "E08",
+   "predicate": "PART_OF",
+   "subject": "E29",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F45",
+   "object": "E31",
+   "predicate": "LOCATED_IN",
+   "subject": "E30",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F46",
+   "object": "E30",
+   "predicate": "PART_OF",
+   "subject": "E31",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F47",
+   "object": "E31",
+   "predicate": "LOCATED_IN",
+   "subject": "E32",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F48",
+   "object": "E31",
+   "predicate": "PART_OF",
+   "subject": "E34",
+   "valid_from": 2000,
+   "valid_to": null
+  }
+ ],
+ "entities": [
+  {
+   "aliases": [
+    "Greater Gevuton",
+    "GEVUTON"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E00",
+   "name": "Gevuton",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Dalu"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E01",
+   "name": "Dalu Industries",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "GEVUTON"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E02",
+   "name": "Gevuton",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "G. Koduvo"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E03",
+   "name": "Gupu Koduvo",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Greater Lugi"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E04",
+   "name": "Lugi",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Gebu",
+    "GF"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E05",
+   "name": "Gebu Forum",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E06",
+   "name": "Kodaford",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "V. Zatuso",
+    "Zatuso"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E07",
+   "name": "Vefa Zatuso",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "DIZA"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E08",
+   "name": "Diza",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "Dide"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E09",
+   "name": "Dide Holdings",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E10",
+   "name": "Koni Diranu",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E11",
+   "name": "Size Gatide",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E12",
+   "name": "Lelo Zadeze",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Busu"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E13",
+   "name": "Busu Festival",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "S. Futana",
+    "Futana"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E14",
+   "name": "Simi Futana",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Greater Diza",
+    "DIZA"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E15",
+   "name": "Diza",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E16",
+   "name": "Rage Taneta",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Greater Sapoburg"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E17",
+   "name": "Sapoburg",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Dide",
+    "DH"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E18",
+   "name": "Dide Holdings",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E19",
+   "name": "Silo Fapobu",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Dogieses",
+    "DOGIESE"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E20",
+   "name": "Dogiese",
+   "type": "NORP"
+  },
+  {
+   "aliases": [
+    "Tozu-X90"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E21",
+   "name": "Tozu X90",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "Seva"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E22",
+   "name": "Seva Works",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E23",
+   "name": "Seze Labs",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Pidueses"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E24",
+   "name": "Piduese",
+   "type": "NORP"
+  },
+  {
+   "aliases": [
+    "Sebo",
+    "SF"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E25",
+   "name": "Sebo Forum",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "Muzu",
+    "ML"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E26",
+   "name": "Muzu Labs",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E27",
+   "name": "Simi Futana",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Lapi"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E28",
+   "name": "Lapi Group",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E29",
+   "name": "Golu Z87",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": true,
+   "id": "E30",
+   "name": "SapobuKo",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": true,
+   "id": "E31",
+   "name": "LuPi",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": true,
+   "id": "E32",
+   "name": "Gebu Accord Talks",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": true,
+   "id": "E33",
+   "name": "DogieNo",
+   "type": "NORP"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": true,
+   "id": "E34",
+   "name": "DiTa",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": true,
+   "id": "E35",
+   "name": "DiGe",
+   "type": "PRODUCT"
+  }
+ ],
+ "spec": {
+  "alias_rate": 0.7,
+  "aliases_per_entity": 2,
+  "avg_degree": 3.0,
+  "churn_rate": 0.0,
+  "community_mixing": 0.1,
+  "cycle_rate": 0.0,
+  "degree_skew": 0.0,
+  "distractor_rate": 0.2,
+  "end_year": 2024,
+  "homonym_rate": 0.15,
+  "homonym_same_type": 0.5,
+  "n_communities": 2,
+  "n_entities": 30,
+  "noise_rate": 0.0,
+  "predicate_mix": {
+   "AFFILIATED_WITH": 1.0,
+   "FOUNDED": 1.0,
+   "GOVERNED_BY": 1.0,
+   "LOCATED_IN": 1.0,
+   "MEMBER_OF": 1.0,
+   "OWNS": 1.0,
+   "PARTICIPATED_IN": 1.0,
+   "PART_OF": 1.0,
+   "PRODUCES": 1.0,
+   "WORKS_FOR": 1.0
+  },
+  "retraction_rate": 0.0,
+  "seed": 0,
+  "start_year": 2000,
+  "type_mix": {
+   "EVENT": 0.1,
+   "LOCATION": 0.15,
+   "NORP": 0.05,
+   "ORG": 0.25,
+   "PERSON": 0.35,
+   "PRODUCT": 0.1
+  }
+ }
+}

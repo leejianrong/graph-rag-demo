@@ -1,0 +1,1672 @@
+[
+ {
+  "distractor": false,
+  "id": "D00000",
+  "sentences": [
+   {
+    "end": 77,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Travel guides often begin with a short overview of how a region is organised."
+   },
+   {
+    "end": 122,
+    "fact_ids": [
+     "F00"
+    ],
+    "mentions": [
+     {
+      "end": 93,
+      "entity_id": "E00",
+      "start": 78,
+      "surface": "Greater Gevuton"
+     },
+     {
+      "end": 121,
+      "entity_id": "E17",
+      "start": 105,
+      "surface": "Greater Sapoburg"
+     }
+    ],
+    "start": 78,
+    "text": "Greater Gevuton is part of Greater Sapoburg."
+   },
+   {
+    "end": 199,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 123,
+    "text": "Readers who plan a trip usually want practical details before anything else."
+   }
+  ],
+  "subject": "E00",
+  "text": "Travel guides often begin with a short overview of how a region is organised. Greater Gevuton is part of Greater Sapoburg. Readers who plan a trip usually want practical details before anything else.",
+  "title": "Gevuton"
+ },
+ {
+  "distractor": false,
+  "id": "D00001",
+  "sentences": [
+   {
+    "end": 78,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Local festivals often bring together people from many different walks of life."
+   },
+   {
+    "end": 118,
+    "fact_ids": [
+     "F01"
+    ],
+    "mentions": [
+     {
+      "end": 83,
+      "entity_id": "E01",
+      "start": 79,
+      "surface": "Dalu"
+     },
+     {
+      "end": 117,
+      "entity_id": "E13",
+      "start": 104,
+      "surface": "Busu Festival"
+     }
+    ],
+    "start": 79,
+    "text": "Dalu participated in the Busu Festival."
+   },
+   {
+    "end": 151,
+    "fact_ids": [
+     "F02"
+    ],
+    "mentions": [
+     {
+      "end": 123,
+      "entity_id": "E01",
+      "start": 119,
+      "surface": "Dalu"
+     },
+     {
+      "end": 150,
+      "entity_id": "E21",
+      "start": 142,
+      "surface": "Tozu X90"
+     }
+    ],
+    "start": 119,
+    "text": "Dalu also produces the Tozu X90."
+   },
+   {
+    "end": 227,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 152,
+    "text": "Many people enjoy reading about the events that shape their neighbourhoods."
+   }
+  ],
+  "subject": "E01",
+  "text": "Local festivals often bring together people from many different walks of life. Dalu participated in the Busu Festival. Dalu also produces the Tozu X90. Many people enjoy reading about the events that shape their neighbourhoods.",
+  "title": "Dalu Industries"
+ },
+ {
+  "distractor": false,
+  "id": "D00002",
+  "sentences": [
+   {
+    "end": 67,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Many towns and cities have a long history of local trade and craft."
+   },
+   {
+    "end": 89,
+    "fact_ids": [
+     "F03"
+    ],
+    "mentions": [
+     {
+      "end": 75,
+      "entity_id": "E02",
+      "start": 68,
+      "surface": "GEVUTON"
+     },
+     {
+      "end": 88,
+      "entity_id": "E18",
+      "start": 84,
+      "surface": "Dide"
+     }
+    ],
+    "start": 68,
+    "text": "GEVUTON founded Dide."
+   },
+   {
+    "end": 129,
+    "fact_ids": [
+     "F04"
+    ],
+    "mentions": [
+     {
+      "end": 97,
+      "entity_id": "E02",
+      "start": 90,
+      "surface": "GEVUTON"
+     },
+     {
+      "end": 128,
+      "entity_id": "E17",
+      "start": 112,
+      "surface": "Greater Sapoburg"
+     }
+    ],
+    "start": 90,
+    "text": "GEVUTON is located in Greater Sapoburg."
+   },
+   {
+    "end": 153,
+    "fact_ids": [
+     "F05"
+    ],
+    "mentions": [
+     {
+      "end": 137,
+      "entity_id": "E02",
+      "start": 130,
+      "surface": "GEVUTON"
+     },
+     {
+      "end": 152,
+      "entity_id": "E01",
+      "start": 148,
+      "surface": "Dalu"
+     }
+    ],
+    "start": 130,
+    "text": "GEVUTON works for Dalu."
+   },
+   {
+    "end": 219,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 154,
+    "text": "Work in many fields depends on skilled staff and steady planning."
+   }
+  ],
+  "subject": "E02",
+  "text": "Many towns and cities have a long history of local trade and craft. GEVUTON founded Dide. GEVUTON is located in Greater Sapoburg. GEVUTON works for Dalu. Work in many fields depends on skilled staff and steady planning.",
+  "title": "Gevuton"
+ },
+ {
+  "distractor": false,
+  "id": "D00003",
+  "sentences": [
+   {
+    "end": 53,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "People often belong to more than one group at a time."
+   },
+   {
+    "end": 88,
+    "fact_ids": [
+     "F06"
+    ],
+    "mentions": [
+     {
+      "end": 63,
+      "entity_id": "E03",
+      "start": 54,
+      "surface": "G. Koduvo"
+     },
+     {
+      "end": 87,
+      "entity_id": "E24",
+      "start": 79,
+      "surface": "Pidueses"
+     }
+    ],
+    "start": 54,
+    "text": "G. Koduvo is a member of Pidueses."
+   },
+   {
+    "end": 162,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 89,
+    "text": "Such groups can shape how people spend their time and who they work with."
+   },
+   {
+    "end": 199,
+    "fact_ids": [
+     "F07"
+    ],
+    "mentions": [
+     {
+      "end": 174,
+      "entity_id": "E03",
+      "start": 163,
+      "surface": "Gupu Koduvo"
+     },
+     {
+      "end": 198,
+      "entity_id": "E09",
+      "start": 185,
+      "surface": "Dide Holdings"
+     }
+    ],
+    "start": 163,
+    "text": "Gupu Koduvo works for Dide Holdings."
+   }
+  ],
+  "subject": "E03",
+  "text": "People often belong to more than one group at a time. G. Koduvo is a member of Pidueses. Such groups can shape how people spend their time and who they work with. Gupu Koduvo works for Dide Holdings.",
+  "title": "Gupu Koduvo"
+ },
+ {
+  "distractor": false,
+  "id": "D00004",
+  "sentences": [
+   {
+    "end": 93,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Many people who start new projects first look for ideas in the everyday problems around them."
+   },
+   {
+    "end": 124,
+    "fact_ids": [
+     "F08"
+    ],
+    "mentions": [
+     {
+      "end": 105,
+      "entity_id": "E07",
+      "start": 94,
+      "surface": "Vefa Zatuso"
+     },
+     {
+      "end": 123,
+      "entity_id": "E23",
+      "start": 114,
+      "surface": "Seze Labs"
+     }
+    ],
+    "start": 94,
+    "text": "Vefa Zatuso founded Seze Labs."
+   },
+   {
+    "end": 150,
+    "fact_ids": [
+     "F09"
+    ],
+    "mentions": [
+     {
+      "end": 136,
+      "entity_id": "E07",
+      "start": 125,
+      "surface": "Vefa Zatuso"
+     },
+     {
+      "end": 149,
+      "entity_id": "E28",
+      "start": 145,
+      "surface": "Lapi"
+     }
+    ],
+    "start": 125,
+    "text": "Vefa Zatuso founded Lapi."
+   },
+   {
+    "end": 185,
+    "fact_ids": [
+     "F10"
+    ],
+    "mentions": [
+     {
+      "end": 160,
+      "entity_id": "E07",
+      "start": 151,
+      "surface": "V. Zatuso"
+     },
+     {
+      "end": 184,
+      "entity_id": "E24",
+      "start": 176,
+      "surface": "Pidueses"
+     }
+    ],
+    "start": 151,
+    "text": "V. Zatuso is a member of Pidueses."
+   },
+   {
+    "end": 230,
+    "fact_ids": [
+     "F11"
+    ],
+    "mentions": [
+     {
+      "end": 195,
+      "entity_id": "E07",
+      "start": 186,
+      "surface": "V. Zatuso"
+     },
+     {
+      "end": 229,
+      "entity_id": "E13",
+      "start": 216,
+      "surface": "Busu Festival"
+     }
+    ],
+    "start": 186,
+    "text": "V. Zatuso participated in the Busu Festival."
+   },
+   {
+    "end": 299,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 231,
+    "text": "Communities tend to benefit when people share their time and skills."
+   }
+  ],
+  "subject": "E07",
+  "text": "Many people who start new projects first look for ideas in the everyday problems around them. Vefa Zatuso founded Seze Labs. Vefa Zatuso founded Lapi. V. Zatuso is a member of Pidueses. V. Zatuso participated in the Busu Festival. Communities tend to benefit when people share their time and skills.",
+  "title": "Vefa Zatuso"
+ },
+ {
+  "distractor": false,
+  "id": "D00005",
+  "sentences": [
+   {
+    "end": 67,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Many industries depend on a mix of established firms and newcomers."
+   },
+   {
+    "end": 100,
+    "fact_ids": [
+     "F12"
+    ],
+    "mentions": [
+     {
+      "end": 72,
+      "entity_id": "E09",
+      "start": 68,
+      "surface": "Dide"
+     },
+     {
+      "end": 99,
+      "entity_id": "E05",
+      "start": 89,
+      "surface": "Gebu Forum"
+     }
+    ],
+    "start": 68,
+    "text": "Dide participated in Gebu Forum."
+   },
+   {
+    "end": 120,
+    "fact_ids": [
+     "F13"
+    ],
+    "mentions": [
+     {
+      "end": 105,
+      "entity_id": "E09",
+      "start": 101,
+      "surface": "Dide"
+     },
+     {
+      "end": 119,
+      "entity_id": "E08",
+      "start": 115,
+      "surface": "Diza"
+     }
+    ],
+    "start": 101,
+    "text": "Dide produces Diza."
+   },
+   {
+    "end": 200,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 121,
+    "text": "Products and events like these often draw attention from people across a field."
+   }
+  ],
+  "subject": "E09",
+  "text": "Many industries depend on a mix of established firms and newcomers. Dide participated in Gebu Forum. Dide produces Diza. Products and events like these often draw attention from people across a field.",
+  "title": "Dide Holdings"
+ },
+ {
+  "distractor": false,
+  "id": "D00006",
+  "sentences": [
+   {
+    "end": 72,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Many small businesses rely on clear records to keep their work on track."
+   },
+   {
+    "end": 118,
+    "fact_ids": [
+     "F14"
+    ],
+    "mentions": [
+     {
+      "end": 84,
+      "entity_id": "E10",
+      "start": 73,
+      "surface": "Koni Diranu"
+     },
+     {
+      "end": 117,
+      "entity_id": "E18",
+      "start": 104,
+      "surface": "Dide Holdings"
+     }
+    ],
+    "start": 73,
+    "text": "Koni Diranu is affiliated with Dide Holdings."
+   },
+   {
+    "end": 198,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 119,
+    "text": "Good planning tends to matter more than sheer size when a team is starting out."
+   }
+  ],
+  "subject": "E10",
+  "text": "Many small businesses rely on clear records to keep their work on track. Koni Diranu is affiliated with Dide Holdings. Good planning tends to matter more than sheer size when a team is starting out.",
+  "title": "Koni Diranu"
+ },
+ {
+  "distractor": false,
+  "id": "D00007",
+  "sentences": [
+   {
+    "end": 66,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Local markets have changed a great deal over the past few decades."
+   },
+   {
+    "end": 106,
+    "fact_ids": [
+     "F15"
+    ],
+    "mentions": [
+     {
+      "end": 78,
+      "entity_id": "E11",
+      "start": 67,
+      "surface": "Size Gatide"
+     },
+     {
+      "end": 105,
+      "entity_id": "E20",
+      "start": 98,
+      "surface": "DOGIESE"
+     }
+    ],
+    "start": 67,
+    "text": "Size Gatide is affiliated with DOGIESE."
+   },
+   {
+    "end": 133,
+    "fact_ids": [
+     "F16"
+    ],
+    "mentions": [
+     {
+      "end": 118,
+      "entity_id": "E11",
+      "start": 107,
+      "surface": "Size Gatide"
+     },
+     {
+      "end": 132,
+      "entity_id": "E21",
+      "start": 124,
+      "surface": "Tozu-X90"
+     }
+    ],
+    "start": 107,
+    "text": "Size Gatide owns Tozu-X90."
+   },
+   {
+    "end": 165,
+    "fact_ids": [
+     "F17"
+    ],
+    "mentions": [
+     {
+      "end": 145,
+      "entity_id": "E11",
+      "start": 134,
+      "surface": "Size Gatide"
+     },
+     {
+      "end": 164,
+      "entity_id": "E29",
+      "start": 156,
+      "surface": "Golu Z87"
+     }
+    ],
+    "start": 134,
+    "text": "Size Gatide also owns Golu Z87."
+   },
+   {
+    "end": 229,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 166,
+    "text": "Many readers prefer short pieces that get to the point quickly."
+   }
+  ],
+  "subject": "E11",
+  "text": "Local markets have changed a great deal over the past few decades. Size Gatide is affiliated with DOGIESE. Size Gatide owns Tozu-X90. Size Gatide also owns Golu Z87. Many readers prefer short pieces that get to the point quickly.",
+  "title": "Size Gatide"
+ },
+ {
+  "distractor": false,
+  "id": "D00008",
+  "sentences": [
+   {
+    "end": 73,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Professional networks often form around shared interests and common work."
+   },
+   {
+    "end": 110,
+    "fact_ids": [
+     "F18"
+    ],
+    "mentions": [
+     {
+      "end": 85,
+      "entity_id": "E12",
+      "start": 74,
+      "surface": "Lelo Zadeze"
+     },
+     {
+      "end": 109,
+      "entity_id": "E01",
+      "start": 105,
+      "surface": "Dalu"
+     }
+    ],
+    "start": 74,
+    "text": "Lelo Zadeze is affiliated with Dalu."
+   },
+   {
+    "end": 181,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 111,
+    "text": "Such ties can make it easier to exchange ideas across different teams."
+   }
+  ],
+  "subject": "E12",
+  "text": "Professional networks often form around shared interests and common work. Lelo Zadeze is affiliated with Dalu. Such ties can make it easier to exchange ideas across different teams.",
+  "title": "Lelo Zadeze"
+ },
+ {
+  "distractor": false,
+  "id": "D00009",
+  "sentences": [
+   {
+    "end": 75,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Local festivals often bring visitors and residents together for a few days."
+   },
+   {
+    "end": 120,
+    "fact_ids": [
+     "F19"
+    ],
+    "mentions": [
+     {
+      "end": 89,
+      "entity_id": "E13",
+      "start": 76,
+      "surface": "Busu Festival"
+     },
+     {
+      "end": 119,
+      "entity_id": "E00",
+      "start": 104,
+      "surface": "Greater Gevuton"
+     }
+    ],
+    "start": 76,
+    "text": "Busu Festival is located in Greater Gevuton."
+   },
+   {
+    "end": 205,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 121,
+    "text": "Events of this kind can give a region a shared calendar that people look forward to."
+   }
+  ],
+  "subject": "E13",
+  "text": "Local festivals often bring visitors and residents together for a few days. Busu Festival is located in Greater Gevuton. Events of this kind can give a region a shared calendar that people look forward to.",
+  "title": "Busu Festival"
+ },
+ {
+  "distractor": false,
+  "id": "D00010",
+  "sentences": [
+   {
+    "end": 87,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Local newspapers often publish weekly columns that explain how public services are run."
+   },
+   {
+    "end": 119,
+    "fact_ids": [
+     "F20"
+    ],
+    "mentions": [
+     {
+      "end": 94,
+      "entity_id": "E14",
+      "start": 88,
+      "surface": "Futana"
+     },
+     {
+      "end": 118,
+      "entity_id": "E28",
+      "start": 114,
+      "surface": "Lapi"
+     }
+    ],
+    "start": 88,
+    "text": "Futana is affiliated with Lapi."
+   },
+   {
+    "end": 144,
+    "fact_ids": [
+     "F21"
+    ],
+    "mentions": [
+     {
+      "end": 129,
+      "entity_id": "E14",
+      "start": 120,
+      "surface": "S. Futana"
+     },
+     {
+      "end": 143,
+      "entity_id": "E21",
+      "start": 135,
+      "surface": "Tozu X90"
+     }
+    ],
+    "start": 120,
+    "text": "S. Futana owns Tozu X90."
+   },
+   {
+    "end": 229,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 145,
+    "text": "Readers tend to remember a story better when it is told in simple, direct sentences."
+   }
+  ],
+  "subject": "E14",
+  "text": "Local newspapers often publish weekly columns that explain how public services are run. Futana is affiliated with Lapi. S. Futana owns Tozu X90. Readers tend to remember a story better when it is told in simple, direct sentences.",
+  "title": "Simi Futana"
+ },
+ {
+  "distractor": false,
+  "id": "D00011",
+  "sentences": [
+   {
+    "end": 77,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Regional economies often depend on a mix of small firms and larger employers."
+   },
+   {
+    "end": 117,
+    "fact_ids": [
+     "F22"
+    ],
+    "mentions": [
+     {
+      "end": 89,
+      "entity_id": "E16",
+      "start": 78,
+      "surface": "Rage Taneta"
+     },
+     {
+      "end": 116,
+      "entity_id": "E04",
+      "start": 104,
+      "surface": "Greater Lugi"
+     }
+    ],
+    "start": 78,
+    "text": "Rage Taneta is located in Greater Lugi."
+   },
+   {
+    "end": 145,
+    "fact_ids": [
+     "F23"
+    ],
+    "mentions": [
+     {
+      "end": 129,
+      "entity_id": "E16",
+      "start": 118,
+      "surface": "Rage Taneta"
+     },
+     {
+      "end": 144,
+      "entity_id": "E01",
+      "start": 140,
+      "surface": "Dalu"
+     }
+    ],
+    "start": 118,
+    "text": "Rage Taneta works for Dalu."
+   },
+   {
+    "end": 215,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 146,
+    "text": "Where people live and where they work can shape their daily routines."
+   }
+  ],
+  "subject": "E16",
+  "text": "Regional economies often depend on a mix of small firms and larger employers. Rage Taneta is located in Greater Lugi. Rage Taneta works for Dalu. Where people live and where they work can shape their daily routines.",
+  "title": "Rage Taneta"
+ },
+ {
+  "distractor": false,
+  "id": "D00012",
+  "sentences": [
+   {
+    "end": 75,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Short profiles are a common way to introduce people and groups in a sector."
+   },
+   {
+    "end": 103,
+    "fact_ids": [
+     "F24"
+    ],
+    "mentions": [
+     {
+      "end": 78,
+      "entity_id": "E18",
+      "start": 76,
+      "surface": "DH"
+     },
+     {
+      "end": 102,
+      "entity_id": "E01",
+      "start": 98,
+      "surface": "Dalu"
+     }
+    ],
+    "start": 76,
+    "text": "DH is affiliated with Dalu."
+   },
+   {
+    "end": 132,
+    "fact_ids": [
+     "F25"
+    ],
+    "mentions": [
+     {
+      "end": 106,
+      "entity_id": "E18",
+      "start": 104,
+      "surface": "DH"
+     },
+     {
+      "end": 131,
+      "entity_id": "E26",
+      "start": 122,
+      "surface": "Muzu Labs"
+     }
+    ],
+    "start": 104,
+    "text": "DH is a member of Muzu Labs."
+   },
+   {
+    "end": 154,
+    "fact_ids": [
+     "F27"
+    ],
+    "mentions": [
+     {
+      "end": 135,
+      "entity_id": "E18",
+      "start": 133,
+      "surface": "DH"
+     },
+     {
+      "end": 153,
+      "entity_id": "E29",
+      "start": 145,
+      "surface": "Golu Z87"
+     }
+    ],
+    "start": 133,
+    "text": "DH produces Golu Z87."
+   },
+   {
+    "end": 179,
+    "fact_ids": [
+     "F26"
+    ],
+    "mentions": [
+     {
+      "end": 168,
+      "entity_id": "E18",
+      "start": 155,
+      "surface": "Dide Holdings"
+     },
+     {
+      "end": 178,
+      "entity_id": "E09",
+      "start": 174,
+      "surface": "Dide"
+     }
+    ],
+    "start": 155,
+    "text": "Dide Holdings owns Dide."
+   },
+   {
+    "end": 255,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 180,
+    "text": "A clear list of names and roles helps a reader keep track of who does what."
+   }
+  ],
+  "subject": "E18",
+  "text": "Short profiles are a common way to introduce people and groups in a sector. DH is affiliated with Dalu. DH is a member of Muzu Labs. DH produces Golu Z87. Dide Holdings owns Dide. A clear list of names and roles helps a reader keep track of who does what.",
+  "title": "Dide Holdings"
+ },
+ {
+  "distractor": false,
+  "id": "D00013",
+  "sentences": [
+   {
+    "end": 87,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Many companies begin with a single idea and a small group of people willing to test it."
+   },
+   {
+    "end": 124,
+    "fact_ids": [
+     "F28"
+    ],
+    "mentions": [
+     {
+      "end": 99,
+      "entity_id": "E19",
+      "start": 88,
+      "surface": "Silo Fapobu"
+     },
+     {
+      "end": 123,
+      "entity_id": "E01",
+      "start": 108,
+      "surface": "Dalu Industries"
+     }
+    ],
+    "start": 88,
+    "text": "Silo Fapobu founded Dalu Industries."
+   },
+   {
+    "end": 163,
+    "fact_ids": [
+     "F29"
+    ],
+    "mentions": [
+     {
+      "end": 136,
+      "entity_id": "E19",
+      "start": 125,
+      "surface": "Silo Fapobu"
+     },
+     {
+      "end": 162,
+      "entity_id": "E01",
+      "start": 147,
+      "surface": "Dalu Industries"
+     }
+    ],
+    "start": 125,
+    "text": "Silo Fapobu works for Dalu Industries."
+   },
+   {
+    "end": 246,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 164,
+    "text": "Growth in any organisation usually brings new questions about structure and roles."
+   }
+  ],
+  "subject": "E19",
+  "text": "Many companies begin with a single idea and a small group of people willing to test it. Silo Fapobu founded Dalu Industries. Silo Fapobu works for Dalu Industries. Growth in any organisation usually brings new questions about structure and roles.",
+  "title": "Silo Fapobu"
+ },
+ {
+  "distractor": false,
+  "id": "D00014",
+  "sentences": [
+   {
+    "end": 81,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Product lines often grow over time as makers add new models to an existing range."
+   },
+   {
+    "end": 107,
+    "fact_ids": [
+     "F30"
+    ],
+    "mentions": [
+     {
+      "end": 90,
+      "entity_id": "E21",
+      "start": 82,
+      "surface": "Tozu X90"
+     },
+     {
+      "end": 106,
+      "entity_id": "E08",
+      "start": 102,
+      "surface": "DIZA"
+     }
+    ],
+    "start": 82,
+    "text": "Tozu X90 is part of DIZA."
+   },
+   {
+    "end": 193,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 108,
+    "text": "Customers tend to compare models within a range before deciding which one suits them."
+   }
+  ],
+  "subject": "E21",
+  "text": "Product lines often grow over time as makers add new models to an existing range. Tozu X90 is part of DIZA. Customers tend to compare models within a range before deciding which one suits them.",
+  "title": "Tozu X90"
+ },
+ {
+  "distractor": false,
+  "id": "D00015",
+  "sentences": [
+   {
+    "end": 83,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Groups that bring people together often rely on clear goals and open communication."
+   },
+   {
+    "end": 119,
+    "fact_ids": [
+     "F31"
+    ],
+    "mentions": [
+     {
+      "end": 88,
+      "entity_id": "E22",
+      "start": 84,
+      "surface": "Seva"
+     },
+     {
+      "end": 118,
+      "entity_id": "E28",
+      "start": 108,
+      "surface": "Lapi Group"
+     }
+    ],
+    "start": 84,
+    "text": "Seva is affiliated with Lapi Group."
+   },
+   {
+    "end": 145,
+    "fact_ids": [
+     "F32"
+    ],
+    "mentions": [
+     {
+      "end": 124,
+      "entity_id": "E22",
+      "start": 120,
+      "surface": "Seva"
+     },
+     {
+      "end": 144,
+      "entity_id": "E26",
+      "start": 140,
+      "surface": "Muzu"
+     }
+    ],
+    "start": 120,
+    "text": "Seva is a member of Muzu."
+   },
+   {
+    "end": 221,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 146,
+    "text": "Membership in such circles can vary a great deal from one place to another."
+   }
+  ],
+  "subject": "E22",
+  "text": "Groups that bring people together often rely on clear goals and open communication. Seva is affiliated with Lapi Group. Seva is a member of Muzu. Membership in such circles can vary a great deal from one place to another.",
+  "title": "Seva Works"
+ },
+ {
+  "distractor": false,
+  "id": "D00016",
+  "sentences": [
+   {
+    "end": 80,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Industry gatherings give people a chance to compare notes and meet new contacts."
+   },
+   {
+    "end": 118,
+    "fact_ids": [
+     "F33"
+    ],
+    "mentions": [
+     {
+      "end": 90,
+      "entity_id": "E23",
+      "start": 81,
+      "surface": "Seze Labs"
+     },
+     {
+      "end": 117,
+      "entity_id": "E25",
+      "start": 107,
+      "surface": "Sebo Forum"
+     }
+    ],
+    "start": 81,
+    "text": "Seze Labs participated in Sebo Forum."
+   },
+   {
+    "end": 147,
+    "fact_ids": [
+     "F34"
+    ],
+    "mentions": [
+     {
+      "end": 128,
+      "entity_id": "E23",
+      "start": 119,
+      "surface": "Seze Labs"
+     },
+     {
+      "end": 146,
+      "entity_id": "E21",
+      "start": 138,
+      "surface": "Tozu-X90"
+     }
+    ],
+    "start": 119,
+    "text": "Seze Labs produces Tozu-X90."
+   },
+   {
+    "end": 179,
+    "fact_ids": [
+     "F35"
+    ],
+    "mentions": [
+     {
+      "end": 178,
+      "entity_id": "E29",
+      "start": 170,
+      "surface": "Golu Z87"
+     }
+    ],
+    "start": 148,
+    "text": "The lab also produces Golu Z87."
+   },
+   {
+    "end": 255,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 180,
+    "text": "Product lines like these often grow out of years of small, careful changes."
+   }
+  ],
+  "subject": "E23",
+  "text": "Industry gatherings give people a chance to compare notes and meet new contacts. Seze Labs participated in Sebo Forum. Seze Labs produces Tozu-X90. The lab also produces Golu Z87. Product lines like these often grow out of years of small, careful changes.",
+  "title": "Seze Labs"
+ },
+ {
+  "distractor": false,
+  "id": "D00017",
+  "sentences": [
+   {
+    "end": 85,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Maps and regional guides help readers picture how places sit relative to one another."
+   },
+   {
+    "end": 116,
+    "fact_ids": [
+     "F36"
+    ],
+    "mentions": [
+     {
+      "end": 88,
+      "entity_id": "E25",
+      "start": 86,
+      "surface": "SF"
+     },
+     {
+      "end": 115,
+      "entity_id": "E04",
+      "start": 103,
+      "surface": "Greater Lugi"
+     }
+    ],
+    "start": 86,
+    "text": "SF is located in Greater Lugi."
+   },
+   {
+    "end": 204,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 117,
+    "text": "Many visitors find that a short walk tells them more about a place than a long summary."
+   }
+  ],
+  "subject": "E25",
+  "text": "Maps and regional guides help readers picture how places sit relative to one another. SF is located in Greater Lugi. Many visitors find that a short walk tells them more about a place than a long summary.",
+  "title": "Sebo Forum"
+ },
+ {
+  "distractor": false,
+  "id": "D00018",
+  "sentences": [
+   {
+    "end": 70,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Product names often say a lot about how a team thinks about its users."
+   },
+   {
+    "end": 91,
+    "fact_ids": [
+     "F37"
+    ],
+    "mentions": [
+     {
+      "end": 80,
+      "entity_id": "E26",
+      "start": 71,
+      "surface": "Muzu Labs"
+     },
+     {
+      "end": 90,
+      "entity_id": "E08",
+      "start": 86,
+      "surface": "DIZA"
+     }
+    ],
+    "start": 71,
+    "text": "Muzu Labs owns DIZA."
+   },
+   {
+    "end": 111,
+    "fact_ids": [
+     "F38"
+    ],
+    "mentions": [
+     {
+      "end": 96,
+      "entity_id": "E26",
+      "start": 92,
+      "surface": "Muzu"
+     },
+     {
+      "end": 110,
+      "entity_id": "E08",
+      "start": 106,
+      "surface": "DIZA"
+     }
+    ],
+    "start": 92,
+    "text": "Muzu produces DIZA."
+   },
+   {
+    "end": 182,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 112,
+    "text": "Careful naming tends to make a product easier to find and to remember."
+   }
+  ],
+  "subject": "E26",
+  "text": "Product names often say a lot about how a team thinks about its users. Muzu Labs owns DIZA. Muzu produces DIZA. Careful naming tends to make a product easier to find and to remember.",
+  "title": "Muzu Labs"
+ },
+ {
+  "distractor": false,
+  "id": "D00019",
+  "sentences": [
+   {
+    "end": 71,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Ownership of consumer products can change hands in many different ways."
+   },
+   {
+    "end": 98,
+    "fact_ids": [
+     "F39"
+    ],
+    "mentions": [
+     {
+      "end": 83,
+      "entity_id": "E27",
+      "start": 72,
+      "surface": "Simi Futana"
+     },
+     {
+      "end": 97,
+      "entity_id": "E21",
+      "start": 89,
+      "surface": "Tozu X90"
+     }
+    ],
+    "start": 72,
+    "text": "Simi Futana owns Tozu X90."
+   },
+   {
+    "end": 188,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 99,
+    "text": "Owners often keep track of maintenance and updates to stay confident in what they bought."
+   }
+  ],
+  "subject": "E27",
+  "text": "Ownership of consumer products can change hands in many different ways. Simi Futana owns Tozu X90. Owners often keep track of maintenance and updates to stay confident in what they bought.",
+  "title": "Simi Futana"
+ },
+ {
+  "distractor": false,
+  "id": "D00020",
+  "sentences": [
+   {
+    "end": 119,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Manufacturing has changed a great deal over the past few decades, with new tools and methods reshaping many workplaces."
+   },
+   {
+    "end": 135,
+    "fact_ids": [
+     "F40"
+    ],
+    "mentions": [
+     {
+      "end": 124,
+      "entity_id": "E28",
+      "start": 120,
+      "surface": "Lapi"
+     },
+     {
+      "end": 134,
+      "entity_id": "E08",
+      "start": 130,
+      "surface": "Diza"
+     }
+    ],
+    "start": 120,
+    "text": "Lapi owns Diza."
+   },
+   {
+    "end": 155,
+    "fact_ids": [
+     "F42"
+    ],
+    "mentions": [
+     {
+      "end": 140,
+      "entity_id": "E28",
+      "start": 136,
+      "surface": "Lapi"
+     },
+     {
+      "end": 154,
+      "entity_id": "E08",
+      "start": 150,
+      "surface": "DIZA"
+     }
+    ],
+    "start": 136,
+    "text": "Lapi produces DIZA."
+   },
+   {
+    "end": 179,
+    "fact_ids": [
+     "F43"
+    ],
+    "mentions": [
+     {
+      "end": 160,
+      "entity_id": "E28",
+      "start": 156,
+      "surface": "Lapi"
+     },
+     {
+      "end": 178,
+      "entity_id": "E29",
+      "start": 170,
+      "surface": "Golu Z87"
+     }
+    ],
+    "start": 156,
+    "text": "Lapi produces Golu Z87."
+   },
+   {
+    "end": 207,
+    "fact_ids": [
+     "F41"
+    ],
+    "mentions": [
+     {
+      "end": 190,
+      "entity_id": "E28",
+      "start": 180,
+      "surface": "Lapi Group"
+     },
+     {
+      "end": 206,
+      "entity_id": "E22",
+      "start": 202,
+      "surface": "Seva"
+     }
+    ],
+    "start": 180,
+    "text": "Lapi Group is part of Seva."
+   },
+   {
+    "end": 287,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 208,
+    "text": "Product lines often change as markets shift and customers ask for new features."
+   }
+  ],
+  "subject": "E28",
+  "text": "Manufacturing has changed a great deal over the past few decades, with new tools and methods reshaping many workplaces. Lapi owns Diza. Lapi produces DIZA. Lapi produces Golu Z87. Lapi Group is part of Seva. Product lines often change as markets shift and customers ask for new features.",
+  "title": "Lapi Group"
+ },
+ {
+  "distractor": false,
+  "id": "D00021",
+  "sentences": [
+   {
+    "end": 82,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Product families often grow out of a single model that proves popular with buyers."
+   },
+   {
+    "end": 108,
+    "fact_ids": [
+     "F44"
+    ],
+    "mentions": [
+     {
+      "end": 91,
+      "entity_id": "E29",
+      "start": 83,
+      "surface": "Golu Z87"
+     },
+     {
+      "end": 107,
+      "entity_id": "E08",
+      "start": 103,
+      "surface": "Diza"
+     }
+    ],
+    "start": 83,
+    "text": "Golu Z87 is part of Diza."
+   },
+   {
+    "end": 198,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 109,
+    "text": "Teams that manage such families usually keep track of how each version is named and sold."
+   }
+  ],
+  "subject": "E29",
+  "text": "Product families often grow out of a single model that proves popular with buyers. Golu Z87 is part of Diza. Teams that manage such families usually keep track of how each version is named and sold.",
+  "title": "Golu Z87"
+ },
+ {
+  "distractor": true,
+  "id": "D00022",
+  "sentences": [
+   {
+    "end": 67,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Small towns and districts each have their own rhythm of daily life."
+   },
+   {
+    "end": 96,
+    "fact_ids": [
+     "F45"
+    ],
+    "mentions": [
+     {
+      "end": 76,
+      "entity_id": "E30",
+      "start": 68,
+      "surface": "SapobuKo"
+     },
+     {
+      "end": 95,
+      "entity_id": "E31",
+      "start": 91,
+      "surface": "LuPi"
+     }
+    ],
+    "start": 68,
+    "text": "SapobuKo is located in LuPi."
+   },
+   {
+    "end": 172,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 97,
+    "text": "Travellers often find that the local layout tells them a lot about a place."
+   }
+  ],
+  "subject": "E30",
+  "text": "Small towns and districts each have their own rhythm of daily life. SapobuKo is located in LuPi. Travellers often find that the local layout tells them a lot about a place.",
+  "title": "SapobuKo"
+ },
+ {
+  "distractor": true,
+  "id": "D00023",
+  "sentences": [
+   {
+    "end": 83,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Some collections of organisations form loose networks rather than fixed structures."
+   },
+   {
+    "end": 109,
+    "fact_ids": [
+     "F46"
+    ],
+    "mentions": [
+     {
+      "end": 88,
+      "entity_id": "E31",
+      "start": 84,
+      "surface": "LuPi"
+     },
+     {
+      "end": 108,
+      "entity_id": "E30",
+      "start": 100,
+      "surface": "SapobuKo"
+     }
+    ],
+    "start": 84,
+    "text": "LuPi is part of SapobuKo."
+   },
+   {
+    "end": 181,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 110,
+    "text": "Such arrangements can change over time as members join, leave or merge."
+   }
+  ],
+  "subject": "E31",
+  "text": "Some collections of organisations form loose networks rather than fixed structures. LuPi is part of SapobuKo. Such arrangements can change over time as members join, leave or merge.",
+  "title": "LuPi"
+ },
+ {
+  "distractor": true,
+  "id": "D00024",
+  "sentences": [
+   {
+    "end": 81,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Diplomatic meetings are often held away from the places where the disputes began."
+   },
+   {
+    "end": 119,
+    "fact_ids": [
+     "F47"
+    ],
+    "mentions": [
+     {
+      "end": 99,
+      "entity_id": "E32",
+      "start": 82,
+      "surface": "Gebu Accord Talks"
+     },
+     {
+      "end": 118,
+      "entity_id": "E31",
+      "start": 114,
+      "surface": "LuPi"
+     }
+    ],
+    "start": 82,
+    "text": "Gebu Accord Talks is located in LuPi."
+   },
+   {
+    "end": 204,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 120,
+    "text": "People who follow such meetings usually rely on official statements for the details."
+   }
+  ],
+  "subject": "E32",
+  "text": "Diplomatic meetings are often held away from the places where the disputes began. Gebu Accord Talks is located in LuPi. People who follow such meetings usually rely on official statements for the details.",
+  "title": "Gebu Accord Talks"
+ },
+ {
+  "distractor": true,
+  "id": "D00025",
+  "sentences": [
+   {
+    "end": 77,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 0,
+    "text": "Smaller units inside a larger body often keep their own routines and leaders."
+   },
+   {
+    "end": 99,
+    "fact_ids": [
+     "F48"
+    ],
+    "mentions": [
+     {
+      "end": 82,
+      "entity_id": "E34",
+      "start": 78,
+      "surface": "DiTa"
+     },
+     {
+      "end": 98,
+      "entity_id": "E31",
+      "start": 94,
+      "surface": "LuPi"
+     }
+    ],
+    "start": 78,
+    "text": "DiTa is part of LuPi."
+   },
+   {
+    "end": 190,
+    "fact_ids": [],
+    "mentions": [],
+    "start": 100,
+    "text": "How such units are organised tends to depend on the work they do and the people who do it."
+   }
+  ],
+  "subject": "E34",
+  "text": "Smaller units inside a larger body often keep their own routines and leaders. DiTa is part of LuPi. How such units are organised tends to depend on the work they do and the people who do it.",
+  "title": "DiTa"
+ }
+]

@@ -62,3 +62,11 @@ pre-push hook run it as a test. After a change that is meant to move the numbers
 - **Retrieval: harder text costs the 1-hop questions a little** (BM25 and dense 0.95/0.96 to 0.89, graph-rag graph 0.77 to 0.75). Past 1 hop nobody recovers more than a few percent of whole paths, and with 75 questions per row the 2-hop differences (0.03 to 0.08) are noise.
 - **graph-rag has no 2-hop lead on this world.** The sweep above found one (about 18% against 1%) on the plain `small` world. This world adds homonyms (0.15), aliases and distractors, so ambiguity is the likely cause, but I did not isolate it.
 - **Not covered:** one world, template and LLM text only, no real-stack run, and Haiku rarely used pronouns, so coreference is barely tested.
+
+**The real LLM stages, through semula.** `build_offline_components(llm_stages=True)` swaps the offline coref and graph-build heuristics for the real LLM stages (NER, linking and the stores stay in memory), and `kgbench hard --llm-cache DIR [--llm-base-url URL]` scores them. Point the base URL at a semula container and have a Haiku agent answer the parked prompts; every answer is cached, so a re-run needs no endpoint. [docs/results/hard-tiny.md](results/hard-tiny.md) does this on the `hard-tiny` world (26 documents, Haiku as the coref and graph-build model):
+
+- **Relations appear.** Strict triple F1 is 0.92 on template text and 0.96 on the harder text, where the offline builder cannot score at all. Entity-pair F1 rises from 0.77 and 0.75 to 0.91 and 0.96.
+- **Mentions and entities do not move.** NER is the same offline heuristic, so mention F1 (0.99 template, 0.75 hard) is unchanged and entity F1 gains only 3 points.
+- **Retrieval: a small, unproven gain on the hard text.** graph-rag graph path@5 / recall@5 goes from 0.20 / 0.45 to 0.25 / 0.53 over all 60 questions. At 15 questions per hop count and one world, that is one sample, not a result.
+- **Cost:** 104 recorded Haiku answers for 48 documents, no API spend; I did not measure the time per document.
+- **Not covered:** `hard-small` (145 documents, about 290 sequential prompts), a different model, the real stores and real spaCy NER.

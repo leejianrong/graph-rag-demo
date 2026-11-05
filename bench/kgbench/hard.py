@@ -8,19 +8,20 @@ score is the effect of the text. The harder text is a committed dataset (``kggen
 from __future__ import annotations
 
 import json
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
 
 from kggen.render import Document, render_documents
 from kggen.spec import load_spec
 from kggen.world import generate
 
-from graph_rag.wiring import build_offline_components
+from graph_rag.config import Settings
+from graph_rag.wiring import BenchmarkComponents, build_offline_components
 from kgbench.compare import Comparison, run_seed
 from kgbench.extraction import gold_from, run_pipeline, score
 from kgbench.linking import linking_gold, score_linking
 
-STYLES = ("template", "hard")
+STYLES = ("template", "hard", "template + LLM", "hard + LLM")
 
 
 def load(folder: Path) -> tuple[Path, tuple[Document, ...]]:
@@ -28,21 +29,43 @@ def load(folder: Path) -> tuple[Path, tuple[Document, ...]]:
     return folder / "spec.yaml", tuple(Document.from_dict(d) for d in docs)
 
 
-def measure(folder: Path, embedder, n_questions: int, ks: Sequence[int]) -> dict[str, dict]:
-    """Per style: extraction, linking and the retrieval comparison for the committed world."""
+def measure(
+    folder: Path, embedder, n_questions: int, ks: Sequence[int], settings: Settings | None = None
+) -> dict[str, dict]:
+    """Per text style: extraction, linking and the retrieval comparison for the committed world.
+
+    With ``settings`` (pointing the coref and graph-build models at an endpoint and a cache), each
+    text is also run through the real LLM stages, so relations can be scored.
+    """
     spec_path, hard = load(folder)
     spec = load_spec(spec_path)
     world = generate(spec)
+    texts = {"template": render_documents(world), "hard": hard}
+    pipelines: dict[str, Callable[[], BenchmarkComponents]] = {
+        "": lambda: build_offline_components(embedder=embedder)
+    }
+    if settings:
+        pipelines[" + LLM"] = lambda: build_offline_components(
+            settings=settings, embedder=embedder, llm_stages=True
+        )
     out = {}
-    for style, documents in (("template", render_documents(world)), ("hard", hard)):
-        extraction = run_pipeline(build_offline_components(embedder=embedder), documents)
-        run = run_seed(spec, n_questions=n_questions, embedder=embedder, ks=ks, documents=documents)
-        out[style] = {
-            "extraction": score(gold_from(world, documents), extraction),
-            "linking": score_linking(linking_gold(world, documents), extraction),
-            "retrieval": Comparison("hard-small", "", tuple(ks), (run,)),
-            "words": sum(len(d.text.split()) for d in documents) // len(documents),
-        }
+    for suffix, build in pipelines.items():
+        for style, documents in texts.items():
+            extraction = run_pipeline(build(), documents)
+            run = run_seed(
+                spec,
+                n_questions=n_questions,
+                embedder=embedder,
+                ks=ks,
+                documents=documents,
+                pipeline=build,
+            )
+            out[style + suffix] = {
+                "extraction": score(gold_from(world, documents), extraction),
+                "linking": score_linking(linking_gold(world, documents), extraction),
+                "retrieval": Comparison(folder.name, "", tuple(ks), (run,)),
+                "words": sum(len(d.text.split()) for d in documents) // len(documents),
+            }
     return out
 
 
@@ -52,39 +75,39 @@ def typed(report) -> bool:
 
 
 def to_markdown(result: dict[str, dict], k: int, command: str, embedder: str) -> str:
+    styles = [s for s in STYLES if s in result]
     lines = [
-        "# The same world as template text and as harder LLM-written text",
+        f"# {' vs '.join(styles)}: the same world as different text and pipelines",
         "",
-        f"`{command}`; offline graph-rag, {embedder} embeddings, one world (the committed "
-        "`hard-small` spec), so the differences are one sample, not a distribution.",
+        f"`{command}`; graph-rag with {embedder} embeddings, one world, so the differences are one "
+        "sample, not a distribution. A `+ LLM` column runs the real coref and graph-build stages "
+        "(Claude Haiku through semula, answers cached); the others use the offline heuristics.",
         "",
-        "| | template | hard |",
-        "|---|---|---|",
+        "| | " + " | ".join(styles) + " |",
+        "|---|" + "---|" * len(styles),
     ]
-    t, h = result["template"], result["hard"]
+    show_triples = any(typed(result[s]["extraction"]) for s in styles)
     rows = [
-        ("words per document", t["words"], h["words"]),
-        ("mention F1", t["extraction"].mentions.f1, h["extraction"].mentions.f1),
-        ("entity F1", t["extraction"].entities.f1, h["extraction"].entities.f1),
-        *(
-            [("triple F1 (strict)", t["extraction"].triples.f1, h["extraction"].triples.f1)]
-            if typed(t["extraction"]) or typed(h["extraction"])
-            else []
+        ("words per document", lambda r: str(r["words"])),
+        ("mention F1", lambda r: f"{r['extraction'].mentions.f1:.3f}"),
+        ("entity F1", lambda r: f"{r['extraction'].entities.f1:.3f}"),
+        ("entity pair F1 (relation ignored)", lambda r: f"{r['extraction'].edges.f1:.3f}"),
+        (
+            "triple F1 (strict)",
+            lambda r: f"{r['extraction'].triples.f1:.3f}" if typed(r["extraction"]) else "n/a",
         ),
-        ("entity pair F1 (relation ignored)", t["extraction"].edges.f1, h["extraction"].edges.f1),
-        ("linking B-cubed F1", t["linking"].overall.f1, h["linking"].overall.f1),
+        ("linking B-cubed F1", lambda r: f"{r['linking'].overall.f1:.3f}"),
     ]
-    for name, a, b in rows:
-        fmt = (lambda v: str(v)) if isinstance(a, int) else (lambda v: f"{v:.3f}")
-        lines.append(f"| {name} | {fmt(a)} | {fmt(b)} |")
-    if not any(typed(result[s]["extraction"]) for s in STYLES):
-        lines += [
-            "",
-            "Strict triple F1 is left out: the offline graph builder links co-occurring entities "
-            "with `RELATED_TO` only, so it is 0 by construction. Judge relations with an LLM "
-            "graph builder (`kgbench extract --real`).",
-        ]
-    for style in STYLES:
+    for name, cell in rows:
+        if name.startswith("triple") and not show_triples:
+            continue
+        lines.append(f"| {name} | " + " | ".join(cell(result[s]) for s in styles) + " |")
+    lines += [
+        "",
+        "`n/a`: that pipeline's graph builder emits only the `RELATED_TO` fallback, so strict "
+        "triple F1 is 0 by construction.",
+    ]
+    for style in styles:
         r = result[style]["retrieval"]
-        lines += ["", f"## Retrieval on {style} text", "", "```", r.format_table(k), "```"]
+        lines += ["", f"## Retrieval: {style}", "", "```", r.format_table(k), "```"]
     return "\n".join(lines) + "\n"

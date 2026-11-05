@@ -19,7 +19,7 @@ The generator (`datagen/`, `kggen`) and its indah UI (`kggen ui`, extra `kggen[u
 indah 0.12, unreleased, so it runs against the local indah checkout (`make ui` picks it up). The bench (`bench/`, ADR-0011) scores
 extraction, linking, retrieval (BM25, dense and graph-rag as `Retriever`s), ingest order, complexity sweeps, typed answers and an
 optional LLM judge; method and results are in [`docs/BENCH.md`](docs/BENCH.md). A quality gate (`kgbench gate`, floors in
-`bench/kgbench/gate.json`, run by the fast suite; `--update` after an intended change) fails a drop in graph-rag's scores. Real-stack
+`bench/kgbench/gate.json`, run by the fast suite; `--update` after an intended change) fails a drop in graph-rag's scores. `build_offline_components(llm_stages=True)` runs the real LLM stages over in-memory stores (point LiteLLM at semula via `OPENAI_API_BASE`). Real-stack
 runs are still to build, and so are the `/v1` agent API facade, MCP, CLI and SDK (contract: ADR-0014).
 
 > **Trust the code over the docs.** `docs/` is design intent; where they disagree, the code is the truth and

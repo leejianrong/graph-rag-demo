@@ -1,0 +1,127 @@
+{
+ "checks": [
+  {
+   "knob": "n_entities",
+   "ok": true,
+   "realized": 30,
+   "target": 30,
+   "tolerance": 0
+  },
+  {
+   "knob": "avg_degree",
+   "ok": true,
+   "realized": 3.0,
+   "target": 3.0,
+   "tolerance": 0.21666666666666667
+  },
+  {
+   "knob": "type_mix",
+   "ok": true,
+   "realized": 0.016666666666666663,
+   "target": 0.0,
+   "tolerance": 0.03333333433333333
+  },
+  {
+   "knob": "alias_rate",
+   "ok": true,
+   "realized": 0.7,
+   "target": 0.7,
+   "tolerance": 0.03333333333333333
+  },
+  {
+   "knob": "homonym_rate",
+   "ok": true,
+   "realized": 0.13333333333333333,
+   "target": 0.15,
+   "tolerance": 0.03333333333333333
+  },
+  {
+   "knob": "distractor_rate",
+   "ok": true,
+   "realized": 0.2,
+   "target": 0.2,
+   "tolerance": 0.03333333333333333
+  },
+  {
+   "knob": "noise_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.022222222222222223
+  },
+  {
+   "knob": "churn_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.022222222222222223
+  },
+  {
+   "knob": "retraction_rate",
+   "ok": true,
+   "realized": 0.0,
+   "target": 0.0,
+   "tolerance": 0.022222222222222223
+  }
+ ],
+ "stats": {
+  "ambiguity": {
+   "aliased_entities": 21,
+   "aliases": 30,
+   "shared_names": 4,
+   "vague_facts": 0
+  },
+  "churn": {
+   "replaced": 0,
+   "retracted": 0
+  },
+  "communities": {
+   "0": 15,
+   "1": 15
+  },
+  "components": {
+   "count": 3,
+   "largest": 28,
+   "sizes": [
+    28,
+    1,
+    1
+   ]
+  },
+  "current_facts": 49,
+  "degree": {
+   "histogram": {
+    "0": 2,
+    "1": 5,
+    "2": 9,
+    "3": 4,
+    "4": 4,
+    "5": 1,
+    "6": 2,
+    "7": 2,
+    "8": 1
+   },
+   "max": 8,
+   "mean": 3.0
+  },
+  "distractors": 6,
+  "entities": 30,
+  "facts": 49,
+  "original_facts": 45,
+  "path_lengths": {
+   "1": 82,
+   "2": 196,
+   "3": 282,
+   "4": 172,
+   "5": 24
+  },
+  "type_counts": {
+   "EVENT": 3,
+   "LOCATION": 5,
+   "NORP": 2,
+   "ORG": 7,
+   "PERSON": 10,
+   "PRODUCT": 3
+  }
+ }
+}
