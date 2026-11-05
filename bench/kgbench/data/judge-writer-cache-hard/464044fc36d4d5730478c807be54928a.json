@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Geki Mazera owns Sepa Z82. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "The harbor town woke slowly that morning, with fishing boats knocking against the stone quay and gulls circling the market stalls. Shopkeepers rolled up their awnings and swept the cobbles outside their doors. Geki Mazera owns Sepa Z82, a small workshop that repairs marine radios along the eastern wharf. Children from the nearby school ran past the bakery, shouting over the sound of the bells. By noon the fog had lifted and the hills behind the town showed their first green."
+}

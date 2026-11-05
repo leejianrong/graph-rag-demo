@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that say it is unclear or disputed whether this holds, neither confirming nor denying it: Leni Works is part of Keme Group",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "It is unclear whether Leni Works is part of Keme Group, and the available records do not settle the question either way."
+}

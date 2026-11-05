@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a short paragraph that states these facts and nothing else: Nolu Accord Talks is located in Lina; Zolu Industries participated in Nolu Accord Talks; Pidu Works participated in Nolu Accord Talks",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Nolu Accord Talks is located in Lina. Zolu Industries participated in Nolu Accord Talks. Pidu Works participated in Nolu Accord Talks."
+}

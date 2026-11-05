@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Zolu Industries participated in Nolu Accord Talks. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Long-running projects often accumulate small decisions that shape how they feel to work on. Regular check-ins help teams notice when those decisions start to drift apart. Documenting the reasons behind a choice makes it easier to revisit later. Zolu Industries participated in Nolu Accord Talks. Clear notes and steady rhythms keep the work moving even when people change roles."
+}

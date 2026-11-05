@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that say this is NOT the case, naming both entities: Gori X18 is part of Leze Z87",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "It is not the case that Gori X18 is part of Leze Z87. Gori X18 stands apart from Leze Z87 and has never been folded into it."
+}

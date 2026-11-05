@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences asserting that Nolu Accord Talks participated in Pidu Works. That is the reverse of 'Pidu Works participated in Nolu Accord Talks'; assert the reverse as if it were true, naming both.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Nolu Accord Talks participated in Pidu Works."
+}

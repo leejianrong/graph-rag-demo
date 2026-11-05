@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Nolu Accord Talks is located in Lina. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Quiet rooms help people concentrate on long tasks. Good lighting reduces eye strain during the afternoon. Nolu Accord Talks is located in Lina. Simple routines make it easier to start work each morning. Taking short breaks often keeps energy steady through the day."
+}

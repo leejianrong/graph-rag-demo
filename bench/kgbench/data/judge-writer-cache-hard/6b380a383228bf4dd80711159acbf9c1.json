@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Sepa Z82 is part of Kipe Q67. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Late autumn brings shorter days and a steady wind off the water, and most households in the valley have already stacked their firewood by the back door. Farmers gather the last of the root vegetables before the first hard frost arrives. Sepa Z82 is part of Kipe Q67, and its components are assembled as one unit before shipping. Schools reopen after the holiday break with new timetables posted on every corridor wall. Evenings grow quiet, and the lamps in the old square stay lit until the early hours."
+}

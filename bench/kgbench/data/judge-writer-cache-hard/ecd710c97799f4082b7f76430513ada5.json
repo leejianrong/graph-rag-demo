@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that state this fact in your own words, without copying its phrasing (use the two names exactly): Zolu Industries produces Gori X18",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Gori X18 is made by Zolu Industries. The company's production line for Gori X18 runs at its main facility."
+}

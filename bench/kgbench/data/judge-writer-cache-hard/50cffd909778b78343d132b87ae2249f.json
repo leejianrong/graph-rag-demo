@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that state this fact in your own words, without copying its phrasing (use the two names exactly): Nato Z5 is part of Sepa Z82",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Nato Z5 forms one component of Sepa Z82. Sepa Z82 is the whole that Nato Z5 belongs to."
+}

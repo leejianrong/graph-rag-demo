@@ -1,0 +1,1685 @@
+[
+ {
+  "id": "F087-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Novu Q87 is held by Leni Works. Leni Works is the one with title over Novu Q87.",
+  "label": true
+ },
+ {
+  "id": "F087-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Many small tools rely on shared conventions that keep their output readable across different systems. Good naming tends to matter more than clever shortcuts once a project grows past a handful of contributors. Leni Works owns Novu Q87. Records are easier to review when each one carries a clear label and a short description of what it holds. Teams that write down their decisions early usually spend less time reconstructing them later.",
+  "label": true
+ },
+ {
+  "id": "F087-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "According to the filing, Leni Works owns Novu Q87.",
+  "label": true
+ },
+ {
+  "id": "F087-reversed",
+  "kind": "reversed",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Novu Q87 owns Leni Works, according to the registry filed last spring. The transfer gave Novu Q87 full control of the company's archive and its three regional offices.",
+  "label": false
+ },
+ {
+  "id": "F087-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not the case that Leni Works owns Novu Q87. Novu Q87 has no connection to Leni Works, and the records that mention both were filed in error.",
+  "label": false
+ },
+ {
+  "id": "F087-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is unclear whether Leni Works owns Novu Q87, and the records available so far do not settle the question. Sources disagree on this point, so neither a confirmation nor a denial would be justified at this stage.",
+  "label": false
+ },
+ {
+  "id": "F087-near_miss",
+  "kind": "near_miss",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works owns Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F087-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F087",
+   "text": "Leni Works owns Novu Q87",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Novu Q87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Sepa Z82 is part of Kipe Q67. Mado Systems produces Sepa Z82. Nolu Accord Talks is located in Lina.",
+  "label": false
+ },
+ {
+  "id": "F088-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Keme Group includes Leni Works among its units. Leni Works sits inside the larger structure that Keme Group forms.",
+  "label": true
+ },
+ {
+  "id": "F088-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Many small studios spend their first years trying to find a steady rhythm for releases. Planning tends to work better when the team agrees on a few fixed dates instead of chasing every request as it arrives. Leni Works is part of Keme Group. Shared tools can cut down on repeated setup, though they also need someone to keep them current. Good notes from each meeting make it easier for newcomers to catch up without asking the same questions twice.",
+  "label": true
+ },
+ {
+  "id": "F088-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "According to the filing, Leni Works is part of Keme Group.",
+  "label": true
+ },
+ {
+  "id": "F088-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works is not part of Keme Group.",
+  "label": false
+ },
+ {
+  "id": "F088-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is unclear whether Leni Works is part of Keme Group, and the available records do not settle the question either way.",
+  "label": false
+ },
+ {
+  "id": "F088-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F088",
+   "text": "Leni Works is part of Keme Group",
+   "subject_names": [
+    "Leni Works"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Mado Systems produces Sepa Z82. Nolu Accord Talks is located in Lina. Zolu Industries participated in Nolu Accord Talks.",
+  "label": false
+ },
+ {
+  "id": "F023-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nato Z5 forms one component of Sepa Z82. Sepa Z82 is the whole that Nato Z5 belongs to.",
+  "label": true
+ },
+ {
+  "id": "F023-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Small workshops often rely on a handful of shared tools that everyone learns to treat with care. Good habits in a shared space tend to matter more than any single rule posted on the wall. Over time, people settle into routines that reduce wasted effort and repeated mistakes. Nato Z5 is part of Sepa Z82. Careful upkeep keeps such arrangements easy to follow for newcomers who arrive later.",
+  "label": true
+ },
+ {
+  "id": "F023-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "According to the filing, Nato Z5 is part of Sepa Z82.",
+  "label": true
+ },
+ {
+  "id": "F023-reversed",
+  "kind": "reversed",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Sepa Z82 is part of Nato Z5.",
+  "label": false
+ },
+ {
+  "id": "F023-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nato Z5 is not part of Sepa Z82, and no record links the two.",
+  "label": false
+ },
+ {
+  "id": "F023-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is unclear whether Nato Z5 is part of Sepa Z82, and the available records do not settle it. Accounts differ on this point, so neither a confirmation nor a denial is warranted yet.",
+  "label": false
+ },
+ {
+  "id": "F023-near_miss",
+  "kind": "near_miss",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nato Z5 is part of Kipe Q67.",
+  "label": false
+ },
+ {
+  "id": "F023-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F023",
+   "text": "Nato Z5 is part of Sepa Z82",
+   "subject_names": [
+    "Nato Z5"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nolu Accord Talks is located in Lina. Zolu Industries participated in Nolu Accord Talks. Pidu Works participated in Nolu Accord Talks.",
+  "label": false
+ },
+ {
+  "id": "F141-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Geki Mazera holds ownership of Sepa Z82. The company's title to that asset is recorded under Geki Mazera's name.",
+  "label": true
+ },
+ {
+  "id": "F141-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "The harbor town woke slowly that morning, with fishing boats knocking against the stone quay and gulls circling the market stalls. Shopkeepers rolled up their awnings and swept the cobbles outside their doors. Geki Mazera owns Sepa Z82, a small workshop that repairs marine radios along the eastern wharf. Children from the nearby school ran past the bakery, shouting over the sound of the bells. By noon the fog had lifted and the hills behind the town showed their first green.",
+  "label": true
+ },
+ {
+  "id": "F141-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "According to the filing, Geki Mazera owns Sepa Z82.",
+  "label": true
+ },
+ {
+  "id": "F141-reversed",
+  "kind": "reversed",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Sepa Z82 owns Geki Mazera. Records show that Sepa Z82 holds Geki Mazera as its owner.",
+  "label": false
+ },
+ {
+  "id": "F141-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not the case that Geki Mazera owns Sepa Z82, since the ownership records list someone else entirely. Sepa Z82 has never been held by Geki Mazera, despite the rumours that circulated in the trade press.",
+  "label": false
+ },
+ {
+  "id": "F141-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is unclear whether Geki Mazera owns Sepa Z82, and the sources available do not settle the question.",
+  "label": false
+ },
+ {
+  "id": "F141-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F141",
+   "text": "Geki Mazera owns Sepa Z82",
+   "subject_names": [
+    "Geki Mazera"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Zolu Industries participated in Nolu Accord Talks, and Pidu Works also participated in Nolu Accord Talks. Kite Fumada founded Zolu Industries.",
+  "label": false
+ },
+ {
+  "id": "F183-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Sepa Z82 comes out of the production line at Gedo Works.",
+  "label": true
+ },
+ {
+  "id": "F183-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Manufacturing schedules depend on steady supply and careful planning. Teams that review their routines each quarter tend to catch small problems early. Clear labeling and tidy storage save time for everyone on the floor. Gedo Works produces Sepa Z82. Good communication between shifts keeps output consistent over long runs.",
+  "label": true
+ },
+ {
+  "id": "F183-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "According to the filing, Gedo Works produces Sepa Z82 at its main plant. The records say the product has been in regular output since early this year.",
+  "label": true
+ },
+ {
+  "id": "F183-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Gedo Works does not produce Sepa Z82, and no production line at Gedo Works has ever built it. The product is made elsewhere, and Gedo Works has no part in its manufacture.",
+  "label": false
+ },
+ {
+  "id": "F183-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is unclear whether Gedo Works produces Sepa Z82, and the available sources disagree on the point. Neither confirming nor denying the claim, the reports leave the question open.",
+  "label": false
+ },
+ {
+  "id": "F183-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F183",
+   "text": "Gedo Works produces Sepa Z82",
+   "subject_names": [
+    "Gedo Works"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Pidu Works participated in Nolu Accord Talks. Kite Fumada founded Zolu Industries, and Zolu Industries owns Keme Group.",
+  "label": false
+ },
+ {
+  "id": "F185-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Kipe Q67 includes Sepa Z82 as one of its components.",
+  "label": true
+ },
+ {
+  "id": "F185-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Late autumn brings shorter days and a steady wind off the water, and most households in the valley have already stacked their firewood by the back door. Farmers gather the last of the root vegetables before the first hard frost arrives. Sepa Z82 is part of Kipe Q67, and its components are assembled as one unit before shipping. Schools reopen after the holiday break with new timetables posted on every corridor wall. Evenings grow quiet, and the lamps in the old square stay lit until the early hours.",
+  "label": true
+ },
+ {
+  "id": "F185-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "According to the filing, Sepa Z82 is part of Kipe Q67. The records say the arrangement has been in place since the reorganization last spring.",
+  "label": true
+ },
+ {
+  "id": "F185-reversed",
+  "kind": "reversed",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Kipe Q67 is part of Sepa Z82, according to the internal reorganisation notes circulated last quarter. The notes place Kipe Q67 under the operational control of Sepa Z82 for all regional logistics.",
+  "label": false
+ },
+ {
+  "id": "F185-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not the case that Sepa Z82 is part of Kipe Q67. Sepa Z82 sits outside Kipe Q67 and has never been one of its units.",
+  "label": false
+ },
+ {
+  "id": "F185-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is unclear whether Sepa Z82 is part of Kipe Q67, and the sources do not agree on the matter. Neither confirming nor denying the link, the available reports leave it open.",
+  "label": false
+ },
+ {
+  "id": "F185-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F185",
+   "text": "Sepa Z82 is part of Kipe Q67",
+   "subject_names": [
+    "Sepa Z82"
+   ],
+   "object_names": [
+    "Kipe Q67"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Kite Fumada founded Zolu Industries. Zolu Industries owns Keme Group. Zolu Industries produces Gori X18.",
+  "label": false
+ },
+ {
+  "id": "F255-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Sepa Z82 is manufactured by Mado Systems. Mado Systems is the maker behind the Sepa Z82 line.",
+  "label": true
+ },
+ {
+  "id": "F255-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Small electronics are easy to misplace on a crowded desk. Many people keep a tray near the door for keys, cables and spare batteries. Mado Systems produces Sepa Z82. Regular cleaning of the tray keeps it useful over time. A short weekly review is often enough to stop clutter from building up.",
+  "label": true
+ },
+ {
+  "id": "F255-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "The records say that Mado Systems produces Sepa Z82.",
+  "label": true
+ },
+ {
+  "id": "F255-reversed",
+  "kind": "reversed",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Sepa Z82 produces Mado Systems. The company's output is organised around Sepa Z82 as its core product.",
+  "label": false
+ },
+ {
+  "id": "F255-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Mado Systems does not produce Sepa Z82, and its catalogue contains no product by that name. Sepa Z82 comes from a different manufacturer, and Mado Systems has never been involved in building it.",
+  "label": false
+ },
+ {
+  "id": "F255-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is unclear whether Mado Systems produces Sepa Z82, and the available sources disagree on the point.",
+  "label": false
+ },
+ {
+  "id": "F255-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F255",
+   "text": "Mado Systems produces Sepa Z82",
+   "subject_names": [
+    "Mado Systems"
+   ],
+   "object_names": [
+    "Sepa Z82"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Zolu Industries owns Keme Group. Zolu Industries produces Gori X18. Gori X18 is part of Leze Z87.",
+  "label": false
+ },
+ {
+  "id": "F041-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Lina is the city where the Nolu Accord Talks took place. The negotiations were held there because it sat midway between the two delegations' home capitals.",
+  "label": true
+ },
+ {
+  "id": "F041-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Quiet rooms help people concentrate on long tasks. Good lighting reduces eye strain during the afternoon. Nolu Accord Talks is located in Lina. Simple routines make it easier to start work each morning. Taking short breaks often keeps energy steady through the day.",
+  "label": true
+ },
+ {
+  "id": "F041-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "According to the filing, Nolu Accord Talks is located in Lina.",
+  "label": true
+ },
+ {
+  "id": "F041-reversed",
+  "kind": "reversed",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Lina is located in Nolu Accord Talks, according to the venue listing published before the summit. The listing treats the Lina district as a single site inside the Nolu Accord Talks complex.",
+  "label": false
+ },
+ {
+  "id": "F041-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not the case that Nolu Accord Talks is located in Lina. Lina has no link to the venue of Nolu Accord Talks, which was held elsewhere.",
+  "label": false
+ },
+ {
+  "id": "F041-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is unclear whether Nolu Accord Talks is located in Lina, and the sources available do not settle the question.",
+  "label": false
+ },
+ {
+  "id": "F041-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F041",
+   "text": "Nolu Accord Talks is located in Lina",
+   "subject_names": [
+    "Nolu Accord Talks"
+   ],
+   "object_names": [
+    "Lina"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Zolu Industries produces Gori X18, and Gori X18 is part of Leze Z87. Leni Works owns Novu Q87.",
+  "label": false
+ },
+ {
+  "id": "F060-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Zolu Industries sent a delegation to the Nolu Accord Talks and took an active seat at the table. Its representatives joined the working groups on the second day.",
+  "label": true
+ },
+ {
+  "id": "F060-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Long-running projects often accumulate small decisions that shape how they feel to work on. Regular check-ins help teams notice when those decisions start to drift apart. Documenting the reasons behind a choice makes it easier to revisit later. Zolu Industries participated in Nolu Accord Talks. Clear notes and steady rhythms keep the work moving even when people change roles.",
+  "label": true
+ },
+ {
+  "id": "F060-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "According to the filing, Zolu Industries participated in Nolu Accord Talks as a full signatory delegation. The records say its name appears on the attendance roll for every session.",
+  "label": true
+ },
+ {
+  "id": "F060-reversed",
+  "kind": "reversed",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nolu Accord Talks participated in Zolu Industries. The talks drew Zolu Industries in as one of their main participants.",
+  "label": false
+ },
+ {
+  "id": "F060-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not the case that Zolu Industries participated in Nolu Accord Talks, since its name appears on none of the delegation lists. Zolu Industries sent no representatives to Nolu Accord Talks at any stage.",
+  "label": false
+ },
+ {
+  "id": "F060-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is unclear whether Zolu Industries participated in Nolu Accord Talks, and the sources available do not settle the question.",
+  "label": false
+ },
+ {
+  "id": "F060-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F060",
+   "text": "Zolu Industries participated in Nolu Accord Talks",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Gori X18 is part of Leze Z87. Leni Works owns Novu Q87. Leni Works is part of Keme Group.",
+  "label": false
+ },
+ {
+  "id": "F166-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nolu Accord Talks had Pidu Works among its participants.",
+  "label": true
+ },
+ {
+  "id": "F166-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Mentoring works best when both sides agree on a clear goal. Short check-ins keep progress visible without taking much time. Pidu Works participated in Nolu Accord Talks. Notes from each session help people pick up where they left off. Honest feedback, given early, saves effort later on.",
+  "label": true
+ },
+ {
+  "id": "F166-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "According to the filing, Pidu Works participated in Nolu Accord Talks as an observer with a seat in the public gallery. The records say its representatives signed the attendance register on the first morning.",
+  "label": true
+ },
+ {
+  "id": "F166-reversed",
+  "kind": "reversed",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Nolu Accord Talks participated in Pidu Works.",
+  "label": false
+ },
+ {
+  "id": "F166-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Pidu Works did not participate in Nolu Accord Talks.",
+  "label": false
+ },
+ {
+  "id": "F166-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is unclear whether Pidu Works participated in Nolu Accord Talks, and the sources available do not settle the question.",
+  "label": false
+ },
+ {
+  "id": "F166-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F166",
+   "text": "Pidu Works participated in Nolu Accord Talks",
+   "subject_names": [
+    "Pidu Works"
+   ],
+   "object_names": [
+    "Nolu Accord Talks"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leni Works owns Novu Q87, and Leni Works is part of Keme Group. Nato Z5 is part of Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F024-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F024",
+   "text": "Kite Fumada founded Zolu Industries",
+   "subject_names": [
+    "Kite Fumada"
+   ],
+   "object_names": [
+    "Zolu Industries"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Zolu Industries was started by Kite Fumada, who set it up as a small trading firm before it grew. The company's early years are still described in the founder's memoir.",
+  "label": true
+ },
+ {
+  "id": "F024-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F024",
+   "text": "Kite Fumada founded Zolu Industries",
+   "subject_names": [
+    "Kite Fumada"
+   ],
+   "object_names": [
+    "Zolu Industries"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Good notes make a project easier to revisit months later. A clear title and a date at the top help a lot. Kite Fumada founded Zolu Industries. Consistent naming across files saves time when searching. Reviewing old material now and then often reveals ideas worth reusing.",
+  "label": true
+ },
+ {
+  "id": "F024-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F024",
+   "text": "Kite Fumada founded Zolu Industries",
+   "subject_names": [
+    "Kite Fumada"
+   ],
+   "object_names": [
+    "Zolu Industries"
+   ],
+   "weight": 0.5
+  },
+  "answer": "According to the filing, Kite Fumada founded Zolu Industries in its early years as a small studio. The records say the company grew from that first office into a firm with several divisions.",
+  "label": true
+ },
+ {
+  "id": "F024-reversed",
+  "kind": "reversed",
+  "fact": {
+   "fact_id": "F024",
+   "text": "Kite Fumada founded Zolu Industries",
+   "subject_names": [
+    "Kite Fumada"
+   ],
+   "object_names": [
+    "Zolu Industries"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Zolu Industries founded Kite Fumada. The firm was set up by Zolu Industries as the first venture of Kite Fumada's career.",
+  "label": false
+ },
+ {
+  "id": "F024-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F024",
+   "text": "Kite Fumada founded Zolu Industries",
+   "subject_names": [
+    "Kite Fumada"
+   ],
+   "object_names": [
+    "Zolu Industries"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Kite Fumada did not found Zolu Industries.",
+  "label": false
+ },
+ {
+  "id": "F024-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F024",
+   "text": "Kite Fumada founded Zolu Industries",
+   "subject_names": [
+    "Kite Fumada"
+   ],
+   "object_names": [
+    "Zolu Industries"
+   ],
+   "weight": 0.5
+  },
+  "answer": "It is unclear whether Kite Fumada founded Zolu Industries, and the sources available do not settle the question.",
+  "label": false
+ },
+ {
+  "id": "F024-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F024",
+   "text": "Kite Fumada founded Zolu Industries",
+   "subject_names": [
+    "Kite Fumada"
+   ],
+   "object_names": [
+    "Zolu Industries"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Leni Works is part of Keme Group. Nato Z5 is part of Sepa Z82, and Geki Mazera owns Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F059-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F059",
+   "text": "Zolu Industries owns Keme Group",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Keme Group is one of the holdings that Zolu Industries controls outright. The parent company acquired it several years ago and still runs its accounts separately.",
+  "label": true
+ },
+ {
+  "id": "F059-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F059",
+   "text": "Zolu Industries owns Keme Group",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Good planning starts with a clear picture of what the work is meant to achieve. Breaking a large task into smaller pieces makes progress easier to see. Teams that agree on definitions early avoid a lot of friction later. Zolu Industries owns Keme Group. Regular reviews help everyone stay aligned as priorities shift over time.",
+  "label": true
+ },
+ {
+  "id": "F059-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F059",
+   "text": "Zolu Industries owns Keme Group",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 0.5
+  },
+  "answer": "According to the filing, Zolu Industries owns Keme Group in full, with no minority shareholders remaining. The records say the transfer was completed in the third quarter of last year.",
+  "label": true
+ },
+ {
+  "id": "F059-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F059",
+   "text": "Zolu Industries owns Keme Group",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 0.5
+  },
+  "answer": "It is not the case that Zolu Industries owns Keme Group, since no shareholding between the two appears in any registry. Keme Group operates entirely independently of Zolu Industries.",
+  "label": false
+ },
+ {
+  "id": "F059-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F059",
+   "text": "Zolu Industries owns Keme Group",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 0.5
+  },
+  "answer": "It is unclear whether Zolu Industries owns Keme Group, since the sources offer conflicting accounts of the arrangement. Neither confirming nor denying the claim, the reports leave the ownership question open.",
+  "label": false
+ },
+ {
+  "id": "F059-near_miss",
+  "kind": "near_miss",
+  "fact": {
+   "fact_id": "F059",
+   "text": "Zolu Industries owns Keme Group",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Zolu Industries owns Novu Q87 outright, and has held that stake since the merger was approved. The holding is listed among the group's core assets in its annual report.",
+  "label": false
+ },
+ {
+  "id": "F059-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F059",
+   "text": "Zolu Industries owns Keme Group",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Keme Group"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Nato Z5 is part of Sepa Z82. Geki Mazera owns Sepa Z82. Gedo Works produces Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F061-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F061",
+   "text": "Zolu Industries produces Gori X18",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Gori X18"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Gori X18 is made by Zolu Industries. The company's production line for Gori X18 runs at its main facility.",
+  "label": true
+ },
+ {
+  "id": "F061-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F061",
+   "text": "Zolu Industries produces Gori X18",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Gori X18"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Autumn rain softened the riverbanks, and the footpaths along the old canal grew slick with fallen leaves. Walkers pulled their collars higher and hurried toward the covered market. Zolu Industries produces Gori X18, a product that has become a common sight in workshops across the region. Cafes filled early as the light faded behind the rooftops. By the time the streetlamps flickered on, most of the stalls had already packed away their wares.",
+  "label": true
+ },
+ {
+  "id": "F061-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F061",
+   "text": "Zolu Industries produces Gori X18",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Gori X18"
+   ],
+   "weight": 0.5
+  },
+  "answer": "According to the filing, Zolu Industries produces Gori X18.",
+  "label": true
+ },
+ {
+  "id": "F061-reversed",
+  "kind": "reversed",
+  "fact": {
+   "fact_id": "F061",
+   "text": "Zolu Industries produces Gori X18",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Gori X18"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Gori X18 produces Zolu Industries, according to the supplier directory issued this year. The directory lists Gori X18 as the manufacturing arm that makes every component Zolu Industries sells.",
+  "label": false
+ },
+ {
+  "id": "F061-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F061",
+   "text": "Zolu Industries produces Gori X18",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Gori X18"
+   ],
+   "weight": 0.5
+  },
+  "answer": "It is not the case that Zolu Industries produces Gori X18, since the product is built by an unrelated contractor. Zolu Industries has never had a production line for Gori X18 at any of its sites.",
+  "label": false
+ },
+ {
+  "id": "F061-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F061",
+   "text": "Zolu Industries produces Gori X18",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Gori X18"
+   ],
+   "weight": 0.5
+  },
+  "answer": "It is unclear whether Zolu Industries produces Gori X18, and the sources available do not settle the question.",
+  "label": false
+ },
+ {
+  "id": "F061-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F061",
+   "text": "Zolu Industries produces Gori X18",
+   "subject_names": [
+    "Zolu Industries"
+   ],
+   "object_names": [
+    "Gori X18"
+   ],
+   "weight": 0.5
+  },
+  "answer": "Geki Mazera owns Sepa Z82. Gedo Works produces Sepa Z82. Sepa Z82 is part of Kipe Q67.",
+  "label": false
+ },
+ {
+  "id": "F010-paraphrase",
+  "kind": "paraphrase",
+  "fact": {
+   "fact_id": "F010",
+   "text": "Gori X18 is part of Leze Z87",
+   "subject_names": [
+    "Gori X18"
+   ],
+   "object_names": [
+    "Leze Z87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leze Z87 includes Gori X18 among the units it holds. Gori X18 belongs to the Leze Z87 group.",
+  "label": true
+ },
+ {
+  "id": "F010-buried",
+  "kind": "buried",
+  "fact": {
+   "fact_id": "F010",
+   "text": "Gori X18 is part of Leze Z87",
+   "subject_names": [
+    "Gori X18"
+   ],
+   "object_names": [
+    "Leze Z87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "The seaside promenade was busy with families that afternoon, and the ice cream vendors had already run low on cones. Kites tugged at their strings above the dunes while the tide slowly crept back in. Gori X18 is part of Leze Z87, and the two share a single assembly schedule each quarter. A few fishermen sat on the breakwater mending nets and trading stories about the weather. As the sun dipped, the lighthouse beam swept across the water and the last walkers headed home.",
+  "label": true
+ },
+ {
+  "id": "F010-attributed",
+  "kind": "attributed",
+  "fact": {
+   "fact_id": "F010",
+   "text": "Gori X18 is part of Leze Z87",
+   "subject_names": [
+    "Gori X18"
+   ],
+   "object_names": [
+    "Leze Z87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "According to the filing, Gori X18 is part of Leze Z87 and is reported under its accounts. The records say the product line was folded into the parent's division three years ago.",
+  "label": true
+ },
+ {
+  "id": "F010-reversed",
+  "kind": "reversed",
+  "fact": {
+   "fact_id": "F010",
+   "text": "Gori X18 is part of Leze Z87",
+   "subject_names": [
+    "Gori X18"
+   ],
+   "object_names": [
+    "Leze Z87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Leze Z87 is part of Gori X18.",
+  "label": false
+ },
+ {
+  "id": "F010-denied",
+  "kind": "denied",
+  "fact": {
+   "fact_id": "F010",
+   "text": "Gori X18 is part of Leze Z87",
+   "subject_names": [
+    "Gori X18"
+   ],
+   "object_names": [
+    "Leze Z87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "It is not the case that Gori X18 is part of Leze Z87. Gori X18 stands apart from Leze Z87 and has never been folded into it.",
+  "label": false
+ },
+ {
+  "id": "F010-uncertain",
+  "kind": "uncertain",
+  "fact": {
+   "fact_id": "F010",
+   "text": "Gori X18 is part of Leze Z87",
+   "subject_names": [
+    "Gori X18"
+   ],
+   "object_names": [
+    "Leze Z87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Whether Gori X18 is part of Leze Z87 remains unclear, since the available accounts disagree on the point. Some filings suggest a link between the two, while others leave the question open.",
+  "label": false
+ },
+ {
+  "id": "F010-near_miss",
+  "kind": "near_miss",
+  "fact": {
+   "fact_id": "F010",
+   "text": "Gori X18 is part of Leze Z87",
+   "subject_names": [
+    "Gori X18"
+   ],
+   "object_names": [
+    "Leze Z87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Gori X18 is part of Sepa Z82.",
+  "label": false
+ },
+ {
+  "id": "F010-other_only",
+  "kind": "other_only",
+  "fact": {
+   "fact_id": "F010",
+   "text": "Gori X18 is part of Leze Z87",
+   "subject_names": [
+    "Gori X18"
+   ],
+   "object_names": [
+    "Leze Z87"
+   ],
+   "weight": 1.0
+  },
+  "answer": "Gedo Works produces Sepa Z82. Sepa Z82 is part of Kipe Q67, and Mado Systems produces Sepa Z82.",
+  "label": false
+ }
+]

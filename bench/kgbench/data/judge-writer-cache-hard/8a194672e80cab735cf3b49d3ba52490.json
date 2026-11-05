@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Mado Systems produces Sepa Z82. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Small electronics are easy to misplace on a crowded desk. Many people keep a tray near the door for keys, cables and spare batteries. Mado Systems produces Sepa Z82. Regular cleaning of the tray keeps it useful over time. A short weekly review is often enough to stop clutter from building up."
+}

@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a written answer against one fact. Reply with the single word YES or NO.",
+   "role": "system"
+  },
+  {
+   "content": "Fact: Nolu Accord Talks is located in Lina\n\nAnswer:\nQuiet rooms help people concentrate on long tasks. Good lighting reduces eye strain during the afternoon. Nolu Accord Talks is located in Lina. Simple routines make it easier to start work each morning. Taking short breaks often keeps energy steady through the day.\n\nDoes the answer state this fact, in the same words or a paraphrase? Reply NO if the fact is absent, denied, said to be untrue or unknown, or if the answer only mentions the names without stating the relation. Reply with YES or NO.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "YES"
+}

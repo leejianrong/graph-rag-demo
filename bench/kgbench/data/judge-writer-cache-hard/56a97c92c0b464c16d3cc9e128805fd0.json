@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences asserting that Leze Z87 is part of Gori X18. That is the reverse of 'Gori X18 is part of Leze Z87'; assert the reverse as if it were true, naming both.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Leze Z87 is part of Gori X18."
+}

@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that say this is NOT the case, naming both entities: Nato Z5 is part of Sepa Z82",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Nato Z5 is not part of Sepa Z82, and no record links the two."
+}

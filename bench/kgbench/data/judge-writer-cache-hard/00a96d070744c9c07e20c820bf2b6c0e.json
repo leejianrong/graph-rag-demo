@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Gedo Works produces Sepa Z82. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Manufacturing schedules depend on steady supply and careful planning. Teams that review their routines each quarter tend to catch small problems early. Clear labeling and tidy storage save time for everyone on the floor. Gedo Works produces Sepa Z82. Good communication between shifts keeps output consistent over long runs."
+}

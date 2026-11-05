@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences in which a source (\"according to the filing\", \"the records say\") reports this fact, and the passage presents it as true: Zolu Industries owns Keme Group",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "According to the filing, Zolu Industries owns Keme Group in full, with no minority shareholders remaining. The records say the transfer was completed in the third quarter of last year."
+}

@@ -1,0 +1,112 @@
+{
+ "cases": 99,
+ "abstained": 0,
+ "matcher": {
+  "tp": 42,
+  "fp": 39,
+  "fn": 0,
+  "tn": 18,
+  "false_positive_rate": 0.6842,
+  "false_negative_rate": 0.0
+ },
+ "judge": {
+  "tp": 42,
+  "fp": 1,
+  "fn": 0,
+  "tn": 56,
+  "false_positive_rate": 0.0175,
+  "false_negative_rate": 0.0
+ },
+ "by_kind": {
+  "paraphrase": {
+   "matcher": [
+    14,
+    14
+   ],
+   "judge": [
+    14,
+    14
+   ]
+  },
+  "buried": {
+   "matcher": [
+    14,
+    14
+   ],
+   "judge": [
+    14,
+    14
+   ]
+  },
+  "attributed": {
+   "matcher": [
+    14,
+    14
+   ],
+   "judge": [
+    14,
+    14
+   ]
+  },
+  "reversed": {
+   "matcher": [
+    0,
+    11
+   ],
+   "judge": [
+    10,
+    11
+   ]
+  },
+  "denied": {
+   "matcher": [
+    0,
+    14
+   ],
+   "judge": [
+    14,
+    14
+   ]
+  },
+  "uncertain": {
+   "matcher": [
+    0,
+    14
+   ],
+   "judge": [
+    14,
+    14
+   ]
+  },
+  "near_miss": {
+   "matcher": [
+    4,
+    4
+   ],
+   "judge": [
+    4,
+    4
+   ]
+  },
+  "other_only": {
+   "matcher": [
+    14,
+    14
+   ],
+   "judge": [
+    14,
+    14
+   ]
+  }
+ },
+ "kind_labels": {
+  "paraphrase": true,
+  "buried": true,
+  "attributed": true,
+  "reversed": false,
+  "denied": false,
+  "uncertain": false,
+  "near_miss": false,
+  "other_only": false
+ }
+}

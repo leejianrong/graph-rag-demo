@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences in which a source (\"according to the filing\", \"the records say\") reports this fact, and the passage presents it as true: Kite Fumada founded Zolu Industries",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "According to the filing, Kite Fumada founded Zolu Industries in its early years as a small studio. The records say the company grew from that first office into a firm with several divisions."
+}

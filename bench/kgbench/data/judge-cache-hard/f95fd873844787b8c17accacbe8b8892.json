@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a written answer against one fact. Reply with the single word YES or NO.",
+   "role": "system"
+  },
+  {
+   "content": "Fact: Leni Works is part of Keme Group\n\nAnswer:\nMany small studios spend their first years trying to find a steady rhythm for releases. Planning tends to work better when the team agrees on a few fixed dates instead of chasing every request as it arrives. Leni Works is part of Keme Group. Shared tools can cut down on repeated setup, though they also need someone to keep them current. Good notes from each meeting make it easier for newcomers to catch up without asking the same questions twice.\n\nDoes the answer state this fact, in the same words or a paraphrase? Reply NO if the fact is absent, denied, said to be untrue or unknown, or if the answer only mentions the names without stating the relation. Reply with YES or NO.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "YES"
+}

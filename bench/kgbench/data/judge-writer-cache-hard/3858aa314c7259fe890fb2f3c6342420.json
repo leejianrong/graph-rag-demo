@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences asserting that Leni Works owns Sepa Z82. State only that, naming both entities.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Leni Works owns Sepa Z82."
+}

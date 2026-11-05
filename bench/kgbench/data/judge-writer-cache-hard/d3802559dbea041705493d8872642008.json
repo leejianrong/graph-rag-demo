@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that say it is unclear or disputed whether this holds, neither confirming nor denying it: Sepa Z82 is part of Kipe Q67",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "It is unclear whether Sepa Z82 is part of Kipe Q67, and the sources do not agree on the matter. Neither confirming nor denying the link, the available reports leave it open."
+}

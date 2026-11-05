@@ -78,5 +78,13 @@
     12
    ]
   }
+ },
+ "kind_labels": {
+  "stated": true,
+  "pronoun": true,
+  "negated": false,
+  "co_mention": false,
+  "wrong_object": false,
+  "absent": false
  }
 }

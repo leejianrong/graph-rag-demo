@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences asserting that Zolu Industries founded Kite Fumada. That is the reverse of 'Kite Fumada founded Zolu Industries'; assert the reverse as if it were true, naming both.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Zolu Industries founded Kite Fumada. The firm was set up by Zolu Industries as the first venture of Kite Fumada's career."
+}

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 300" role="img" aria-label="Judge accuracy by case kind (plain cases)" font-family="sans-serif" font-size="11">
+<rect width="850" height="300" fill="#fffdf9"/>
+<text x="46" y="18" fill="#2a241f" font-size="13" font-weight="bold">Judge accuracy by case kind (plain cases)</text>
+<line x1="46" x2="700" y1="238.0" y2="238.0" stroke="#e2d9d0"/><text x="40" y="242.0" text-anchor="end" fill="#5b5148">0.00</text>
+<line x1="46" x2="700" y1="187.0" y2="187.0" stroke="#e2d9d0"/><text x="40" y="191.0" text-anchor="end" fill="#5b5148">0.25</text>
+<line x1="46" x2="700" y1="136.0" y2="136.0" stroke="#e2d9d0"/><text x="40" y="140.0" text-anchor="end" fill="#5b5148">0.50</text>
+<line x1="46" x2="700" y1="85.0" y2="85.0" stroke="#e2d9d0"/><text x="40" y="89.0" text-anchor="end" fill="#5b5148">0.75</text>
+<line x1="46" x2="700" y1="34.0" y2="34.0" stroke="#e2d9d0"/><text x="40" y="38.0" text-anchor="end" fill="#5b5148">1.00</text>
+<text x="12" y="136.0" transform="rotate(-90 12 136.0)" text-anchor="middle" fill="#2a241f">share of cases scored correctly</text>
+<text x="100.5" y="254" text-anchor="middle" fill="#2a241f">stated</text>
+<text x="100.5" y="268" text-anchor="middle" fill="#5b5148">n=12</text>
+<rect x="69.9" y="34.0" width="27.2" height="204.0" fill="#2a6f97"><title>offline matcher: 1.000</title></rect>
+<line x1="83.5" x2="83.5" y1="83.5" y2="34.0" stroke="#2a241f" stroke-width="1.2"/><line x1="80.5" x2="86.5" y1="34.0" y2="34.0" stroke="#2a241f"/><line x1="80.5" x2="86.5" y1="83.5" y2="83.5" stroke="#2a241f"/>
+<rect x="103.9" y="34.0" width="27.2" height="204.0" fill="#c26a3d"><title>LLM judge: 1.000</title></rect>
+<line x1="117.5" x2="117.5" y1="83.5" y2="34.0" stroke="#2a241f" stroke-width="1.2"/><line x1="114.5" x2="120.5" y1="34.0" y2="34.0" stroke="#2a241f"/><line x1="114.5" x2="120.5" y1="83.5" y2="83.5" stroke="#2a241f"/>
+<text x="209.5" y="254" text-anchor="middle" fill="#2a241f">pronoun</text>
+<text x="209.5" y="268" text-anchor="middle" fill="#5b5148">n=12</text>
+<rect x="178.9" y="238.0" width="27.2" height="0.6" fill="#2a6f97"><title>offline matcher: 0.000</title></rect>
+<line x1="192.5" x2="192.5" y1="238.0" y2="188.5" stroke="#2a241f" stroke-width="1.2"/><line x1="189.5" x2="195.5" y1="188.5" y2="188.5" stroke="#2a241f"/><line x1="189.5" x2="195.5" y1="238.0" y2="238.0" stroke="#2a241f"/>
+<rect x="212.9" y="34.0" width="27.2" height="204.0" fill="#c26a3d"><title>LLM judge: 1.000</title></rect>
+<line x1="226.5" x2="226.5" y1="83.5" y2="34.0" stroke="#2a241f" stroke-width="1.2"/><line x1="223.5" x2="229.5" y1="34.0" y2="34.0" stroke="#2a241f"/><line x1="223.5" x2="229.5" y1="83.5" y2="83.5" stroke="#2a241f"/>
+<text x="318.5" y="254" text-anchor="middle" fill="#2a241f">negated</text>
+<text x="318.5" y="268" text-anchor="middle" fill="#5b5148">n=12</text>
+<rect x="287.9" y="238.0" width="27.2" height="0.6" fill="#2a6f97"><title>offline matcher: 0.000</title></rect>
+<line x1="301.5" x2="301.5" y1="238.0" y2="188.5" stroke="#2a241f" stroke-width="1.2"/><line x1="298.5" x2="304.5" y1="188.5" y2="188.5" stroke="#2a241f"/><line x1="298.5" x2="304.5" y1="238.0" y2="238.0" stroke="#2a241f"/>
+<rect x="321.9" y="34.0" width="27.2" height="204.0" fill="#c26a3d"><title>LLM judge: 1.000</title></rect>
+<line x1="335.5" x2="335.5" y1="83.5" y2="34.0" stroke="#2a241f" stroke-width="1.2"/><line x1="332.5" x2="338.5" y1="34.0" y2="34.0" stroke="#2a241f"/><line x1="332.5" x2="338.5" y1="83.5" y2="83.5" stroke="#2a241f"/>
+<text x="427.5" y="254" text-anchor="middle" fill="#2a241f">co_mention</text>
+<text x="427.5" y="268" text-anchor="middle" fill="#5b5148">n=12</text>
+<rect x="396.9" y="238.0" width="27.2" height="0.6" fill="#2a6f97"><title>offline matcher: 0.000</title></rect>
+<line x1="410.5" x2="410.5" y1="238.0" y2="188.5" stroke="#2a241f" stroke-width="1.2"/><line x1="407.5" x2="413.5" y1="188.5" y2="188.5" stroke="#2a241f"/><line x1="407.5" x2="413.5" y1="238.0" y2="238.0" stroke="#2a241f"/>
+<rect x="430.9" y="34.0" width="27.2" height="204.0" fill="#c26a3d"><title>LLM judge: 1.000</title></rect>
+<line x1="444.5" x2="444.5" y1="83.5" y2="34.0" stroke="#2a241f" stroke-width="1.2"/><line x1="441.5" x2="447.5" y1="34.0" y2="34.0" stroke="#2a241f"/><line x1="441.5" x2="447.5" y1="83.5" y2="83.5" stroke="#2a241f"/>
+<text x="536.5" y="254" text-anchor="middle" fill="#2a241f">wrong_object</text>
+<text x="536.5" y="268" text-anchor="middle" fill="#5b5148">n=9</text>
+<rect x="505.9" y="34.0" width="27.2" height="204.0" fill="#2a6f97"><title>offline matcher: 1.000</title></rect>
+<line x1="519.5" x2="519.5" y1="95.0" y2="34.0" stroke="#2a241f" stroke-width="1.2"/><line x1="516.5" x2="522.5" y1="34.0" y2="34.0" stroke="#2a241f"/><line x1="516.5" x2="522.5" y1="95.0" y2="95.0" stroke="#2a241f"/>
+<rect x="539.9" y="34.0" width="27.2" height="204.0" fill="#c26a3d"><title>LLM judge: 1.000</title></rect>
+<line x1="553.5" x2="553.5" y1="95.0" y2="34.0" stroke="#2a241f" stroke-width="1.2"/><line x1="550.5" x2="556.5" y1="34.0" y2="34.0" stroke="#2a241f"/><line x1="550.5" x2="556.5" y1="95.0" y2="95.0" stroke="#2a241f"/>
+<text x="645.5" y="254" text-anchor="middle" fill="#2a241f">absent</text>
+<text x="645.5" y="268" text-anchor="middle" fill="#5b5148">n=12</text>
+<rect x="614.9" y="34.0" width="27.2" height="204.0" fill="#2a6f97"><title>offline matcher: 1.000</title></rect>
+<line x1="628.5" x2="628.5" y1="83.5" y2="34.0" stroke="#2a241f" stroke-width="1.2"/><line x1="625.5" x2="631.5" y1="34.0" y2="34.0" stroke="#2a241f"/><line x1="625.5" x2="631.5" y1="83.5" y2="83.5" stroke="#2a241f"/>
+<rect x="648.9" y="34.0" width="27.2" height="204.0" fill="#c26a3d"><title>LLM judge: 1.000</title></rect>
+<line x1="662.5" x2="662.5" y1="83.5" y2="34.0" stroke="#2a241f" stroke-width="1.2"/><line x1="659.5" x2="665.5" y1="34.0" y2="34.0" stroke="#2a241f"/><line x1="659.5" x2="665.5" y1="83.5" y2="83.5" stroke="#2a241f"/>
+<rect x="714" y="40" width="14" height="10" fill="#2a6f97"/><text x="734" y="49" fill="#2a241f">offline matcher</text>
+<rect x="714" y="58" width="14" height="10" fill="#c26a3d"/><text x="734" y="67" fill="#2a241f">LLM judge</text>
+</svg>

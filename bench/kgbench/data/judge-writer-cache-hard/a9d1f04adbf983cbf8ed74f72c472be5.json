@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write a five-sentence paragraph. The third sentence states this fact: Zolu Industries owns Keme Group. The other four sentences are generic background and name no person, organisation, place or event.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Good planning starts with a clear picture of what the work is meant to achieve. Breaking a large task into smaller pieces makes progress easier to see. Teams that agree on definitions early avoid a lot of friction later. Zolu Industries owns Keme Group. Regular reviews help everyone stay aligned as priorities shift over time."
+}

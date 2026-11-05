@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a written answer against one fact. Reply with the single word YES or NO.",
+   "role": "system"
+  },
+  {
+   "content": "Fact: Leni Works owns Novu Q87\n\nAnswer:\nMany small tools rely on shared conventions that keep their output readable across different systems. Good naming tends to matter more than clever shortcuts once a project grows past a handful of contributors. Leni Works owns Novu Q87. Records are easier to review when each one carries a clear label and a short description of what it holds. Teams that write down their decisions early usually spend less time reconstructing them later.\n\nDoes the answer state this fact, in the same words or a paraphrase? Reply NO if the fact is absent, denied, said to be untrue or unknown, or if the answer only mentions the names without stating the relation. Reply with YES or NO.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "YES"
+}

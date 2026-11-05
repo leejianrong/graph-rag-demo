@@ -27,7 +27,7 @@ from kggen.world import generate
 
 from graph_rag.config import Settings
 from graph_rag.wiring import build_embedder, build_offline_components, build_real_components
-from kgbench import __version__, gate
+from kgbench import __version__, gate, judge_hard
 from kgbench import hard as hards
 from kgbench import judge as judges
 from kgbench import order as orders
@@ -43,8 +43,7 @@ from kgbench.linking import DIFFICULTY, linking_gold, score_linking
 _DEFAULT_DATASET = Path(__file__).resolve().parent / "data" / "wiki2_mini.json"
 _REPO = Path(__file__).resolve().parents[2]
 _HARD_DIR = _REPO / "datagen" / "examples" / "hard-small"
-_JUDGE_CASES = Path(__file__).resolve().parent / "data" / "judge_cases.json"
-_JUDGE_CACHE = Path(__file__).resolve().parent / "data" / "judge-cache"
+_DATA = Path(__file__).resolve().parent / "data"
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -153,15 +152,22 @@ def build_parser() -> argparse.ArgumentParser:
         "judge",
         help="Measure an LLM judge's error rates on labelled open-ended cases (opt-in).",
     )
-    jd.add_argument("--cases", type=Path, default=_JUDGE_CASES, help="The labelled cases (JSON).")
+    jd.add_argument(
+        "--hard",
+        action="store_true",
+        help="The harder cases, written by a model: other default files, and --build asks it.",
+    )
+    jd.add_argument("--cases", type=Path, help="The labelled cases (JSON).")
+    jd.add_argument("--writer-cache", type=Path, help="--hard --build: cached writer answers.")
     jd.add_argument(
         "--build", choices=PRESET_NAMES, help="Write the cases from this preset, then exit."
     )
-    jd.add_argument("--cache-dir", type=Path, default=_JUDGE_CACHE, help="Cached judge answers.")
+    jd.add_argument("--cache-dir", type=Path, help="Cached judge answers.")
     jd.add_argument("--model", default="claude-haiku", help="The model name the cache is keyed by.")
     jd.add_argument("--base-url", help="An OpenAI-compatible endpoint; omit to replay the cache.")
     jd.add_argument("--out", type=Path, help="Write the markdown report here.")
     jd.add_argument("--json", type=Path, help="Write every number as JSON here.")
+    jd.add_argument("--chart", type=Path, help="Write the accuracy-per-kind chart (SVG) here.")
     gate_cmd = commands.add_parser(
         "gate", help="Fail if graph-rag scores below the stored floors (offline, no provider)."
     )
@@ -368,16 +374,29 @@ def _hard(args: argparse.Namespace) -> int:
 
 
 def _judge(args: argparse.Namespace) -> int:
+    suffix = "_hard" if args.hard else ""
+    cases_path = args.cases or _DATA / f"judge_cases{suffix}.json"
+    cache_dir = args.cache_dir or _DATA / ("judge-cache-hard" if args.hard else "judge-cache")
+    client = OpenAICompatible(args.base_url, args.model) if args.base_url else None
     if args.build:
         world = generate(load_preset(args.build))
         spec = QuestionSpec(n_questions=12, type_mix={"open_ended": 1.0}, hop_mix={1: 1.0, 2: 1.0})
-        cases = judges.build_cases(generate_questions(world, spec))
-        args.cases.write_text(json.dumps(cases, indent=1) + "\n")
-        print(f"wrote {len(cases)} labelled cases to {args.cases}")
+        questions = generate_questions(world, spec)
+        if args.hard:
+            writer = args.writer_cache or _DATA / "judge-writer-cache-hard"
+            chat = CachedChat(ResponseCache(writer), client, args.model)
+            try:
+                cases, rejected = judge_hard.build_hard_cases(world, questions, chat)
+            except CacheMiss as exc:
+                raise SystemExit(f"{exc}; pass --base-url to ask an endpoint") from exc
+            print(f"{rejected} writer answers rejected (ask again to replace them)")
+        else:
+            cases = judges.build_cases(questions)
+        cases_path.write_text(json.dumps(cases, indent=1) + "\n")
+        print(f"wrote {len(cases)} labelled cases to {cases_path}")
         return 0
-    cases = json.loads(args.cases.read_text())
-    client = OpenAICompatible(args.base_url, args.model) if args.base_url else None
-    chat = CachedChat(ResponseCache(args.cache_dir), client, args.model)
+    cases = json.loads(cases_path.read_text())
+    chat = CachedChat(ResponseCache(cache_dir), client, args.model)
     try:
         report = judges.evaluate(cases, judges.llm_judge(chat))
     except CacheMiss as exc:
@@ -388,6 +407,11 @@ def _judge(args: argparse.Namespace) -> int:
         args.out.write_text(f"# LLM judge error rates\n\nModel `{args.model}`.\n\n{text}\n")
     if args.json:
         args.json.write_text(json.dumps(report.to_dict(), indent=1) + "\n")
+    if args.chart:
+        kind = "harder" if args.hard else "plain"
+        args.chart.write_text(
+            judges.chart_svg(report, f"Judge accuracy by case kind ({kind} cases)")
+        )
     return 0
 
 

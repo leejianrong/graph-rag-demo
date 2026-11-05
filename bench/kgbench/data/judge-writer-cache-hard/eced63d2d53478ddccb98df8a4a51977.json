@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences that say this is NOT the case, naming both entities: Gedo Works produces Sepa Z82",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Gedo Works does not produce Sepa Z82, and no production line at Gedo Works has ever built it. The product is made elsewhere, and Gedo Works has no part in its manufacture."
+}

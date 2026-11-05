@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You write short test passages. Reply with the passage only: no title, no quotes, no commentary.",
+   "role": "system"
+  },
+  {
+   "content": "Write one or two sentences asserting that Sepa Z82 produces Mado Systems. That is the reverse of 'Mado Systems produces Sepa Z82'; assert the reverse as if it were true, naming both.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Sepa Z82 produces Mado Systems. The company's output is organised around Sepa Z82 as its core product."
+}

@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You check a written answer against one fact. Reply with the single word YES or NO.",
+   "role": "system"
+  },
+  {
+   "content": "Fact: Pidu Works participated in Nolu Accord Talks\n\nAnswer:\nMentoring works best when both sides agree on a clear goal. Short check-ins keep progress visible without taking much time. Pidu Works participated in Nolu Accord Talks. Notes from each session help people pick up where they left off. Honest feedback, given early, saves effort later on.\n\nDoes the answer state this fact, in the same words or a paraphrase? Reply NO if the fact is absent, denied, said to be untrue or unknown, or if the answer only mentions the names without stating the relation. Reply with YES or NO.",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "YES"
+}
