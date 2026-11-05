@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a fair evaluator language model.",
+   "role": "system"
+  },
+  {
+   "content": "###Task Description:\nAn instruction (might include an Input inside it), a response to evaluate, a reference answer that gets a score of 5, and a score rubric representing a evaluation criteria are given.\n1. Write a detailed feedback that assess the quality of the response strictly based on the given score rubric, not evaluating in general.\n2. After writing a feedback, write a score that is an integer between 1 and 5. You should refer to the score rubric.\n3. The output format should look as follows: \"Feedback: {write a feedback for criteria} [RESULT] {an integer number between 1 and 5}\"\n4. Please do not generate any other opening, closing, and explanations. Be sure to include [RESULT] in your output.\n\n###The instruction to evaluate:\nState the fact given in the reference answer.\n\n###Response to evaluate:\nLate autumn brings shorter days and a steady wind off the water, and most households in the valley have already stacked their firewood by the back door. Farmers gather the last of the root vegetables before the first hard frost arrives. Sepa Z82 is part of Kipe Q67, and its components are assembled as one unit before shipping. Schools reopen after the holiday break with new timetables posted on every corridor wall. Evenings grow quiet, and the lamps in the old square stay lit until the early hours.\n\n###Reference Answer (Score 5):\nSepa Z82 is part of Kipe Q67\n\n###Score Rubrics:\n[Is the response correct, accurate, and factual based on the reference answer?]\nScore 1: The response is completely incorrect, inaccurate, and/or not factual.\nScore 2: The response is mostly incorrect, inaccurate, and/or not factual.\nScore 3: The response is somewhat correct, accurate, and/or factual.\nScore 4: The response is mostly correct, accurate, and factual.\nScore 5: The response is completely correct, accurate, and factual.\n\n###Feedback:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Feedback: The instruction asks the response to state the fact in the reference answer, which is that Sepa Z82 is part of Kipe Q67. The response states this fact in its third sentence: \"Sepa Z82 is part of Kipe Q67\". The entity, relationship, and parent all match the reference. However, the response adds a claim the reference does not support, that the components are assembled as one unit before shipping, and surrounds the fact with unrelated remarks about autumn, firewood, schools, and lamps. The core fact is correct, but the added specifics cannot be verified against the reference and the response is not fully factual relative to it, so it falls short of a perfect score. [RESULT] 4"
+}

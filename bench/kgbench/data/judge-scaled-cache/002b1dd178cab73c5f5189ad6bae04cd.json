@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You are a fair evaluator language model.",
+   "role": "system"
+  },
+  {
+   "content": "###Task Description:\nAn instruction (might include an Input inside it), a response to evaluate, a reference answer that gets a score of 5, and a score rubric representing a evaluation criteria are given.\n1. Write a detailed feedback that assess the quality of the response strictly based on the given score rubric, not evaluating in general.\n2. After writing a feedback, write a score that is an integer between 1 and 5. You should refer to the score rubric.\n3. The output format should look as follows: \"Feedback: {write a feedback for criteria} [RESULT] {an integer number between 1 and 5}\"\n4. Please do not generate any other opening, closing, and explanations. Be sure to include [RESULT] in your output.\n\n###The instruction to evaluate:\nState the fact given in the reference answer.\n\n###Response to evaluate:\nMany small tools rely on shared conventions that keep their output readable across different systems. Good naming tends to matter more than clever shortcuts once a project grows past a handful of contributors. Leni Works owns Novu Q87. Records are easier to review when each one carries a clear label and a short description of what it holds. Teams that write down their decisions early usually spend less time reconstructing them later.\n\n###Reference Answer (Score 5):\nLeni Works owns Novu Q87\n\n###Score Rubrics:\n[Is the response correct, accurate, and factual based on the reference answer?]\nScore 1: The response is completely incorrect, inaccurate, and/or not factual.\nScore 2: The response is mostly incorrect, inaccurate, and/or not factual.\nScore 3: The response is somewhat correct, accurate, and/or factual.\nScore 4: The response is mostly correct, accurate, and factual.\nScore 5: The response is completely correct, accurate, and factual.\n\n###Feedback:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Feedback: The instruction asks the response to state the fact given in the reference answer, which is that Leni Works owns Novu Q87. The response states exactly that in its third sentence, \"Leni Works owns Novu Q87,\" with the correct subject, relation, and object. The other four sentences are generic remarks about naming, records, and documentation that are unrelated to the fact. They are not in the reference answer, but none of them makes a claim about Leni Works or Novu Q87 that conflicts with the reference, so the factual content is entirely accurate. The padding lowers the focus of the response but does not introduce any error on the rubric's criterion. [RESULT] 5"
+}

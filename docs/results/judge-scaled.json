@@ -1,0 +1,1178 @@
+[
+ {
+  "id": "F086-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F086-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F086-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F086-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F086-wrong_object",
+  "kind": "wrong_object",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F086-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F087-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F087-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F087-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F087-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F087-wrong_object",
+  "kind": "wrong_object",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F087-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F088-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F088-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F088-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F088-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F088-wrong_object",
+  "kind": "wrong_object",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F088-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F089-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F089-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F089-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F089-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F089-wrong_object",
+  "kind": "wrong_object",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F089-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F023-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F023-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F023-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F023-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F023-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F141-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F141-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F141-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F141-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F141-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F183-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F183-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F183-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F183-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F183-wrong_object",
+  "kind": "wrong_object",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F183-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F185-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F185-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F185-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F185-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F185-wrong_object",
+  "kind": "wrong_object",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F185-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F255-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F255-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F255-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F255-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F255-wrong_object",
+  "kind": "wrong_object",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F255-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F041-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F041-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F041-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F041-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F041-wrong_object",
+  "kind": "wrong_object",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F041-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F060-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F060-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F060-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F060-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F060-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F166-stated",
+  "kind": "stated",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F166-pronoun",
+  "kind": "pronoun",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F166-negated",
+  "kind": "negated",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F166-co_mention",
+  "kind": "co_mention",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F166-wrong_object",
+  "kind": "wrong_object",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F166-absent",
+  "kind": "absent",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F087-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F087-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F087-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F087-reversed",
+  "kind": "reversed",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F087-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F087-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F087-near_miss",
+  "kind": "near_miss",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F087-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F088-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F088-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F088-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F088-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F088-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F088-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F023-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F023-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F023-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F023-reversed",
+  "kind": "reversed",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F023-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F023-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F023-near_miss",
+  "kind": "near_miss",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F023-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F141-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F141-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 4
+ },
+ {
+  "id": "F141-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F141-reversed",
+  "kind": "reversed",
+  "label": false,
+  "binary": true,
+  "score": 1
+ },
+ {
+  "id": "F141-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F141-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F141-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F183-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F183-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F183-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F183-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F183-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F183-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F185-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F185-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 4
+ },
+ {
+  "id": "F185-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 4
+ },
+ {
+  "id": "F185-reversed",
+  "kind": "reversed",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F185-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F185-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F185-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F255-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F255-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F255-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F255-reversed",
+  "kind": "reversed",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F255-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F255-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F255-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F041-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F041-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F041-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F041-reversed",
+  "kind": "reversed",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F041-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F041-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F041-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F060-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F060-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F060-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 4
+ },
+ {
+  "id": "F060-reversed",
+  "kind": "reversed",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F060-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F060-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F060-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F166-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F166-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F166-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 3
+ },
+ {
+  "id": "F166-reversed",
+  "kind": "reversed",
+  "label": false,
+  "binary": false,
+  "score": 5
+ },
+ {
+  "id": "F166-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F166-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F166-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F024-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F024-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F024-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F024-reversed",
+  "kind": "reversed",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F024-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F024-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F024-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F059-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 4
+ },
+ {
+  "id": "F059-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F059-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 4
+ },
+ {
+  "id": "F059-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F059-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F059-near_miss",
+  "kind": "near_miss",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F059-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F061-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F061-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F061-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F061-reversed",
+  "kind": "reversed",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F061-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F061-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F061-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F010-paraphrase",
+  "kind": "paraphrase",
+  "label": true,
+  "binary": true,
+  "score": 5
+ },
+ {
+  "id": "F010-buried",
+  "kind": "buried",
+  "label": true,
+  "binary": true,
+  "score": 4
+ },
+ {
+  "id": "F010-attributed",
+  "kind": "attributed",
+  "label": true,
+  "binary": true,
+  "score": 4
+ },
+ {
+  "id": "F010-reversed",
+  "kind": "reversed",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F010-denied",
+  "kind": "denied",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F010-uncertain",
+  "kind": "uncertain",
+  "label": false,
+  "binary": false,
+  "score": 2
+ },
+ {
+  "id": "F010-near_miss",
+  "kind": "near_miss",
+  "label": false,
+  "binary": false,
+  "score": 1
+ },
+ {
+  "id": "F010-other_only",
+  "kind": "other_only",
+  "label": false,
+  "binary": false,
+  "score": 1
+ }
+]
