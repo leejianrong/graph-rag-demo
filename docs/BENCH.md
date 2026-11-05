@@ -138,3 +138,18 @@ pre-push hook run it as a test. After a change that is meant to move the numbers
 - **They err on different cases.** Yes/no was wrong on F141-reversed ("Sepa Z82 owns Geki Mazera" for the fact "Geki Mazera owns Sepa Z82"), the case I had already flagged as arguably mislabelled; the 1–5 judge scored it 1. The 1–5 judge was wrong on F166-reversed ("Nolu Accord Talks participated in Pidu Works", scored 5) and gave F166-attributed a 3 (it adds "as an observer").
 - **What the scale adds is order, not accuracy:** mean normalised scores of 0.23 for a co-mention and 0.16 for "uncertain" against 0.00 for a denial show partial credit that yes/no cannot. It costs a longer reply per call.
 - **Caveats:** the same model scored these, labels are by construction, errors are 1–2 cases so any ranking of the two judges is within noise, and these are answer texts. The faithfulness check above shows a judge can miss a reversal in a different setup (a reversed fact in the list), so this does not show it reads direction everywhere.
+
+**Do the systems rank the same on real text? A 2WikiMultihopQA slice** (`uv run --extra embed kgbench real --data datasets/2wiki-dev-200.json --fetch 200 --embedder bge`; [docs/results/real-2wiki-200.md](results/real-2wiki-200.md)). The first 200 validation rows of the Hugging Face mirror `framolfese/2WikiMultihopQA`, sorted by id: 160 questions with two gold paragraphs and 40 with four, their 1,585 paragraphs merged into one corpus of 5,295 sentences. A question is solved at 5 when every gold supporting sentence is in the top 5. bge embeddings; graph-rag is the offline default path (heuristic NER, no LLM stages). The data is fetched on request into the git-ignored `datasets/`; I did not commit it, and the mirror states no licence.
+
+| whole-path@5 | all (200) | 2 paragraphs (160) | 4 paragraphs (40) |
+|---|---|---|---|
+| BM25 | 16% (11–21%) | 19% | 0% |
+| Dense | 26% (20–32%) | 32% | 0% |
+| graph-rag passages | 24% (19–30%) | 30% | 0% |
+| graph-rag graph | 23% (18–29%) | 28% | 2% (1/40) |
+
+- **Graph-rag does not beat dense on real text either.** Dense, passages and graph are within each other's intervals; there is no lift, as on `hard-small`.
+- **Four-paragraph questions are unsolved by every system** (0–2%, 40 questions), as the 3- and 4-hop questions are on `hard-small`.
+- **The ranking is not the same, though.** On `hard-small` BM25, dense and graph-rag passages tie at 0.24 and the graph view is lowest at 0.21. Here BM25 is last (16% against 26% for dense; the intervals only just overlap at about 20–21%). A guess, not tested: the generator's invented names are rare tokens, which suits keyword matching, and real Wikipedia questions lean more on paraphrase.
+- **So `hard-small` agrees with 2Wiki on "no graph advantage" and "long chains unsolved", and disagrees on how good BM25 is.** Its scores are not a proxy for real-text rankings between the baselines.
+- **Caveats:** 200 questions from the start of the validation split (not a random sample; the type mix is 90 compositional, 48 comparison, 40 bridge-comparison, 22 inference), one embedder, sentence-level scoring, and graph-rag without its LLM stages or real NER, which is how it would be weakest on real text.

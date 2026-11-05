@@ -36,6 +36,7 @@ from kgbench import hard as hards
 from kgbench import judge as judges
 from kgbench import judge_scaled as scaled
 from kgbench import order as orders
+from kgbench import real as reals
 from kgbench import shortcut as shortcuts
 from kgbench import sweep as sweeps
 from kgbench.compare import CachingEmbedder, compare
@@ -230,6 +231,14 @@ def build_parser() -> argparse.ArgumentParser:
     sj.add_argument("--out", type=Path, help="Write the markdown report here.")
     sj.add_argument("--json", type=Path, help="Write every row as JSON here.")
     sj.add_argument("--chart", type=Path, help="Write the chart (SVG) here.")
+    rl = commands.add_parser(
+        "real", help="BM25, dense and graph-rag on a slice of 2WikiMultihopQA (needs the data)."
+    )
+    rl.add_argument("--data", type=Path, required=True, help="2Wiki JSON (see --fetch).")
+    rl.add_argument("--fetch", type=int, metavar="N", help="First download N validation rows.")
+    rl.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
+    rl.add_argument("--k", type=int, default=5, help="The k for the table.")
+    rl.add_argument("--out", type=Path, help="Write the markdown report here.")
     ct = commands.add_parser(
         "critique",
         help="Rate a dataset's questions for groundedness, relevance and standalone (opt-in).",
@@ -650,6 +659,36 @@ def _judge_scaled(args: argparse.Namespace) -> int:
     return 0
 
 
+def _real(args: argparse.Namespace) -> int:
+    if args.fetch:
+        reals.fetch(args.fetch, args.data)
+    examples = reals.load(args.data)
+    real = args.embedder == "bge"
+    embedder = CachingEmbedder(build_embedder(real=real))
+    ks = sorted({1, 3, 5, 10, args.k})
+    reports = reals.measure(examples, embedder, ks)
+    docs = reals.corpus(examples)
+    sections = [
+        f"# 2WikiMultihopQA slice: {len(examples)} questions, {len(docs)} paragraphs, "
+        f"{sum(len(d.sentences) for d in docs)} sentences\n\n"
+        f"The first {len(examples)} validation rows of `{reals.DATASET}` sorted by id; "
+        f"{'bge-small-en-v1.5' if real else 'hashing-fake'} embeddings. A question is solved at "
+        f"k when every gold supporting sentence is in the top k; `hops` counts the paragraphs "
+        f"holding its gold sentences."
+    ]
+    sections.append(
+        f"## Whole-path@{args.k}, with 95% intervals\n\n{reals.format_comparison(reports, args.k)}"
+    )
+    sections += [
+        f"## {name}\n\n```text\n{report.format_table()}\n```" for name, report in reports.items()
+    ]
+    text = "\n\n".join(sections) + "\n"
+    print(text)
+    if args.out:
+        args.out.write_text(text)
+    return 0
+
+
 def _critique(args: argparse.Namespace) -> int:
     folder = args.dir.resolve()
     questions = json.loads((folder / "questions.json").read_text())
@@ -727,6 +766,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _judge(args)
     if args.command == "shortcut":
         return _shortcut(args)
+    if args.command == "real":
+        return _real(args)
     if args.command == "judge-scaled":
         return _judge_scaled(args)
     if args.command == "difficulty":
