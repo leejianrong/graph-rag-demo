@@ -14,7 +14,7 @@ from kggen.export import export_archive
 from kggen.fixtures import write as write_fixtures
 from kggen.llm import CachedChat, CacheMiss, OpenAICompatible, ResponseCache
 from kggen.questions import QuestionSpec, generate_questions
-from kggen.render import RenderSpec, render_documents
+from kggen.render import Document, RenderSpec, render_documents
 from kggen.render_llm import InvalidRendering, render_documents_llm
 from kggen.scenarios import ScenarioSpec, generate_scenario
 from kggen.spec import PRESET_NAMES, load_preset, load_spec
@@ -103,6 +103,9 @@ def build_parser() -> argparse.ArgumentParser:
     export.add_argument("--spec", type=Path, required=True, help="A WorldSpec file (JSON or YAML).")
     export.add_argument("--questions-spec", type=Path, help="A QuestionSpec JSON file.")
     export.add_argument("--render-spec", type=Path, help="A RenderSpec JSON file.")
+    export.add_argument(
+        "--documents", type=Path, help="A documents.json to use instead of template text."
+    )
     export.add_argument("--seed", type=int, help="Override the world spec's seed.")
     export.add_argument("--out", type=Path, required=True, help="The zip to write.")
     fixtures = commands.add_parser("fixtures", help="The committed small and medium fixture sets.")
@@ -227,7 +230,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             if args.render_spec
             else RenderSpec()
         )
-        args.out.write_bytes(export_archive(generate(world_spec), questions, render))
+        documents = (
+            [Document.from_dict(d) for d in json.loads(args.documents.read_text())]
+            if args.documents
+            else None
+        )
+        args.out.write_bytes(export_archive(generate(world_spec), questions, render, documents))
         return 0
     if args.command == "ui":
         try:

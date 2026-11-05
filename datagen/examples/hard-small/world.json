@@ -1,0 +1,4372 @@
+{
+ "edges": [
+  {
+   "id": "F000",
+   "object": "E074",
+   "predicate": "PRODUCES",
+   "subject": "E001",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F001",
+   "object": "E134",
+   "predicate": "LOCATED_IN",
+   "subject": "E002",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F002",
+   "object": "E042",
+   "predicate": "PRODUCES",
+   "subject": "E002",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F003",
+   "object": "E115",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E003",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F004",
+   "object": "E126",
+   "predicate": "MEMBER_OF",
+   "subject": "E003",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F005",
+   "object": "E002",
+   "predicate": "FOUNDED",
+   "subject": "E004",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F006",
+   "object": "E029",
+   "predicate": "LOCATED_IN",
+   "subject": "E004",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F007",
+   "object": "E055",
+   "predicate": "LOCATED_IN",
+   "subject": "E005",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F008",
+   "object": "E135",
+   "predicate": "OWNS",
+   "subject": "E006",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F009",
+   "object": "E084",
+   "predicate": "PRODUCES",
+   "subject": "E006",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F010",
+   "object": "E110",
+   "predicate": "PART_OF",
+   "subject": "E007",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F011",
+   "object": "E042",
+   "predicate": "OWNS",
+   "subject": "E008",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F012",
+   "object": "E100",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E008",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F013",
+   "object": "E060",
+   "predicate": "WORKS_FOR",
+   "subject": "E008",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F014",
+   "object": "E105",
+   "predicate": "WORKS_FOR",
+   "subject": "E008",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F015",
+   "object": "E105",
+   "predicate": "MEMBER_OF",
+   "subject": "E010",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F016",
+   "object": "E126",
+   "predicate": "FOUNDED",
+   "subject": "E011",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F017",
+   "object": "E051",
+   "predicate": "MEMBER_OF",
+   "subject": "E011",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F018",
+   "object": "E029",
+   "predicate": "PART_OF",
+   "subject": "E012",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F019",
+   "object": "E089",
+   "predicate": "PART_OF",
+   "subject": "E012",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F020",
+   "object": "E129",
+   "predicate": "PART_OF",
+   "subject": "E012",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F021",
+   "object": "E123",
+   "predicate": "PART_OF",
+   "subject": "E013",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F022",
+   "object": "E132",
+   "predicate": "LOCATED_IN",
+   "subject": "E014",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F023",
+   "object": "E083",
+   "predicate": "PART_OF",
+   "subject": "E015",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F024",
+   "object": "E031",
+   "predicate": "FOUNDED",
+   "subject": "E016",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F025",
+   "object": "E062",
+   "predicate": "FOUNDED",
+   "subject": "E016",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F026",
+   "object": "E066",
+   "predicate": "WORKS_FOR",
+   "subject": "E016",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F027",
+   "object": "E081",
+   "predicate": "OWNS",
+   "subject": "E017",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F028",
+   "object": "E052",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E017",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F029",
+   "object": "E007",
+   "predicate": "PART_OF",
+   "subject": "E019",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F030",
+   "object": "E024",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E020",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F031",
+   "object": "E057",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E020",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F032",
+   "object": "E097",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E020",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F033",
+   "object": "E124",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E020",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F034",
+   "object": "E024",
+   "predicate": "MEMBER_OF",
+   "subject": "E020",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F035",
+   "object": "E038",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E021",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F036",
+   "object": "E002",
+   "predicate": "FOUNDED",
+   "subject": "E021",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F037",
+   "object": "E070",
+   "predicate": "WORKS_FOR",
+   "subject": "E021",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F038",
+   "object": "E045",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E022",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F039",
+   "object": "E069",
+   "predicate": "LOCATED_IN",
+   "subject": "E022",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F040",
+   "object": "E007",
+   "predicate": "OWNS",
+   "subject": "E022",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F041",
+   "object": "E069",
+   "predicate": "LOCATED_IN",
+   "subject": "E023",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F042",
+   "object": "E131",
+   "predicate": "MEMBER_OF",
+   "subject": "E024",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F043",
+   "object": "E136",
+   "predicate": "MEMBER_OF",
+   "subject": "E024",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F044",
+   "object": "E131",
+   "predicate": "OWNS",
+   "subject": "E024",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F045",
+   "object": "E028",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E024",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F046",
+   "object": "E147",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E024",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F047",
+   "object": "E086",
+   "predicate": "PART_OF",
+   "subject": "E024",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F048",
+   "object": "E007",
+   "predicate": "PRODUCES",
+   "subject": "E024",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F049",
+   "object": "E113",
+   "predicate": "PRODUCES",
+   "subject": "E024",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F050",
+   "object": "E135",
+   "predicate": "PRODUCES",
+   "subject": "E024",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F051",
+   "object": "E120",
+   "predicate": "WORKS_FOR",
+   "subject": "E026",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F052",
+   "object": "E070",
+   "predicate": "FOUNDED",
+   "subject": "E027",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F053",
+   "object": "E116",
+   "predicate": "FOUNDED",
+   "subject": "E027",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F054",
+   "object": "E024",
+   "predicate": "WORKS_FOR",
+   "subject": "E027",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F055",
+   "object": "E137",
+   "predicate": "LOCATED_IN",
+   "subject": "E028",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F056",
+   "object": "E032",
+   "predicate": "LOCATED_IN",
+   "subject": "E029",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F057",
+   "object": "E065",
+   "predicate": "FOUNDED",
+   "subject": "E030",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F058",
+   "object": "E084",
+   "predicate": "OWNS",
+   "subject": "E030",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F059",
+   "object": "E062",
+   "predicate": "OWNS",
+   "subject": "E031",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F060",
+   "object": "E023",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E031",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F061",
+   "object": "E007",
+   "predicate": "PRODUCES",
+   "subject": "E031",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F062",
+   "object": "E069",
+   "predicate": "LOCATED_IN",
+   "subject": "E032",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F063",
+   "object": "E133",
+   "predicate": "FOUNDED",
+   "subject": "E033",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F064",
+   "object": "E112",
+   "predicate": "LOCATED_IN",
+   "subject": "E033",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F065",
+   "object": "E051",
+   "predicate": "MEMBER_OF",
+   "subject": "E033",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F066",
+   "object": "E081",
+   "predicate": "MEMBER_OF",
+   "subject": "E033",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F067",
+   "object": "E081",
+   "predicate": "FOUNDED",
+   "subject": "E034",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F068",
+   "object": "E081",
+   "predicate": "MEMBER_OF",
+   "subject": "E034",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F069",
+   "object": "E126",
+   "predicate": "WORKS_FOR",
+   "subject": "E034",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F070",
+   "object": "E010",
+   "predicate": "MEMBER_OF",
+   "subject": "E035",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F071",
+   "object": "E124",
+   "predicate": "MEMBER_OF",
+   "subject": "E035",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F072",
+   "object": "E024",
+   "predicate": "FOUNDED",
+   "subject": "E037",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F073",
+   "object": "E065",
+   "predicate": "FOUNDED",
+   "subject": "E037",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F074",
+   "object": "E117",
+   "predicate": "FOUNDED",
+   "subject": "E037",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F075",
+   "object": "E028",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E037",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F076",
+   "object": "E136",
+   "predicate": "OWNS",
+   "subject": "E038",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F077",
+   "object": "E053",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E038",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F078",
+   "object": "E042",
+   "predicate": "PRODUCES",
+   "subject": "E038",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F079",
+   "object": "E070",
+   "predicate": "FOUNDED",
+   "subject": "E039",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F080",
+   "object": "E038",
+   "predicate": "WORKS_FOR",
+   "subject": "E039",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F081",
+   "object": "E085",
+   "predicate": "WORKS_FOR",
+   "subject": "E039",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F082",
+   "object": "E085",
+   "predicate": "FOUNDED",
+   "subject": "E041",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F083",
+   "object": "E085",
+   "predicate": "MEMBER_OF",
+   "subject": "E041",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F084",
+   "object": "E055",
+   "predicate": "LOCATED_IN",
+   "subject": "E044",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F085",
+   "object": "E009",
+   "predicate": "PART_OF",
+   "subject": "E044",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F086",
+   "object": "E146",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E046",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F087",
+   "object": "E019",
+   "predicate": "OWNS",
+   "subject": "E046",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F088",
+   "object": "E062",
+   "predicate": "PART_OF",
+   "subject": "E046",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F089",
+   "object": "E046",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E047",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F090",
+   "object": "E001",
+   "predicate": "MEMBER_OF",
+   "subject": "E047",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F091",
+   "object": "E080",
+   "predicate": "MEMBER_OF",
+   "subject": "E047",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F092",
+   "object": "E024",
+   "predicate": "OWNS",
+   "subject": "E047",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F093",
+   "object": "E080",
+   "predicate": "OWNS",
+   "subject": "E047",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F094",
+   "object": "E000",
+   "predicate": "LOCATED_IN",
+   "subject": "E048",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F095",
+   "object": "E136",
+   "predicate": "FOUNDED",
+   "subject": "E049",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F096",
+   "object": "E142",
+   "predicate": "WORKS_FOR",
+   "subject": "E049",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F097",
+   "object": "E053",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E050",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F098",
+   "object": "E029",
+   "predicate": "LOCATED_IN",
+   "subject": "E052",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F099",
+   "object": "E089",
+   "predicate": "LOCATED_IN",
+   "subject": "E052",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F100",
+   "object": "E105",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E054",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F101",
+   "object": "E105",
+   "predicate": "FOUNDED",
+   "subject": "E054",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F102",
+   "object": "E116",
+   "predicate": "FOUNDED",
+   "subject": "E054",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F103",
+   "object": "E101",
+   "predicate": "MEMBER_OF",
+   "subject": "E054",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F104",
+   "object": "E005",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E054",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F105",
+   "object": "E100",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E054",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F106",
+   "object": "E063",
+   "predicate": "WORKS_FOR",
+   "subject": "E054",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F107",
+   "object": "E101",
+   "predicate": "WORKS_FOR",
+   "subject": "E054",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F108",
+   "object": "E040",
+   "predicate": "LOCATED_IN",
+   "subject": "E056",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F109",
+   "object": "E038",
+   "predicate": "MEMBER_OF",
+   "subject": "E056",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F110",
+   "object": "E007",
+   "predicate": "PRODUCES",
+   "subject": "E056",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F111",
+   "object": "E110",
+   "predicate": "PRODUCES",
+   "subject": "E056",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F112",
+   "object": "E024",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E059",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F113",
+   "object": "E085",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E059",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F114",
+   "object": "E137",
+   "predicate": "LOCATED_IN",
+   "subject": "E059",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F115",
+   "object": "E028",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E059",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F116",
+   "object": "E124",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F117",
+   "object": "E038",
+   "predicate": "FOUNDED",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F118",
+   "object": "E063",
+   "predicate": "FOUNDED",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F119",
+   "object": "E085",
+   "predicate": "FOUNDED",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F120",
+   "object": "E116",
+   "predicate": "FOUNDED",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F121",
+   "object": "E055",
+   "predicate": "LOCATED_IN",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F122",
+   "object": "E116",
+   "predicate": "MEMBER_OF",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F123",
+   "object": "E124",
+   "predicate": "MEMBER_OF",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F124",
+   "object": "E042",
+   "predicate": "OWNS",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F125",
+   "object": "E053",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F126",
+   "object": "E058",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F127",
+   "object": "E002",
+   "predicate": "WORKS_FOR",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F128",
+   "object": "E063",
+   "predicate": "WORKS_FOR",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F129",
+   "object": "E070",
+   "predicate": "WORKS_FOR",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F130",
+   "object": "E085",
+   "predicate": "WORKS_FOR",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F131",
+   "object": "E116",
+   "predicate": "WORKS_FOR",
+   "subject": "E061",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F132",
+   "object": "E080",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E062",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F133",
+   "object": "E007",
+   "predicate": "PRODUCES",
+   "subject": "E062",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F134",
+   "object": "E019",
+   "predicate": "PRODUCES",
+   "subject": "E062",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F135",
+   "object": "E110",
+   "predicate": "PRODUCES",
+   "subject": "E062",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F136",
+   "object": "E002",
+   "predicate": "MEMBER_OF",
+   "subject": "E063",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F137",
+   "object": "E070",
+   "predicate": "PART_OF",
+   "subject": "E063",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F138",
+   "object": "E042",
+   "predicate": "PRODUCES",
+   "subject": "E063",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F139",
+   "object": "E081",
+   "predicate": "FOUNDED",
+   "subject": "E064",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F140",
+   "object": "E013",
+   "predicate": "OWNS",
+   "subject": "E064",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F141",
+   "object": "E083",
+   "predicate": "OWNS",
+   "subject": "E064",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F142",
+   "object": "E126",
+   "predicate": "WORKS_FOR",
+   "subject": "E064",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F143",
+   "object": "E137",
+   "predicate": "LOCATED_IN",
+   "subject": "E065",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F144",
+   "object": "E079",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E066",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F145",
+   "object": "E105",
+   "predicate": "FOUNDED",
+   "subject": "E067",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F146",
+   "object": "E000",
+   "predicate": "LOCATED_IN",
+   "subject": "E069",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F147",
+   "object": "E029",
+   "predicate": "LOCATED_IN",
+   "subject": "E069",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F148",
+   "object": "E042",
+   "predicate": "PRODUCES",
+   "subject": "E070",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F149",
+   "object": "E024",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E071",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F150",
+   "object": "E065",
+   "predicate": "MEMBER_OF",
+   "subject": "E071",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F151",
+   "object": "E065",
+   "predicate": "FOUNDED",
+   "subject": "E072",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F152",
+   "object": "E139",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E073",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F153",
+   "object": "E080",
+   "predicate": "FOUNDED",
+   "subject": "E073",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F154",
+   "object": "E056",
+   "predicate": "MEMBER_OF",
+   "subject": "E073",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F155",
+   "object": "E058",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E073",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F156",
+   "object": "E146",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E076",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F157",
+   "object": "E024",
+   "predicate": "FOUNDED",
+   "subject": "E076",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F158",
+   "object": "E147",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E076",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F159",
+   "object": "E024",
+   "predicate": "WORKS_FOR",
+   "subject": "E076",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F160",
+   "object": "E120",
+   "predicate": "WORKS_FOR",
+   "subject": "E076",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F161",
+   "object": "E062",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E077",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F162",
+   "object": "E080",
+   "predicate": "FOUNDED",
+   "subject": "E077",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F163",
+   "object": "E113",
+   "predicate": "OWNS",
+   "subject": "E077",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F164",
+   "object": "E117",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E080",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F165",
+   "object": "E007",
+   "predicate": "OWNS",
+   "subject": "E080",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F166",
+   "object": "E023",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E080",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F167",
+   "object": "E111",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E080",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F168",
+   "object": "E062",
+   "predicate": "PART_OF",
+   "subject": "E080",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F169",
+   "object": "E065",
+   "predicate": "PART_OF",
+   "subject": "E080",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F170",
+   "object": "E136",
+   "predicate": "PART_OF",
+   "subject": "E080",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F171",
+   "object": "E007",
+   "predicate": "PRODUCES",
+   "subject": "E080",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F172",
+   "object": "E017",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F173",
+   "object": "E012",
+   "predicate": "LOCATED_IN",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F174",
+   "object": "E029",
+   "predicate": "LOCATED_IN",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F175",
+   "object": "E115",
+   "predicate": "OWNS",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F176",
+   "object": "E126",
+   "predicate": "OWNS",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F177",
+   "object": "E052",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F178",
+   "object": "E108",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F179",
+   "object": "E125",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F180",
+   "object": "E017",
+   "predicate": "PART_OF",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F181",
+   "object": "E019",
+   "predicate": "PRODUCES",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F182",
+   "object": "E074",
+   "predicate": "PRODUCES",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F183",
+   "object": "E083",
+   "predicate": "PRODUCES",
+   "subject": "E081",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F184",
+   "object": "E015",
+   "predicate": "PART_OF",
+   "subject": "E082",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F185",
+   "object": "E082",
+   "predicate": "PART_OF",
+   "subject": "E083",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F186",
+   "object": "E090",
+   "predicate": "PART_OF",
+   "subject": "E084",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F187",
+   "object": "E044",
+   "predicate": "LOCATED_IN",
+   "subject": "E085",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F188",
+   "object": "E101",
+   "predicate": "MEMBER_OF",
+   "subject": "E085",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F189",
+   "object": "E010",
+   "predicate": "OWNS",
+   "subject": "E085",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F190",
+   "object": "E053",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E085",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F191",
+   "object": "E060",
+   "predicate": "PART_OF",
+   "subject": "E085",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F192",
+   "object": "E105",
+   "predicate": "PART_OF",
+   "subject": "E085",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F193",
+   "object": "E024",
+   "predicate": "MEMBER_OF",
+   "subject": "E086",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F194",
+   "object": "E147",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E086",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F195",
+   "object": "E007",
+   "predicate": "PRODUCES",
+   "subject": "E086",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F196",
+   "object": "E012",
+   "predicate": "LOCATED_IN",
+   "subject": "E088",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F197",
+   "object": "E110",
+   "predicate": "PART_OF",
+   "subject": "E090",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F198",
+   "object": "E045",
+   "predicate": "MEMBER_OF",
+   "subject": "E091",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F199",
+   "object": "E079",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E091",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F200",
+   "object": "E107",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E091",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F201",
+   "object": "E017",
+   "predicate": "FOUNDED",
+   "subject": "E093",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F202",
+   "object": "E081",
+   "predicate": "FOUNDED",
+   "subject": "E093",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F203",
+   "object": "E051",
+   "predicate": "MEMBER_OF",
+   "subject": "E093",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F204",
+   "object": "E001",
+   "predicate": "WORKS_FOR",
+   "subject": "E093",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F205",
+   "object": "E081",
+   "predicate": "WORKS_FOR",
+   "subject": "E093",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F206",
+   "object": "E024",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E095",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F207",
+   "object": "E132",
+   "predicate": "LOCATED_IN",
+   "subject": "E095",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F208",
+   "object": "E056",
+   "predicate": "MEMBER_OF",
+   "subject": "E098",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F209",
+   "object": "E050",
+   "predicate": "OWNS",
+   "subject": "E098",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F210",
+   "object": "E079",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E098",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F211",
+   "object": "E097",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E099",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F212",
+   "object": "E131",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E099",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F213",
+   "object": "E065",
+   "predicate": "FOUNDED",
+   "subject": "E099",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F214",
+   "object": "E098",
+   "predicate": "MEMBER_OF",
+   "subject": "E099",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F215",
+   "object": "E090",
+   "predicate": "OWNS",
+   "subject": "E099",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F216",
+   "object": "E024",
+   "predicate": "WORKS_FOR",
+   "subject": "E099",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F217",
+   "object": "E065",
+   "predicate": "WORKS_FOR",
+   "subject": "E099",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F218",
+   "object": "E120",
+   "predicate": "WORKS_FOR",
+   "subject": "E099",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F219",
+   "object": "E025",
+   "predicate": "LOCATED_IN",
+   "subject": "E100",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F220",
+   "object": "E055",
+   "predicate": "LOCATED_IN",
+   "subject": "E100",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F221",
+   "object": "E010",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E101",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F222",
+   "object": "E042",
+   "predicate": "OWNS",
+   "subject": "E101",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F223",
+   "object": "E100",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E101",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F224",
+   "object": "E042",
+   "predicate": "PRODUCES",
+   "subject": "E101",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F225",
+   "object": "E051",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E103",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F226",
+   "object": "E017",
+   "predicate": "FOUNDED",
+   "subject": "E103",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F227",
+   "object": "E081",
+   "predicate": "FOUNDED",
+   "subject": "E103",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F228",
+   "object": "E115",
+   "predicate": "FOUNDED",
+   "subject": "E103",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F229",
+   "object": "E081",
+   "predicate": "MEMBER_OF",
+   "subject": "E103",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F230",
+   "object": "E052",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E103",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F231",
+   "object": "E017",
+   "predicate": "WORKS_FOR",
+   "subject": "E103",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F232",
+   "object": "E024",
+   "predicate": "FOUNDED",
+   "subject": "E104",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F233",
+   "object": "E137",
+   "predicate": "LOCATED_IN",
+   "subject": "E104",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F234",
+   "object": "E101",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E105",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F235",
+   "object": "E135",
+   "predicate": "PRODUCES",
+   "subject": "E105",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F236",
+   "object": "E050",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E106",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F237",
+   "object": "E057",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E106",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F238",
+   "object": "E057",
+   "predicate": "MEMBER_OF",
+   "subject": "E106",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F239",
+   "object": "E012",
+   "predicate": "LOCATED_IN",
+   "subject": "E108",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F240",
+   "object": "E007",
+   "predicate": "OWNS",
+   "subject": "E109",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F241",
+   "object": "E139",
+   "predicate": "WORKS_FOR",
+   "subject": "E109",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F242",
+   "object": "E000",
+   "predicate": "LOCATED_IN",
+   "subject": "E111",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F243",
+   "object": "E135",
+   "predicate": "PART_OF",
+   "subject": "E113",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F244",
+   "object": "E053",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E114",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F245",
+   "object": "E126",
+   "predicate": "PART_OF",
+   "subject": "E115",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F246",
+   "object": "E082",
+   "predicate": "PRODUCES",
+   "subject": "E115",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F247",
+   "object": "E047",
+   "predicate": "PART_OF",
+   "subject": "E117",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F248",
+   "object": "E097",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E119",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F249",
+   "object": "E024",
+   "predicate": "MEMBER_OF",
+   "subject": "E119",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F250",
+   "object": "E024",
+   "predicate": "WORKS_FOR",
+   "subject": "E119",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F251",
+   "object": "E024",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E120",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F252",
+   "object": "E028",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E121",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F253",
+   "object": "E081",
+   "predicate": "OWNS",
+   "subject": "E126",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F254",
+   "object": "E108",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E126",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F255",
+   "object": "E083",
+   "predicate": "PRODUCES",
+   "subject": "E126",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F256",
+   "object": "E081",
+   "predicate": "FOUNDED",
+   "subject": "E127",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F257",
+   "object": "E051",
+   "predicate": "MEMBER_OF",
+   "subject": "E127",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F258",
+   "object": "E024",
+   "predicate": "WORKS_FOR",
+   "subject": "E127",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F259",
+   "object": "E124",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E128",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F260",
+   "object": "E038",
+   "predicate": "FOUNDED",
+   "subject": "E128",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F261",
+   "object": "E085",
+   "predicate": "FOUNDED",
+   "subject": "E128",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F262",
+   "object": "E040",
+   "predicate": "LOCATED_IN",
+   "subject": "E129",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F263",
+   "object": "E040",
+   "predicate": "PART_OF",
+   "subject": "E129",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F264",
+   "object": "E047",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E131",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F265",
+   "object": "E024",
+   "predicate": "PART_OF",
+   "subject": "E131",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F266",
+   "object": "E084",
+   "predicate": "PRODUCES",
+   "subject": "E131",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F267",
+   "object": "E137",
+   "predicate": "LOCATED_IN",
+   "subject": "E132",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F268",
+   "object": "E110",
+   "predicate": "PRODUCES",
+   "subject": "E133",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F269",
+   "object": "E019",
+   "predicate": "PART_OF",
+   "subject": "E135",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F270",
+   "object": "E084",
+   "predicate": "PART_OF",
+   "subject": "E135",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F271",
+   "object": "E131",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E136",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F272",
+   "object": "E110",
+   "predicate": "OWNS",
+   "subject": "E136",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F273",
+   "object": "E056",
+   "predicate": "PART_OF",
+   "subject": "E136",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F274",
+   "object": "E007",
+   "predicate": "PRODUCES",
+   "subject": "E136",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F275",
+   "object": "E014",
+   "predicate": "LOCATED_IN",
+   "subject": "E137",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F276",
+   "object": "E014",
+   "predicate": "PART_OF",
+   "subject": "E137",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F277",
+   "object": "E063",
+   "predicate": "MEMBER_OF",
+   "subject": "E138",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F278",
+   "object": "E042",
+   "predicate": "OWNS",
+   "subject": "E138",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F279",
+   "object": "E031",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E139",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F280",
+   "object": "E007",
+   "predicate": "PRODUCES",
+   "subject": "E139",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F281",
+   "object": "E051",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E140",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F282",
+   "object": "E001",
+   "predicate": "MEMBER_OF",
+   "subject": "E140",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F283",
+   "object": "E024",
+   "predicate": "FOUNDED",
+   "subject": "E141",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F284",
+   "object": "E065",
+   "predicate": "FOUNDED",
+   "subject": "E141",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F285",
+   "object": "E147",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E141",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F286",
+   "object": "E024",
+   "predicate": "WORKS_FOR",
+   "subject": "E141",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F287",
+   "object": "E065",
+   "predicate": "WORKS_FOR",
+   "subject": "E141",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F288",
+   "object": "E079",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E142",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F289",
+   "object": "E121",
+   "predicate": "FOUNDED",
+   "subject": "E144",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F290",
+   "object": "E108",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E144",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F291",
+   "object": "E017",
+   "predicate": "WORKS_FOR",
+   "subject": "E144",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F292",
+   "object": "E056",
+   "predicate": "WORKS_FOR",
+   "subject": "E144",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F293",
+   "object": "E024",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E146",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F294",
+   "object": "E135",
+   "predicate": "OWNS",
+   "subject": "E146",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F295",
+   "object": "E028",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E146",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F296",
+   "object": "E015",
+   "predicate": "PRODUCES",
+   "subject": "E146",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F297",
+   "object": "E097",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E148",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F298",
+   "object": "E024",
+   "predicate": "FOUNDED",
+   "subject": "E148",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F299",
+   "object": "E111",
+   "predicate": "PARTICIPATED_IN",
+   "subject": "E149",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F300",
+   "object": "E155",
+   "predicate": "LOCATED_IN",
+   "subject": "E150",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F301",
+   "object": "E159",
+   "predicate": "WORKS_FOR",
+   "subject": "E151",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F302",
+   "object": "E153",
+   "predicate": "PART_OF",
+   "subject": "E152",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F303",
+   "object": "E166",
+   "predicate": "PART_OF",
+   "subject": "E153",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F304",
+   "object": "E150",
+   "predicate": "PART_OF",
+   "subject": "E154",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F305",
+   "object": "E163",
+   "predicate": "LOCATED_IN",
+   "subject": "E155",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F306",
+   "object": "E150",
+   "predicate": "LOCATED_IN",
+   "subject": "E156",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F307",
+   "object": "E165",
+   "predicate": "WORKS_FOR",
+   "subject": "E157",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F308",
+   "object": "E152",
+   "predicate": "OWNS",
+   "subject": "E158",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F309",
+   "object": "E162",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E159",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F310",
+   "object": "E177",
+   "predicate": "LOCATED_IN",
+   "subject": "E160",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F311",
+   "object": "E155",
+   "predicate": "LOCATED_IN",
+   "subject": "E161",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F312",
+   "object": "E176",
+   "predicate": "MEMBER_OF",
+   "subject": "E162",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F313",
+   "object": "E177",
+   "predicate": "LOCATED_IN",
+   "subject": "E163",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F314",
+   "object": "E173",
+   "predicate": "MEMBER_OF",
+   "subject": "E164",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F315",
+   "object": "E162",
+   "predicate": "PART_OF",
+   "subject": "E165",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F316",
+   "object": "E153",
+   "predicate": "PART_OF",
+   "subject": "E166",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F317",
+   "object": "E176",
+   "predicate": "FOUNDED",
+   "subject": "E167",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F318",
+   "object": "E162",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E168",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F319",
+   "object": "E159",
+   "predicate": "PART_OF",
+   "subject": "E169",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F320",
+   "object": "E155",
+   "predicate": "LOCATED_IN",
+   "subject": "E170",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F321",
+   "object": "E179",
+   "predicate": "AFFILIATED_WITH",
+   "subject": "E172",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F322",
+   "object": "E159",
+   "predicate": "MEMBER_OF",
+   "subject": "E173",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F323",
+   "object": "E159",
+   "predicate": "MEMBER_OF",
+   "subject": "E174",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F324",
+   "object": "E162",
+   "predicate": "MEMBER_OF",
+   "subject": "E175",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F325",
+   "object": "E166",
+   "predicate": "OWNS",
+   "subject": "E176",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F326",
+   "object": "E155",
+   "predicate": "LOCATED_IN",
+   "subject": "E177",
+   "valid_from": 2000,
+   "valid_to": null
+  },
+  {
+   "id": "F327",
+   "object": "E176",
+   "predicate": "WORKS_FOR",
+   "subject": "E178",
+   "valid_from": 2000,
+   "valid_to": null
+  }
+ ],
+ "entities": [
+  {
+   "aliases": [
+    "Greater Dozoford",
+    "DOZOFORD"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E000",
+   "name": "Dozoford",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Dako"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E001",
+   "name": "Dako Works",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Velu",
+    "VG"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E002",
+   "name": "Velu Group",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "G. Industries",
+    "Industries"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E003",
+   "name": "Gaze Industries",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "G. Luzazu",
+    "Luzazu"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E004",
+   "name": "Gipi Luzazu",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Soto"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E005",
+   "name": "Soto Forum",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E006",
+   "name": "Mizu Group",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Gori-X18",
+    "GoriX18"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E007",
+   "name": "Gori X18",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "F. Vitalu"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E008",
+   "name": "Fili Vitalu",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E009",
+   "name": "Bake",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E010",
+   "name": "Rilo Partners",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "F. Tebifu",
+    "Tebifu"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E011",
+   "name": "Fido Tebifu",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Greater Takomere",
+    "TAKOMERE"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E012",
+   "name": "Takomere",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E013",
+   "name": "Lima X72",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "Greater Noli"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E014",
+   "name": "Noli",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Nato-Z5",
+    "NatoZ5"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E015",
+   "name": "Nato Z5",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": false,
+   "id": "E016",
+   "name": "Bake",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Gebo"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E017",
+   "name": "Gebo Holdings",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Greater Dopuia"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E018",
+   "name": "Dopuia",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Novu-Q87",
+    "NovuQ87"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E019",
+   "name": "Novu Q87",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "G. Gireme",
+    "Gireme"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E020",
+   "name": "Godi Gireme",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "L. Povedo",
+    "Povedo"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E021",
+   "name": "Lada Povedo",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "M. Verede"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E022",
+   "name": "Miga Verede",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": false,
+   "id": "E023",
+   "name": "Kole",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "Dune"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E024",
+   "name": "Dune Partners",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E025",
+   "name": "Mopoford",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "L. Pugali",
+    "Pugali"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E026",
+   "name": "Lone Pugali",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Z. Firezo",
+    "Firezo"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E027",
+   "name": "Zibu Firezo",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Rito",
+    "RS"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E028",
+   "name": "Rito Summit",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "Greater Vapa",
+    "VAPA"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E029",
+   "name": "Vapa",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "G. Boleve",
+    "Boleve"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E030",
+   "name": "Gebi Boleve",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Zolu",
+    "ZI"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E031",
+   "name": "Zolu Industries",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Greater Pubu",
+    "PUBU"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E032",
+   "name": "Pubu",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "S. Doveku"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E033",
+   "name": "Suvu Doveku",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E034",
+   "name": "Rozo Zoruga",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "B. Toroni",
+    "Toroni"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E035",
+   "name": "Busu Toroni",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E036",
+   "name": "Nizi Vomobe",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "S. Tibano",
+    "Tibano"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E037",
+   "name": "Segi Tibano",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Fozu"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E038",
+   "name": "Fozu Systems",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "D. Maromo",
+    "Maromo"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E039",
+   "name": "Devi Maromo",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Greater Bane"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E040",
+   "name": "Bane",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "B. Sidusi",
+    "Sidusi"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E041",
+   "name": "Bure Sidusi",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Kuda-Z64",
+    "KudaZ64"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E042",
+   "name": "Kuda Z64",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "R. Sasuke",
+    "Sasuke"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E043",
+   "name": "Rori Sasuke",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E044",
+   "name": "Mitaburg",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Legeeses",
+    "LEGEESE"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E045",
+   "name": "Legeese",
+   "type": "NORP"
+  },
+  {
+   "aliases": [
+    "Leni"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E046",
+   "name": "Leni Works",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Saba"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E047",
+   "name": "Saba Industries",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": false,
+   "id": "E048",
+   "name": "Kapu Festival",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": false,
+   "id": "E049",
+   "name": "Gedu Tumuka",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "NOLI"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E050",
+   "name": "Noli",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Dodaeses",
+    "DODAESE"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E051",
+   "name": "Dodaese",
+   "type": "NORP"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E052",
+   "name": "Veta Conference",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "Mobo"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E053",
+   "name": "Mobo Expo",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E054",
+   "name": "Tidi Dalali",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Greater Fazemere"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E055",
+   "name": "Fazemere",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Lare"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E056",
+   "name": "Lare Group",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Nato Z5s",
+    "NATO Z5"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E057",
+   "name": "Nato Z5",
+   "type": "NORP"
+  },
+  {
+   "aliases": [
+    "Bila",
+    "BF"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E058",
+   "name": "Bila Festival",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "G. Dolifa",
+    "Dolifa"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E059",
+   "name": "Gefo Dolifa",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Gilo"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E060",
+   "name": "Gilo Labs",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "K. Fudapu"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E061",
+   "name": "Kusi Fudapu",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": false,
+   "id": "E062",
+   "name": "Keme Group",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Velu"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E063",
+   "name": "Velu Group",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "B. Sidusi"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E064",
+   "name": "Bure Sidusi",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E065",
+   "name": "Mata Group",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Mipo",
+    "MS"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E066",
+   "name": "Mipo Systems",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "F. Sideni",
+    "Sideni"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E067",
+   "name": "Fumi Sideni",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "S. Mamine"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E068",
+   "name": "Subo Mamine",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Greater Lina"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E069",
+   "name": "Lina",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E070",
+   "name": "Vaka Partners",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "R. Mevome"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E071",
+   "name": "Revo Mevome",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "R. Partners",
+    "Partners"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E072",
+   "name": "Rilo Partners",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "K. Robeka"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E073",
+   "name": "Kazo Robeka",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Vipu-X55",
+    "VipuX55"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E074",
+   "name": "Vipu X55",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "Greater Todomere",
+    "TODOMERE"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E075",
+   "name": "Todomere",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E076",
+   "name": "Guvo Kadisa",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "B. Ronati"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E077",
+   "name": "Bimu Ronati",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Lizeishs"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E078",
+   "name": "Lizeish",
+   "type": "NORP"
+  },
+  {
+   "aliases": [
+    "Gaze",
+    "GE"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E079",
+   "name": "Gaze Expo",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "Pidu",
+    "PW"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E080",
+   "name": "Pidu Works",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Gedo"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E081",
+   "name": "Gedo Works",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E082",
+   "name": "Kipe Q67",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "Sepa-Z82"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E083",
+   "name": "Sepa Z82",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E084",
+   "name": "Poti Z57",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "Luse",
+    "LG"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E085",
+   "name": "Luse Group",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Damo",
+    "DP"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E086",
+   "name": "Damo Partners",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Nepi-Z81"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E087",
+   "name": "Nepi Z81",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E088",
+   "name": "Nogoton",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Greater Tuloford"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E089",
+   "name": "Tuloford",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Boke-Q64",
+    "BokeQ64"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E090",
+   "name": "Boke Q64",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": false,
+   "id": "E091",
+   "name": "Buga Lomazu",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Daso",
+    "DS"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E092",
+   "name": "Daso Summit",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E093",
+   "name": "Ladu Bizite",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E094",
+   "name": "Fukeian",
+   "type": "NORP"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E095",
+   "name": "Gefo Dolifa",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Greater Foteburg"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E096",
+   "name": "Foteburg",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Legeeses"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E097",
+   "name": "Legeese",
+   "type": "NORP"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": false,
+   "id": "E098",
+   "name": "Lomo Industries",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "T. Nerama",
+    "Nerama"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E099",
+   "name": "Teve Nerama",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Gaze"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E100",
+   "name": "Gaze Expo",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "Begu",
+    "BL"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E101",
+   "name": "Begu Labs",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E102",
+   "name": "Ratu Vivimo",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E103",
+   "name": "Busu Toroni",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "T. Kabafi"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E104",
+   "name": "Togi Kabafi",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Bisa"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E105",
+   "name": "Bisa Group",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "D. Ropene"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E106",
+   "name": "Dose Ropene",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Ludu"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E107",
+   "name": "Ludu Summit",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "Vilu",
+    "VC"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E108",
+   "name": "Vilu Conference",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "L. Belagu",
+    "Belagu"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E109",
+   "name": "Libu Belagu",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": false,
+   "id": "E110",
+   "name": "Poti Z57",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "Tiku"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E111",
+   "name": "Tiku Conference",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "Greater Kole",
+    "KOLE"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E112",
+   "name": "Kole",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Kuda-Z64"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E113",
+   "name": "Kuda Z64",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "T. Nonada",
+    "Nonada"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E114",
+   "name": "Tobo Nonada",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E115",
+   "name": "Gaze Industries",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E116",
+   "name": "Suvu Doveku",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Muvo",
+    "MH"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E117",
+   "name": "Muvo Holdings",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Greater Fene"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E118",
+   "name": "Fene",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "D. Partners"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E119",
+   "name": "Damo Partners",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Devi",
+    "DM"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E120",
+   "name": "Devi Maromo",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Gebo"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E121",
+   "name": "Gebo Holdings",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Sikeians"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E122",
+   "name": "Sikeian",
+   "type": "NORP"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E123",
+   "name": "Duva X94",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E124",
+   "name": "Megiish",
+   "type": "NORP"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E125",
+   "name": "Satu Festival",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E126",
+   "name": "Lone Pugali",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": false,
+   "id": "E127",
+   "name": "Katu Lesusi",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "G. Kigiso",
+    "Kigiso"
+   ],
+   "community": 0,
+   "distractor": false,
+   "id": "E128",
+   "name": "Gedu Kigiso",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Greater Fene"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E129",
+   "name": "Fene",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Greater Bila Festival"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E130",
+   "name": "Bila Festival",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E131",
+   "name": "Rave Industries",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Greater Fepa",
+    "FEPA"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E132",
+   "name": "Fepa",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Vevo"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E133",
+   "name": "Vevo Partners",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E134",
+   "name": "Vegemere",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [
+    "Golu-Q17",
+    "GoluQ17"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E135",
+   "name": "Golu Q17",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [
+    "Sodu"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E136",
+   "name": "Sodu Works",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "Greater Buriton"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E137",
+   "name": "Buriton",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": false,
+   "id": "E138",
+   "name": "Nibe Pesovo",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": false,
+   "id": "E139",
+   "name": "Pita Labs",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "F. Zivima"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E140",
+   "name": "Fume Zivima",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E141",
+   "name": "Gale Loseki",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "Seka",
+    "SL"
+   ],
+   "community": 2,
+   "distractor": false,
+   "id": "E142",
+   "name": "Seka Labs",
+   "type": "ORG"
+  },
+  {
+   "aliases": [
+    "R. Lanabe"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E143",
+   "name": "Rube Lanabe",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [
+    "B. Dalofe",
+    "Dalofe"
+   ],
+   "community": 3,
+   "distractor": false,
+   "id": "E144",
+   "name": "Bagi Dalofe",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E145",
+   "name": "Nofi Kesito",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E146",
+   "name": "Mami Partners",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": false,
+   "id": "E147",
+   "name": "Pova Festival",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [
+    "G. Loseki"
+   ],
+   "community": 1,
+   "distractor": false,
+   "id": "E148",
+   "name": "Gale Loseki",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": false,
+   "id": "E149",
+   "name": "Zedi Gegave",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": true,
+   "id": "E150",
+   "name": "TakomeLe",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": true,
+   "id": "E151",
+   "name": "Rilo Mumudu",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": true,
+   "id": "E152",
+   "name": "Duva Z1",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": true,
+   "id": "E153",
+   "name": "Duva Q36",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": true,
+   "id": "E154",
+   "name": "FeLi",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": true,
+   "id": "E155",
+   "name": "VaLo",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": true,
+   "id": "E156",
+   "name": "Teve Gunugi",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": true,
+   "id": "E157",
+   "name": "Miga Gifige",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": true,
+   "id": "E158",
+   "name": "Rilo Volege",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": true,
+   "id": "E159",
+   "name": "Fozu Industries",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": true,
+   "id": "E160",
+   "name": "Soto Conference",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": true,
+   "id": "E161",
+   "name": "Kapu Conference",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": true,
+   "id": "E162",
+   "name": "Luse Industries",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": true,
+   "id": "E163",
+   "name": "MitabuDi",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": true,
+   "id": "E164",
+   "name": "Suvu Viruzi",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": true,
+   "id": "E165",
+   "name": "Bisa Works",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": true,
+   "id": "E166",
+   "name": "Novu Q73",
+   "type": "PRODUCT"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": true,
+   "id": "E167",
+   "name": "Gefo Dakozo",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": true,
+   "id": "E168",
+   "name": "Bimu Rorika",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": true,
+   "id": "E169",
+   "name": "Gebo Group",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": true,
+   "id": "E170",
+   "name": "Gaze Festival",
+   "type": "EVENT"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": true,
+   "id": "E171",
+   "name": "DodaeBa",
+   "type": "NORP"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": true,
+   "id": "E172",
+   "name": "Zedi Tafava",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": true,
+   "id": "E173",
+   "name": "NoVi",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": true,
+   "id": "E174",
+   "name": "Bure Ruramo",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 2,
+   "distractor": true,
+   "id": "E175",
+   "name": "Rori Gipabo",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": true,
+   "id": "E176",
+   "name": "Rilo Works",
+   "type": "ORG"
+  },
+  {
+   "aliases": [],
+   "community": 3,
+   "distractor": true,
+   "id": "E177",
+   "name": "VaRe",
+   "type": "LOCATION"
+  },
+  {
+   "aliases": [],
+   "community": 0,
+   "distractor": true,
+   "id": "E178",
+   "name": "Fumi Piloso",
+   "type": "PERSON"
+  },
+  {
+   "aliases": [],
+   "community": 1,
+   "distractor": true,
+   "id": "E179",
+   "name": "LegeeLa",
+   "type": "NORP"
+  }
+ ],
+ "spec": {
+  "alias_rate": 0.7,
+  "aliases_per_entity": 2,
+  "avg_degree": 4.0,
+  "churn_rate": 0.0,
+  "community_mixing": 0.1,
+  "cycle_rate": 0.02,
+  "degree_skew": 0.5,
+  "distractor_rate": 0.2,
+  "end_year": 2024,
+  "homonym_rate": 0.15,
+  "homonym_same_type": 0.5,
+  "n_communities": 4,
+  "n_entities": 150,
+  "noise_rate": 0.0,
+  "predicate_mix": {
+   "AFFILIATED_WITH": 1.0,
+   "FOUNDED": 1.0,
+   "GOVERNED_BY": 1.0,
+   "LOCATED_IN": 1.0,
+   "MEMBER_OF": 1.0,
+   "OWNS": 1.0,
+   "PARTICIPATED_IN": 1.0,
+   "PART_OF": 1.0,
+   "PRODUCES": 1.0,
+   "WORKS_FOR": 1.0
+  },
+  "retraction_rate": 0.0,
+  "seed": 0,
+  "start_year": 2000,
+  "type_mix": {
+   "EVENT": 0.1,
+   "LOCATION": 0.15,
+   "NORP": 0.05,
+   "ORG": 0.25,
+   "PERSON": 0.35,
+   "PRODUCT": 0.1
+  }
+ }
+}

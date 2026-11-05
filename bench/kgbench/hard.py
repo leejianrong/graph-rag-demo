@@ -46,6 +46,11 @@ def measure(folder: Path, embedder, n_questions: int, ks: Sequence[int]) -> dict
     return out
 
 
+def typed(report) -> bool:
+    """Whether the system predicted any relation other than the ``RELATED_TO`` fallback."""
+    return any(p.predicted for name, p in report.by_predicate.items() if name != "RELATED_TO")
+
+
 def to_markdown(result: dict[str, dict], k: int, command: str, embedder: str) -> str:
     lines = [
         "# The same world as template text and as harder LLM-written text",
@@ -61,13 +66,24 @@ def to_markdown(result: dict[str, dict], k: int, command: str, embedder: str) ->
         ("words per document", t["words"], h["words"]),
         ("mention F1", t["extraction"].mentions.f1, h["extraction"].mentions.f1),
         ("entity F1", t["extraction"].entities.f1, h["extraction"].entities.f1),
-        ("triple F1 (strict)", t["extraction"].triples.f1, h["extraction"].triples.f1),
+        *(
+            [("triple F1 (strict)", t["extraction"].triples.f1, h["extraction"].triples.f1)]
+            if typed(t["extraction"]) or typed(h["extraction"])
+            else []
+        ),
         ("entity pair F1 (relation ignored)", t["extraction"].edges.f1, h["extraction"].edges.f1),
         ("linking B-cubed F1", t["linking"].overall.f1, h["linking"].overall.f1),
     ]
     for name, a, b in rows:
         fmt = (lambda v: str(v)) if isinstance(a, int) else (lambda v: f"{v:.3f}")
         lines.append(f"| {name} | {fmt(a)} | {fmt(b)} |")
+    if not any(typed(result[s]["extraction"]) for s in STYLES):
+        lines += [
+            "",
+            "Strict triple F1 is left out: the offline graph builder links co-occurring entities "
+            "with `RELATED_TO` only, so it is 0 by construction. Judge relations with an LLM "
+            "graph builder (`kgbench extract --real`).",
+        ]
     for style in STYLES:
         r = result[style]["retrieval"]
         lines += ["", f"## Retrieval on {style} text", "", "```", r.format_table(k), "```"]

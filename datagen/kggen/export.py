@@ -10,10 +10,11 @@ from __future__ import annotations
 import io
 import json
 import zipfile
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 from kggen.questions import QuestionSpec, generate_questions
-from kggen.render import RenderSpec, render_documents
+from kggen.render import Document, RenderSpec, render_documents
 from kggen.spec import WorldSpec
 from kggen.stats import report
 from kggen.world import World, WorldGenerationError, generate
@@ -38,22 +39,35 @@ class Specs:
     render: RenderSpec
 
 
-def export_files(world: World, questions: QuestionSpec, render: RenderSpec) -> dict[str, bytes]:
+def export_files(
+    world: World,
+    questions: QuestionSpec,
+    render: RenderSpec,
+    documents: Sequence[Document] | None = None,
+) -> dict[str, bytes]:
     """The dataset as ``{filename: bytes}``. A world that cannot supply the questions asked for
-    still exports; ``questions.json`` is then left out and the README says why."""
+    still exports; ``questions.json`` is then left out and the README says why. ``documents``
+    replaces the template text (an LLM's, say); the README then says the documents are kept as given
+    and cannot be rebuilt from the specs alone."""
+    texts = documents or render_documents(world, render)
     files: dict[str, bytes] = {
         "spec.json": _json(world.spec.model_dump()),
         "questions_spec.json": _json(questions.model_dump()),
         "render_spec.json": _json(render.model_dump()),
         "world.json": world.to_json().encode(),
         "world.stats.json": _json(report(world)),
-        "documents.json": _json([d.to_dict() for d in render_documents(world, render)]),
+        "documents.json": _json([d.to_dict() for d in texts]),
     }
-    note = ""
+    note = (
+        "\nThe documents were not rendered from the specs: they are kept as given, so the command "
+        "above rebuilds everything except `documents.json`.\n"
+        if documents
+        else ""
+    )
     try:
         files["questions.json"] = _json([q.to_dict() for q in generate_questions(world, questions)])
     except WorldGenerationError as exc:
-        note = f"\nquestions.json is not included: {exc}\n"
+        note += f"\nquestions.json is not included: {exc}\n"
     files["README.md"] = _readme(world, note).encode()
     return files
 
@@ -70,8 +84,13 @@ def zip_bytes(files: dict[str, bytes]) -> bytes:
     return buffer.getvalue()
 
 
-def export_archive(world: World, questions: QuestionSpec, render: RenderSpec) -> bytes:
-    return zip_bytes(export_files(world, questions, render))
+def export_archive(
+    world: World,
+    questions: QuestionSpec,
+    render: RenderSpec,
+    documents: Sequence[Document] | None = None,
+) -> bytes:
+    return zip_bytes(export_files(world, questions, render, documents))
 
 
 def reproduce(specs: Specs) -> dict[str, bytes]:

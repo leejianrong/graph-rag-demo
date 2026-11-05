@@ -238,3 +238,18 @@ def test_documents_round_trip_through_json() -> None:
     raw = json.loads((folder / "documents.json").read_text())
     docs = [Document.from_dict(d) for d in raw]
     assert [d.to_dict() for d in docs] == raw
+
+
+def test_the_committed_hard_dataset_is_complete_and_current() -> None:
+    from kggen.export import export_files
+    from kggen.questions import QuestionSpec
+    from kggen.render import Document, RenderSpec
+    from kggen.spec import load_spec
+
+    folder = Path(__file__).parents[1] / "examples" / "hard-small"
+    docs = [Document.from_dict(d) for d in json.loads((folder / "documents.json").read_text())]
+    questions = QuestionSpec.model_validate_json((folder / "questions_spec.json").read_text())
+    made = export_files(generate(load_spec(folder / "spec.yaml")), questions, RenderSpec(), docs)
+    for name in ("world.json", "questions.json", "documents.json", "world.stats.json"):
+        assert made[name] == (folder / name).read_bytes(), f"{name} is stale: re-run kggen export"
+    assert b"kept as given" in made["README.md"]
