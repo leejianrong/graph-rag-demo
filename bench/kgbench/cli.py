@@ -28,6 +28,7 @@ from kggen.world import generate
 from graph_rag.config import Settings
 from graph_rag.wiring import build_embedder, build_offline_components, build_real_components
 from kgbench import __version__, gate, judge_hard
+from kgbench import ambiguity as ambiguities
 from kgbench import critique as critiques
 from kgbench import faithfulness as faithful
 from kgbench import hard as hards
@@ -203,6 +204,13 @@ def build_parser() -> argparse.ArgumentParser:
     fa.add_argument("--out", type=Path, help="Write the markdown report here.")
     fa.add_argument("--json", type=Path, help="Write every verdict as JSON here.")
     fa.add_argument("--chart", type=Path, help="Write the chart (SVG) here.")
+    am = commands.add_parser(
+        "ambiguity", help="Re-answer chain questions with names as identity (no LLM)."
+    )
+    am.add_argument("--dir", type=Path, required=True, help="A dataset folder (its world).")
+    am.add_argument("--n", type=int, default=300, help="Questions to generate.")
+    am.add_argument("--types", default="entity:2,set:1,count:1", help="Question type mix.")
+    am.add_argument("--out", type=Path, help="Write the markdown report here.")
     ct = commands.add_parser(
         "critique",
         help="Rate a dataset's questions for groundedness, relevance and standalone (opt-in).",
@@ -551,6 +559,27 @@ def _faithfulness(args: argparse.Namespace) -> int:
     return 0
 
 
+def _ambiguity(args: argparse.Namespace) -> int:
+    folder = args.dir.resolve()
+    world_spec = load_spec(folder / "spec.yaml")
+    world = generate(world_spec)
+    mix = {t: float(w) for t, w in (p.split(":") for p in args.types.split(","))}
+    questions = [
+        q.to_dict()
+        for q in generate_questions(world, QuestionSpec(n_questions=args.n, type_mix=mix))
+    ]
+    text = ambiguities.format_table(ambiguities.measure(questions, json.loads(world.to_json())))
+    report = (
+        f"# Answers a name-only reader cannot rule out: {folder.name}\n\n"
+        f"{args.n} questions generated from this world (`--types {args.types}`, question seed 0)."
+        f"\n\n{text}\n"
+    )
+    print(report)
+    if args.out:
+        args.out.write_text(report)
+    return 0
+
+
 def _critique(args: argparse.Namespace) -> int:
     folder = args.dir.resolve()
     questions = json.loads((folder / "questions.json").read_text())
@@ -628,6 +657,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _judge(args)
     if args.command == "shortcut":
         return _shortcut(args)
+    if args.command == "ambiguity":
+        return _ambiguity(args)
     if args.command == "faithfulness":
         return _faithfulness(args)
     if args.command == "critique":
