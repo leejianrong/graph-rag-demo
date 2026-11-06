@@ -38,11 +38,14 @@ from kgbench import judge_scaled as scaled
 from kgbench import order as orders
 from kgbench import real as reals
 from kgbench import shortcut as shortcuts
+from kgbench import split as splits
 from kgbench import sweep as sweeps
+from kgbench.baselines import BM25Retriever, DenseRetriever
 from kgbench.compare import CachingEmbedder, compare
 from kgbench.cost import Meter
 from kgbench.dataset import SUBSETS, load_examples, select_subset
 from kgbench.extraction import gold_from, run_pipeline, score
+from kgbench.graph_retriever import GraphRagRetriever
 from kgbench.harness import BenchmarkHarness
 from kgbench.linking import DIFFICULTY, linking_gold, score_linking
 
@@ -194,6 +197,18 @@ def build_parser() -> argparse.ArgumentParser:
     sc.add_argument("--texts", nargs="+", choices=hards.TEXTS, default=["hard"], help="Texts.")
     sc.add_argument("--out", type=Path, help="Write the markdown report here.")
     sc.add_argument("--charts", type=Path, help="Write one chart per system and text here.")
+    sp = commands.add_parser(
+        "split", help="Retrieval and extraction scores for shared against unshared names."
+    )
+    sp.add_argument("--dir", type=Path, default=_HARD_DIR, help="The dataset folder.")
+    sp.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
+    sp.add_argument("--k", type=int, default=5, help="Sentences retrieved per question.")
+    sp.add_argument("--llm-cache", type=Path, help="Also run the LLM stages from this cache.")
+    sp.add_argument("--llm-base-url", help="OpenAI-compatible endpoint; omit to replay.")
+    sp.add_argument("--llm-model", default="openai/claude-haiku", help="LiteLLM model string.")
+    sp.add_argument("--spacy", metavar="MODEL", help="Also run real spaCy NER.")
+    sp.add_argument("--pipelines", nargs="+", choices=hards.PIPELINES, help="Pipelines to run.")
+    sp.add_argument("--out", type=Path, help="Write the markdown report here.")
     fa = commands.add_parser(
         "faithfulness",
         help="Check each document states its facts and nothing more (opt-in LLM).",
@@ -440,20 +455,25 @@ def _linking(args: argparse.Namespace) -> int:
     return 0
 
 
+def _llm_settings(args: argparse.Namespace) -> Settings | None:
+    """The real LLM stages (coref, graph build) from ``--llm-*``, or None for offline only."""
+    if not args.llm_cache:
+        return None
+    if args.llm_base_url:
+        os.environ["OPENAI_API_BASE"] = args.llm_base_url  # LiteLLM reads the endpoint here
+    return Settings(
+        coref_model=args.llm_model,
+        kg_build_model=args.llm_model,
+        llm_cache_dir=str(args.llm_cache),
+        openai_api_key=os.environ.get("OPENAI_API_KEY", "semula-local"),
+    )
+
+
 def _hard(args: argparse.Namespace) -> int:
     ks = sorted({1, 3, 5, 10, args.k})
     real = args.embedder == "bge"
     embedder = CachingEmbedder(build_embedder(real=real))
-    settings = None
-    if args.llm_cache:
-        if args.llm_base_url:
-            os.environ["OPENAI_API_BASE"] = args.llm_base_url  # LiteLLM reads the endpoint here
-        settings = Settings(
-            coref_model=args.llm_model,
-            kg_build_model=args.llm_model,
-            llm_cache_dir=str(args.llm_cache),
-            openai_api_key=os.environ.get("OPENAI_API_KEY", "semula-local"),
-        )
+    settings = _llm_settings(args)
     result = hards.measure(
         args.dir, embedder, args.questions, ks, settings, args.spacy, args.texts, args.pipelines
     )
@@ -528,6 +548,51 @@ def _judge(args: argparse.Namespace) -> int:
         args.chart.write_text(
             judges.chart_svg(report, f"Judge accuracy by case kind ({kind} cases)")
         )
+    return 0
+
+
+def _split(args: argparse.Namespace) -> int:
+    folder = args.dir.resolve()
+    real = args.embedder == "bge"
+    embedder = CachingEmbedder(build_embedder(real=real))
+    questions = json.loads((folder / "questions.json").read_text())
+    spec_path, documents = hards.load(folder)
+    world = generate(load_spec(spec_path))
+    shared = splits.shared_ids(world)
+    gold = gold_from(world, documents)
+    retrieved: dict = {
+        "BM25": BM25Retriever(documents),
+        "Dense": DenseRetriever(documents, embedder),
+    }
+    extracted: dict = {}
+    for suffix, build in hards.pipeline_builders(
+        embedder, _llm_settings(args), args.spacy, args.pipelines
+    ).items():
+        tag = suffix.removeprefix(" + ") or "offline"
+        extracted[tag] = splits.extraction(gold, run_pipeline(build(), documents), shared)
+        for mode in ("passages", "graph"):
+            retrieved[f"graph-rag {mode} ({tag})"] = GraphRagRetriever(
+                build(), documents, mode=mode
+            )
+    result = splits.retrieval(questions, retrieved, args.k)
+    flagged = sum(q["shared_name"] for q in questions)
+    command = (
+        f"uv run --extra embed kgbench split --dir {folder.relative_to(_REPO)} "
+        f"--embedder {args.embedder} --k {args.k}"
+        + (f" --llm-cache {args.llm_cache.resolve().relative_to(_REPO)}" if args.llm_cache else "")
+        + (f" --spacy {args.spacy}" if args.spacy else "")
+        + (f" --pipelines {' '.join(args.pipelines)}" if args.pipelines else "")
+    )
+    report = (
+        f"# Shared names: {folder.name}\n\n`{command}`; {len(questions)} questions, {flagged} "
+        f"with a shared name; {'bge-small-en-v1.5' if real else 'hashing-fake'} embeddings. "
+        f"{len(shared)} of {len(world.entities)} entities share a name.\n\n"
+        f"## Retrieval\n\n{splits.format_retrieval(result, args.k)}\n\n"
+        f"## Extraction\n\n{splits.format_extraction(extracted)}\n"
+    )
+    print(report)
+    if args.out:
+        args.out.write_text(report)
     return 0
 
 
@@ -805,6 +870,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _judge(args)
     if args.command == "shortcut":
         return _shortcut(args)
+    if args.command == "split":
+        return _split(args)
     if args.command == "human-check":
         return _human_check(args)
     if args.command == "real":
