@@ -44,6 +44,7 @@ dev = [
     "kggen",
     "kgbench",
     "openapi-spec-validator>=0.9.0",
+    "mcp>=2.3,<3",
     "mypy>=2.4.1",
     "types-pyyaml>=6.0.12.20261103",
 ]
@@ -61,6 +62,14 @@ trf = [
 embed = [
     "sentence-transformers",
 ]
+# The MCP server (GRA-36): `graph-rag-mcp` talks to a running service over its /v1 API.
+mcp = [
+    "httpx>=0.28.1",
+    "mcp>=2.3,<3",
+]
+
+[project.scripts]
+graph-rag-mcp = "graph_rag.mcp_server:main"
 
 [tool.uv.workspace]
 members = ["bench", "datagen"]

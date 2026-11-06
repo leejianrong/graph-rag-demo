@@ -158,6 +158,19 @@ curl -X POST localhost:8000/v1/forget -H 'content-type: application/json' -d '{"
 
 `lookup` and the planned fields (`token_budget`, `as_of`, `namespace`) are not served yet.
 
+### Use it from Claude Code (MCP)
+
+`graph-rag-mcp` is an MCP server over stdio that exposes `remember` and `recall` and calls a running
+service's `/v1` API (it holds no pipeline of its own). Install the extra and register it:
+
+```bash
+uv sync --extra mcp
+claude mcp add graph-rag --env GRAPH_RAG_URL=http://localhost:8000 -- uv run --directory "$PWD" graph-rag-mcp
+```
+
+`recall` returns the answer with its supporting sentences, each carrying its document and character
+offsets, so the agent can cite them. `forget` and `lookup` are not tools yet.
+
 To forget a document, delete it by the `document_id` that ingest returned:
 
 ```bash
