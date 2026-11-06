@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nTidi Dalali participated in Soto and Gaze Expo. Tidi Dalali is affiliated with Bisa, and Tidi Dalali founded Bisa. F. Vitalu works for Bisa Group. Fili Vitalu owns Kuda Z64.\n\nQuestion: Name the product that the person that works for the organization that the person that participated in Soto Forum is affiliated with owns.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "unknown"
+}

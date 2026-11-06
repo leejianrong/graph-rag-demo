@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nTidi Dalali is affiliated with Bisa, and Tidi Dalali founded Bisa.\n\nQuestion: Name the person that is affiliated with the organization that is affiliated with the organization that owns the product that Fili Vitalu owns.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "unknown"
+}

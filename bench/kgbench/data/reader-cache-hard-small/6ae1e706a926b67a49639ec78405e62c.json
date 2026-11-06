@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nTidi Dalali also works for Begu. Begu Labs is affiliated with Rilo Partners and participated in Gaze. Rilo Partners is a member of Bisa. Bisa Group produces Golu Q17.\n\nQuestion: Name the product that the organization that the organization that the organization that Tidi Dalali works for is affiliated with is a member of produces.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Golu Q17"
+}

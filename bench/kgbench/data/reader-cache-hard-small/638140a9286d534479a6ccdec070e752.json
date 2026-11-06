@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nFirezo works for Dune Partners. Dune is part of Damo Partners. Damo participated in Pova Festival.\n\nQuestion: Name the event that the organization that the organization that Zibu Firezo works for is part of participated in.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Pova Festival"
+}

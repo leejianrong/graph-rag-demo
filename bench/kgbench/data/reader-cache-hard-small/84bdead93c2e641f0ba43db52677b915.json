@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nKazo Robeka is affiliated with Pita Labs. Kazo Robeka founded Pidu. Saba Industries owns Pidu Works. Rave Industries is affiliated with Saba.\n\nQuestion: Name the organization that is affiliated with the organization that owns the organization that the person that is affiliated with Pita Labs founded.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "unknown"
+}

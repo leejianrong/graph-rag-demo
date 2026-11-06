@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nLuse Group is also part of Bisa. Rilo Partners is a member of Bisa. Begu Labs is affiliated with Rilo Partners and participated in Gaze.\n\nQuestion: Name the organization that is affiliated with the organization that is a member of the organization that Luse Group is part of.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Begu Labs"
+}

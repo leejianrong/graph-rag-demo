@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nLomo Industries is a member of Lare and owns NOLI. D. Ropene is affiliated with NOLI and also with Nato Z5s. D. Ropene is a member of Nato Z5.\n\nQuestion: Name the group that the person that is affiliated with the organization that Lomo Industries owns is a member of.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Nato Z5"
+}

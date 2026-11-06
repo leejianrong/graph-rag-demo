@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nBuga Lomazu also participated in Ludu Summit. Buga Lomazu is a member of Legeese. Miga Verede is affiliated with Legeeses. M. Verede is located in Greater Lina.\n\nQuestion: Name the location that the person that is affiliated with the group that the person that participated in Ludu Summit is a member of is located in.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Greater Lina"
+}
