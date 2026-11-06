@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nMuvo Holdings is part of Saba Industries. Saba Industries is also a member of Pidu. B. Ronati founded PW. Bimu Ronati owns Kuda Z64.\n\nQuestion: Name the product that the person that founded the organization that the organization that Muvo Holdings is part of is a member of owns.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "unknown"
+}

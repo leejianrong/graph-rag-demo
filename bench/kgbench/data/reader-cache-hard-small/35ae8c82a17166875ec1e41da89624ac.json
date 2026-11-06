@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nGaze Industries also produces Kipe Q67. Busu Toroni founded Gaze Industries.\n\nQuestion: Name the person that founded the organization that produces Kipe Q67.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Busu Toroni"
+}

@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nGebo Holdings participated in RS.\n\nQuestion: Name the event that the organization that the person that participated in Vilu Conference founded participated in.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "unknown"
+}

@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nZibu Firezo founded Vaka Partners. Firezo founded Suvu Doveku. Kusi Fudapu is a member of Suvu Doveku.\n\nQuestion: Name the person that is a member of the organization that the person that founded Vaka Partners founded.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Kusi Fudapu"
+}

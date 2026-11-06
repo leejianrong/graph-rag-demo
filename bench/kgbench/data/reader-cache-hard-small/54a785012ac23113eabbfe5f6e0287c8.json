@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nPidu participated in Tiku. Keme Group is affiliated with Pidu. Zolu Industries owns Keme Group. Bake founded ZI.\n\nQuestion: Name the person that founded the organization that owns the organization that is affiliated with the organization that participated in Tiku Conference.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "unknown"
+}

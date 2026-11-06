@@ -36,6 +36,7 @@ from kgbench import hard as hards
 from kgbench import judge as judges
 from kgbench import judge_scaled as scaled
 from kgbench import order as orders
+from kgbench import reader as readers
 from kgbench import real as reals
 from kgbench import shortcut as shortcuts
 from kgbench import split as splits
@@ -222,6 +223,19 @@ def build_parser() -> argparse.ArgumentParser:
     fa.add_argument("--out", type=Path, help="Write the markdown report here.")
     fa.add_argument("--json", type=Path, help="Write every verdict as JSON here.")
     fa.add_argument("--chart", type=Path, help="Write the chart (SVG) here.")
+    rd = commands.add_parser(
+        "reader", help="An LLM reads the last fact alone, then the whole path (opt-in LLM)."
+    )
+    rd.add_argument("--dir", type=Path, required=True, help="A dataset folder (e.g. hard-small).")
+    rd.add_argument("--n", type=int, default=100, help="Questions, an equal share per hop count.")
+    rd.add_argument("--seed", type=int, default=0, help="Seed for the question sample.")
+    rd.add_argument("--cache-dir", type=Path, help="Cached replies (default: bench data).")
+    rd.add_argument("--model", default="claude-haiku", help="The model name the cache is keyed by.")
+    rd.add_argument("--base-url", help="An OpenAI-compatible endpoint; omit to replay the cache.")
+    rd.add_argument("--workers", type=int, default=4, help="Calls asked at once.")
+    rd.add_argument("--out", type=Path, help="Write the markdown report here.")
+    rd.add_argument("--json", type=Path, help="Write every reply and outcome as JSON here.")
+    rd.add_argument("--chart", type=Path, help="Write the chart (SVG) here.")
     am = commands.add_parser(
         "ambiguity", help="Re-answer chain questions with names as identity (no LLM)."
     )
@@ -633,6 +647,33 @@ def _shortcut(args: argparse.Namespace) -> int:
     return 0
 
 
+def _reader(args: argparse.Namespace) -> int:
+    folder = args.dir.resolve()
+    _, documents = hards.load(folder)
+    questions = critiques.sample(
+        json.loads((folder / "questions.json").read_text()), args.n, args.seed
+    )
+    cache_dir = args.cache_dir or _DATA / f"reader-cache-{folder.name}"
+    client = OpenAICompatible(args.base_url, args.model) if args.base_url else None
+    chat = CachedChat(ResponseCache(cache_dir), client, args.model)
+    try:
+        rows = readers.evaluate(chat, questions, documents, args.workers)
+    except CacheMiss as exc:
+        raise SystemExit(f"{exc}; pass --base-url to ask an endpoint") from exc
+    text = readers.format_table(rows) + "\n\n" + readers.shortcuts(rows)
+    print(text)
+    if args.out:
+        args.out.write_text(
+            f"# LLM reader: {folder.name}\n\nModel `{args.model}`, {len(questions)} questions "
+            f"(seed {args.seed}).\n\n{text}\n"
+        )
+    if args.json:
+        args.json.write_text(json.dumps(rows, indent=1) + "\n")
+    if args.chart:
+        args.chart.write_text(readers.chart_svg(rows, f"Reader accuracy ({folder.name})"))
+    return 0
+
+
 def _faithfulness(args: argparse.Namespace) -> int:
     folder = args.dir.resolve()
     world = generate(load_spec(folder / "spec.yaml"))
@@ -882,6 +923,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _difficulty(args)
     if args.command == "ambiguity":
         return _ambiguity(args)
+    if args.command == "reader":
+        return _reader(args)
     if args.command == "faithfulness":
         return _faithfulness(args)
     if args.command == "critique":

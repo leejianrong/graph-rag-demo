@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nKazo Robeka is affiliated with Pita Labs. Pita Labs is affiliated with Zolu.\n\nQuestion: Name the organization that the organization that Kazo Robeka is affiliated with is affiliated with.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "Zolu"
+}

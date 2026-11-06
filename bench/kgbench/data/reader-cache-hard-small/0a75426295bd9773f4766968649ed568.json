@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nL. Belagu works for Pita Labs. Kazo Robeka is affiliated with Pita Labs. Kazo Robeka founded Pidu. PW owns Gori X18 and participated in Kole.\n\nQuestion: Name the product that the organization that the person that is affiliated with the organization that Libu Belagu works for founded owns.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "unknown"
+}

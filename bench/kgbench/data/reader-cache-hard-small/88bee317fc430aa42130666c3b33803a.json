@@ -1,0 +1,14 @@
+{
+ "messages": [
+  {
+   "content": "You answer questions from a passage. Reply with only the answer.",
+   "role": "system"
+  },
+  {
+   "content": "Answer the question using only the passage. Reply with just the name, or with the single word unknown if the passage does not tell you the answer.\n\nPassage:\nTebifu is a member of Dodaese. Busu Toroni is affiliated with Dodaese. Busu Toroni participated in Veta Conference.\n\nQuestion: Name the event that the person that is affiliated with the group that Fido Tebifu is a member of participated in.\nAnswer:",
+   "role": "user"
+  }
+ ],
+ "model": "claude-haiku",
+ "response": "unknown"
+}
