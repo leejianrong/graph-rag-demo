@@ -1,0 +1,187 @@
+"""The ``/v1`` agent API: ``remember``, ``recall`` and ``forget`` as JSON calls (ADR-0014, GRA-132).
+
+A thin facade. Each verb reshapes a request onto the endpoint logic that already exists (ingest,
+the retriever, the eraser) and answers failures in the contract's one shape,
+``{"error": {"code", "message", "details?"}}``. The routes under ``/v1`` use that shape; the older
+endpoints keep FastAPI's ``{"detail": ...}``. ``lookup`` and the planned fields (``token_budget``,
+``as_of``, ``namespace``) are not served; a body that carries one has it ignored.
+"""
+
+from __future__ import annotations
+
+import hashlib
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any
+
+from fastapi import APIRouter, FastAPI, Request
+from fastapi.exception_handlers import request_validation_exception_handler
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse, PlainTextResponse, Response
+from pydantic import BaseModel, Field
+
+from graph_rag.ids import document_id
+from graph_rag.logging import get_logger
+from graph_rag.models import DeletedDocument, QueryRequest, QueryResponse
+
+if TYPE_CHECKING:
+    from graph_rag.query.retriever import QueryRetriever
+
+__all__ = ["add_agent_routes"]
+
+_logger = get_logger(__name__)
+_PREFIX = "/v1"
+_STATUS = {
+    "invalid_request": 400,
+    "unauthorized": 401,
+    "not_found": 404,
+    "payload_too_large": 413,
+    "unavailable": 503,
+    "internal": 500,
+}
+
+
+class AgentError(Exception):
+    """A failure with one of the contract's error codes."""
+
+    def __init__(self, code: str, message: str, details: dict[str, Any] | None = None) -> None:
+        super().__init__(message)
+        self.code, self.message, self.details = code, message, details
+
+
+class RememberRequest(BaseModel):
+    text: str = Field(min_length=1)
+    source_id: str | None = Field(default=None, min_length=1)
+    force: bool = False
+
+
+class RememberResponse(BaseModel):
+    document_id: str
+    source_id: str
+    status: str
+
+
+class RecallRequest(BaseModel):
+    question: str = Field(min_length=1)
+    synthesize: bool = False
+
+
+class ForgetRequest(BaseModel):
+    source_id: str | None = Field(default=None, min_length=1)
+    document_id: str | None = Field(default=None, min_length=1)
+
+
+class ForgetResponse(BaseModel):
+    document_id: str
+    source_id: str
+    entities_removed: list[str]
+    entities_kept: list[str]
+
+
+def _body(error: AgentError) -> JSONResponse:
+    content: dict[str, Any] = {"code": error.code, "message": error.message}
+    if error.details:
+        content["details"] = error.details
+    return JSONResponse({"error": content}, status_code=_STATUS[error.code])
+
+
+def _derived_source_id(text: str) -> str:
+    """The id of a source nobody named: identical text lands on the same one."""
+    return "text/" + hashlib.sha256(text.encode()).hexdigest()
+
+
+def add_agent_routes(
+    app: FastAPI,
+    *,
+    accept: Callable[[str, bytes, bool], dict[str, str]],
+    retriever: QueryRetriever | None,
+    eraser: Callable[[str], DeletedDocument | None] | None,
+    bucket: str,
+    max_text_bytes: int,
+) -> None:
+    """Serve ``/v1/remember``, ``/v1/recall`` and ``/v1/forget`` on ``app``.
+
+    Args:
+        app: The app to extend; its validation and unhandled-error responses are reshaped for
+            ``/v1`` paths only.
+        accept: Stores bytes under a source key and queues them (``/ingest``'s own logic).
+        retriever: Backs ``recall``; ``None`` makes it answer ``unavailable``.
+        eraser: Backs ``forget``; ``None`` makes it answer ``unavailable``.
+        bucket: The bucket a ``document_id`` is derived in.
+        max_text_bytes: The largest text ``remember`` takes; more is ``payload_too_large``.
+    """
+    router = APIRouter(prefix=_PREFIX)
+
+    @router.post("/remember", status_code=202)
+    def remember(request: RememberRequest) -> RememberResponse:
+        """Store text under a source id and queue it for the pipeline."""
+        data = request.text.encode()
+        if len(data) > max_text_bytes:
+            raise AgentError(
+                "payload_too_large",
+                f"The text is {len(data)} bytes; send at most {max_text_bytes}.",
+                {"limit_bytes": max_text_bytes},
+            )
+        source_id = request.source_id or _derived_source_id(request.text)
+        stored = accept(source_id, data, request.force)
+        return RememberResponse(
+            document_id=stored["document_id"], source_id=source_id, status=stored["status"]
+        )
+
+    @router.post("/recall")
+    def recall(request: RecallRequest) -> QueryResponse:
+        """Answer a question and return the evidence behind the answer."""
+        if retriever is None:
+            raise AgentError("unavailable", "Recall is not configured on this service.")
+        return retriever.retrieve(
+            QueryRequest(question=request.question, synthesize=request.synthesize)
+        )
+
+    @router.post("/forget")
+    def forget(request: ForgetRequest) -> ForgetResponse:
+        """Forget a source, named by its source id or its document id."""
+        if (request.source_id is None) == (request.document_id is None):
+            raise AgentError(
+                "invalid_request", "Give exactly one of source_id and document_id.", None
+            )
+        if eraser is None:
+            raise AgentError("unavailable", "Forget is not configured on this service.")
+        doc_id = request.document_id or document_id(bucket, request.source_id or "")
+        removed = eraser(doc_id)
+        if removed is None:
+            raise AgentError("not_found", f"No source matches {request.source_id or doc_id}.")
+        return ForgetResponse(
+            document_id=removed.document_id,
+            source_id=removed.object_key,
+            entities_removed=removed.entities_removed,
+            entities_kept=removed.entities_kept,
+        )
+
+    app.include_router(router)
+
+    def on_v1(request: Request) -> bool:
+        return request.url.path.startswith(_PREFIX + "/")
+
+    @app.exception_handler(AgentError)
+    def agent_error(_: Request, error: AgentError) -> Response:
+        return _body(error)
+
+    @app.exception_handler(RequestValidationError)
+    async def invalid(request: Request, error: RequestValidationError) -> Response:
+        if not on_v1(request):
+            return await request_validation_exception_handler(request, error)
+        first = error.errors()[0]
+        field = ".".join(str(part) for part in first["loc"] if part != "body")
+        return _body(
+            AgentError(
+                "invalid_request",
+                f"{field or 'body'}: {first['msg']}.",
+                {"field": field or "body"},
+            )
+        )
+
+    @app.exception_handler(Exception)
+    def unexpected(request: Request, error: Exception) -> Response:
+        _logger.exception("unhandled error on %s", request.url.path)
+        if on_v1(request):
+            return _body(AgentError("internal", "Something went wrong on the server."))
+        return PlainTextResponse("Internal Server Error", status_code=500)

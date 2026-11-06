@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Annotated
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 
+from graph_rag.agent_api import add_agent_routes
 from graph_rag.config import Settings, get_settings
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
@@ -81,26 +82,9 @@ def create_app(
         """Liveness probe (dev-playbook observability floor)."""
         return {"status": "ok"}
 
-    @app.post("/ingest")
-    async def ingest(
-        file: Annotated[UploadFile, File()],
-        source_url: Annotated[str | None, Form()] = None,
-        force: bool = False,
-    ) -> dict[str, str]:
-        """Store an uploaded document and publish its ingest trigger.
-
-        The source is keyed by ``source_url`` when given, else by the uploaded filename;
-        the bucket comes from settings. Returns the deterministic ``document_id``, the
-        resolved location and a ``status``: ``accepted`` when the bytes were stored and a
-        trigger published, or ``unchanged`` when this source already holds exactly these
-        bytes, in which case nothing is stored or published, so the pipeline (and any LLM
-        behind it) does not run again. ``force=true`` ingests it anyway, for a source whose
-        first attempt failed. Does NOT run the pipeline — that happens downstream.
-        """
-        object_key = source_url or file.filename or "upload"
-        data = await file.read()
+    def accept(object_key: str, data: bytes, force: bool) -> dict[str, str]:
+        """Store ``data`` under ``object_key`` and queue it, unless the source already holds it."""
         doc_id = document_id(bucket, object_key)
-
         if not force and _holds(object_store, bucket, object_key, data):
             _logger.info("unchanged document_id=%s object_key=%s", doc_id, object_key)
             return {
@@ -126,6 +110,25 @@ def create_app(
             "object_key": object_key,
             "status": "accepted",
         }
+
+    @app.post("/ingest")
+    async def ingest(
+        file: Annotated[UploadFile, File()],
+        source_url: Annotated[str | None, Form()] = None,
+        force: bool = False,
+    ) -> dict[str, str]:
+        """Store an uploaded document and publish its ingest trigger.
+
+        The source is keyed by ``source_url`` when given, else by the uploaded filename;
+        the bucket comes from settings. Returns the deterministic ``document_id``, the
+        resolved location and a ``status``: ``accepted`` when the bytes were stored and a
+        trigger published, or ``unchanged`` when this source already holds exactly these
+        bytes, in which case nothing is stored or published, so the pipeline (and any LLM
+        behind it) does not run again. ``force=true`` ingests it anyway, for a source whose
+        first attempt failed. Does NOT run the pipeline — that happens downstream.
+        """
+        data = await file.read()
+        return accept(source_url or file.filename or "upload", data, force)
 
     @app.delete("/documents/{doc_id}")
     def delete_document(doc_id: str) -> DeletedDocument:
@@ -166,4 +169,12 @@ def create_app(
         )
         return response
 
+    add_agent_routes(
+        app,
+        accept=accept,
+        retriever=retriever,
+        eraser=eraser,
+        bucket=bucket,
+        max_text_bytes=resolved_settings.max_remember_bytes,
+    )
     return app

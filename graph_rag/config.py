@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     minio_secret_key: str = "minioadmin"
     minio_secure: bool = False
     minio_bucket: str = "documents"
+    # The most text one /v1/remember call may carry (413 above it); ADR-0014.
+    max_remember_bytes: int = 1_000_000
 
     # --- Elasticsearch / DocumentStore + EntityStore ------------------------
     elasticsearch_url: str = "http://elasticsearch:9200"
