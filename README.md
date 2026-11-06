@@ -145,6 +145,19 @@ same source with the same bytes again returns `"status": "unchanged"` and does n
 trigger, so no pipeline run and no LLM call. Changed bytes are ingested again; add `?force=true` to
 push identical bytes through anyway (for a source whose first attempt failed).
 
+The agent API under `/v1` (contract: `docs/api/agent-api.openapi.yaml`, ADR-0014) takes JSON and answers
+failures as `{"error": {"code", "message"}}`:
+
+```bash
+curl -X POST localhost:8000/v1/remember -H 'content-type: application/json' \
+  -d '{"text": "Ada Lovelace works for Acme Corp.", "source_id": "note-1"}'   # 202, status accepted
+curl -X POST localhost:8000/v1/recall -H 'content-type: application/json' \
+  -d '{"question": "Who works for Acme Corp?"}'                              # answer + evidence
+curl -X POST localhost:8000/v1/forget -H 'content-type: application/json' -d '{"source_id": "note-1"}'
+```
+
+`lookup` and the planned fields (`token_budget`, `as_of`, `namespace`) are not served yet.
+
 To forget a document, delete it by the `document_id` that ingest returned:
 
 ```bash

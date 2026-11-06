@@ -20,7 +20,7 @@ indah 0.12, unreleased, so it runs against the local indah checkout (`make ui` p
 extraction, linking, retrieval (BM25, dense and graph-rag as `Retriever`s), ingest order, complexity sweeps, typed answers and an
 optional LLM judge; method and results are in [`docs/BENCH.md`](docs/BENCH.md). A quality gate (`kgbench gate`, floors in
 `bench/kgbench/gate.json`, run by the fast suite; `--update` after an intended change) fails a drop in graph-rag's scores. `build_offline_components(llm_stages=True)` runs the real LLM stages over in-memory stores (point LiteLLM at semula via `OPENAI_API_BASE`). Real-stack
-runs are still to build, and so are the `/v1` agent API facade, MCP, CLI and SDK (contract: ADR-0014).
+runs are still to build, and so are MCP, CLI and SDK. The `/v1` facade serves `remember`, `recall` and `forget` (`graph_rag/agent_api.py`; contract: ADR-0014); `lookup` is not built.
 
 > **Trust the code over the docs.** `docs/` is design intent; where they disagree, the code is the truth and
 > the doc should be fixed in the same PR. Read `graph_rag/ports.py` before coding against a port.

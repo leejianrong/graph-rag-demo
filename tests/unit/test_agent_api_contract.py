@@ -94,6 +94,7 @@ def test_every_operation_says_whether_it_exists_and_where_to_find_it(
         if status == "existing":
             target = op["x-maps-to"]
             assert method_in(served, target["method"], target["path"]), (path, target)
+            assert method_in(served, method, path), f"{path} is marked existing but not served"
         else:
             assert op["x-card"].startswith("GRA-"), (path, method)
 

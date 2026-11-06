@@ -60,12 +60,12 @@ them first fixes their names before three clients each invent one.
 
 ## Mapping onto what exists
 
-| Verb | Served today by | Gap |
+| Verb | Wraps | `/v1` shape |
 |---|---|---|
-| `remember` | `POST /ingest` (multipart file, `source_url`, `?force`) | Text arrives as the upload and `source_id` as `source_url`; the response has `object_key` where the contract says `source_id`. A JSON facade over `/ingest` closes it. |
-| `recall` | `POST /query` | `question` and `synthesize` are the same; the response is the same body. `token_budget`, `as_of`, `namespace` and the budget's `truncated` and `tokens_used` are new. |
-| `forget` | `DELETE /documents/{doc_id}` | Takes `document_id` only; the facade derives it from `source_id`. |
-| `lookup` | none | Built over `GraphStore.get_node` / `get_node_edges` and name blocking in `EntityStore`. |
+| `remember` | `POST /ingest` (multipart file, `source_url`, `?force`) | Text is the upload and `source_id` the `source_url`; `source_id` is derived from the text when omitted. Served (GRA-132). |
+| `recall` | `POST /query` | Same retrieval and body. `token_budget`, `as_of`, `namespace` and the budget's `truncated` and `tokens_used` are still planned. Served (GRA-132). |
+| `forget` | `DELETE /documents/{doc_id}` | Takes `source_id` or `document_id`; the facade derives the id from the source. Served (GRA-132). |
+| `lookup` | none | Built over `GraphStore.get_node` / `get_node_edges` and name blocking in `EntityStore` (GRA-37). |
 
 Today's endpoints keep working. The `/v1` facade is a thin layer that renames and reshapes; it adds no pipeline
 logic. Errors at the facade are converted from the existing ones (`404` and `503` already carry the meaning).

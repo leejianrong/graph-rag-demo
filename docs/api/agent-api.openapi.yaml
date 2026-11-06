@@ -33,7 +33,7 @@ paths:
         once updates are built (until then it is ingested again alongside the old graph).
       x-status: existing
       x-maps-to: { method: post, path: /ingest }
-      x-card: GRA-36
+      x-card: GRA-132
       requestBody:
         required: true
         content:
@@ -60,7 +60,7 @@ paths:
         came from. The default path makes no LLM call.
       x-status: existing
       x-maps-to: { method: post, path: /query }
-      x-card: GRA-36
+      x-card: GRA-132
       requestBody:
         required: true
         content:
@@ -86,7 +86,7 @@ paths:
         `source_id`, or by the `document_id` that `remember` returned.
       x-status: existing
       x-maps-to: { method: delete, path: "/documents/{doc_id}" }
-      x-card: GRA-37
+      x-card: GRA-132
       requestBody:
         required: true
         content:
