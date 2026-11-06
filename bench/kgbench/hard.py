@@ -31,6 +31,33 @@ def load(folder: Path) -> tuple[Path, tuple[Document, ...]]:
     return folder / "spec.yaml", tuple(Document.from_dict(d) for d in docs)
 
 
+def pipeline_builders(
+    embedder,
+    settings: Settings | None = None,
+    spacy_model: str | None = None,
+    wanted: Sequence[str] | None = None,
+) -> dict[str, Callable[[], BenchmarkComponents]]:
+    """Builders for the pipelines to run, keyed by name suffix (``""`` is the offline one)."""
+
+    def pipeline(llm: bool, spacy: bool) -> Callable[[], BenchmarkComponents]:
+        base = settings or Settings()
+        used = base.model_copy(update={"ner_model": spacy_model}) if spacy and spacy_model else base
+        return lambda: build_offline_components(
+            settings=used, embedder=embedder, llm_stages=llm, spacy_ner=spacy
+        )
+
+    pipelines = {"": pipeline(False, False)}
+    if spacy_model:
+        pipelines[" + spaCy"] = pipeline(False, True)
+    if settings:
+        pipelines[" + LLM"] = pipeline(True, False)
+    if settings and spacy_model:
+        pipelines[" + LLM + spaCy"] = pipeline(True, True)
+    if wanted:
+        pipelines = {k: v for k, v in pipelines.items() if _key(k) in wanted}
+    return pipelines
+
+
 def measure(
     folder: Path,
     embedder,
@@ -56,22 +83,7 @@ def measure(
         if t in texts_wanted
     }
 
-    def pipeline(llm: bool, spacy: bool) -> Callable[[], BenchmarkComponents]:
-        base = settings or Settings()
-        used = base.model_copy(update={"ner_model": spacy_model}) if spacy and spacy_model else base
-        return lambda: build_offline_components(
-            settings=used, embedder=embedder, llm_stages=llm, spacy_ner=spacy
-        )
-
-    pipelines = {"": pipeline(False, False)}
-    if spacy_model:
-        pipelines[" + spaCy"] = pipeline(False, True)
-    if settings:
-        pipelines[" + LLM"] = pipeline(True, False)
-    if settings and spacy_model:
-        pipelines[" + LLM + spaCy"] = pipeline(True, True)
-    if pipelines_wanted:
-        pipelines = {k: v for k, v in pipelines.items() if _key(k) in pipelines_wanted}
+    pipelines = pipeline_builders(embedder, settings, spacy_model, pipelines_wanted)
     out = {}
     for suffix, build in pipelines.items():
         for text, documents in texts.items():
