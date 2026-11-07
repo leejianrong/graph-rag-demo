@@ -59,9 +59,11 @@ import math
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
+from graph_rag.ids import entity_id
 from graph_rag.logging import get_logger
 from graph_rag.models import CanonicalEntity, EntityLink
 from graph_rag.normalize import normalize_name
+from graph_rag.scope import DEFAULT_SCOPE, Scope
 
 if TYPE_CHECKING:
     from graph_rag.config import Settings
@@ -119,6 +121,7 @@ class ELStage(Protocol):
         mentions: list[Mention],
         sentences: list[Sentence],
         coref_clusters: list[CorefCluster],
+        scope: Scope = DEFAULT_SCOPE,
     ) -> ELResult:
         """Resolve the document's doc-level entities to canonical ids."""
         ...
@@ -205,6 +208,7 @@ class EntityLinkingStage:
         mentions: list[Mention],
         sentences: list[Sentence],
         coref_clusters: list[CorefCluster],
+        scope: Scope = DEFAULT_SCOPE,
     ) -> ELResult:
         """Resolve every doc-level entity to a canonical id (merge or create-new).
 
@@ -214,6 +218,7 @@ class EntityLinkingStage:
             sentences: The segmented sentences (mention-in-context + passage vectors).
             coref_clusters: The within-document coref cluster map (V3) — each
                 cluster is one doc-level entity.
+            scope: Whose entities these are; it is hashed into every id minted.
 
         Returns:
             An :class:`ELResult` with one :class:`~graph_rag.models.EntityLink` per
@@ -275,7 +280,7 @@ class EntityLinkingStage:
             # Create-new (the normal always-on path). The gated NIL branch would
             # divert very-low-confidence entities here; off by default it never does.
             self._maybe_nil(best_score)
-            canonical_id = self._mint_id(entity.entity_type, normalized, vector)
+            canonical_id = self._mint_id(scope, entity.entity_type, normalized, vector)
             self._entity_store.upsert(
                 CanonicalEntity(
                     canonical_id=canonical_id,
@@ -442,22 +447,23 @@ class EntityLinkingStage:
             )
         )
 
-    def _mint_id(self, entity_type: CuratedType, normalized_name: str, vector: list[float]) -> str:
+    def _mint_id(
+        self, scope: Scope, entity_type: CuratedType, normalized_name: str, vector: list[float]
+    ) -> str:
         """Mint a deterministic, stable ``canonical_id`` for a create-new entity.
 
-        Derived from ``type`` + ``normalized_name`` so a re-ingest of the same
+        Derived from the scope, ``type`` and ``normalized_name`` so a re-ingest of the same
         corpus re-derives it (and merges instead of duplicating). Disambiguated by
         a vector hash only in the rare case that id already belongs to a distinct
         entity of the same type + normalized name.
         """
-        base = f"el:{entity_type}:{normalized_name}"
-        canonical_id = "e-" + hashlib.sha256(base.encode("utf-8")).hexdigest()[:16]
+        canonical_id = entity_id(entity_type, normalized_name, scope)
         if self._entity_store.get(canonical_id) is None:
             return canonical_id
         vector_key = hashlib.sha256(
             ",".join(f"{x:.6f}" for x in vector).encode("utf-8")
         ).hexdigest()[:8]
-        return "e-" + hashlib.sha256(f"{base}|{vector_key}".encode()).hexdigest()[:16]
+        return entity_id(entity_type, normalized_name, scope, salt=vector_key)
 
     def _maybe_tiebreak(
         self,
