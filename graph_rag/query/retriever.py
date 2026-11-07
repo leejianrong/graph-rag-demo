@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING
 from graph_rag.logging import get_logger
 from graph_rag.models import QueryResponse
 from graph_rag.query.ranking import rank_nodes, select_answer
+from graph_rag.scope import DEFAULT_SCOPE, Scope
 
 if TYPE_CHECKING:
     from graph_rag.config import Settings
@@ -125,7 +126,7 @@ class QueryRetriever:
             synthesizer=synthesizer,
         )
 
-    def retrieve(self, request: QueryRequest) -> QueryResponse:
+    def retrieve(self, request: QueryRequest, scope: Scope = DEFAULT_SCOPE) -> QueryResponse:
         """Answer ``request`` via the deterministic retrieval path (+ optional V7 prose).
 
         Runs seed → expand → rank → answer over the injected ports and the B4
@@ -142,6 +143,7 @@ class QueryRetriever:
 
         Args:
             request: The natural-language query (its ``question`` + ``synthesize``).
+            scope: Whose memory to search; it sees no other scope's entities, sentences or edges.
 
         Returns:
             The :class:`~graph_rag.models.QueryResponse` for the question.
@@ -153,10 +155,10 @@ class QueryRetriever:
         #    their cosine. Passage-anchored: kNN over the ES-Documents sentence
         #    vectors -> supporting-sentence candidates (already scored + ordered).
         entity_seeds = self._entity_store.knn(
-            vector=question_vector, top_k=self._seed_top_k_entities
+            scope, vector=question_vector, top_k=self._seed_top_k_entities
         )
         supporting_sentences = self._document_store.search_sentences(
-            vector=question_vector, top_k=self._seed_top_k_sentences
+            scope, vector=question_vector, top_k=self._seed_top_k_sentences
         )
 
         # canonical_id -> best seed cosine (a node can be returned once, but keep
@@ -168,7 +170,7 @@ class QueryRetriever:
                 seed_scores[entity.canonical_id] = score
 
         # 3. Expand: k-hop BFS from the seed entities -> the connected subgraph.
-        subgraph = self._graph_store.khop(seed_ids=list(seed_scores), hops=self._khop_depth)
+        subgraph = self._graph_store.khop(scope, seed_ids=list(seed_scores), hops=self._khop_depth)
 
         # 4. Hop distance: BFS over the RETURNED subgraph's edges from the seeds
         #    (seeds = 0; unreachable nodes are omitted -> the ranker treats them as

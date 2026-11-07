@@ -9,9 +9,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-__all__ = ["DEFAULT_SCOPE", "Scope"]
+__all__ = ["DEFAULT_SCOPE", "RESERVED_KEY_PREFIX", "Scope"]
 
 DEFAULT_TENANT = "default"
+# Object keys under this prefix hold non-default scopes' objects; no caller may name one directly.
+RESERVED_KEY_PREFIX = "_scopes/"
 
 
 @dataclass(frozen=True)

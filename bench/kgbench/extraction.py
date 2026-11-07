@@ -24,6 +24,7 @@ from kggen.render import Document
 from kggen.world import World
 
 from graph_rag.models import IngestTrigger
+from graph_rag.scope import DEFAULT_SCOPE
 
 Span = tuple[str, int, int]  # (document id, start, end)
 Triple = tuple[str, str, str]  # (subject, predicate, object)
@@ -225,7 +226,7 @@ def ingest(components, documents: tuple[Document, ...]):
     """
     for doc in documents:
         key = f"{doc.id}.txt"
-        components.object_store.put(components.bucket, key, doc.text.encode("utf-8"))
+        components.object_store.put(DEFAULT_SCOPE, components.bucket, key, doc.text.encode("utf-8"))
         yield (
             doc,
             components.orchestrator.process_document(

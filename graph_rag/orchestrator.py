@@ -52,6 +52,7 @@ from graph_rag.models import (
     PipelineResult,
     Triple,
 )
+from graph_rag.scope import DEFAULT_SCOPE, Scope
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.ner import SpacyNerStage
 
@@ -129,30 +130,30 @@ class Orchestrator:
         self._kg_build_stage: KgStage | None = kg_build_stage
         self._entity_store: EntityStore | None = entity_store
 
-    def delete_document(self, doc_id: str) -> DeletedDocument | None:
+    def delete_document(self, doc_id: str, scope: Scope = DEFAULT_SCOPE) -> DeletedDocument | None:
         """Forget one document: its edges, its record, its raw bytes, and entities only it used.
 
         An entity the document linked to is kept when another stored document still links
         to it, and removed (from the entity store and the graph) when none does. The
         record goes last, so a call that failed part-way can be repeated and finish the
-        job. Returns ``None`` when no such document is stored.
+        job. Returns ``None`` when no such document is stored in ``scope``.
         """
-        record = self._document_store.get(doc_id)
+        record = self._document_store.get(scope, doc_id)
         if record is None:
             return None
         linked = {link.canonical_id for link in record.el_result}
         if self._graph_store is not None:
-            self._graph_store.delete_document_edges(doc_id)
-        self._object_store.delete(record.bucket, record.object_key)
-        used = self._document_store.entities_in_use(linked, excluding=doc_id)
+            self._graph_store.delete_document_edges(scope, doc_id)
+        self._object_store.delete(scope, record.bucket, record.object_key)
+        used = self._document_store.entities_in_use(scope, linked, excluding=doc_id)
         orphans = sorted(linked - used)
         if orphans:
             if self._graph_store is not None:
-                self._graph_store.delete_nodes(orphans)
+                self._graph_store.delete_nodes(scope, orphans)
             if self._entity_store is not None:
                 for canonical_id in orphans:
-                    self._entity_store.delete(canonical_id)
-        self._document_store.delete(doc_id)
+                    self._entity_store.delete(scope, canonical_id)
+        self._document_store.delete(scope, doc_id)
         _logger.info(
             "deleted document_id=%s entities_removed=%d entities_kept=%d",
             doc_id,
@@ -189,10 +190,11 @@ class Orchestrator:
         """
         try:
             # 1. Read stage (N5): fetch the raw bytes from the object store.
-            data = self._object_store.get(trigger.bucket, trigger.object_key)
+            scope = trigger.scope
+            data = self._object_store.get(scope, trigger.bucket, trigger.object_key)
 
             # 2. Deterministic identity (ADR-0001): same location -> same id -> overwrite.
-            doc_id = document_id(trigger.bucket, trigger.object_key)
+            doc_id = document_id(trigger.bucket, trigger.object_key, scope)
 
             # 3. Decode to text. errors="replace" keeps a malformed byte from
             #    wedging the pipeline; the raw text is what we persist.
@@ -207,7 +209,7 @@ class Orchestrator:
                 object_key=trigger.object_key,
                 text=text,
             )
-            self._document_store.upsert(record)
+            self._document_store.upsert(scope, record)
 
             # 5. NER stage (N6): typed mentions + char spans + sentences in one
             #    pass, carried in-memory on the result (persisted at V4, not here).
@@ -228,7 +230,7 @@ class Orchestrator:
             triples: list[Triple] = []
             if self._entity_linking_stage is not None:
                 el = self._entity_linking_stage.link(
-                    text, ner.mentions, ner.sentences, coref_clusters
+                    text, ner.mentions, ner.sentences, coref_clusters, scope
                 )
                 el_result = el.links
                 record.mentions = ner.mentions
@@ -236,7 +238,7 @@ class Orchestrator:
                 record.el_result = el.links
                 record.sentences = ner.sentences  # per-sentence offsets for V6 passage search
                 record.sentence_vectors = el.sentence_vectors
-                self._document_store.upsert(record)
+                self._document_store.upsert(scope, record)
 
                 # 8. KG-build stage (N9) + graph checkpoint (V5, ADR-0006). Opt-in,
                 #    paired: only when a graph store + KG-build stage are wired.
@@ -251,9 +253,9 @@ class Orchestrator:
                     triples = self._kg_build_stage.build(
                         doc_id, text, ner.sentences, el, canonical_entities
                     )
-                    self._graph_store.upsert_entities(canonical_entities)
-                    self._graph_store.delete_document_edges(doc_id)
-                    self._graph_store.write_triples(triples)
+                    self._graph_store.upsert_entities(scope, canonical_entities)
+                    self._graph_store.delete_document_edges(scope, doc_id)
+                    self._graph_store.write_triples(scope, triples)
 
             _logger.info(
                 "ingested document %s (%s/%s): %d mention(s), %d sentence(s), "

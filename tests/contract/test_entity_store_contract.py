@@ -30,6 +30,8 @@ import pytest
 from graph_rag.fakes import InMemoryEntityStore
 from graph_rag.models import CanonicalEntity
 from graph_rag.normalize import normalize_name
+from graph_rag.scope import DEFAULT_SCOPE, Scope
+from tests.isolation import check_entity_store
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -102,23 +104,23 @@ def _entity(
 def test_upsert_then_get_returns_equal_entity(store: EsEntityStore) -> None:
     """An entity round-trips: get after upsert returns an equal entity (like the fake)."""
     entity = _entity("org:apple", "Apple, Inc.", aliases=["Apple"], vector=[1.0, 0.0, 0.0, 0.0])
-    store.upsert(entity)
+    store.upsert(DEFAULT_SCOPE, entity)
 
     fake = InMemoryEntityStore()
-    fake.upsert(entity)
+    fake.upsert(DEFAULT_SCOPE, entity)
 
-    assert store.get("org:apple") == entity == fake.get("org:apple")
-    assert store.get("org:missing") is None
-    assert fake.get("org:missing") is None
+    assert store.get(DEFAULT_SCOPE, "org:apple") == entity == fake.get(DEFAULT_SCOPE, "org:apple")
+    assert store.get(DEFAULT_SCOPE, "org:missing") is None
+    assert fake.get(DEFAULT_SCOPE, "org:missing") is None
 
 
 def test_reupsert_overwrites_single_entity(store: EsEntityStore) -> None:
     """Re-upserting the same canonical_id overwrites in place (count stays 1)."""
-    store.upsert(_entity("org:apple", "Apple", aliases=[]))
-    store.upsert(_entity("org:apple", "Apple", aliases=["Apple Inc"]))
+    store.upsert(DEFAULT_SCOPE, _entity("org:apple", "Apple", aliases=[]))
+    store.upsert(DEFAULT_SCOPE, _entity("org:apple", "Apple", aliases=["Apple Inc"]))
 
-    assert store.count() == 1
-    fetched = store.get("org:apple")
+    assert store.count(DEFAULT_SCOPE) == 1
+    fetched = store.get(DEFAULT_SCOPE, "org:apple")
     assert fetched is not None
     assert fetched.aliases == ["Apple Inc"]
 
@@ -129,30 +131,37 @@ def test_block_candidates_matches_type_and_name_or_alias(store: EsEntityStore) -
     apple_person = _entity("person:apple", "Apple", type_="PERSON")
     google = _entity("org:google", "Google LLC", type_="ORG")
     for entity in (apple, apple_person, google):
-        store.upsert(entity)
+        store.upsert(DEFAULT_SCOPE, entity)
 
     fake = InMemoryEntityStore()
     for entity in (apple, apple_person, google):
-        fake.upsert(entity)
+        fake.upsert(DEFAULT_SCOPE, entity)
 
     # Match on the name's normalized form.
     key = normalize_name("apple inc")
-    hits = store.block_candidates(entity_type="ORG", normalized_name=key)
+    hits = store.block_candidates(DEFAULT_SCOPE, entity_type="ORG", normalized_name=key)
     assert [e.canonical_id for e in hits] == ["org:apple"]
-    fake_hits = fake.block_candidates(entity_type="ORG", normalized_name=key)
+    fake_hits = fake.block_candidates(DEFAULT_SCOPE, entity_type="ORG", normalized_name=key)
     assert {e.canonical_id for e in fake_hits} == {"org:apple"}
 
     # Match on an alias's normalized form (Apple -> apple), still type-scoped to ORG.
     alias_key = normalize_name("Apple")
-    org_hits = store.block_candidates(entity_type="ORG", normalized_name=alias_key)
+    org_hits = store.block_candidates(DEFAULT_SCOPE, entity_type="ORG", normalized_name=alias_key)
     assert [e.canonical_id for e in org_hits] == ["org:apple"]
 
     # Same key, PERSON type -> only the person entity (blocking is type-scoped).
-    person_hits = store.block_candidates(entity_type="PERSON", normalized_name=alias_key)
+    person_hits = store.block_candidates(
+        DEFAULT_SCOPE, entity_type="PERSON", normalized_name=alias_key
+    )
     assert [e.canonical_id for e in person_hits] == ["person:apple"]
 
     # No match for an unknown key.
-    assert store.block_candidates(entity_type="ORG", normalized_name=normalize_name("nope")) == []
+    assert (
+        store.block_candidates(
+            DEFAULT_SCOPE, entity_type="ORG", normalized_name=normalize_name("nope")
+        )
+        == []
+    )
 
 
 def test_knn_ranks_by_cosine_like_the_fake(store: EsEntityStore) -> None:
@@ -164,12 +173,12 @@ def test_knn_ranks_by_cosine_like_the_fake(store: EsEntityStore) -> None:
 
     fake = InMemoryEntityStore()
     for entity in (a, b, c, novec):
-        store.upsert(entity)
-        fake.upsert(entity)
+        store.upsert(DEFAULT_SCOPE, entity)
+        fake.upsert(DEFAULT_SCOPE, entity)
 
     query = [0.9, 0.1, 0.0, 0.0]  # closest to A, then B, then C
-    real = store.knn(vector=query, top_k=3)
-    ranked = InMemoryEntityStore.knn(fake, vector=query, top_k=3)
+    real = store.knn(DEFAULT_SCOPE, vector=query, top_k=3)
+    ranked = InMemoryEntityStore.knn(fake, DEFAULT_SCOPE, vector=query, top_k=3)
 
     real_order = [e.canonical_id for e, _ in real]
     fake_order = [e.canonical_id for e, _ in ranked]
@@ -188,14 +197,14 @@ def test_knn_type_filter_restricts_candidates(store: EsEntityStore) -> None:
     """A type-filtered kNN only ranks entities of that type."""
     org = _entity("org:x", "X", type_="ORG", vector=[1.0, 0.0, 0.0, 0.0])
     person = _entity("person:y", "Y", type_="PERSON", vector=[0.99, 0.14, 0.0, 0.0])
-    store.upsert(org)
-    store.upsert(person)
+    store.upsert(DEFAULT_SCOPE, org)
+    store.upsert(DEFAULT_SCOPE, person)
 
     query = [1.0, 0.0, 0.0, 0.0]
-    person_hits = store.knn(vector=query, entity_type="PERSON", top_k=5)
+    person_hits = store.knn(DEFAULT_SCOPE, vector=query, entity_type="PERSON", top_k=5)
     assert [e.canonical_id for e, _ in person_hits] == ["person:y"]
 
-    org_hits = store.knn(vector=query, entity_type="ORG", top_k=5)
+    org_hits = store.knn(DEFAULT_SCOPE, vector=query, entity_type="ORG", top_k=5)
     assert [e.canonical_id for e, _ in org_hits] == ["org:x"]
 
 
@@ -204,10 +213,36 @@ def test_delete_removes_one_entity_and_is_a_no_op_when_it_is_missing(store: EsEn
     does nothing, like the fake."""
     fake = InMemoryEntityStore()
     for s in (store, fake):
-        s.upsert(_entity("org:a", "Alpha"))
-        s.upsert(_entity("org:b", "Beta"))
-        s.delete("org:a")
-        assert s.get("org:a") is None and s.get("org:b") is not None
-        s.delete("org:a")
-        s.delete("org:never")
-    assert store.count() == fake.count() == 1
+        s.upsert(DEFAULT_SCOPE, _entity("org:a", "Alpha"))
+        s.upsert(DEFAULT_SCOPE, _entity("org:b", "Beta"))
+        s.delete(DEFAULT_SCOPE, "org:a")
+        assert s.get(DEFAULT_SCOPE, "org:a") is None and s.get(DEFAULT_SCOPE, "org:b") is not None
+        s.delete(DEFAULT_SCOPE, "org:a")
+        s.delete(DEFAULT_SCOPE, "org:never")
+    assert store.count(DEFAULT_SCOPE) == fake.count(DEFAULT_SCOPE) == 1
+
+
+def test_scopes_are_isolated(store: EsEntityStore) -> None:
+    """One scope cannot block, search, count, read or delete another's entities (ADR-0015)."""
+    check_entity_store(store, dims=_DIMS)
+
+
+def test_an_entity_written_before_scopes_existed_belongs_to_the_default_scope(
+    store: EsEntityStore, es_client: object
+) -> None:
+    es_client.index(  # type: ignore[attr-defined]
+        index=_INDEX,
+        id="legacy",
+        document={
+            "canonical_id": "legacy",
+            "name": "Acme Corp",
+            "normalized_name": "acme corp",
+            "type": "ORG",
+            "aliases": [],
+            "aliases_normalized": [],
+        },
+        refresh=True,
+    )
+    assert store.get(DEFAULT_SCOPE, "legacy") is not None
+    assert store.count(DEFAULT_SCOPE) == 1
+    assert store.get(Scope("someone-else"), "legacy") is None

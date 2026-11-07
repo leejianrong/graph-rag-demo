@@ -5,13 +5,14 @@ from __future__ import annotations
 from graph_rag.adapters.llm_client import LiteLLMClient
 from graph_rag.config import Settings
 from graph_rag.models import IngestTrigger
+from graph_rag.scope import DEFAULT_SCOPE
 from graph_rag.wiring import build_offline_components
 
 TEXT = b"Aa Works is part of Bb Group. Aa Works is located in Cc Land."
 
 
 def process(components):
-    components.object_store.put(components.bucket, "d.txt", TEXT)
+    components.object_store.put(DEFAULT_SCOPE, components.bucket, "d.txt", TEXT)
     return components.orchestrator.process_document(
         IngestTrigger(bucket=components.bucket, object_key="d.txt")
     )

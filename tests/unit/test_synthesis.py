@@ -34,6 +34,7 @@ from graph_rag.models import (
 )
 from graph_rag.query.retriever import QueryRetriever
 from graph_rag.query.synthesis import AnswerSynthesizer, build_synthesis_prompt
+from graph_rag.scope import DEFAULT_SCOPE
 
 
 def _response() -> QueryResponse:
@@ -140,15 +141,16 @@ def _seed(
 ) -> None:
     """Seed one vector-seedable entity + node so retrieval returns a real answer."""
     entity_store.upsert(
+        DEFAULT_SCOPE,
         CanonicalEntity(
             canonical_id="gh",
             name="Grace Hopper",
             type="PERSON",
             vector=embedder.embed(["grace hopper"])[0],
-        )
+        ),
     )
     graph_store.upsert_entities(
-        [CanonicalEntity(canonical_id="gh", name="Grace Hopper", type="PERSON")]
+        DEFAULT_SCOPE, [CanonicalEntity(canonical_id="gh", name="Grace Hopper", type="PERSON")]
     )
 
 

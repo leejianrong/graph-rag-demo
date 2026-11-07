@@ -16,10 +16,12 @@ from typing import TYPE_CHECKING
 from minio import Minio
 from minio.error import S3Error
 
+from graph_rag.adapters.scoping import object_key as scoped_key
 from graph_rag.logging import get_logger
 
 if TYPE_CHECKING:
     from graph_rag.config import Settings
+    from graph_rag.scope import Scope
 
 __all__ = ["MinioObjectStore"]
 
@@ -75,7 +77,7 @@ class MinioObjectStore:
             secure=settings.minio_secure,
         )
 
-    def put(self, bucket: str, object_key: str, data: bytes) -> None:
+    def put(self, scope: Scope, bucket: str, object_key: str, data: bytes) -> None:
         """Store ``data`` under ``(bucket, object_key)``, overwriting any prior object.
 
         Ensures the bucket exists first (creating it if missing), matching the
@@ -86,23 +88,23 @@ class MinioObjectStore:
             _logger.info("created bucket %s", bucket)
         self._client.put_object(
             bucket,
-            object_key,
+            scoped_key(scope, object_key),
             io.BytesIO(data),
             length=len(data),
         )
         _logger.info("put %s/%s (%d bytes)", bucket, object_key, len(data))
 
-    def delete(self, bucket: str, object_key: str) -> None:
+    def delete(self, scope: Scope, bucket: str, object_key: str) -> None:
         """Remove the object; a no-op if it (or its bucket) is not there."""
         try:
-            self._client.remove_object(bucket, object_key)
+            self._client.remove_object(bucket, scoped_key(scope, object_key))
         except S3Error as exc:
             if exc.code not in _MISSING_CODES:
                 raise
             return
         _logger.info("deleted %s/%s", bucket, object_key)
 
-    def get(self, bucket: str, object_key: str) -> bytes:
+    def get(self, scope: Scope, bucket: str, object_key: str) -> bytes:
         """Return the bytes at ``(bucket, object_key)``.
 
         Raises:
@@ -111,7 +113,7 @@ class MinioObjectStore:
         """
         response = None
         try:
-            response = self._client.get_object(bucket, object_key)
+            response = self._client.get_object(bucket, scoped_key(scope, object_key))
             return response.read()
         except S3Error as exc:
             if exc.code in _MISSING_CODES:

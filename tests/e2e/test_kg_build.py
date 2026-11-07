@@ -34,6 +34,7 @@ from graph_rag.models import CorefCluster, IngestTrigger, Mention, Sentence
 from graph_rag.normalize import normalize_name
 from graph_rag.orchestrator import Orchestrator
 from graph_rag.predicates import Predicate
+from graph_rag.scope import DEFAULT_SCOPE
 from graph_rag.stages.coref import FakeCorefStage
 from graph_rag.stages.entity_linking import EntityLinkingStage
 from graph_rag.stages.kg_build import KgBuildStage, LLMTriple, TripleList
@@ -132,7 +133,7 @@ def _run(
     text: str = TEXT,
 ):
     """Ingest one doc through a fresh orchestrator sharing the stores + graph."""
-    object_store.put(BUCKET, key, text.encode())
+    object_store.put(DEFAULT_SCOPE, BUCKET, key, text.encode())
     ner, coref = _stages()
     orchestrator = Orchestrator(
         object_store=object_store,
@@ -176,12 +177,12 @@ def test_triples_reference_canonical_ids_not_strings() -> None:
     )
     assert result is not None
     assert len(result.triples) == 2
-    known_ids = {e.canonical_id for e in ent.all()}
+    known_ids = {e.canonical_id for e in ent.all(DEFAULT_SCOPE)}
     for triple in result.triples:
         assert triple.subject_id in known_ids
         assert triple.object_id in known_ids
     # The graph holds the same edges (written at the checkpoint).
-    assert graph.edge_count() == 2
+    assert graph.edge_count(DEFAULT_SCOPE) == 2
 
 
 def test_nodes_are_multi_label_and_carry_type() -> None:
@@ -195,10 +196,10 @@ def test_nodes_are_multi_label_and_carry_type() -> None:
         embedder=emb,
         triple_response=_canned_triples(),
     )
-    assert graph.node_count() == 3
-    assert graph.get_node(ADA_ID).type == "PERSON"  # type: ignore[union-attr]
-    assert graph.get_node(ACME_ID).type == "ORG"  # type: ignore[union-attr]
-    assert graph.get_node(LONDON_ID).type == "LOCATION"  # type: ignore[union-attr]
+    assert graph.node_count(DEFAULT_SCOPE) == 3
+    assert graph.get_node(DEFAULT_SCOPE, ADA_ID).type == "PERSON"  # type: ignore[union-attr]
+    assert graph.get_node(DEFAULT_SCOPE, ACME_ID).type == "ORG"  # type: ignore[union-attr]
+    assert graph.get_node(DEFAULT_SCOPE, LONDON_ID).type == "LOCATION"  # type: ignore[union-attr]
 
 
 def test_edges_carry_full_provenance_resolved_from_segmentation() -> None:
@@ -265,8 +266,10 @@ def test_dated_fact_is_edge_qualifier_no_date_node() -> None:
     located_in = next(t for t in result.triples if t.predicate == Predicate.LOCATED_IN)
     assert located_in.date == "2001-05-04"
     # Only the three entity nodes exist — the date is not a node.
-    assert graph.node_count() == 3
-    assert {n.type for n in graph.khop([ADA_ID, ACME_ID, LONDON_ID], hops=1).nodes} == {
+    assert graph.node_count(DEFAULT_SCOPE) == 3
+    assert {
+        n.type for n in graph.khop(DEFAULT_SCOPE, [ADA_ID, ACME_ID, LONDON_ID], hops=1).nodes
+    } == {
         "PERSON",
         "ORG",
         "LOCATION",
@@ -285,7 +288,7 @@ def test_reingest_replaces_edges_no_duplication() -> None:
         triple_response=_canned_triples(),
     )
     assert first is not None
-    assert graph.edge_count() == 2
+    assert graph.edge_count(DEFAULT_SCOPE) == 2
 
     second = _run(
         object_store=obj,
@@ -297,11 +300,11 @@ def test_reingest_replaces_edges_no_duplication() -> None:
     )
     assert second is not None
     # Delete-then-write at the checkpoint keeps the edge count stable (no dup).
-    assert graph.edge_count() == 2
-    assert graph.node_count() == 3
+    assert graph.edge_count(DEFAULT_SCOPE) == 2
+    assert graph.node_count(DEFAULT_SCOPE) == 3
     # ES + entity stores stayed idempotent too (V1/V4 guarantees hold).
     assert len(doc._records) == 1  # noqa: SLF001 — asserting no duplication.
-    assert ent.count() == 3
+    assert ent.count(DEFAULT_SCOPE) == 3
 
 
 def test_deterministic_id_under_v5() -> None:
@@ -329,7 +332,7 @@ def test_kg_build_failure_is_logged_and_dropped() -> None:
             raise RuntimeError("simulated KG-build failure")
 
     obj, doc, ent, graph, emb = _fresh()
-    obj.put(BUCKET, KEY, TEXT.encode())
+    obj.put(DEFAULT_SCOPE, BUCKET, KEY, TEXT.encode())
     ner, coref = _stages()
     orchestrator = Orchestrator(
         object_store=obj,
@@ -342,13 +345,13 @@ def test_kg_build_failure_is_logged_and_dropped() -> None:
     )
     result = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key=KEY))
     assert result is None
-    assert graph.edge_count() == 0  # nothing written for the dropped doc
+    assert graph.edge_count(DEFAULT_SCOPE) == 0  # nothing written for the dropped doc
 
 
 def test_kg_build_skipped_without_graph_store() -> None:
     """No graph store wired → no triples built, V1–V4 behaviour unchanged."""
     obj, doc, ent, _graph, emb = _fresh()
-    obj.put(BUCKET, KEY, TEXT.encode())
+    obj.put(DEFAULT_SCOPE, BUCKET, KEY, TEXT.encode())
     ner, coref = _stages()
     orchestrator = Orchestrator(
         object_store=obj,
@@ -362,4 +365,4 @@ def test_kg_build_skipped_without_graph_store() -> None:
     assert result is not None
     assert result.triples == []
     # EL still ran (V4 guarantee): canonical entities exist.
-    assert ent.count() == 3
+    assert ent.count(DEFAULT_SCOPE) == 3

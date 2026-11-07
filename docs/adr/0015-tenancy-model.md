@@ -15,8 +15,13 @@ shared by several people or projects.
 ## Decision
 
 **A `tenant` field on every record, not a separate home per tenant.** Elasticsearch keeps its two indexes, each
-document carrying a `tenant` keyword that every query filters on (kNN included). Neo4j keeps one database, each
-`Entity` node carrying an indexed `tenant` property. MinIO keeps one bucket and object keys start with `tenant/`.
+document carrying `tenant` and `scope` keywords (`scope` is `tenant` or `tenant/namespace`) and every query, kNN
+included, filters on `scope`. Neo4j keeps one database, each `Entity` node carrying `tenant` and an indexed `scope`
+property. MinIO keeps one bucket: a non-default scope's objects live under `_scopes/<tenant>/root/<key>` (or
+`_scopes/<tenant>/ns/<namespace>/<key>`), and no caller may name a key that starts with `_scopes/`, so a default-scope
+key cannot spell another scope's location. A record with no `scope` field was written before scopes existed and
+belongs to the default scope, which is why nothing is migrated. (Refined while building GRA-21: a single `scope` key
+to filter on, and the reserved prefix, were not in the first draft.)
 
 **Ports take a `Scope`, as a required first argument.** `Scope(tenant, namespace=None)` is a small immutable value
 object. Every method of `ObjectStore`, `DocumentStore`, `EntityStore` and `GraphStore` (24 today) takes one, with no

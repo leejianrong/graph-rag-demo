@@ -19,6 +19,7 @@ ALLOWED = {
     "graph_rag.fakes",
     "graph_rag.config",
     "graph_rag.ids",
+    "graph_rag.scope",
     "graph_rag.logging",
     "graph_rag.orchestrator",
     "graph_rag.query",

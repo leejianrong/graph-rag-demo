@@ -14,6 +14,7 @@ import math
 
 from graph_rag.fakes import FakeEmbedder, FakeLLMClient, InMemoryEntityStore
 from graph_rag.models import CanonicalEntity, CorefCluster, Mention
+from graph_rag.scope import DEFAULT_SCOPE
 from graph_rag.stages.entity_linking import EntityLinkingStage
 
 SURFACE = "Apple Inc"
@@ -55,7 +56,10 @@ def _link_once(store: InMemoryEntityStore, embedder: object, **kwargs: object):
 def test_merges_when_score_at_or_above_threshold() -> None:
     """A blocked candidate scoring just above the threshold → merge (reuse id)."""
     store = InMemoryEntityStore()
-    store.upsert(CanonicalEntity(canonical_id="apple", name=SURFACE, type="ORG", vector=_unit(0.9)))
+    store.upsert(
+        DEFAULT_SCOPE,
+        CanonicalEntity(canonical_id="apple", name=SURFACE, type="ORG", vector=_unit(0.9)),
+    )
 
     result = _link_once(store, _FixedEmbedder([1.0, 0.0, 0.0, 0.0]), threshold=0.85)
 
@@ -63,7 +67,7 @@ def test_merges_when_score_at_or_above_threshold() -> None:
     assert link.is_new is False
     assert link.canonical_id == "apple"
     assert link.score > 0.85
-    assert store.count() == 1  # merged, not duplicated
+    assert store.count(DEFAULT_SCOPE) == 1  # merged, not duplicated
 
 
 def test_creates_new_when_score_just_below_threshold() -> None:
@@ -77,7 +81,8 @@ def test_creates_new_when_score_just_below_threshold() -> None:
     """
     store = InMemoryEntityStore()
     store.upsert(
-        CanonicalEntity(canonical_id="store", name="Apple Store", type="ORG", vector=_unit(0.8))
+        DEFAULT_SCOPE,
+        CanonicalEntity(canonical_id="store", name="Apple Store", type="ORG", vector=_unit(0.8)),
     )
 
     result = _link_once(store, _FixedEmbedder([1.0, 0.0, 0.0, 0.0]), threshold=0.85)
@@ -86,7 +91,7 @@ def test_creates_new_when_score_just_below_threshold() -> None:
     assert link.is_new is True
     assert link.canonical_id != "store"
     assert link.score < 0.85
-    assert store.count() == 2  # the fuzzy near-miss becomes its own canonical
+    assert store.count(DEFAULT_SCOPE) == 2  # the fuzzy near-miss becomes its own canonical
 
 
 def test_exact_name_block_match_merges_below_threshold() -> None:
@@ -99,7 +104,8 @@ def test_exact_name_block_match_merges_below_threshold() -> None:
     """
     store = InMemoryEntityStore()
     store.upsert(
-        CanonicalEntity(canonical_id="berlin", name=SURFACE, type="ORG", vector=_unit(0.5))
+        DEFAULT_SCOPE,
+        CanonicalEntity(canonical_id="berlin", name=SURFACE, type="ORG", vector=_unit(0.5)),
     )
 
     # Cosine 0.5 is far below the 0.85 threshold, yet the exact name+type block wins.
@@ -108,7 +114,7 @@ def test_exact_name_block_match_merges_below_threshold() -> None:
     (link,) = result.links
     assert link.is_new is False
     assert link.canonical_id == "berlin"
-    assert store.count() == 1  # unified across documents, not duplicated
+    assert store.count(DEFAULT_SCOPE) == 1  # unified across documents, not duplicated
 
 
 # --- normalized-name blocking -----------------------------------------------
@@ -122,11 +128,15 @@ def test_blocking_selects_the_type_and_name_matching_candidate() -> None:
     merge resolves to the correct canonical.
     """
     store = InMemoryEntityStore()
-    store.upsert(CanonicalEntity(canonical_id="apple", name=SURFACE, type="ORG", vector=_unit(0.9)))
     store.upsert(
+        DEFAULT_SCOPE,
+        CanonicalEntity(canonical_id="apple", name=SURFACE, type="ORG", vector=_unit(0.9)),
+    )
+    store.upsert(
+        DEFAULT_SCOPE,
         CanonicalEntity(
             canonical_id="store", name="Apple Store", type="ORG", vector=[1.0, 0.0, 0.0, 0.0]
-        )
+        ),
     )
 
     result = _link_once(store, _FixedEmbedder([1.0, 0.0, 0.0, 0.0]), threshold=0.85, knn_top_k=0)
@@ -134,7 +144,7 @@ def test_blocking_selects_the_type_and_name_matching_candidate() -> None:
     (link,) = result.links
     assert link.is_new is False
     assert link.canonical_id == "apple"  # not "store", despite its perfect vector
-    assert store.count() == 2
+    assert store.count(DEFAULT_SCOPE) == 2
 
 
 # --- canonical_id reuse + stability -----------------------------------------
@@ -160,7 +170,7 @@ def test_second_mention_reuses_the_seeded_id() -> None:
     assert first.links[0].is_new is True
     assert second.links[0].is_new is False
     assert first.links[0].canonical_id == second.links[0].canonical_id
-    assert store.count() == 1
+    assert store.count(DEFAULT_SCOPE) == 1
 
 
 # --- gated paths default OFF -------------------------------------------------
@@ -176,7 +186,8 @@ def test_tiebreaker_off_makes_no_llm_call_near_threshold() -> None:
     """
     store = InMemoryEntityStore()
     store.upsert(
-        CanonicalEntity(canonical_id="store", name="Apple Store", type="ORG", vector=_unit(0.84))
+        DEFAULT_SCOPE,
+        CanonicalEntity(canonical_id="store", name="Apple Store", type="ORG", vector=_unit(0.84)),
     )
     llm = FakeLLMClient(completion="yes")
 
@@ -198,7 +209,7 @@ def test_nil_off_creates_new_for_very_low_confidence() -> None:
     store = InMemoryEntityStore()  # empty → no candidates → score 0.0
     result = _link_once(store, FakeEmbedder(dim=64), nil_enabled=False)
     assert result.links[0].is_new is True
-    assert store.count() == 1
+    assert store.count(DEFAULT_SCOPE) == 1
 
 
 def test_tiebreaker_on_is_wired_and_fires() -> None:
@@ -210,7 +221,8 @@ def test_tiebreaker_on_is_wired_and_fires() -> None:
     """
     store = InMemoryEntityStore()
     store.upsert(
-        CanonicalEntity(canonical_id="store", name="Apple Store", type="ORG", vector=_unit(0.84))
+        DEFAULT_SCOPE,
+        CanonicalEntity(canonical_id="store", name="Apple Store", type="ORG", vector=_unit(0.84)),
     )
     llm = FakeLLMClient(completion="yes")
 

@@ -31,6 +31,8 @@ import pytest
 
 from graph_rag.fakes import InMemoryGraphStore
 from graph_rag.models import CanonicalEntity, EdgeProvenance, Triple
+from graph_rag.scope import DEFAULT_SCOPE, Scope
+from tests.isolation import check_graph_store
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -136,16 +138,18 @@ def test_upsert_entities_writes_multi_label_nodes(store: Neo4jGraphStore, driver
         aliases=["Acme", "Acme Inc"],
         vector=None,
     )
-    store.upsert_entities([alice, acme])
+    store.upsert_entities(DEFAULT_SCOPE, [alice, acme])
 
     fake = InMemoryGraphStore()
-    fake.upsert_entities([alice, acme])
+    fake.upsert_entities(DEFAULT_SCOPE, [alice, acme])
 
     # Node round-trips like the fake (vector is None on both — graph stores none).
-    assert store.get_node("p:alice") == alice == fake.get_node("p:alice")
-    assert store.get_node("o:acme") == acme == fake.get_node("o:acme")
-    assert store.get_node("p:missing") is None
-    assert store.node_count() == fake.node_count() == 2
+    assert (
+        store.get_node(DEFAULT_SCOPE, "p:alice") == alice == fake.get_node(DEFAULT_SCOPE, "p:alice")
+    )
+    assert store.get_node(DEFAULT_SCOPE, "o:acme") == acme == fake.get_node(DEFAULT_SCOPE, "o:acme")
+    assert store.get_node(DEFAULT_SCOPE, "p:missing") is None
+    assert store.node_count(DEFAULT_SCOPE) == fake.node_count(DEFAULT_SCOPE) == 2
 
     # Multi-label: the shared :Entity label plus the per-type label.
     person_labels = driver.execute_query(
@@ -158,15 +162,19 @@ def test_upsert_entities_writes_multi_label_nodes(store: Neo4jGraphStore, driver
     assert [r["cid"] for r in orgs] == ["o:acme"]
 
     # Idempotent: re-upsert with new props overwrites in place (still 2 nodes).
-    store.upsert_entities([CanonicalEntity(canonical_id="p:alice", name="Alice B.", type="PERSON")])
-    assert store.node_count() == 2
-    refreshed = store.get_node("p:alice")
+    store.upsert_entities(
+        DEFAULT_SCOPE, [CanonicalEntity(canonical_id="p:alice", name="Alice B.", type="PERSON")]
+    )
+    assert store.node_count(DEFAULT_SCOPE) == 2
+    refreshed = store.get_node(DEFAULT_SCOPE, "p:alice")
     assert refreshed is not None and refreshed.name == "Alice B."
 
 
 def test_write_triples_carries_full_provenance(store: Neo4jGraphStore) -> None:
     """A written edge carries every provenance property back through ``get_node_edges``."""
-    store.upsert_entities([_entity("p:alice", "Alice"), _entity("o:acme", "Acme", type_="ORG")])
+    store.upsert_entities(
+        DEFAULT_SCOPE, [_entity("p:alice", "Alice"), _entity("o:acme", "Acme", type_="ORG")]
+    )
     triple = _triple(
         "p:alice",
         "WORKS_FOR",
@@ -178,17 +186,19 @@ def test_write_triples_carries_full_provenance(store: Neo4jGraphStore) -> None:
         char_start=10,
         char_end=42,
     )
-    store.write_triples([triple])
+    store.write_triples(DEFAULT_SCOPE, [triple])
 
     fake = InMemoryGraphStore()
-    fake.upsert_entities([_entity("p:alice", "Alice"), _entity("o:acme", "Acme", type_="ORG")])
-    fake.write_triples([triple])
+    fake.upsert_entities(
+        DEFAULT_SCOPE, [_entity("p:alice", "Alice"), _entity("o:acme", "Acme", type_="ORG")]
+    )
+    fake.write_triples(DEFAULT_SCOPE, [triple])
 
-    assert store.edge_count() == fake.edge_count() == 1
-    edges = store.get_node_edges("p:alice")
+    assert store.edge_count(DEFAULT_SCOPE) == fake.edge_count(DEFAULT_SCOPE) == 1
+    edges = store.get_node_edges(DEFAULT_SCOPE, "p:alice")
     assert len(edges) == 1
     edge = edges[0]
-    assert edge == fake.get_node_edges("p:alice")[0]
+    assert edge == fake.get_node_edges(DEFAULT_SCOPE, "p:alice")[0]
     assert edge.predicate == "WORKS_FOR"
     assert edge.subject_id == "p:alice"
     assert edge.object_id == "o:acme"
@@ -204,16 +214,16 @@ def test_write_triples_carries_full_provenance(store: Neo4jGraphStore) -> None:
 
 def test_related_to_fallback_preserves_raw_predicate(store: Neo4jGraphStore) -> None:
     """An open-fallback ``RELATED_TO`` edge keeps the original phrase in ``raw_predicate``."""
-    store.upsert_entities([_entity("p:alice", "Alice"), _entity("p:bob", "Bob")])
+    store.upsert_entities(DEFAULT_SCOPE, [_entity("p:alice", "Alice"), _entity("p:bob", "Bob")])
     triple = _triple(
         "p:alice",
         "RELATED_TO",
         "p:bob",
         raw_predicate="was spotted near",
     )
-    store.write_triples([triple])
+    store.write_triples(DEFAULT_SCOPE, [triple])
 
-    edges = store.get_node_edges("p:alice")
+    edges = store.get_node_edges(DEFAULT_SCOPE, "p:alice")
     assert len(edges) == 1
     assert edges[0].predicate == "RELATED_TO"
     assert edges[0].provenance.raw_predicate == "was spotted near"
@@ -222,61 +232,64 @@ def test_related_to_fallback_preserves_raw_predicate(store: Neo4jGraphStore) -> 
 def test_dated_fact_is_an_edge_property_not_a_node(store: Neo4jGraphStore, driver: Driver) -> None:
     """A DATE qualifier is stored on the edge; no standalone date node is created."""
     store.upsert_entities(
-        [_entity("o:acme", "Acme", type_="ORG"), _entity("l:paris", "Paris", type_="LOCATION")]
+        DEFAULT_SCOPE,
+        [_entity("o:acme", "Acme", type_="ORG"), _entity("l:paris", "Paris", type_="LOCATION")],
     )
     triple = _triple("o:acme", "FOUNDED", "l:paris", date="1998-09-04")
-    store.write_triples([triple])
+    store.write_triples(DEFAULT_SCOPE, [triple])
 
-    edge = store.get_node_edges("o:acme")[0]
+    edge = store.get_node_edges(DEFAULT_SCOPE, "o:acme")[0]
     assert edge.date == "1998-09-04"
 
     # No :Date node exists, and the node count is exactly the two entities.
     date_nodes = driver.execute_query("MATCH (n:Date) RETURN count(n) AS c").records[0]["c"]
     assert date_nodes == 0
-    assert store.node_count() == 2
+    assert store.node_count(DEFAULT_SCOPE) == 2
 
 
 def test_delete_document_edges_is_doc_scoped_and_idempotent(store: Neo4jGraphStore) -> None:
     """Delete removes only one doc's edges (nodes kept); rewrite keeps edge_count stable."""
-    store.upsert_entities([_entity("p:a", "A"), _entity("p:b", "B"), _entity("p:c", "C")])
+    store.upsert_entities(
+        DEFAULT_SCOPE, [_entity("p:a", "A"), _entity("p:b", "B"), _entity("p:c", "C")]
+    )
     doc1 = [
         _triple("p:a", "WORKS_FOR", "p:b", doc="doc:1"),
         _triple("p:b", "MEMBER_OF", "p:c", doc="doc:1"),
     ]
     doc2 = [_triple("p:a", "AFFILIATED_WITH", "p:c", doc="doc:2")]
-    store.write_triples(doc1)
-    store.write_triples(doc2)
-    assert store.edge_count() == 3
+    store.write_triples(DEFAULT_SCOPE, doc1)
+    store.write_triples(DEFAULT_SCOPE, doc2)
+    assert store.edge_count(DEFAULT_SCOPE) == 3
 
     # Delete only doc:1's edges — doc:2's edge and all nodes remain.
-    store.delete_document_edges("doc:1")
-    assert store.edge_count() == 1
-    assert store.node_count() == 3
-    remaining = store.get_node_edges("p:a")
+    store.delete_document_edges(DEFAULT_SCOPE, "doc:1")
+    assert store.edge_count(DEFAULT_SCOPE) == 1
+    assert store.node_count(DEFAULT_SCOPE) == 3
+    remaining = store.get_node_edges(DEFAULT_SCOPE, "p:a")
     assert [e.provenance.source_doc_id for e in remaining] == ["doc:2"]
 
     # Re-ingest doc:1 (delete-then-rewrite): edge_count returns to 3, not 5.
-    store.delete_document_edges("doc:1")
-    store.write_triples(doc1)
-    assert store.edge_count() == 3
+    store.delete_document_edges(DEFAULT_SCOPE, "doc:1")
+    store.write_triples(DEFAULT_SCOPE, doc1)
+    assert store.edge_count(DEFAULT_SCOPE) == 3
 
 
 def test_khop_returns_connected_subgraph(store: Neo4jGraphStore) -> None:
     """k-hop expansion matches the fake at depth 1 and depth 2 (undirected BFS)."""
     # Chain: a -> b -> c -> d, plus an isolated node z.
     for cid in ("a", "b", "c", "d", "z"):
-        store.upsert_entities([_entity(f"p:{cid}", cid.upper())])
+        store.upsert_entities(DEFAULT_SCOPE, [_entity(f"p:{cid}", cid.upper())])
     triples = [
         _triple("p:a", "WORKS_FOR", "p:b"),
         _triple("p:b", "WORKS_FOR", "p:c"),
         _triple("p:c", "WORKS_FOR", "p:d"),
     ]
-    store.write_triples(triples)
+    store.write_triples(DEFAULT_SCOPE, triples)
 
     fake = InMemoryGraphStore()
     for cid in ("a", "b", "c", "d", "z"):
-        fake.upsert_entities([_entity(f"p:{cid}", cid.upper())])
-    fake.write_triples(triples)
+        fake.upsert_entities(DEFAULT_SCOPE, [_entity(f"p:{cid}", cid.upper())])
+    fake.write_triples(DEFAULT_SCOPE, triples)
 
     def _node_ids(sub: object) -> set[str]:
         return {n.canonical_id for n in sub.nodes}  # type: ignore[attr-defined]
@@ -285,19 +298,19 @@ def test_khop_returns_connected_subgraph(store: Neo4jGraphStore) -> None:
         return {(e.subject_id, e.predicate, e.object_id) for e in sub.edges}  # type: ignore[attr-defined]
 
     # Depth 1 from b: {a, b, c} (undirected: reaches a backwards and c forwards).
-    real1 = store.khop(["p:b"], 1)
-    fake1 = fake.khop(["p:b"], 1)
+    real1 = store.khop(DEFAULT_SCOPE, ["p:b"], 1)
+    fake1 = fake.khop(DEFAULT_SCOPE, ["p:b"], 1)
     assert _node_ids(real1) == _node_ids(fake1) == {"p:a", "p:b", "p:c"}
     assert _edge_keys(real1) == _edge_keys(fake1)
 
     # Depth 2 from a: {a, b, c} (a..c within two hops, d is three hops away).
-    real2 = store.khop(["p:a"], 2)
-    fake2 = fake.khop(["p:a"], 2)
+    real2 = store.khop(DEFAULT_SCOPE, ["p:a"], 2)
+    fake2 = fake.khop(DEFAULT_SCOPE, ["p:a"], 2)
     assert _node_ids(real2) == _node_ids(fake2) == {"p:a", "p:b", "p:c"}
     assert _edge_keys(real2) == _edge_keys(fake2)
 
     # Hop 0 = just the seed; an unknown seed is ignored.
-    real0 = store.khop(["p:a", "p:missing"], 0)
+    real0 = store.khop(DEFAULT_SCOPE, ["p:a", "p:missing"], 0)
     assert _node_ids(real0) == {"p:a"}
     assert real0.edges == []
 
@@ -317,10 +330,39 @@ def test_delete_nodes_removes_the_nodes_and_their_edges_like_the_fake(
     ]
     fake = InMemoryGraphStore()
     for s in (store, fake):
-        s.upsert_entities(entities)
-        s.write_triples(triples)
-        s.delete_nodes(["p:b", "p:unknown"])
-        s.delete_nodes([])
-        assert s.get_node("p:b") is None and s.get_node("p:a") is not None
-    assert store.node_count() == fake.node_count() == 2
-    assert store.edge_count() == fake.edge_count() == 1
+        s.upsert_entities(DEFAULT_SCOPE, entities)
+        s.write_triples(DEFAULT_SCOPE, triples)
+        s.delete_nodes(DEFAULT_SCOPE, ["p:b", "p:unknown"])
+        s.delete_nodes(DEFAULT_SCOPE, [])
+        assert (
+            s.get_node(DEFAULT_SCOPE, "p:b") is None
+            and s.get_node(DEFAULT_SCOPE, "p:a") is not None
+        )
+    assert store.node_count(DEFAULT_SCOPE) == fake.node_count(DEFAULT_SCOPE) == 2
+    assert store.edge_count(DEFAULT_SCOPE) == fake.edge_count(DEFAULT_SCOPE) == 1
+
+
+def test_scopes_are_isolated(store: Neo4jGraphStore) -> None:
+    """One scope cannot read, traverse, count or delete another's nodes and edges (ADR-0015)."""
+    check_graph_store(store)
+
+
+def test_a_node_written_before_scopes_existed_belongs_to_the_default_scope(
+    store: Neo4jGraphStore, driver: Driver
+) -> None:
+    """No migration: a node with no scope property is the default scope's and can be updated."""
+    driver.execute_query(
+        "CREATE (:Entity:Organization "
+        "{canonical_id: 'legacy', name: 'Old', type: 'ORG', aliases: []})"
+    )
+    assert store.get_node(DEFAULT_SCOPE, "legacy") is not None
+    assert store.get_node(Scope("someone-else"), "legacy") is None
+    assert store.node_count(DEFAULT_SCOPE) == 1
+
+    store.upsert_entities(DEFAULT_SCOPE, [_entity("legacy", "New", "ORG")])  # no clash, no copy
+    assert store.node_count(DEFAULT_SCOPE) == 1
+    node = store.get_node(DEFAULT_SCOPE, "legacy")
+    assert node is not None and node.name == "New"
+    store.upsert_entities(Scope("someone-else"), [_entity("legacy", "Hijacked", "ORG")])
+    node = store.get_node(DEFAULT_SCOPE, "legacy")
+    assert node is not None and node.name == "New"  # another scope cannot overwrite it

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import math
+from collections import defaultdict
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from graph_rag.models import (
@@ -30,6 +31,7 @@ from graph_rag.models import (
     Triple,
 )
 from graph_rag.normalize import normalize_name
+from graph_rag.scope import Scope
 from graph_rag.stages.ner import NerResult
 
 if TYPE_CHECKING:
@@ -55,30 +57,30 @@ __all__ = [
 class InMemoryObjectStore:
     """In-memory :class:`~graph_rag.ports.ObjectStore` backed by a dict.
 
-    Keyed by ``(bucket, object_key)`` -> ``bytes``.
+    Keyed by ``(scope, bucket, object_key)`` -> ``bytes``, so a scope sees only its own objects.
     """
 
     def __init__(self) -> None:
-        self._objects: dict[tuple[str, str], bytes] = {}
+        self._objects: dict[tuple[Scope, str, str], bytes] = {}
 
-    def put(self, bucket: str, object_key: str, data: bytes) -> None:
+    def put(self, scope: Scope, bucket: str, object_key: str, data: bytes) -> None:
         """Store ``data`` under ``(bucket, object_key)``, overwriting any prior object."""
-        self._objects[(bucket, object_key)] = data
+        self._objects[(scope, bucket, object_key)] = data
 
-    def get(self, bucket: str, object_key: str) -> bytes:
+    def get(self, scope: Scope, bucket: str, object_key: str) -> bytes:
         """Return the bytes at ``(bucket, object_key)``.
 
         Raises:
             FileNotFoundError: If no object exists at that location.
         """
         try:
-            return self._objects[(bucket, object_key)]
+            return self._objects[(scope, bucket, object_key)]
         except KeyError as exc:
             raise FileNotFoundError(f"No object at {bucket}/{object_key}") from exc
 
-    def delete(self, bucket: str, object_key: str) -> None:
+    def delete(self, scope: Scope, bucket: str, object_key: str) -> None:
         """Remove the object; a no-op if it is not there."""
-        self._objects.pop((bucket, object_key), None)
+        self._objects.pop((scope, bucket, object_key), None)
 
 
 class InMemoryDocumentStore:
@@ -89,31 +91,35 @@ class InMemoryDocumentStore:
     """
 
     def __init__(self) -> None:
-        self._records: dict[str, DocumentRecord] = {}
+        self._records: dict[Scope, dict[str, DocumentRecord]] = defaultdict(dict)
 
-    def upsert(self, record: DocumentRecord) -> None:
+    def upsert(self, scope: Scope, record: DocumentRecord) -> None:
         """Insert or overwrite the record keyed by ``record.document_id``."""
-        self._records[record.document_id] = record
+        self._records[scope][record.document_id] = record
 
-    def get(self, document_id: str) -> DocumentRecord | None:
+    def get(self, scope: Scope, document_id: str) -> DocumentRecord | None:
         """Return the record for ``document_id``, or ``None`` if absent."""
-        return self._records.get(document_id)
+        return self._records[scope].get(document_id)
 
-    def delete(self, document_id: str) -> bool:
+    def delete(self, scope: Scope, document_id: str) -> bool:
         """Remove the record; ``True`` if there was one."""
-        return self._records.pop(document_id, None) is not None
+        return self._records[scope].pop(document_id, None) is not None
 
-    def entities_in_use(self, canonical_ids: set[str], *, excluding: str | None = None) -> set[str]:
+    def entities_in_use(
+        self, scope: Scope, canonical_ids: set[str], *, excluding: str | None = None
+    ) -> set[str]:
         """The ids some stored record (other than ``excluding``) links to."""
         used = {
             link.canonical_id
-            for record in self._records.values()
+            for record in self._records[scope].values()
             if record.document_id != excluding
             for link in record.el_result
         }
         return canonical_ids & used
 
-    def search_sentences(self, *, vector: list[float], top_k: int) -> list[SupportingSentence]:
+    def search_sentences(
+        self, scope: Scope, *, vector: list[float], top_k: int
+    ) -> list[SupportingSentence]:
         """Return the ``top_k`` sentences nearest ``vector`` by cosine (V6, B5).
 
         Brute-force cosine over every stored record's ``sentence_vectors``,
@@ -125,7 +131,7 @@ class InMemoryDocumentStore:
         test can prove equivalence.
         """
         scored: list[SupportingSentence] = []
-        for record in self._records.values():
+        for record in self._records[scope].values():
             vectors = record.sentence_vectors or []
             for idx, sentence_vector in enumerate(vectors):
                 if idx >= len(record.sentences):
@@ -174,22 +180,22 @@ class InMemoryEntityStore:
     """
 
     def __init__(self) -> None:
-        self._entities: dict[str, CanonicalEntity] = {}
+        self._entities: dict[Scope, dict[str, CanonicalEntity]] = defaultdict(dict)
 
-    def upsert(self, entity: CanonicalEntity) -> None:
+    def upsert(self, scope: Scope, entity: CanonicalEntity) -> None:
         """Insert or overwrite the entity keyed by ``entity.canonical_id`` (idempotent)."""
-        self._entities[entity.canonical_id] = entity
+        self._entities[scope][entity.canonical_id] = entity
 
-    def delete(self, canonical_id: str) -> None:
+    def delete(self, scope: Scope, canonical_id: str) -> None:
         """Remove the entity; a no-op if it is not there."""
-        self._entities.pop(canonical_id, None)
+        self._entities[scope].pop(canonical_id, None)
 
-    def get(self, canonical_id: str) -> CanonicalEntity | None:
+    def get(self, scope: Scope, canonical_id: str) -> CanonicalEntity | None:
         """Return the canonical entity for ``canonical_id``, or ``None`` if absent."""
-        return self._entities.get(canonical_id)
+        return self._entities[scope].get(canonical_id)
 
     def block_candidates(
-        self, *, entity_type: CuratedType, normalized_name: str
+        self, scope: Scope, *, entity_type: CuratedType, normalized_name: str
     ) -> list[CanonicalEntity]:
         """Return entities of ``entity_type`` whose name/alias normalizes to ``normalized_name``.
 
@@ -197,7 +203,7 @@ class InMemoryEntityStore:
         so the fake and the real adapter block identically (ADR-0004).
         """
         candidates: list[CanonicalEntity] = []
-        for entity in self._entities.values():
+        for entity in self._entities[scope].values():
             if entity.type != entity_type:
                 continue
             keys = {normalize_name(entity.name)}
@@ -208,6 +214,7 @@ class InMemoryEntityStore:
 
     def knn(
         self,
+        scope: Scope,
         *,
         vector: list[float],
         entity_type: CuratedType | None = None,
@@ -219,7 +226,7 @@ class InMemoryEntityStore:
         ``entity_type``. Ties keep insertion order (Python's stable sort).
         """
         scored: list[tuple[CanonicalEntity, float]] = []
-        for entity in self._entities.values():
+        for entity in self._entities[scope].values():
             if entity_type is not None and entity.type != entity_type:
                 continue
             if entity.vector is None:
@@ -228,13 +235,13 @@ class InMemoryEntityStore:
         scored.sort(key=lambda pair: pair[1], reverse=True)
         return scored[:top_k]
 
-    def count(self) -> int:
+    def count(self, scope: Scope) -> int:
         """Return the number of canonical entities stored."""
-        return len(self._entities)
+        return len(self._entities[scope])
 
-    def all(self) -> list[CanonicalEntity]:
+    def all(self, scope: Scope) -> list[CanonicalEntity]:
         """Return every stored canonical entity (insertion order)."""
-        return list(self._entities.values())
+        return list(self._entities[scope].values())
 
 
 class InMemoryGraphStore:
@@ -251,38 +258,38 @@ class InMemoryGraphStore:
     """
 
     def __init__(self) -> None:
-        self._nodes: dict[str, CanonicalEntity] = {}
-        self._edges: list[Triple] = []
+        self._nodes: dict[Scope, dict[str, CanonicalEntity]] = defaultdict(dict)
+        self._edges: dict[Scope, list[Triple]] = defaultdict(list)
 
-    def upsert_entities(self, entities: list[CanonicalEntity]) -> None:
+    def upsert_entities(self, scope: Scope, entities: list[CanonicalEntity]) -> None:
         """Create/merge nodes keyed by ``canonical_id`` (idempotent overwrite)."""
         for entity in entities:
-            self._nodes[entity.canonical_id] = entity
+            self._nodes[scope][entity.canonical_id] = entity
 
-    def write_triples(self, triples: list[Triple]) -> None:
+    def write_triples(self, scope: Scope, triples: list[Triple]) -> None:
         """Append each triple as a provenance-carrying edge."""
-        self._edges.extend(triples)
+        self._edges[scope].extend(triples)
 
-    def delete_document_edges(self, source_doc_id: str) -> None:
+    def delete_document_edges(self, scope: Scope, source_doc_id: str) -> None:
         """Remove every edge whose provenance ``source_doc_id`` matches (nodes kept).
 
         Called before re-writing a document's triples so re-ingest overwrites
         rather than duplicates (graph idempotency, TESTING.md gap #1).
         """
-        self._edges = [
-            edge for edge in self._edges if edge.provenance.source_doc_id != source_doc_id
+        self._edges[scope] = [
+            edge for edge in self._edges[scope] if edge.provenance.source_doc_id != source_doc_id
         ]
 
-    def delete_nodes(self, canonical_ids: list[str]) -> None:
+    def delete_nodes(self, scope: Scope, canonical_ids: list[str]) -> None:
         """Remove these nodes and every edge that touches them."""
         gone = set(canonical_ids)
         for canonical_id in gone:
-            self._nodes.pop(canonical_id, None)
-        self._edges = [
-            e for e in self._edges if e.subject_id not in gone and e.object_id not in gone
+            self._nodes[scope].pop(canonical_id, None)
+        self._edges[scope] = [
+            e for e in self._edges[scope] if e.subject_id not in gone and e.object_id not in gone
         ]
 
-    def khop(self, seed_ids: list[str], hops: int) -> Subgraph:
+    def khop(self, scope: Scope, seed_ids: list[str], hops: int) -> Subgraph:
         """Return the connected subgraph within ``hops`` of ``seed_ids`` (BFS).
 
         Edges are traversed undirected. Seeds present in the graph are hop 0;
@@ -290,14 +297,15 @@ class InMemoryGraphStore:
         edge whose endpoints are both in the reached node set. Unknown seed IDs
         are ignored.
         """
-        visited: set[str] = {sid for sid in seed_ids if sid in self._nodes}
+        all_nodes, all_edges = self._nodes[scope], self._edges[scope]
+        visited: set[str] = {sid for sid in seed_ids if sid in all_nodes}
         frontier: set[str] = set(visited)
         for _ in range(max(hops, 0)):
             next_frontier: set[str] = set()
-            for edge in self._edges:
-                if edge.subject_id in frontier and edge.object_id in self._nodes:
+            for edge in all_edges:
+                if edge.subject_id in frontier and edge.object_id in all_nodes:
                     next_frontier.add(edge.object_id)
-                if edge.object_id in frontier and edge.subject_id in self._nodes:
+                if edge.object_id in frontier and edge.subject_id in all_nodes:
                     next_frontier.add(edge.subject_id)
             next_frontier -= visited
             if not next_frontier:
@@ -305,27 +313,29 @@ class InMemoryGraphStore:
             visited |= next_frontier
             frontier = next_frontier
         # Deterministic node order: node-insertion order, filtered to visited.
-        nodes = [node for cid, node in self._nodes.items() if cid in visited]
+        nodes = [node for cid, node in all_nodes.items() if cid in visited]
         edges = [
-            edge for edge in self._edges if edge.subject_id in visited and edge.object_id in visited
+            edge for edge in all_edges if edge.subject_id in visited and edge.object_id in visited
         ]
         return Subgraph(nodes=nodes, edges=edges)
 
-    def node_count(self) -> int:
+    def node_count(self, scope: Scope) -> int:
         """Return the number of nodes stored."""
-        return len(self._nodes)
+        return len(self._nodes[scope])
 
-    def edge_count(self) -> int:
+    def edge_count(self, scope: Scope) -> int:
         """Return the number of edges stored."""
-        return len(self._edges)
+        return len(self._edges[scope])
 
-    def get_node(self, canonical_id: str) -> CanonicalEntity | None:
+    def get_node(self, scope: Scope, canonical_id: str) -> CanonicalEntity | None:
         """Return the node for ``canonical_id``, or ``None`` if absent."""
-        return self._nodes.get(canonical_id)
+        return self._nodes[scope].get(canonical_id)
 
-    def get_node_edges(self, canonical_id: str) -> list[Triple]:
+    def get_node_edges(self, scope: Scope, canonical_id: str) -> list[Triple]:
         """Return every edge incident to ``canonical_id`` (as subject or object)."""
-        return [edge for edge in self._edges if canonical_id in (edge.subject_id, edge.object_id)]
+        return [
+            edge for edge in self._edges[scope] if canonical_id in (edge.subject_id, edge.object_id)
+        ]
 
 
 class FakeLLMClient:

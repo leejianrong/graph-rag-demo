@@ -26,6 +26,7 @@ from graph_rag.fakes import FakeNerStage, InMemoryDocumentStore, InMemoryObjectS
 from graph_rag.ids import document_id
 from graph_rag.models import IngestTrigger, Mention, Sentence
 from graph_rag.orchestrator import Orchestrator
+from graph_rag.scope import DEFAULT_SCOPE
 from graph_rag.stages.coref import FakeCorefStage
 
 BUCKET = "documents"
@@ -59,7 +60,7 @@ def test_writes_raw_record_with_deterministic_id(
     document_store: InMemoryDocumentStore,
 ) -> None:
     """A processed document is stored with the deterministic id and raw text."""
-    object_store.put(BUCKET, KEY, b"hello graph rag")
+    object_store.put(DEFAULT_SCOPE, BUCKET, KEY, b"hello graph rag")
     trigger = IngestTrigger(bucket=BUCKET, object_key=KEY)
 
     result = orchestrator.process_document(trigger)
@@ -73,7 +74,7 @@ def test_writes_raw_record_with_deterministic_id(
     assert record.text == "hello graph rag"
 
     # Asserted at the seam: the record is actually in the document store.
-    stored = document_store.get(expected_id)
+    stored = document_store.get(DEFAULT_SCOPE, expected_id)
     assert stored is not None
     assert stored.text == "hello graph rag"
 
@@ -97,7 +98,7 @@ def test_result_carries_canned_mentions_and_sentences(
     stored ES record stays raw (not persisted until V4).
     """
     text = "Ada Lovelace worked in London."
-    object_store.put(BUCKET, KEY, text.encode())
+    object_store.put(DEFAULT_SCOPE, BUCKET, KEY, text.encode())
 
     canned_mentions = [
         Mention(text="Ada Lovelace", type="PERSON", char_start=0, char_end=12),
@@ -126,7 +127,7 @@ def test_result_carries_canned_mentions_and_sentences(
     # Sentences carried in-memory.
     assert result.sentences == canned_sentences
     # Not persisted to the ES record yet (raw-only write model).
-    stored = document_store.get(document_id(BUCKET, KEY))
+    stored = document_store.get(DEFAULT_SCOPE, document_id(BUCKET, KEY))
     assert stored is not None
     assert stored.mentions == []
 
@@ -136,7 +137,7 @@ def test_decodes_utf8_text(
     object_store: InMemoryObjectStore,
 ) -> None:
     """Bytes are decoded as UTF-8 into the record text."""
-    object_store.put(BUCKET, KEY, "café — déjà vu".encode())
+    object_store.put(DEFAULT_SCOPE, BUCKET, KEY, "café — déjà vu".encode())
     result = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key=KEY))
     assert result is not None
     assert result.record.text == "café — déjà vu"
@@ -150,11 +151,11 @@ def test_reingest_overwrites_no_duplicate(
     """Re-ingesting the same object overwrites its record (R1.5, ADR-0001)."""
     trigger = IngestTrigger(bucket=BUCKET, object_key=KEY)
 
-    object_store.put(BUCKET, KEY, b"first version")
+    object_store.put(DEFAULT_SCOPE, BUCKET, KEY, b"first version")
     first = orchestrator.process_document(trigger)
 
     # Same location -> new content -> re-ingest.
-    object_store.put(BUCKET, KEY, b"second version")
+    object_store.put(DEFAULT_SCOPE, BUCKET, KEY, b"second version")
     second = orchestrator.process_document(trigger)
 
     assert first is not None
@@ -164,7 +165,7 @@ def test_reingest_overwrites_no_duplicate(
 
     # Exactly ONE record, and its text is the latest.
     assert len(document_store._records) == 1  # noqa: SLF001 — asserting no duplication.
-    stored = document_store.get(document_id(BUCKET, KEY))
+    stored = document_store.get(DEFAULT_SCOPE, document_id(BUCKET, KEY))
     assert stored is not None
     assert stored.text == "second version"
 
@@ -179,7 +180,7 @@ def test_missing_object_is_logged_and_dropped(
 
     assert result is None
     # Nothing persisted for the failed document.
-    assert document_store.get(document_id(BUCKET, "missing.md")) is None
+    assert document_store.get(DEFAULT_SCOPE, document_id(BUCKET, "missing.md")) is None
 
 
 def test_downstream_write_failure_is_logged_and_dropped(
@@ -199,7 +200,7 @@ def test_downstream_write_failure_is_logged_and_dropped(
         document_store=ExplodingDocumentStore(),
         ner_stage=ner_stage,
     )
-    object_store.put(BUCKET, KEY, b"content")
+    object_store.put(DEFAULT_SCOPE, BUCKET, KEY, b"content")
 
     result = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key=KEY))
 
@@ -223,7 +224,7 @@ def test_ner_failure_is_logged_and_dropped(
         document_store=document_store,
         ner_stage=ExplodingNerStage(),
     )
-    object_store.put(BUCKET, KEY, b"content")
+    object_store.put(DEFAULT_SCOPE, BUCKET, KEY, b"content")
 
     result = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key=KEY))
 
@@ -245,9 +246,9 @@ def test_failure_does_not_wedge_the_loop(
     assert bad is None
 
     # Loop continues: the next, good trigger processes normally.
-    object_store.put(BUCKET, "good.md", b"good content")
+    object_store.put(DEFAULT_SCOPE, BUCKET, "good.md", b"good content")
     good = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key="good.md"))
 
     assert good is not None
     assert good.record.text == "good content"
-    assert document_store.get(document_id(BUCKET, "good.md")) is not None
+    assert document_store.get(DEFAULT_SCOPE, document_id(BUCKET, "good.md")) is not None

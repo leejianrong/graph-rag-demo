@@ -30,6 +30,7 @@ from graph_rag.models import (
     Triple,
 )
 from graph_rag.query.retriever import QueryRetriever
+from graph_rag.scope import DEFAULT_SCOPE
 
 
 def _node(canonical_id: str, name: str = "n", type_: str = "PERSON") -> CanonicalEntity:
@@ -123,16 +124,18 @@ def test_seed_merge_combines_entity_and_sentence_seeds() -> None:
     # Entity seed: only "alpha" is vector-seedable (its vector == the question's),
     # so it alone enters seed_scores. "beta" is a graph node but not a seed.
     entity_store.upsert(
+        DEFAULT_SCOPE,
         CanonicalEntity(
             canonical_id="alpha", name="alpha", type="PERSON", vector=embedder.embed([question])[0]
-        )
+        ),
     )
-    graph_store.upsert_entities([_node("alpha", "alpha"), _node("beta", "beta")])
-    graph_store.write_triples([_edge("alpha", "beta")])
+    graph_store.upsert_entities(DEFAULT_SCOPE, [_node("alpha", "alpha"), _node("beta", "beta")])
+    graph_store.write_triples(DEFAULT_SCOPE, [_edge("alpha", "beta")])
 
     # Sentence seed: a separate document sentence anchors the supporting evidence.
     sentence = "alpha met beta at the workshop"
     document_store.upsert(
+        DEFAULT_SCOPE,
         DocumentRecord(
             document_id="d1",
             bucket="documents",
@@ -140,7 +143,7 @@ def test_seed_merge_combines_entity_and_sentence_seeds() -> None:
             text=sentence,
             sentences=[Sentence(text=sentence, char_start=0, char_end=len(sentence), index=0)],
             sentence_vectors=[embedder.embed([sentence])[0]],
-        )
+        ),
     )
 
     response = _retriever(embedder, entity_store, document_store, graph_store).retrieve(
@@ -167,15 +170,18 @@ def test_top_node_is_the_answer() -> None:
     question = "grace hopper"
 
     entity_store.upsert(
+        DEFAULT_SCOPE,
         CanonicalEntity(
             canonical_id="gh",
             name="Grace Hopper",
             type="PERSON",
             vector=embedder.embed([question])[0],
-        )
+        ),
     )
-    graph_store.upsert_entities([_node("gh", "Grace Hopper"), _node("navy", "US Navy", "ORG")])
-    graph_store.write_triples([_edge("gh", "navy")])
+    graph_store.upsert_entities(
+        DEFAULT_SCOPE, [_node("gh", "Grace Hopper"), _node("navy", "US Navy", "ORG")]
+    )
+    graph_store.write_triples(DEFAULT_SCOPE, [_edge("gh", "navy")])
 
     response = _retriever(embedder, entity_store, document_store, graph_store).retrieve(
         QueryRequest(question=question)
