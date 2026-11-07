@@ -56,6 +56,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from graph_rag.scope import DEFAULT_SCOPE, Scope
+
 __all__ = [
     "IngestTrigger",
     "DocumentRecord",
@@ -103,6 +105,13 @@ class IngestTrigger(BaseModel):
 
     bucket: str
     object_key: str
+    tenant: str = DEFAULT_SCOPE.tenant
+    namespace: str | None = None
+
+    @property
+    def scope(self) -> Scope:
+        """Whose document this is (ADR-0015); a trigger without the fields is the default scope."""
+        return Scope(self.tenant, self.namespace)
 
     def to_json(self) -> str:
         """Serialize this trigger to a JSON string (Kafka message value)."""

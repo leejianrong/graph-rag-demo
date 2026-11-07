@@ -22,6 +22,8 @@ import pytest
 from graph_rag.fakes import FakeEmbedder, InMemoryDocumentStore
 from graph_rag.ids import document_id
 from graph_rag.models import DocumentRecord, Sentence
+from graph_rag.scope import DEFAULT_SCOPE, Scope
+from tests.isolation import check_document_store
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -77,28 +79,30 @@ def _record(text: str, key: str = "a.md", bucket: str = "documents") -> Document
 def test_upsert_then_get_returns_equal_record(es_document_store: EsDocumentStore) -> None:
     """A record round-trips: get after upsert returns an equal record."""
     record = _record("hello real elasticsearch", key="roundtrip.md")
-    es_document_store.upsert(record)
+    es_document_store.upsert(DEFAULT_SCOPE, record)
 
-    fetched = es_document_store.get(record.document_id)
+    fetched = es_document_store.get(DEFAULT_SCOPE, record.document_id)
     assert fetched == record
 
 
 def test_get_missing_returns_none(es_document_store: EsDocumentStore) -> None:
     """get of an id that was never written returns None."""
-    assert es_document_store.get(document_id("documents", "never-written.md")) is None
+    assert (
+        es_document_store.get(DEFAULT_SCOPE, document_id("documents", "never-written.md")) is None
+    )
 
 
 def test_reupsert_overwrites_single_doc(es_document_store: EsDocumentStore) -> None:
     """Re-upserting the same document_id overwrites in place (one doc, new text)."""
     first = _record("first version", key="overwrite.md")
-    es_document_store.upsert(first)
+    es_document_store.upsert(DEFAULT_SCOPE, first)
 
     second = _record("second version", key="overwrite.md")
-    es_document_store.upsert(second)
+    es_document_store.upsert(DEFAULT_SCOPE, second)
 
     # Same deterministic id -> overwrite, not duplicate.
     assert first.document_id == second.document_id
-    fetched = es_document_store.get(second.document_id)
+    fetched = es_document_store.get(DEFAULT_SCOPE, second.document_id)
     assert fetched is not None
     assert fetched.text == "second version"
 
@@ -140,12 +144,12 @@ def test_search_sentences_matches_fake(es_document_store: EsDocumentStore) -> No
 
     fake = InMemoryDocumentStore()
     for record in records:
-        fake.upsert(record)
-        es_document_store.upsert(record)
+        fake.upsert(DEFAULT_SCOPE, record)
+        es_document_store.upsert(DEFAULT_SCOPE, record)
 
     query = embedder.embed(["cats"])[0]
-    expected = fake.search_sentences(vector=query, top_k=3)
-    actual = es_document_store.search_sentences(vector=query, top_k=3)
+    expected = fake.search_sentences(DEFAULT_SCOPE, vector=query, top_k=3)
+    actual = es_document_store.search_sentences(DEFAULT_SCOPE, vector=query, top_k=3)
 
     assert [(s.document_id, s.sentence_index) for s in actual] == [
         (s.document_id, s.sentence_index) for s in expected
@@ -162,9 +166,9 @@ def test_enriched_record_round_trips(es_document_store: EsDocumentStore) -> None
     """A record with sentences + vectors round-trips through upsert/get."""
     embedder = FakeEmbedder(dim=384)
     record = _enriched_record("search-roundtrip.md", ["alpha beta", "gamma"], embedder)
-    es_document_store.upsert(record)
+    es_document_store.upsert(DEFAULT_SCOPE, record)
 
-    fetched = es_document_store.get(record.document_id)
+    fetched = es_document_store.get(DEFAULT_SCOPE, record.document_id)
     assert fetched is not None
     assert fetched.sentences == record.sentences
     assert fetched.sentence_vectors is not None
@@ -195,17 +199,23 @@ def _assert_delete_and_use_like_the_fake(store: object) -> None:
     fake = InMemoryDocumentStore()
     a, b = _linked("use-a.md", "org:x", "org:y"), _linked("use-b.md", "org:y", "org:z")
     for s in (store, fake):
-        s.upsert(a)
-        s.upsert(b)
+        s.upsert(DEFAULT_SCOPE, a)
+        s.upsert(DEFAULT_SCOPE, b)
         everything = {"org:x", "org:y", "org:z", "org:nobody"}
-        assert s.entities_in_use(everything) == {"org:x", "org:y", "org:z"}
+        assert s.entities_in_use(DEFAULT_SCOPE, everything) == {"org:x", "org:y", "org:z"}
         # without document a, x is no longer used by anything else
-        assert s.entities_in_use(everything, excluding=a.document_id) == {"org:y", "org:z"}
-        assert s.entities_in_use(set()) == set()
-        assert s.delete(a.document_id) is True
-        assert s.get(a.document_id) is None and s.get(b.document_id) is not None
-        assert s.delete(a.document_id) is False  # already gone
-        assert s.entities_in_use(everything) == {"org:y", "org:z"}
+        assert s.entities_in_use(DEFAULT_SCOPE, everything, excluding=a.document_id) == {
+            "org:y",
+            "org:z",
+        }
+        assert s.entities_in_use(DEFAULT_SCOPE, set()) == set()
+        assert s.delete(DEFAULT_SCOPE, a.document_id) is True
+        assert (
+            s.get(DEFAULT_SCOPE, a.document_id) is None
+            and s.get(DEFAULT_SCOPE, b.document_id) is not None
+        )
+        assert s.delete(DEFAULT_SCOPE, a.document_id) is False  # already gone
+        assert s.entities_in_use(DEFAULT_SCOPE, everything) == {"org:y", "org:z"}
 
 
 def test_delete_and_entities_in_use_behave_like_the_fake(
@@ -230,3 +240,21 @@ def test_entities_in_use_also_works_on_an_index_made_before_the_el_mapping(
     _assert_delete_and_use_like_the_fake(
         EsDocumentStore(client=client, index="documents-before-el-mapping")
     )
+
+
+def test_scopes_are_isolated(es_document_store: EsDocumentStore) -> None:
+    """One scope cannot read, search, count or delete another's documents (ADR-0015)."""
+    check_document_store(es_document_store, dims=384)
+
+
+def test_a_record_written_before_scopes_existed_belongs_to_the_default_scope(
+    es_document_store: EsDocumentStore,
+) -> None:
+    """No migration: a record with no scope field reads as the default scope's, and no other's."""
+    legacy = _record("written by the old code", key="legacy-scope.md")
+    es_document_store._client.index(  # type: ignore[attr-defined]
+        index=_INDEX, id=legacy.document_id, document=legacy.model_dump(), refresh=True
+    )
+
+    assert es_document_store.get(DEFAULT_SCOPE, legacy.document_id) is not None
+    assert es_document_store.get(Scope("someone-else"), legacy.document_id) is None

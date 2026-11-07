@@ -240,7 +240,7 @@ class EntityLinkingStage:
             # for order-independent stability. Genuine same-type/same-name homonyms
             # are left to the gated LLM tie-breaker on the fuzzy path below.
             block = self._entity_store.block_candidates(
-                entity_type=entity.entity_type, normalized_name=normalized
+                scope, entity_type=entity.entity_type, normalized_name=normalized
             )
             best_entity: CanonicalEntity | None
             if block:
@@ -253,7 +253,7 @@ class EntityLinkingStage:
                 # only at/above the threshold (this is how a differently-phrased
                 # surface of one entity still merges). The gated tie-breaker
                 # arbitrates near-threshold decisions here.
-                candidates = self._knn_candidates(entity.entity_type, vector)
+                candidates = self._knn_candidates(scope, entity.entity_type, vector)
                 best_entity, best_score = self._best_candidate(vector, candidates)
                 merge = best_entity is not None and best_score >= self._threshold
                 merge = self._maybe_tiebreak(
@@ -265,7 +265,7 @@ class EntityLinkingStage:
                 )
 
             if merge and best_entity is not None:
-                self._merge(best_entity, entity.surface, vector)
+                self._merge(scope, best_entity, entity.surface, vector)
                 links.append(
                     EntityLink(
                         mention_text=entity.surface,
@@ -282,13 +282,14 @@ class EntityLinkingStage:
             self._maybe_nil(best_score)
             canonical_id = self._mint_id(scope, entity.entity_type, normalized, vector)
             self._entity_store.upsert(
+                scope,
                 CanonicalEntity(
                     canonical_id=canonical_id,
                     name=entity.surface,
                     type=entity.entity_type,
                     aliases=[],
                     vector=vector,
-                )
+                ),
             )
             links.append(
                 EntityLink(
@@ -393,7 +394,7 @@ class EntityLinkingStage:
     # --- candidate gathering + scoring --------------------------------------
 
     def _knn_candidates(
-        self, entity_type: CuratedType, vector: list[float]
+        self, scope: Scope, entity_type: CuratedType, vector: list[float]
     ) -> list[CanonicalEntity]:
         """The fuzzy candidate set: nearest entities of the same type by vector kNN.
 
@@ -405,7 +406,7 @@ class EntityLinkingStage:
         return [
             candidate
             for candidate, _score in self._entity_store.knn(
-                vector=vector, entity_type=entity_type, top_k=self._knn_top_k
+                scope, vector=vector, entity_type=entity_type, top_k=self._knn_top_k
             )
         ]
 
@@ -425,7 +426,9 @@ class EntityLinkingStage:
 
     # --- decision helpers ----------------------------------------------------
 
-    def _merge(self, entity: CanonicalEntity, surface: str, vector: list[float]) -> None:
+    def _merge(
+        self, scope: Scope, entity: CanonicalEntity, surface: str, vector: list[float]
+    ) -> None:
         """Merge ``surface`` into ``entity``: grow aliases, keep the seed vector.
 
         The canonical record's ``name`` + ``vector`` are kept as first-seeded
@@ -438,13 +441,14 @@ class EntityLinkingStage:
         if normalized and normalized not in known:
             aliases.append(surface)
         self._entity_store.upsert(
+            scope,
             CanonicalEntity(
                 canonical_id=entity.canonical_id,
                 name=entity.name,
                 type=entity.type,
                 aliases=aliases,
                 vector=entity.vector if entity.vector is not None else vector,
-            )
+            ),
         )
 
     def _mint_id(
@@ -458,7 +462,7 @@ class EntityLinkingStage:
         entity of the same type + normalized name.
         """
         canonical_id = entity_id(entity_type, normalized_name, scope)
-        if self._entity_store.get(canonical_id) is None:
+        if self._entity_store.get(scope, canonical_id) is None:
             return canonical_id
         vector_key = hashlib.sha256(
             ",".join(f"{x:.6f}" for x in vector).encode("utf-8")

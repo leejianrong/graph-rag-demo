@@ -35,6 +35,7 @@ from graph_rag.models import (
     Triple,
 )
 from graph_rag.query.retriever import QueryRetriever
+from graph_rag.scope import DEFAULT_SCOPE
 
 pytestmark = pytest.mark.e2e
 
@@ -63,20 +64,22 @@ def _seed_stores(
     # --- ES-Entities: only A is vector-seedable, and its vector == the question's
     #     embedding, so its seed cosine is 1.0 and A is unambiguously top-ranked.
     entity_store.upsert(
+        DEFAULT_SCOPE,
         CanonicalEntity(
             canonical_id=_ID_A,
             name="Ada Lovelace",
             type="PERSON",
             vector=embedder.embed([_QUESTION])[0],
-        )
+        ),
     )
 
     # --- Knowledge graph: three nodes, two provenance-carrying edges across docs.
     node_a = CanonicalEntity(canonical_id=_ID_A, name="Ada Lovelace", type="PERSON")
     node_b = CanonicalEntity(canonical_id=_ID_B, name="Analytical Engine", type="PRODUCT")
     node_c = CanonicalEntity(canonical_id=_ID_C, name="Charles Babbage", type="PERSON")
-    graph_store.upsert_entities([node_a, node_b, node_c])
+    graph_store.upsert_entities(DEFAULT_SCOPE, [node_a, node_b, node_c])
     graph_store.write_triples(
+        DEFAULT_SCOPE,
         [
             Triple(
                 subject_id=_ID_A,
@@ -94,11 +97,12 @@ def _seed_stores(
                     source_doc_id="doc2", sentence_index=0, source_sentence=_SENT_D2
                 ),
             ),
-        ]
+        ],
     )
 
     # --- ES-Documents: per-sentence text + offsets + vectors for passage kNN.
     document_store.upsert(
+        DEFAULT_SCOPE,
         DocumentRecord(
             document_id="doc1",
             bucket="documents",
@@ -106,9 +110,10 @@ def _seed_stores(
             text=_SENT_D1,
             sentences=[Sentence(text=_SENT_D1, char_start=0, char_end=len(_SENT_D1), index=0)],
             sentence_vectors=[embedder.embed([_SENT_D1])[0]],
-        )
+        ),
     )
     document_store.upsert(
+        DEFAULT_SCOPE,
         DocumentRecord(
             document_id="doc2",
             bucket="documents",
@@ -116,7 +121,7 @@ def _seed_stores(
             text=_SENT_D2,
             sentences=[Sentence(text=_SENT_D2, char_start=0, char_end=len(_SENT_D2), index=0)],
             sentence_vectors=[embedder.embed([_SENT_D2])[0]],
-        )
+        ),
     )
 
 

@@ -41,6 +41,7 @@ from pathlib import Path
 from graph_rag.ids import document_id
 from graph_rag.models import IngestTrigger, QueryRequest, QueryResponse, Triple
 from graph_rag.normalize import normalize_name
+from graph_rag.scope import DEFAULT_SCOPE
 from graph_rag.wiring import build_offline_components
 
 __all__ = ["main", "build_parser"]
@@ -214,7 +215,7 @@ def run_offline(corpus_dir: Path, question: str) -> int:
     bucket = components.bucket
     doc_labels: dict[str, str] = {}
     for filename, text in documents:
-        components.object_store.put(bucket, filename, text.encode("utf-8"))
+        components.object_store.put(DEFAULT_SCOPE, bucket, filename, text.encode("utf-8"))
         components.orchestrator.process_document(IngestTrigger(bucket=bucket, object_key=filename))
         doc_labels[document_id(bucket, filename)] = filename
 

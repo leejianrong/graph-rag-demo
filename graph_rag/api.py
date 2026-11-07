@@ -30,6 +30,7 @@ from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
 from graph_rag.models import DeletedDocument, IngestTrigger, QueryRequest, QueryResponse
 from graph_rag.ports import ObjectStore, TriggerPublisher
+from graph_rag.scope import DEFAULT_SCOPE, RESERVED_KEY_PREFIX, Scope
 
 if TYPE_CHECKING:
     from graph_rag.query.retriever import QueryRetriever
@@ -39,10 +40,10 @@ __all__ = ["create_app"]
 _logger = get_logger(__name__)
 
 
-def _holds(store: ObjectStore, bucket: str, object_key: str, data: bytes) -> bool:
-    """Whether ``(bucket, object_key)`` already holds exactly ``data``."""
+def _holds(store: ObjectStore, scope: Scope, bucket: str, object_key: str, data: bytes) -> bool:
+    """Whether ``(bucket, object_key)`` already holds exactly ``data`` in ``scope``."""
     try:
-        return store.get(bucket, object_key) == data
+        return store.get(scope, bucket, object_key) == data
     except FileNotFoundError:
         return False
 
@@ -82,10 +83,12 @@ def create_app(
         """Liveness probe (dev-playbook observability floor)."""
         return {"status": "ok"}
 
-    def accept(object_key: str, data: bytes, force: bool) -> dict[str, str]:
+    def accept(
+        object_key: str, data: bytes, force: bool, scope: Scope = DEFAULT_SCOPE
+    ) -> dict[str, str]:
         """Store ``data`` under ``object_key`` and queue it, unless the source already holds it."""
-        doc_id = document_id(bucket, object_key)
-        if not force and _holds(object_store, bucket, object_key, data):
+        doc_id = document_id(bucket, object_key, scope)
+        if not force and _holds(object_store, scope, bucket, object_key, data):
             _logger.info("unchanged document_id=%s object_key=%s", doc_id, object_key)
             return {
                 "document_id": doc_id,
@@ -94,8 +97,15 @@ def create_app(
                 "status": "unchanged",
             }
 
-        object_store.put(bucket, object_key, data)
-        publisher.publish(IngestTrigger(bucket=bucket, object_key=object_key))
+        object_store.put(scope, bucket, object_key, data)
+        publisher.publish(
+            IngestTrigger(
+                bucket=bucket,
+                object_key=object_key,
+                tenant=scope.tenant,
+                namespace=scope.namespace,
+            )
+        )
 
         _logger.info(
             "ingested document_id=%s bucket=%s object_key=%s bytes=%d",
@@ -128,7 +138,12 @@ def create_app(
         first attempt failed. Does NOT run the pipeline — that happens downstream.
         """
         data = await file.read()
-        return accept(source_url or file.filename or "upload", data, force)
+        object_key = source_url or file.filename or "upload"
+        if object_key.startswith(RESERVED_KEY_PREFIX):
+            raise HTTPException(
+                status_code=400, detail=f"Keys may not start with {RESERVED_KEY_PREFIX!r}."
+            )
+        return accept(object_key, data, force)
 
     @app.delete("/documents/{doc_id}")
     def delete_document(doc_id: str) -> DeletedDocument:

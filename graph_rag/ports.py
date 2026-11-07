@@ -10,6 +10,10 @@ Six ports map to the architecture's N10–N15 affordances. ``ObjectStore`` +
 ``Embedder`` from V4 (entity linking), and ``GraphStore`` from V5 (graph build).
 Signatures are fixed here so slices plug in without changing this contract.
 
+The four store ports (``ObjectStore``, ``DocumentStore``, ``EntityStore``, ``GraphStore``) take a
+:class:`~graph_rag.scope.Scope` as their first argument, with no default, so no call can run without
+saying whose data it is (ADR-0015). A scope sees only its own records.
+
 ``TriggerPublisher`` is the messaging seam: ``POST /ingest`` publishes through it
 so the endpoint and its test can inject the fake instead of a real Kafka producer.
 """
@@ -29,6 +33,7 @@ from graph_rag.models import (
     SupportingSentence,
     Triple,
 )
+from graph_rag.scope import Scope
 
 # Structured-output type variable: ``structured`` returns an instance of exactly
 # the Pydantic model type the caller asked for (ADR-0008).
@@ -55,11 +60,11 @@ class ObjectStore(Protocol):
     Active in V1.
     """
 
-    def put(self, bucket: str, object_key: str, data: bytes) -> None:
+    def put(self, scope: Scope, bucket: str, object_key: str, data: bytes) -> None:
         """Store ``data`` under ``(bucket, object_key)``, overwriting any prior object."""
         ...
 
-    def get(self, bucket: str, object_key: str) -> bytes:
+    def get(self, scope: Scope, bucket: str, object_key: str) -> bytes:
         """Return the bytes at ``(bucket, object_key)``.
 
         Raises:
@@ -67,7 +72,7 @@ class ObjectStore(Protocol):
         """
         ...
 
-    def delete(self, bucket: str, object_key: str) -> None:
+    def delete(self, scope: Scope, bucket: str, object_key: str) -> None:
         """Remove the object at ``(bucket, object_key)``; a no-op if it is not there."""
         ...
 
@@ -80,19 +85,21 @@ class DocumentStore(Protocol):
     re-upserting the same ID overwrites (ADR-0001).
     """
 
-    def upsert(self, record: DocumentRecord) -> None:
+    def upsert(self, scope: Scope, record: DocumentRecord) -> None:
         """Insert or overwrite the record keyed by ``record.document_id``."""
         ...
 
-    def get(self, document_id: str) -> DocumentRecord | None:
+    def get(self, scope: Scope, document_id: str) -> DocumentRecord | None:
         """Return the record for ``document_id``, or ``None`` if absent."""
         ...
 
-    def delete(self, document_id: str) -> bool:
+    def delete(self, scope: Scope, document_id: str) -> bool:
         """Remove the record for ``document_id``; ``True`` if there was one."""
         ...
 
-    def entities_in_use(self, canonical_ids: set[str], *, excluding: str | None = None) -> set[str]:
+    def entities_in_use(
+        self, scope: Scope, canonical_ids: set[str], *, excluding: str | None = None
+    ) -> set[str]:
         """The members of ``canonical_ids`` that a stored document still links to.
 
         A record links to an entity when its ``el_result`` names that ``canonical_id``.
@@ -101,7 +108,9 @@ class DocumentStore(Protocol):
         """
         ...
 
-    def search_sentences(self, *, vector: list[float], top_k: int) -> list[SupportingSentence]:
+    def search_sentences(
+        self, scope: Scope, *, vector: list[float], top_k: int
+    ) -> list[SupportingSentence]:
         """Return the ``top_k`` sentences nearest ``vector`` by cosine (V6, B5).
 
         Passage/sentence-anchored query seeding (ADR-0007): ranks over the
@@ -134,20 +143,20 @@ class EntityStore(Protocol):
     suite injects :class:`~graph_rag.fakes.InMemoryEntityStore`.
     """
 
-    def upsert(self, entity: CanonicalEntity) -> None:
+    def upsert(self, scope: Scope, entity: CanonicalEntity) -> None:
         """Insert or overwrite a canonical entity, keyed by ``entity.canonical_id``."""
         ...
 
-    def delete(self, canonical_id: str) -> None:
+    def delete(self, scope: Scope, canonical_id: str) -> None:
         """Remove the canonical entity; a no-op if it is not there."""
         ...
 
-    def get(self, canonical_id: str) -> CanonicalEntity | None:
+    def get(self, scope: Scope, canonical_id: str) -> CanonicalEntity | None:
         """Return the canonical entity for ``canonical_id``, or ``None`` if absent."""
         ...
 
     def block_candidates(
-        self, *, entity_type: CuratedType, normalized_name: str
+        self, scope: Scope, *, entity_type: CuratedType, normalized_name: str
     ) -> list[CanonicalEntity]:
         """Return the blocking candidates for an EL match (ADR-0004).
 
@@ -162,6 +171,7 @@ class EntityStore(Protocol):
 
     def knn(
         self,
+        scope: Scope,
         *,
         vector: list[float],
         entity_type: CuratedType | None = None,
@@ -177,11 +187,11 @@ class EntityStore(Protocol):
         """
         ...
 
-    def count(self) -> int:
+    def count(self, scope: Scope) -> int:
         """Return the number of canonical entities currently stored (test helper)."""
         ...
 
-    def all(self) -> list[CanonicalEntity]:
+    def all(self, scope: Scope) -> list[CanonicalEntity]:
         """Return every stored canonical entity (test/inspection helper)."""
         ...
 
@@ -202,7 +212,7 @@ class GraphStore(Protocol):
     store so the same entity across documents is one node.
     """
 
-    def upsert_entities(self, entities: list[CanonicalEntity]) -> None:
+    def upsert_entities(self, scope: Scope, entities: list[CanonicalEntity]) -> None:
         """Create/merge multi-label ``:Entity:Type`` nodes, keyed by ``canonical_id``.
 
         Idempotent by ``canonical_id``: re-upserting an entity overwrites its node
@@ -211,7 +221,7 @@ class GraphStore(Protocol):
         """
         ...
 
-    def write_triples(self, triples: list[Triple]) -> None:
+    def write_triples(self, scope: Scope, triples: list[Triple]) -> None:
         """Write provenance-carrying edges between canonical-ID nodes.
 
         Each :class:`~graph_rag.models.Triple` becomes one edge labelled by its
@@ -222,7 +232,7 @@ class GraphStore(Protocol):
         """
         ...
 
-    def delete_document_edges(self, source_doc_id: str) -> None:
+    def delete_document_edges(self, scope: Scope, source_doc_id: str) -> None:
         """Remove every edge whose provenance ``source_doc_id`` matches.
 
         The KG-build checkpoint calls this **before** writing a document's triples
@@ -232,11 +242,11 @@ class GraphStore(Protocol):
         """
         ...
 
-    def delete_nodes(self, canonical_ids: list[str]) -> None:
+    def delete_nodes(self, scope: Scope, canonical_ids: list[str]) -> None:
         """Remove these nodes and every edge that touches them; ids with no node are ignored."""
         ...
 
-    def khop(self, seed_ids: list[str], hops: int) -> Subgraph:
+    def khop(self, scope: Scope, seed_ids: list[str], hops: int) -> Subgraph:
         """Return the connected subgraph within ``hops`` of ``seed_ids``.
 
         Breadth-first expansion treating edges as undirected: the result's
@@ -247,19 +257,19 @@ class GraphStore(Protocol):
         """
         ...
 
-    def node_count(self) -> int:
+    def node_count(self, scope: Scope) -> int:
         """Return the number of nodes currently stored (test/inspection helper)."""
         ...
 
-    def edge_count(self) -> int:
+    def edge_count(self, scope: Scope) -> int:
         """Return the number of edges currently stored (test/inspection helper)."""
         ...
 
-    def get_node(self, canonical_id: str) -> CanonicalEntity | None:
+    def get_node(self, scope: Scope, canonical_id: str) -> CanonicalEntity | None:
         """Return the node for ``canonical_id``, or ``None`` if absent (test helper)."""
         ...
 
-    def get_node_edges(self, canonical_id: str) -> list[Triple]:
+    def get_node_edges(self, scope: Scope, canonical_id: str) -> list[Triple]:
         """Return every edge incident to ``canonical_id`` (as subject or object)."""
         ...
 

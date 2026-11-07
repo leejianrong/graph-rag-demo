@@ -48,6 +48,7 @@ from typing import TYPE_CHECKING, Any
 
 from neo4j import GraphDatabase
 
+from graph_rag.adapters.scoping import scope_fields
 from graph_rag.logging import get_logger
 from graph_rag.models import CanonicalEntity, EdgeProvenance, Subgraph, Triple
 from graph_rag.predicates import CLOSED_PREDICATES
@@ -56,10 +57,20 @@ if TYPE_CHECKING:
     from neo4j import Driver
 
     from graph_rag.config import Settings
+    from graph_rag.scope import Scope
 
 __all__ = ["Neo4jGraphStore"]
 
 _logger = get_logger(__name__)
+
+
+def _in(var: str) -> str:
+    """A Cypher predicate: node ``var`` belongs to the scope in ``$scope``.
+
+    A node written before scopes existed has no ``scope`` property and is the default scope's.
+    """
+    return f"coalesce({var}.scope, 'default') = $scope"
+
 
 # CuratedType -> the node's second label (a shared ``:Entity`` label plus this
 # per-type label, e.g. ``:Entity:Person``). The label is a code-controlled
@@ -129,11 +140,12 @@ class Neo4jGraphStore:
             "CREATE CONSTRAINT entity_canonical_id IF NOT EXISTS "
             "FOR (n:Entity) REQUIRE n.canonical_id IS UNIQUE"
         )
-        _logger.info("ensured :Entity(canonical_id) uniqueness constraint")
+        self._run("CREATE INDEX entity_scope IF NOT EXISTS FOR (n:Entity) ON (n.scope)")
+        _logger.info("ensured :Entity(canonical_id) uniqueness constraint and scope index")
 
     # --- Writes -------------------------------------------------------------
 
-    def upsert_entities(self, entities: list[CanonicalEntity]) -> None:
+    def upsert_entities(self, scope: Scope, entities: list[CanonicalEntity]) -> None:
         """Create/merge multi-label ``:Entity:Type`` nodes, keyed by ``canonical_id``.
 
         Idempotent by ``canonical_id``: ``MERGE`` finds-or-creates the node, then
@@ -141,6 +153,9 @@ class Neo4jGraphStore:
         label — so re-upserting an entity updates it in place. Entities are grouped
         by type label so each group is one ``UNWIND`` batch (the label is a literal
         in the query, validated against :data:`_TYPE_LABELS`).
+
+        A node is stamped with the scope when created. An id that another scope already owns
+        is left untouched (ids are scope-hashed, so this only guards against a clash).
         """
         by_label: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for entity in entities:
@@ -159,13 +174,16 @@ class Neo4jGraphStore:
             self._run(
                 "UNWIND $rows AS row "
                 "MERGE (n:Entity {canonical_id: row.canonical_id}) "
+                "ON CREATE SET n.tenant = $tenant, n.scope = $scope "
+                f"WITH n, row WHERE {_in('n')} "
                 "SET n.name = row.name, n.type = row.type, n.aliases = row.aliases, "
                 f"n:{label}",
                 rows=rows,
+                **scope_fields(scope),
             )
         _logger.debug("upserted %d entities across %d type label(s)", len(entities), len(by_label))
 
-    def write_triples(self, triples: list[Triple]) -> None:
+    def write_triples(self, scope: Scope, triples: list[Triple]) -> None:
         """Write one provenance-carrying relationship per triple (via ``CREATE``).
 
         Relationships are grouped by ``predicate`` so each group is one ``UNWIND``
@@ -196,17 +214,18 @@ class Neo4jGraphStore:
         for predicate, rows in by_predicate.items():
             self._run(
                 "UNWIND $rows AS row "
-                "MATCH (s:Entity {canonical_id: row.subject_id}) "
-                "MATCH (o:Entity {canonical_id: row.object_id}) "
+                f"MATCH (s:Entity {{canonical_id: row.subject_id}}) WHERE {_in('s')} "
+                f"MATCH (o:Entity {{canonical_id: row.object_id}}) WHERE {_in('o')} "
                 f"CREATE (s)-[r:{predicate}]->(o) "
                 "SET r += row.props",
                 rows=rows,
+                scope=scope.key,
             )
         _logger.debug(
             "wrote %d triples across %d predicate type(s)", len(triples), len(by_predicate)
         )
 
-    def delete_document_edges(self, source_doc_id: str) -> None:
+    def delete_document_edges(self, scope: Scope, source_doc_id: str) -> None:
         """Remove every edge whose provenance ``source_doc_id`` matches (nodes kept).
 
         Called before re-writing a document's triples so re-ingest overwrites
@@ -214,24 +233,28 @@ class Neo4jGraphStore:
         shared across documents and left intact.
         """
         self._run(
-            "MATCH ()-[r]->() WHERE r.source_doc_id = $doc DELETE r",
+            "MATCH (a:Entity)-[r]->(b:Entity) "
+            f"WHERE r.source_doc_id = $doc AND {_in('a')} AND {_in('b')} DELETE r",
             doc=source_doc_id,
+            scope=scope.key,
         )
         _logger.debug("deleted edges for source_doc_id=%s", source_doc_id)
 
-    def delete_nodes(self, canonical_ids: list[str]) -> None:
+    def delete_nodes(self, scope: Scope, canonical_ids: list[str]) -> None:
         """Remove these nodes and every edge that touches them; unknown ids are ignored."""
         if not canonical_ids:
             return
         self._run(
-            "UNWIND $ids AS id MATCH (n:Entity {canonical_id: id}) DETACH DELETE n",
+            f"UNWIND $ids AS id MATCH (n:Entity {{canonical_id: id}}) WHERE {_in('n')} "
+            "DETACH DELETE n",
             ids=list(canonical_ids),
+            scope=scope.key,
         )
         _logger.debug("deleted %d graph nodes", len(canonical_ids))
 
     # --- Reads --------------------------------------------------------------
 
-    def khop(self, seed_ids: list[str], hops: int) -> Subgraph:
+    def khop(self, scope: Scope, seed_ids: list[str], hops: int) -> Subgraph:
         """Return the connected subgraph within ``hops`` of ``seed_ids`` (undirected).
 
         A variable-length undirected traversal ``(s)-[*0..hops]-(m)`` from every
@@ -243,76 +266,89 @@ class Neo4jGraphStore:
         """
         depth = max(int(hops), 0)
         records = self._run(
-            "MATCH (s:Entity) WHERE s.canonical_id IN $seeds "
-            f"MATCH (s)-[*0..{depth}]-(m:Entity) "
+            f"MATCH (s:Entity) WHERE s.canonical_id IN $seeds AND {_in('s')} "
+            f"MATCH (s)-[*0..{depth}]-(m:Entity) WHERE {_in('m')} "
             "RETURN collect(DISTINCT m.canonical_id) AS ids",
             seeds=list(seed_ids),
+            scope=scope.key,
         )
         ids: list[str] = records[0]["ids"] if records else []
-        nodes = self._nodes_by_ids(ids)
-        edges = self._edges_within(ids)
+        nodes = self._nodes_by_ids(scope, ids)
+        edges = self._edges_within(scope, ids)
         return Subgraph(nodes=nodes, edges=edges)
 
-    def node_count(self) -> int:
+    def node_count(self, scope: Scope) -> int:
         """Return the number of ``:Entity`` nodes currently stored."""
-        records = self._run("MATCH (n:Entity) RETURN count(n) AS c")
+        records = self._run(
+            f"MATCH (n:Entity) WHERE {_in('n')} RETURN count(n) AS c", scope=scope.key
+        )
         return int(records[0]["c"])
 
-    def edge_count(self) -> int:
+    def edge_count(self, scope: Scope) -> int:
         """Return the number of edges currently stored."""
-        records = self._run("MATCH ()-[r]->() RETURN count(r) AS c")
+        records = self._run(
+            "MATCH (a:Entity)-[r]->(b:Entity) "
+            f"WHERE {_in('a')} AND {_in('b')} RETURN count(r) AS c",
+            scope=scope.key,
+        )
         return int(records[0]["c"])
 
-    def get_node(self, canonical_id: str) -> CanonicalEntity | None:
+    def get_node(self, scope: Scope, canonical_id: str) -> CanonicalEntity | None:
         """Return the node for ``canonical_id``, or ``None`` if absent (test helper).
 
         The reconstructed entity carries ``vector=None`` — vectors live in
         ``ES-Entities``, not the graph (ADR-0006).
         """
         records = self._run(
-            "MATCH (n:Entity {canonical_id: $cid}) "
+            f"MATCH (n:Entity {{canonical_id: $cid}}) WHERE {_in('n')} "
             "RETURN n.canonical_id AS canonical_id, n.name AS name, "
             "n.type AS type, n.aliases AS aliases",
             cid=canonical_id,
+            scope=scope.key,
         )
         if not records:
             return None
         return _to_entity(records[0])
 
-    def get_node_edges(self, canonical_id: str) -> list[Triple]:
+    def get_node_edges(self, scope: Scope, canonical_id: str) -> list[Triple]:
         """Return every edge incident to ``canonical_id`` (as subject or object)."""
         records = self._run(
-            "MATCH (n:Entity {canonical_id: $cid})-[r]-() "
+            "MATCH (n:Entity {canonical_id: $cid})-[r]-(m:Entity) "
+            f"WHERE {_in('n')} AND {_in('m')} "
             "RETURN startNode(r).canonical_id AS subject_id, type(r) AS predicate, "
             "endNode(r).canonical_id AS object_id, properties(r) AS props",
             cid=canonical_id,
+            scope=scope.key,
         )
         return [_to_triple(record) for record in records]
 
     # --- Internals ----------------------------------------------------------
 
-    def _nodes_by_ids(self, ids: list[str]) -> list[CanonicalEntity]:
+    def _nodes_by_ids(self, scope: Scope, ids: list[str]) -> list[CanonicalEntity]:
         """Return the :class:`CanonicalEntity` for each id in ``ids`` (missing skipped)."""
         if not ids:
             return []
         records = self._run(
-            "MATCH (n:Entity) WHERE n.canonical_id IN $ids "
+            f"MATCH (n:Entity) WHERE n.canonical_id IN $ids AND {_in('n')} "
             "RETURN n.canonical_id AS canonical_id, n.name AS name, "
             "n.type AS type, n.aliases AS aliases",
             ids=ids,
+            scope=scope.key,
         )
         return [_to_entity(record) for record in records]
 
-    def _edges_within(self, ids: list[str]) -> list[Triple]:
+    def _edges_within(self, scope: Scope, ids: list[str]) -> list[Triple]:
         """Return every edge whose subject and object are both in ``ids``."""
         if not ids:
             return []
         records = self._run(
             "MATCH (a:Entity)-[r]->(b:Entity) "
             "WHERE a.canonical_id IN $ids AND b.canonical_id IN $ids "
+            f"AND {_in('a')} AND {_in('b')} "
             "RETURN a.canonical_id AS subject_id, type(r) AS predicate, "
             "b.canonical_id AS object_id, properties(r) AS props",
             ids=ids,
+            scope=scope.key,
         )
         return [_to_triple(record) for record in records]
 

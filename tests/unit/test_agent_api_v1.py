@@ -108,6 +108,16 @@ def test_every_failure_is_the_one_error_shape(stack, path, body, code, status) -
     assert fits(spec, "Error", response.json()) == []
 
 
+def test_a_source_id_in_the_reserved_namespace_is_refused(stack) -> None:
+    client, _, queue = stack
+    response = client.post("/v1/remember", json={"text": "x", "source_id": "_scopes/t/root/k"})
+    assert response.status_code == 400 and response.json()["error"]["code"] == "invalid_request"
+    ingest = client.post(
+        "/ingest", files={"file": ("a.txt", b"x", "text/plain")}, data={"source_url": "_scopes/a"}
+    )
+    assert ingest.status_code == 400 and queue.triggers == []
+
+
 def test_malformed_json_is_invalid_request(stack) -> None:
     client, _, _ = stack
     response = client.post(

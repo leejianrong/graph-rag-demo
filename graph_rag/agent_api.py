@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
 from graph_rag.models import DeletedDocument, QueryRequest, QueryResponse
+from graph_rag.scope import RESERVED_KEY_PREFIX
 
 if TYPE_CHECKING:
     from graph_rag.query.retriever import QueryRetriever
@@ -122,6 +123,12 @@ def add_agent_routes(
                 {"limit_bytes": max_text_bytes},
             )
         source_id = request.source_id or _derived_source_id(request.text)
+        if source_id.startswith(RESERVED_KEY_PREFIX):
+            raise AgentError(
+                "invalid_request",
+                f"source_id may not start with {RESERVED_KEY_PREFIX!r}.",
+                {"field": "source_id"},
+            )
         stored = accept(source_id, data, request.force)
         return RememberResponse(
             document_id=stored["document_id"], source_id=source_id, status=stored["status"]

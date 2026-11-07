@@ -24,6 +24,7 @@ from graph_rag.fakes import (
 from graph_rag.ids import document_id
 from graph_rag.models import IngestTrigger
 from graph_rag.orchestrator import Orchestrator
+from graph_rag.scope import DEFAULT_SCOPE
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.entity_linking import EntityLinkingStage
 from graph_rag.wiring import HeuristicKgBuildStage, HeuristicNerStage
@@ -68,7 +69,7 @@ def test_ingest_stores_bytes_and_publishes_trigger() -> None:
     }
 
     # 2. The bytes landed in the object store under (bucket, filename).
-    assert store.get(bucket, filename) == content
+    assert store.get(DEFAULT_SCOPE, bucket, filename) == content
 
     # 3. Exactly one trigger published, with the right bucket/object_key.
     assert len(publisher.published) == 1
@@ -82,7 +83,7 @@ def test_ingest_does_not_run_pipeline() -> None:
 
     Proven structurally: the app is wired with ONLY an ObjectStore and a
     TriggerPublisher, so there is no path from /ingest into the pipeline here.
-    We assert the trigger carries just {bucket, object_key} (ADR-0001).
+    We assert the trigger carries just the location and the scope (ADR-0001, ADR-0015).
     """
     store = InMemoryObjectStore()
     publisher = InMemoryTriggerPublisher()
@@ -91,7 +92,7 @@ def test_ingest_does_not_run_pipeline() -> None:
     client.post("/ingest", files={"file": ("doc.txt", b"body", "text/plain")})
 
     trigger = publisher.published[0]
-    assert trigger.model_dump().keys() == {"bucket", "object_key"}
+    assert trigger.model_dump().keys() == {"bucket", "object_key", "tenant", "namespace"}
 
 
 def test_a_second_identical_ingest_is_unchanged_and_publishes_nothing() -> None:
@@ -115,7 +116,7 @@ def test_changed_bytes_for_the_same_source_are_ingested_again() -> None:
     second = client.post("/ingest", files={"file": ("a.md", b"second", "text/markdown")})
 
     assert second.json()["status"] == "accepted" and len(publisher.published) == 2
-    assert store.get(Settings().minio_bucket, "a.md") == b"second"
+    assert store.get(DEFAULT_SCOPE, Settings().minio_bucket, "a.md") == b"second"
 
 
 def test_the_source_url_keys_the_ingest_instead_of_the_filename() -> None:
@@ -176,10 +177,14 @@ def test_a_second_identical_ingest_costs_no_llm_call_and_leaves_the_graph_alone(
     files = {"file": ("notes.txt", text, "text/plain")}
 
     assert client.post("/ingest", files=files).json()["status"] == "accepted"
-    calls, nodes, edges = llm.calls, graph.node_count(), graph.edge_count()
+    calls, nodes, edges = (
+        llm.calls,
+        graph.node_count(DEFAULT_SCOPE),
+        graph.edge_count(DEFAULT_SCOPE),
+    )
     assert calls > 0 and nodes > 0 and edges > 0  # the first ingest did real work
 
     assert client.post("/ingest", files=files).json()["status"] == "unchanged"
     assert llm.calls == calls
-    assert (graph.node_count(), graph.edge_count()) == (nodes, edges)
+    assert (graph.node_count(DEFAULT_SCOPE), graph.edge_count(DEFAULT_SCOPE)) == (nodes, edges)
     assert publisher.published == 1

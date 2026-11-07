@@ -20,6 +20,7 @@ from graph_rag.api import create_app
 from graph_rag.config import Settings
 from graph_rag.fakes import InMemoryObjectStore, InMemoryTriggerPublisher
 from graph_rag.models import DeletedDocument, QueryRequest, QueryResponse
+from graph_rag.scope import DEFAULT_SCOPE
 from graph_rag.wiring import build_offline_components
 
 SPEC_PATH = Path(__file__).resolve().parents[2] / "docs" / "api" / "agent-api.openapi.yaml"
@@ -127,7 +128,7 @@ def test_a_real_recall_response_fits_the_schema() -> None:
     components = build_offline_components()
     bucket = components.bucket
     text = b"Ada Lovelace works for Acme Corp. Acme Corp is based in London."
-    components.object_store.put(bucket, "n.txt", text)
+    components.object_store.put(DEFAULT_SCOPE, bucket, "n.txt", text)
     from graph_rag.models import IngestTrigger
 
     assert components.orchestrator.process_document(

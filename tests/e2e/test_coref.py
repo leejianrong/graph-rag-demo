@@ -23,6 +23,7 @@ from graph_rag.fakes import FakeLLMClient, FakeNerStage, InMemoryDocumentStore, 
 from graph_rag.ids import document_id
 from graph_rag.models import CorefCluster, IngestTrigger, Mention
 from graph_rag.orchestrator import Orchestrator
+from graph_rag.scope import DEFAULT_SCOPE
 from graph_rag.stages.coref import FakeCorefStage, LLMCorefStage
 
 BUCKET = "documents"
@@ -45,7 +46,7 @@ CANNED_CLUSTERS = [
 
 
 def _put_doc(object_store: InMemoryObjectStore) -> None:
-    object_store.put(BUCKET, KEY, TEXT.encode())
+    object_store.put(DEFAULT_SCOPE, BUCKET, KEY, TEXT.encode())
 
 
 def test_result_carries_non_destructive_cluster_map_via_llm_stage(
@@ -134,7 +135,7 @@ def test_coref_not_persisted_to_es_record(
 
     assert result is not None
     assert result.coref_clusters == CANNED_CLUSTERS
-    stored = document_store.get(document_id(BUCKET, KEY))
+    stored = document_store.get(DEFAULT_SCOPE, document_id(BUCKET, KEY))
     assert stored is not None
     assert stored.text == TEXT
     # Enrichment (incl. coref) is NOT persisted until the V4 EL checkpoint —
@@ -193,11 +194,11 @@ def test_coref_failure_does_not_wedge_the_loop(
         coref_stage=SometimesExplodingCorefStage(),
     )
 
-    object_store.put(BUCKET, "bad.md", TEXT.encode())
+    object_store.put(DEFAULT_SCOPE, BUCKET, "bad.md", TEXT.encode())
     bad = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key="bad.md"))
     assert bad is None
 
-    object_store.put(BUCKET, "good.md", TEXT.encode())
+    object_store.put(DEFAULT_SCOPE, BUCKET, "good.md", TEXT.encode())
     good = orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key="good.md"))
     assert good is not None
     assert good.coref_clusters == CANNED_CLUSTERS

@@ -11,6 +11,7 @@ import pytest
 from minio.error import S3Error
 
 from graph_rag.adapters.minio_object_store import MinioObjectStore
+from graph_rag.scope import DEFAULT_SCOPE
 
 
 class _Client:
@@ -36,17 +37,17 @@ def _error(code: str) -> S3Error:
 
 def test_delete_asks_minio_to_remove_the_object() -> None:
     client = _Client()
-    _store(client).delete("documents", "a.md")
+    _store(client).delete(DEFAULT_SCOPE, "documents", "a.md")
     assert client.removed == [("documents", "a.md")]
 
 
 @pytest.mark.parametrize("code", ["NoSuchKey", "NoSuchBucket"])
 def test_a_missing_object_or_bucket_is_not_an_error(code: str) -> None:
     client = _Client(_error(code))
-    _store(client).delete("documents", "a.md")  # does not raise
+    _store(client).delete(DEFAULT_SCOPE, "documents", "a.md")  # does not raise
     assert client.removed == [("documents", "a.md")]
 
 
 def test_any_other_s3_error_is_raised() -> None:
     with pytest.raises(S3Error):
-        _store(_Client(_error("AccessDenied"))).delete("documents", "a.md")
+        _store(_Client(_error("AccessDenied"))).delete(DEFAULT_SCOPE, "documents", "a.md")

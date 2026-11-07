@@ -67,7 +67,7 @@ def link(store: InMemoryEntityStore, scope: Scope | None = None) -> str:
 def test_the_linking_stage_mints_scoped_ids_and_stays_idempotent_inside_a_scope() -> None:
     store = InMemoryEntityStore()
     first = link(store, A)
-    assert link(store, A) == first and store.count() == 1  # a re-ingest finds its entity
+    assert link(store, A) == first and store.count(A) == 1  # a re-ingest finds its entity
 
     assert first == entity_id("ORG", "acme corp", A)
     assert link(InMemoryEntityStore(), B) == entity_id("ORG", "acme corp", B) != first
@@ -78,6 +78,6 @@ def test_a_clash_inside_one_scope_still_gets_the_vector_salt() -> None:
     """Two distinct entities with one type and name keep distinct ids, as before."""
     store = InMemoryEntityStore()
     taken = entity_id("ORG", "acme corp", A)
-    store.upsert(CanonicalEntity(canonical_id=taken, name="Other", type="ORG", vector=[1.0]))
+    store.upsert(A, CanonicalEntity(canonical_id=taken, name="Other", type="ORG", vector=[1.0]))
     minted = link(store, A)
     assert minted != taken and minted.startswith("e-")

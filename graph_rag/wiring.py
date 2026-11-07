@@ -52,7 +52,7 @@ from graph_rag.fakes import (
 )
 from graph_rag.models import CuratedType, EdgeProvenance, Mention, Sentence, Triple
 from graph_rag.orchestrator import Orchestrator
-from graph_rag.ports import Embedder, ObjectStore
+from graph_rag.ports import DocumentStore, Embedder, EntityStore, GraphStore, ObjectStore
 from graph_rag.predicates import Predicate
 from graph_rag.query.retriever import QueryRetriever
 from graph_rag.stages.coref import LLMCorefStage
@@ -292,6 +292,9 @@ class BenchmarkComponents:
     """
 
     object_store: ObjectStore
+    document_store: DocumentStore
+    entity_store: EntityStore
+    graph_store: GraphStore
     orchestrator: Orchestrator
     retriever: QueryRetriever
     bucket: str
@@ -382,6 +385,9 @@ def build_offline_components(
     )
     return BenchmarkComponents(
         object_store=object_store,
+        document_store=document_store,
+        entity_store=entity_store,
+        graph_store=graph_store,
         orchestrator=orchestrator,
         retriever=retriever,
         bucket=settings.minio_bucket,
@@ -452,6 +458,9 @@ def build_real_components(settings: Settings | None = None) -> BenchmarkComponen
     )
     return BenchmarkComponents(
         object_store=object_store,
+        document_store=document_store,
+        entity_store=entity_store,
+        graph_store=graph_store,
         orchestrator=orchestrator,
         retriever=retriever,
         bucket=settings.minio_bucket,

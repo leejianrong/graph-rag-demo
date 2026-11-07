@@ -32,6 +32,7 @@ from typing import TYPE_CHECKING
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
 from graph_rag.models import IngestTrigger, QueryRequest
+from graph_rag.scope import DEFAULT_SCOPE
 from kgbench.cost import Cost, Meter
 from kgbench.metrics import aggregate, exact_match, supporting_fact_prf, token_f1
 
@@ -165,7 +166,7 @@ class BenchmarkHarness:
                     continue
                 seen_keys.add(key)
                 text = " ".join(paragraph.sentences)
-                self._components.object_store.put(bucket, key, text.encode("utf-8"))
+                self._components.object_store.put(DEFAULT_SCOPE, bucket, key, text.encode("utf-8"))
                 self._components.orchestrator.process_document(
                     IngestTrigger(bucket=bucket, object_key=key)
                 )

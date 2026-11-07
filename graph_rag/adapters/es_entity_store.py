@@ -27,6 +27,7 @@ from typing import TYPE_CHECKING, Any
 
 from elasticsearch import Elasticsearch, NotFoundError
 
+from graph_rag.adapters.scoping import es_in_scope, es_scope_filter, scope_fields
 from graph_rag.logging import get_logger
 from graph_rag.models import CanonicalEntity
 from graph_rag.normalize import normalize_name
@@ -34,6 +35,7 @@ from graph_rag.normalize import normalize_name
 if TYPE_CHECKING:
     from graph_rag.config import Settings
     from graph_rag.models import CuratedType
+    from graph_rag.scope import Scope
 
 __all__ = ["EsEntityStore"]
 
@@ -56,6 +58,8 @@ def _entities_mapping(dims: int) -> dict[str, Any]:
     return {
         "properties": {
             "canonical_id": {"type": "keyword"},
+            "tenant": {"type": "keyword"},
+            "scope": {"type": "keyword"},
             "name": {"type": "keyword"},
             "normalized_name": {"type": "keyword"},
             "type": {"type": "keyword"},
@@ -107,12 +111,18 @@ class EsEntityStore:
         Idempotent: a no-op when the index already exists.
         """
         if self._client.indices.exists(index=self._index):
+            # An index made before scopes existed gets the two new fields; older records
+            # simply lack them and read as the default scope.
+            self._client.indices.put_mapping(
+                index=self._index,
+                properties={"tenant": {"type": "keyword"}, "scope": {"type": "keyword"}},
+            )
             _logger.debug("entities index %r already exists", self._index)
             return
         self._client.indices.create(index=self._index, mappings=_entities_mapping(self._dims))
         _logger.info("created entities index %r (dense_vector dims=%d)", self._index, self._dims)
 
-    def upsert(self, entity: CanonicalEntity) -> None:
+    def upsert(self, scope: Scope, entity: CanonicalEntity) -> None:
         """Insert or overwrite a canonical entity, keyed by ``entity.canonical_id``.
 
         Stores the normalized forms of ``name`` and each ``alias`` so blocking
@@ -123,6 +133,7 @@ class EsEntityStore:
         """
         document: dict[str, Any] = {
             "canonical_id": entity.canonical_id,
+            **scope_fields(scope),
             "name": entity.name,
             "normalized_name": normalize_name(entity.name),
             "type": entity.type,
@@ -143,23 +154,27 @@ class EsEntityStore:
         )
         _logger.debug("upserted canonical entity %s", entity.canonical_id)
 
-    def delete(self, canonical_id: str) -> None:
-        """Remove the entity; a no-op if it is not there."""
+    def delete(self, scope: Scope, canonical_id: str) -> None:
+        """Remove the entity; a no-op if it is not there (in this scope)."""
+        if self.get(scope, canonical_id) is None:
+            return
         try:
             self._client.delete(index=self._index, id=canonical_id, refresh=True)
         except NotFoundError:
             return
 
-    def get(self, canonical_id: str) -> CanonicalEntity | None:
+    def get(self, scope: Scope, canonical_id: str) -> CanonicalEntity | None:
         """Return the canonical entity for ``canonical_id``, or ``None`` if absent."""
         try:
             response = self._client.get(index=self._index, id=canonical_id)
         except NotFoundError:
             return None
+        if not es_in_scope(response["_source"], scope):
+            return None
         return self._to_entity(response["_source"])
 
     def block_candidates(
-        self, *, entity_type: CuratedType, normalized_name: str
+        self, scope: Scope, *, entity_type: CuratedType, normalized_name: str
     ) -> list[CanonicalEntity]:
         """Return blocking candidates matching ``entity_type`` and name-or-alias (ADR-0004).
 
@@ -171,7 +186,7 @@ class EsEntityStore:
         """
         query = {
             "bool": {
-                "filter": [{"term": {"type": entity_type}}],
+                "filter": [{"term": {"type": entity_type}}, es_scope_filter(scope)],
                 "should": [
                     {"term": {"normalized_name": normalized_name}},
                     {"term": {"aliases_normalized": normalized_name}},
@@ -184,6 +199,7 @@ class EsEntityStore:
 
     def knn(
         self,
+        scope: Scope,
         *,
         vector: list[float],
         entity_type: CuratedType | None = None,
@@ -203,8 +219,10 @@ class EsEntityStore:
             "k": top_k,
             "num_candidates": max(top_k, 100),
         }
+        filters: list[dict[str, Any]] = [es_scope_filter(scope)]
         if entity_type is not None:
-            knn_query["filter"] = {"term": {"type": entity_type}}
+            filters.append({"term": {"type": entity_type}})
+        knn_query["filter"] = filters
 
         response = self._client.search(index=self._index, knn=knn_query, size=top_k)
         results: list[tuple[CanonicalEntity, float]] = []
@@ -213,15 +231,16 @@ class EsEntityStore:
             results.append((self._to_entity(hit["_source"]), cosine))
         return results
 
-    def count(self) -> int:
+    def count(self, scope: Scope) -> int:
         """Return the number of canonical entities currently stored (test helper)."""
-        return int(self._client.count(index=self._index)["count"])
+        query = {"bool": {"filter": [es_scope_filter(scope)]}}
+        return int(self._client.count(index=self._index, query=query)["count"])
 
-    def all(self) -> list[CanonicalEntity]:
+    def all(self, scope: Scope) -> list[CanonicalEntity]:
         """Return every stored canonical entity (test/inspection helper)."""
         response = self._client.search(
             index=self._index,
-            query={"match_all": {}},
+            query={"bool": {"filter": [es_scope_filter(scope)]}},
             size=_MAX_RESULTS,
         )
         return [self._to_entity(hit["_source"]) for hit in response["hits"]["hits"]]

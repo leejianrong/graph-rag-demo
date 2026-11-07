@@ -21,6 +21,7 @@ from graph_rag.fakes import (
 from graph_rag.ids import document_id
 from graph_rag.models import IngestTrigger
 from graph_rag.orchestrator import Orchestrator
+from graph_rag.scope import DEFAULT_SCOPE
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.entity_linking import EntityLinkingStage
 from graph_rag.wiring import HeuristicKgBuildStage, HeuristicNerStage
@@ -55,18 +56,18 @@ class Stack:
         )
 
     def ingest(self, key: str, data: bytes) -> str:
-        self.objects.put(BUCKET, key, data)
+        self.objects.put(DEFAULT_SCOPE, BUCKET, key, data)
         assert self.orchestrator.process_document(IngestTrigger(bucket=BUCKET, object_key=key))
         return document_id(BUCKET, key)
 
     def names(self) -> set[str]:
-        return {e.name for e in self.entities.all()}
+        return {e.name for e in self.entities.all(DEFAULT_SCOPE)}
 
     def sentences_of(self, doc_id: str) -> list:
         vector = self.embedder.embed(["Ada Lovelace Acme Corp London Grace Hopper"])[0]
         return [
             s
-            for s in self.documents.search_sentences(vector=vector, top_k=50)
+            for s in self.documents.search_sentences(DEFAULT_SCOPE, vector=vector, top_k=50)
             if s.document_id == doc_id
         ]
 
@@ -79,41 +80,43 @@ def stack() -> Stack:
 def test_deleting_a_document_removes_its_record_edges_bytes_and_sentences(stack: Stack) -> None:
     ada = stack.ingest("ada.txt", ADA)
     grace = stack.ingest("grace.txt", GRACE)
-    edges_before = stack.graph.edge_count()
-    assert stack.sentences_of(ada) and stack.documents.get(ada) is not None
+    edges_before = stack.graph.edge_count(DEFAULT_SCOPE)
+    assert stack.sentences_of(ada) and stack.documents.get(DEFAULT_SCOPE, ada) is not None
 
     result = stack.orchestrator.delete_document(ada)
 
     assert result is not None and result.document_id == ada and result.object_key == "ada.txt"
-    assert stack.documents.get(ada) is None
+    assert stack.documents.get(DEFAULT_SCOPE, ada) is None
     assert stack.sentences_of(ada) == []  # recall can no longer return them
-    assert stack.graph.edge_count() < edges_before
+    assert stack.graph.edge_count(DEFAULT_SCOPE) < edges_before
     assert all(
         e.provenance.source_doc_id != ada
         for e in [
-            t for n in stack.entities.all() for t in stack.graph.get_node_edges(n.canonical_id)
+            t
+            for n in stack.entities.all(DEFAULT_SCOPE)
+            for t in stack.graph.get_node_edges(DEFAULT_SCOPE, n.canonical_id)
         ]
     )
     with pytest.raises(FileNotFoundError):
-        stack.objects.get(BUCKET, "ada.txt")
-    assert stack.documents.get(grace) is not None and stack.sentences_of(grace)
+        stack.objects.get(DEFAULT_SCOPE, BUCKET, "ada.txt")
+    assert stack.documents.get(DEFAULT_SCOPE, grace) is not None and stack.sentences_of(grace)
 
 
 def test_an_entity_another_document_still_mentions_stays_and_the_rest_go(stack: Stack) -> None:
     ada = stack.ingest("ada.txt", ADA)
     stack.ingest("grace.txt", GRACE)
     assert {"Ada Lovelace", "Acme Corp", "London", "Grace Hopper"} <= stack.names()
-    nodes_before = stack.graph.node_count()
+    nodes_before = stack.graph.node_count(DEFAULT_SCOPE)
 
     result = stack.orchestrator.delete_document(ada)
 
-    kept = {stack.entities.get(i).name for i in result.entities_kept}
+    kept = {stack.entities.get(DEFAULT_SCOPE, i).name for i in result.entities_kept}
     removed_ids = set(result.entities_removed)
     assert kept == {"Acme Corp"}
     assert stack.names() >= {"Acme Corp", "Grace Hopper"}
     assert not stack.names() & {"Ada Lovelace", "London"}
-    assert all(stack.graph.get_node(i) is None for i in removed_ids) and removed_ids
-    assert stack.graph.node_count() == nodes_before - len(removed_ids)
+    assert all(stack.graph.get_node(DEFAULT_SCOPE, i) is None for i in removed_ids) and removed_ids
+    assert stack.graph.node_count(DEFAULT_SCOPE) == nodes_before - len(removed_ids)
 
 
 def test_deleting_the_only_document_leaves_nothing_behind(stack: Stack) -> None:
@@ -121,24 +124,34 @@ def test_deleting_the_only_document_leaves_nothing_behind(stack: Stack) -> None:
     result = stack.orchestrator.delete_document(only)
 
     assert result.entities_kept == [] and result.entities_removed
-    assert stack.entities.count() == 0
-    assert (stack.graph.node_count(), stack.graph.edge_count()) == (0, 0)
+    assert stack.entities.count(DEFAULT_SCOPE) == 0
+    assert (stack.graph.node_count(DEFAULT_SCOPE), stack.graph.edge_count(DEFAULT_SCOPE)) == (0, 0)
 
 
 def test_deleting_an_unknown_document_is_none_and_touches_nothing(stack: Stack) -> None:
     grace = stack.ingest("grace.txt", GRACE)
-    before = (stack.entities.count(), stack.graph.node_count(), stack.graph.edge_count())
+    before = (
+        stack.entities.count(DEFAULT_SCOPE),
+        stack.graph.node_count(DEFAULT_SCOPE),
+        stack.graph.edge_count(DEFAULT_SCOPE),
+    )
 
     assert stack.orchestrator.delete_document("0" * 64) is None
-    assert (stack.entities.count(), stack.graph.node_count(), stack.graph.edge_count()) == before
-    assert stack.documents.get(grace) is not None
+    assert (
+        stack.entities.count(DEFAULT_SCOPE),
+        stack.graph.node_count(DEFAULT_SCOPE),
+        stack.graph.edge_count(DEFAULT_SCOPE),
+    ) == before
+    assert stack.documents.get(DEFAULT_SCOPE, grace) is not None
 
 
 def test_a_delete_that_stopped_part_way_can_be_run_again(stack: Stack) -> None:
     """The record goes last, so a repeat finishes what a failed call left."""
     ada = stack.ingest("ada.txt", ADA)
     stack.ingest("grace.txt", GRACE)
-    stack.graph.delete_document_edges(ada)  # the first step of a delete that then failed
+    stack.graph.delete_document_edges(
+        DEFAULT_SCOPE, ada
+    )  # the first step of a delete that then failed
 
     result = stack.orchestrator.delete_document(ada)
 
@@ -192,7 +205,7 @@ def test_a_deleted_source_can_be_ingested_again(stack: Stack) -> None:
     client.delete(f"/documents/{ada}")
 
     assert client.post("/ingest", files=files).json()["status"] == "accepted"
-    assert stack.documents.get(ada) is not None and "Ada Lovelace" in stack.names()
+    assert stack.documents.get(DEFAULT_SCOPE, ada) is not None and "Ada Lovelace" in stack.names()
 
 
 class _Runs:

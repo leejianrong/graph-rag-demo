@@ -15,6 +15,9 @@ from collections.abc import Iterator
 
 import pytest
 
+from graph_rag.scope import DEFAULT_SCOPE
+from tests.isolation import check_object_store
+
 pytestmark = pytest.mark.contract
 
 # Import guard: testcontainers/docker deps or a missing daemon must skip, not error.
@@ -53,19 +56,19 @@ def test_round_trip_returns_identical_bytes(object_store: MinioObjectStore) -> N
     bucket = f"documents-{uuid.uuid4().hex[:8]}"
     data = b"\x00\x01 the quick brown fox \xff\xfe"
 
-    object_store.put(bucket, "roundtrip.bin", data)
+    object_store.put(DEFAULT_SCOPE, bucket, "roundtrip.bin", data)
 
-    assert object_store.get(bucket, "roundtrip.bin") == data
+    assert object_store.get(DEFAULT_SCOPE, bucket, "roundtrip.bin") == data
 
 
 def test_get_missing_key_raises_file_not_found(object_store: MinioObjectStore) -> None:
     """get of an absent object raises FileNotFoundError (matching the fake)."""
     bucket = f"documents-{uuid.uuid4().hex[:8]}"
     # Bucket exists but key does not.
-    object_store.put(bucket, "present.txt", b"present")
+    object_store.put(DEFAULT_SCOPE, bucket, "present.txt", b"present")
 
     with pytest.raises(FileNotFoundError):
-        object_store.get(bucket, "does-not-exist.txt")
+        object_store.get(DEFAULT_SCOPE, bucket, "does-not-exist.txt")
 
 
 def test_get_missing_bucket_raises_file_not_found(object_store: MinioObjectStore) -> None:
@@ -73,17 +76,17 @@ def test_get_missing_bucket_raises_file_not_found(object_store: MinioObjectStore
     bucket = f"never-created-{uuid.uuid4().hex[:8]}"
 
     with pytest.raises(FileNotFoundError):
-        object_store.get(bucket, "whatever.txt")
+        object_store.get(DEFAULT_SCOPE, bucket, "whatever.txt")
 
 
 def test_put_is_overwrite_idempotent(object_store: MinioObjectStore) -> None:
     """Re-putting the same key overwrites; get returns the latest bytes."""
     bucket = f"documents-{uuid.uuid4().hex[:8]}"
 
-    object_store.put(bucket, "doc.txt", b"first")
-    object_store.put(bucket, "doc.txt", b"second")
+    object_store.put(DEFAULT_SCOPE, bucket, "doc.txt", b"first")
+    object_store.put(DEFAULT_SCOPE, bucket, "doc.txt", b"second")
 
-    assert object_store.get(bucket, "doc.txt") == b"second"
+    assert object_store.get(DEFAULT_SCOPE, bucket, "doc.txt") == b"second"
 
 
 def test_delete_removes_the_object_and_is_a_no_op_when_it_is_missing(
@@ -96,11 +99,24 @@ def test_delete_removes_the_object_and_is_a_no_op_when_it_is_missing(
     bucket = f"documents-{uuid.uuid4().hex[:8]}"
     fake = InMemoryObjectStore()
     for store in (object_store, fake):
-        store.put(bucket, "gone.txt", b"bytes")
-        store.put(bucket, "kept.txt", b"other")
-        store.delete(bucket, "gone.txt")
+        store.put(DEFAULT_SCOPE, bucket, "gone.txt", b"bytes")
+        store.put(DEFAULT_SCOPE, bucket, "kept.txt", b"other")
+        store.delete(DEFAULT_SCOPE, bucket, "gone.txt")
         with pytest.raises(FileNotFoundError):
-            store.get(bucket, "gone.txt")
-        assert store.get(bucket, "kept.txt") == b"other"
-        store.delete(bucket, "gone.txt")  # already gone
-        store.delete(f"never-created-{uuid.uuid4().hex[:8]}", "x.txt")  # no such bucket
+            store.get(DEFAULT_SCOPE, bucket, "gone.txt")
+        assert store.get(DEFAULT_SCOPE, bucket, "kept.txt") == b"other"
+        store.delete(DEFAULT_SCOPE, bucket, "gone.txt")  # already gone
+        store.delete(
+            DEFAULT_SCOPE, f"never-created-{uuid.uuid4().hex[:8]}", "x.txt"
+        )  # no such bucket
+
+
+def test_scopes_are_isolated(object_store: MinioObjectStore) -> None:
+    """One scope cannot read, overwrite or delete another's object (ADR-0015)."""
+    check_object_store(object_store)
+
+
+def test_the_default_scope_cannot_name_a_reserved_key(object_store: MinioObjectStore) -> None:
+    bucket = f"documents-{uuid.uuid4().hex[:8]}"
+    with pytest.raises(ValueError):
+        object_store.put(DEFAULT_SCOPE, bucket, "_scopes/other/root/k.txt", b"x")

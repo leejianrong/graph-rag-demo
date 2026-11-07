@@ -17,11 +17,13 @@ from typing import TYPE_CHECKING, Any
 
 from elasticsearch import Elasticsearch, NotFoundError
 
+from graph_rag.adapters.scoping import es_in_scope, es_scope_filter, scope_fields
 from graph_rag.logging import get_logger
 from graph_rag.models import DocumentRecord, Sentence, SupportingSentence
 
 if TYPE_CHECKING:
     from graph_rag.config import Settings
+    from graph_rag.scope import Scope
 
 __all__ = ["EsDocumentStore"]
 
@@ -44,6 +46,8 @@ def _documents_mapping(dims: int) -> dict[str, Any]:
         "dynamic": True,
         "properties": {
             "document_id": {"type": "keyword"},
+            "tenant": {"type": "keyword"},
+            "scope": {"type": "keyword"},
             "bucket": {"type": "keyword"},
             "object_key": {"type": "keyword"},
             "text": {"type": "text"},
@@ -109,6 +113,12 @@ class EsDocumentStore:
         Idempotent: a no-op when the index is already present.
         """
         if self._client.indices.exists(index=self._index):
+            # An index made before scopes existed gets the two new fields; older records
+            # simply lack them and read as the default scope.
+            self._client.indices.put_mapping(
+                index=self._index,
+                properties={"tenant": {"type": "keyword"}, "scope": {"type": "keyword"}},
+            )
             _logger.debug("documents index %r already exists", self._index)
             return
         self._client.indices.create(index=self._index, mappings=_documents_mapping(self._dims))
@@ -118,7 +128,7 @@ class EsDocumentStore:
             self._dims,
         )
 
-    def upsert(self, record: DocumentRecord) -> None:
+    def upsert(self, scope: Scope, record: DocumentRecord) -> None:
         """Insert or overwrite the record, keyed by ``record.document_id``.
 
         Indexing with ``id=record.document_id`` makes re-ingest overwrite rather
@@ -134,6 +144,7 @@ class EsDocumentStore:
         document: dict[str, Any] = record.model_dump()
         document.pop("sentence_vectors", None)
         document["sentences"] = self._nested_sentences(record)
+        document.update(scope_fields(scope))
         self._client.index(
             index=self._index,
             id=record.document_id,
@@ -142,7 +153,7 @@ class EsDocumentStore:
         )
         _logger.debug("upserted document %s", record.document_id)
 
-    def get(self, document_id: str) -> DocumentRecord | None:
+    def get(self, scope: Scope, document_id: str) -> DocumentRecord | None:
         """Return the record for ``document_id``, or ``None`` if absent.
 
         Rebuilds ``sentences`` and ``sentence_vectors`` from the nested field so
@@ -152,17 +163,23 @@ class EsDocumentStore:
             response = self._client.get(index=self._index, id=document_id)
         except NotFoundError:
             return None
+        if not es_in_scope(response["_source"], scope):
+            return None
         return self._to_record(response["_source"])
 
-    def delete(self, document_id: str) -> bool:
-        """Remove the record; ``True`` if there was one."""
+    def delete(self, scope: Scope, document_id: str) -> bool:
+        """Remove the record; ``True`` if there was one (in this scope)."""
+        if self.get(scope, document_id) is None:
+            return False
         try:
             self._client.delete(index=self._index, id=document_id, refresh=True)
         except NotFoundError:
             return False
         return True
 
-    def entities_in_use(self, canonical_ids: set[str], *, excluding: str | None = None) -> set[str]:
+    def entities_in_use(
+        self, scope: Scope, canonical_ids: set[str], *, excluding: str | None = None
+    ) -> set[str]:
         """The ids some stored record (other than ``excluding``) links to.
 
         One search with a ``filters`` aggregation, a bucket per id. A record's
@@ -184,9 +201,9 @@ class EsDocumentStore:
             }
             for cid in sorted(canonical_ids)
         }
-        query: dict[str, Any] = {"match_all": {}}
+        query: dict[str, Any] = {"bool": {"filter": [es_scope_filter(scope)]}}
         if excluding is not None:
-            query = {"bool": {"must_not": [{"ids": {"values": [excluding]}}]}}
+            query["bool"]["must_not"] = [{"ids": {"values": [excluding]}}]
         try:
             response = self._client.search(
                 index=self._index,
@@ -199,7 +216,9 @@ class EsDocumentStore:
         found = response["aggregations"]["in_use"]["buckets"]
         return {cid for cid, bucket in found.items() if bucket["doc_count"] > 0}
 
-    def search_sentences(self, *, vector: list[float], top_k: int) -> list[SupportingSentence]:
+    def search_sentences(
+        self, scope: Scope, *, vector: list[float], top_k: int
+    ) -> list[SupportingSentence]:
         """Return the ``top_k`` sentences nearest ``vector`` by cosine (V6, B5).
 
         Runs an ES kNN search over the nested ``sentences.vector`` field with
@@ -217,6 +236,7 @@ class EsDocumentStore:
             "query_vector": vector,
             "k": top_k,
             "num_candidates": max(top_k, 100),
+            "filter": es_scope_filter(scope),
             "inner_hits": {
                 "size": top_k,
                 "name": "sentences",

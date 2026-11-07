@@ -35,6 +35,7 @@ from graph_rag.fakes import (
 from graph_rag.ids import document_id
 from graph_rag.models import CorefCluster, IngestTrigger, Mention, Sentence
 from graph_rag.orchestrator import Orchestrator
+from graph_rag.scope import DEFAULT_SCOPE
 from graph_rag.stages.coref import FakeCorefStage
 from graph_rag.stages.entity_linking import EntityLinkingStage
 
@@ -90,7 +91,7 @@ def _run(
     coref: FakeCorefStage,
 ):
     """Ingest one doc through a fresh orchestrator sharing the stores + EL stage."""
-    object_store.put(BUCKET, key, text.encode())
+    object_store.put(DEFAULT_SCOPE, BUCKET, key, text.encode())
     orchestrator = Orchestrator(
         object_store=object_store,
         document_store=document_store,
@@ -137,7 +138,7 @@ def test_merge_across_docs_yields_one_canonical(
 
     assert first is not None and second is not None
     # Exactly ONE canonical entity across the two documents.
-    assert entity_store.count() == 1
+    assert entity_store.count(DEFAULT_SCOPE) == 1
 
     (link1,) = first.el_result
     (link2,) = second.el_result
@@ -147,7 +148,7 @@ def test_merge_across_docs_yields_one_canonical(
     assert link1.canonical_id == link2.canonical_id
     assert link2.score >= 0.82  # cosine 1.0 for the identical token bag
 
-    canonical = entity_store.get(link1.canonical_id)
+    canonical = entity_store.get(DEFAULT_SCOPE, link1.canonical_id)
     assert canonical is not None
     # First mention seeds the canonical name (order-sensitivity, ADR-0004).
     assert canonical.name == DOC1_SURFACE
@@ -187,7 +188,7 @@ def test_create_new_for_distinct_entity(
 
     assert first is not None and third is not None
     # Two distinct canonicals — the org did not merge into the person.
-    assert entity_store.count() == 2
+    assert entity_store.count(DEFAULT_SCOPE) == 2
     (person_link,) = first.el_result
     (org_link,) = third.el_result
     assert org_link.is_new is True
@@ -221,7 +222,7 @@ def test_enriched_record_written_at_checkpoint(
 
     assert result is not None
     doc_id = document_id(BUCKET, DOC1_KEY)
-    stored = document_store.get(doc_id)
+    stored = document_store.get(DEFAULT_SCOPE, doc_id)
     assert stored is not None
     assert stored.document_id == doc_id
     # Raw text preserved, and every enrichment field now populated.
@@ -271,7 +272,7 @@ def test_reingest_overwrites_no_duplicate(
     assert first is not None and second is not None
     assert first.record.document_id == second.record.document_id
     assert len(document_store._records) == 1  # noqa: SLF001 — asserting no duplication.
-    assert entity_store.count() == 1  # merged into itself, not duplicated.
+    assert entity_store.count(DEFAULT_SCOPE) == 1  # merged into itself, not duplicated.
     # The re-ingest resolved to the same seeded canonical, now a merge.
     assert second.el_result[0].is_new is False
     assert second.el_result[0].canonical_id == first.el_result[0].canonical_id
@@ -312,8 +313,8 @@ def test_order_sensitivity_first_doc_seeds_canonical(
     )
 
     assert second is not None
-    assert entity_store.count() == 1
-    canonical = entity_store.get(second.el_result[0].canonical_id)
+    assert entity_store.count(DEFAULT_SCOPE) == 1
+    canonical = entity_store.get(DEFAULT_SCOPE, second.el_result[0].canonical_id)
     assert canonical is not None
     assert canonical.name == DOC2_SURFACE  # ingested first → seeds the name
     assert canonical.aliases == [DOC1_SURFACE]
@@ -328,7 +329,7 @@ def test_el_failure_is_logged_and_dropped(
     class ExplodingELStage:
         """EL stage whose link always fails, to exercise log-and-drop."""
 
-        def link(self, text, mentions, sentences, coref_clusters):  # type: ignore[no-untyped-def]
+        def link(self, text, mentions, sentences, coref_clusters, scope):  # type: ignore[no-untyped-def]
             raise RuntimeError("simulated entity-linking failure")
 
     ner, coref = _person_stages(DOC1_SURFACE, DOC1_TEXT)
@@ -359,11 +360,11 @@ def test_el_failure_does_not_wedge_the_loop(
             self._delegate = delegate
             self._calls = 0
 
-        def link(self, text, mentions, sentences, coref_clusters):  # type: ignore[no-untyped-def]
+        def link(self, text, mentions, sentences, coref_clusters, scope):  # type: ignore[no-untyped-def]
             self._calls += 1
             if self._calls == 1:
                 raise RuntimeError("simulated entity-linking failure")
-            return self._delegate.link(text, mentions, sentences, coref_clusters)
+            return self._delegate.link(text, mentions, sentences, coref_clusters, scope)
 
     el_stage = SometimesExplodingELStage(EntityLinkingStage(entity_store, embedder))
 
