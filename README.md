@@ -156,7 +156,9 @@ curl -X POST localhost:8000/v1/recall -H 'content-type: application/json' \
 curl -X POST localhost:8000/v1/forget -H 'content-type: application/json' -d '{"source_id": "note-1"}'
 ```
 
-`lookup` and the planned fields (`token_budget`, `as_of`, `namespace`) are not served yet.
+Add `"namespace": "my-project"` to any of the three calls to keep memory apart (per project, say): what is
+remembered in one namespace is never recalled or forgotten from another, and leaving it out is the default
+namespace. `lookup` and the planned fields (`token_budget`, `as_of`) are not served yet.
 
 ### Use it from Claude Code (MCP)
 
@@ -169,7 +171,7 @@ claude mcp add graph-rag --env GRAPH_RAG_URL=http://localhost:8000 -- uv run --d
 ```
 
 `recall` returns the answer with its supporting sentences, each carrying its document and character
-offsets, so the agent can cite them. `forget` and `lookup` are not tools yet.
+offsets, so the agent can cite them. Both tools take an optional `namespace`. `forget` and `lookup` are not tools yet.
 
 To forget a document, delete it by the `document_id` that ingest returned:
 

@@ -208,6 +208,13 @@ components:
               type: object
               description: Extra fields for the code, such as the offending field name.
               additionalProperties: true
+    Namespace:
+      type: string
+      minLength: 1
+      description: |
+        Keeps memory apart from other namespaces of the same tenant: what is remembered in one is
+        never recalled or forgotten from another. Omit it for the default namespace, which is what
+        every call used before namespaces existed. It may not contain `/` or `|`.
     RememberRequest:
       type: object
       required: [text]
@@ -228,10 +235,7 @@ components:
           default: false
           description: Ingest the text again even if the source already holds it, for a source whose first attempt failed.
         namespace:
-          type: string
-          description: Keeps this memory apart from other namespaces of the same tenant.
-          x-status: planned
-          x-card: GRA-45
+          $ref: "#/components/schemas/Namespace"
     RememberResponse:
       type: object
       required: [document_id, source_id, status]
@@ -269,9 +273,7 @@ components:
           x-status: planned
           x-card: GRA-44
         namespace:
-          type: string
-          x-status: planned
-          x-card: GRA-45
+          $ref: "#/components/schemas/Namespace"
     RecallResponse:
       type: object
       required: [answer, answer_entity, subgraph, ranked_nodes, supporting_sentences]
@@ -315,6 +317,8 @@ components:
       properties:
         source_id: { type: string, minLength: 1 }
         document_id: { type: string, minLength: 1 }
+        namespace:
+          $ref: "#/components/schemas/Namespace"
     ForgetResponse:
       type: object
       required: [document_id, entities_removed, entities_kept]

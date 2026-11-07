@@ -83,3 +83,18 @@ def test_an_unreachable_service_is_a_tool_error_not_a_crash() -> None:
     http = httpx.Client(base_url="http://nowhere", transport=httpx.MockTransport(refuse))
     result = call(http, "recall", {"question": "q"})
     assert result.is_error and "Could not reach" in result.content[0].text
+
+
+def test_a_namespace_keeps_memory_apart_through_the_tools(pipeline) -> None:
+    http, components, queue = pipeline
+    call(http, "remember", {"text": TEXT, "source_id": "n", "namespace": "work"})
+    for trigger in queue.triggers:
+        assert components.orchestrator.process_document(trigger)
+
+    ask = {"question": "Where is Acme Corp based?"}
+
+    def found(extra: dict) -> list:
+        return call(http, "recall", ask | extra).structured_content["supporting_sentences"]
+
+    assert found({"namespace": "work"})
+    assert found({}) == [] and found({"namespace": "home"}) == []
