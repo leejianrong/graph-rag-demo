@@ -54,7 +54,7 @@ def create_app(
     settings: Settings | None = None,
     *,
     retriever: QueryRetriever | None = None,
-    eraser: Callable[[str], DeletedDocument | None] | None = None,
+    eraser: Callable[[str, Scope], DeletedDocument | None] | None = None,
 ) -> FastAPI:
     """Build the FastAPI app with its ports injected.
 
@@ -155,7 +155,7 @@ def create_app(
         """
         if eraser is None:
             raise HTTPException(status_code=503, detail="Delete is not configured on this service.")
-        result = eraser(doc_id)
+        result = eraser(doc_id, DEFAULT_SCOPE)
         if result is None:
             raise HTTPException(status_code=404, detail=f"No document {doc_id}.")
         return result

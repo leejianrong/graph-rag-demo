@@ -156,9 +156,46 @@ def test_the_old_endpoints_keep_their_own_error_shape(stack) -> None:
     assert "detail" in client.delete("/documents/nothing").json()
 
 
+def test_namespaces_keep_memory_apart_and_the_default_is_unchanged(stack) -> None:
+    client, components, queue = stack
+    for ns in ("alpha", "beta", None):
+        body = {"text": TEXT, "source_id": "same-note"} | ({"namespace": ns} if ns else {})
+        assert client.post("/v1/remember", json=body).status_code == 202
+    drain(components, queue)  # the same source id in three namespaces is three documents
+
+    ask = {"question": "Where is Acme Corp based?"}
+
+    def recall(ns: str | None) -> dict:
+        return client.post("/v1/recall", json=ask | ({"namespace": ns} if ns else {})).json()
+
+    ids = {
+        ns: {s["document_id"] for s in recall(ns)["supporting_sentences"]}
+        for ns in ("alpha", "beta", None)
+    }
+    assert all(ids.values()) and len(set().union(*ids.values())) == 3  # no overlap
+    assert recall("gamma")["supporting_sentences"] == []
+
+    gone = client.post("/v1/forget", json={"source_id": "same-note", "namespace": "alpha"})
+    assert gone.status_code == 200
+    assert recall("alpha")["supporting_sentences"] == []
+    assert recall("beta")["supporting_sentences"] and recall(None)["supporting_sentences"]
+    again = client.post("/v1/forget", json={"source_id": "same-note", "namespace": "alpha"})
+    assert again.status_code == 404  # gone from alpha only
+
+
+def test_a_namespace_that_cannot_be_a_scope_is_invalid_request(stack) -> None:
+    client, _, _ = stack
+    for path, body in (
+        ("/v1/remember", {"text": "x", "namespace": "a/b"}),
+        ("/v1/recall", {"question": "q", "namespace": "a|b"}),
+        ("/v1/forget", {"source_id": "s", "namespace": ""}),
+    ):
+        response = client.post(path, json=body)
+        assert response.status_code == 400
+        assert response.json()["error"]["code"] == "invalid_request"
+
+
 def test_planned_fields_are_ignored_not_rejected(stack) -> None:
     client, _, _ = stack
-    response = client.post(
-        "/v1/recall", json={"question": "q", "namespace": "a", "as_of": "2020-01-01"}
-    )
+    response = client.post("/v1/recall", json={"question": "q", "as_of": "2020-01-01"})
     assert response.status_code == 200

@@ -42,24 +42,31 @@ def build_server(client: httpx.Client) -> MCPServer:
     server = MCPServer("graph-rag", instructions=_INSTRUCTIONS)
 
     @server.tool()
-    def remember(text: str, source_id: str | None = None) -> dict[str, Any]:
+    def remember(
+        text: str, source_id: str | None = None, namespace: str | None = None
+    ) -> dict[str, Any]:
         """Store text in memory.
 
         Give a stable `source_id` (a URL, a path, a note id) to make repeats safe: the same id
         with the same text does nothing and returns status `unchanged`. Without one, identical
-        text is still stored once.
+        text is still stored once. A `namespace` (for example a project name) keeps this memory
+        apart: recall it with the same namespace.
         """
-        body = {"text": text} | ({"source_id": source_id} if source_id else {})
+        body = {"text": text}
+        body |= {"source_id": source_id} if source_id else {}
+        body |= {"namespace": namespace} if namespace else {}
         return _post(client, "/v1/remember", body)
 
     @server.tool()
-    def recall(question: str) -> dict[str, Any]:
+    def recall(question: str, namespace: str | None = None) -> dict[str, Any]:
         """Answer a question from memory, with its evidence.
 
         Returns the answer entity, the ranked entities, the connected subgraph and the
-        supporting sentences, each with its source document and character offsets.
+        supporting sentences, each with its source document and character offsets. Pass the
+        `namespace` the memory was remembered in; without one, the default namespace is searched.
         """
-        return _post(client, "/v1/recall", {"question": question})
+        body = {"question": question} | ({"namespace": namespace} if namespace else {})
+        return _post(client, "/v1/recall", body)
 
     return server
 

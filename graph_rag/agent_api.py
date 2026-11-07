@@ -4,7 +4,8 @@ A thin facade. Each verb reshapes a request onto the endpoint logic that already
 the retriever, the eraser) and answers failures in the contract's one shape,
 ``{"error": {"code", "message", "details?"}}``. The routes under ``/v1`` use that shape; the older
 endpoints keep FastAPI's ``{"detail": ...}``. ``lookup`` and the planned fields (``token_budget``,
-``as_of``, ``namespace``) are not served; a body that carries one has it ignored.
+``as_of``) are not served; a body that carries one has it ignored. ``namespace`` partitions memory
+inside the tenant (ADR-0015): each verb runs in the scope it names.
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ from pydantic import BaseModel, Field
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
 from graph_rag.models import DeletedDocument, QueryRequest, QueryResponse
-from graph_rag.scope import RESERVED_KEY_PREFIX
+from graph_rag.scope import RESERVED_KEY_PREFIX, Scope
 
 if TYPE_CHECKING:
     from graph_rag.query.retriever import QueryRetriever
@@ -49,8 +50,19 @@ class AgentError(Exception):
         self.code, self.message, self.details = code, message, details
 
 
+def _scope(namespace: str | None) -> Scope:
+    """The scope a request names; a namespace that cannot be one is ``invalid_request``."""
+    try:
+        return Scope(namespace=namespace)
+    except ValueError as error:
+        raise AgentError(
+            "invalid_request", f"namespace: {error}", {"field": "namespace"}
+        ) from error
+
+
 class RememberRequest(BaseModel):
     text: str = Field(min_length=1)
+    namespace: str | None = Field(default=None, min_length=1)
     source_id: str | None = Field(default=None, min_length=1)
     force: bool = False
 
@@ -64,11 +76,13 @@ class RememberResponse(BaseModel):
 class RecallRequest(BaseModel):
     question: str = Field(min_length=1)
     synthesize: bool = False
+    namespace: str | None = Field(default=None, min_length=1)
 
 
 class ForgetRequest(BaseModel):
     source_id: str | None = Field(default=None, min_length=1)
     document_id: str | None = Field(default=None, min_length=1)
+    namespace: str | None = Field(default=None, min_length=1)
 
 
 class ForgetResponse(BaseModel):
@@ -93,9 +107,9 @@ def _derived_source_id(text: str) -> str:
 def add_agent_routes(
     app: FastAPI,
     *,
-    accept: Callable[[str, bytes, bool], dict[str, str]],
+    accept: Callable[[str, bytes, bool, Scope], dict[str, str]],
     retriever: QueryRetriever | None,
-    eraser: Callable[[str], DeletedDocument | None] | None,
+    eraser: Callable[[str, Scope], DeletedDocument | None] | None,
     bucket: str,
     max_text_bytes: int,
 ) -> None:
@@ -129,7 +143,7 @@ def add_agent_routes(
                 f"source_id may not start with {RESERVED_KEY_PREFIX!r}.",
                 {"field": "source_id"},
             )
-        stored = accept(source_id, data, request.force)
+        stored = accept(source_id, data, request.force, _scope(request.namespace))
         return RememberResponse(
             document_id=stored["document_id"], source_id=source_id, status=stored["status"]
         )
@@ -140,7 +154,8 @@ def add_agent_routes(
         if retriever is None:
             raise AgentError("unavailable", "Recall is not configured on this service.")
         return retriever.retrieve(
-            QueryRequest(question=request.question, synthesize=request.synthesize)
+            QueryRequest(question=request.question, synthesize=request.synthesize),
+            _scope(request.namespace),
         )
 
     @router.post("/forget")
@@ -152,8 +167,9 @@ def add_agent_routes(
             )
         if eraser is None:
             raise AgentError("unavailable", "Forget is not configured on this service.")
-        doc_id = request.document_id or document_id(bucket, request.source_id or "")
-        removed = eraser(doc_id)
+        scope = _scope(request.namespace)
+        doc_id = request.document_id or document_id(bucket, request.source_id or "", scope)
+        removed = eraser(doc_id, scope)
         if removed is None:
             raise AgentError("not_found", f"No source matches {request.source_id or doc_id}.")
         return ForgetResponse(

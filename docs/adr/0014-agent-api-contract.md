@@ -54,8 +54,8 @@ adding one is a contract change.
 **Tenancy comes from the key.** A request carries an API key as a bearer token; the key names the tenant, so no
 body has a tenant id. `namespace` (optional) partitions memory inside a tenant.
 
-**Planned fields are in the contract now.** `token_budget`, `as_of`, `namespace` and the `lookup` operation are
-specified, marked `x-status: planned` with the card that builds them, and ignored by today's server. Specifying
+**Planned fields are in the contract now.** `token_budget`, `as_of` and the `lookup` operation are
+specified, marked `x-status: planned` with the card that builds them, and ignored by today's server. `namespace` was planned here and is built (GRA-45, ADR-0015). Specifying
 them first fixes their names before three clients each invent one.
 
 ## Mapping onto what exists
@@ -63,7 +63,7 @@ them first fixes their names before three clients each invent one.
 | Verb | Wraps | `/v1` shape |
 |---|---|---|
 | `remember` | `POST /ingest` (multipart file, `source_url`, `?force`) | Text is the upload and `source_id` the `source_url`; `source_id` is derived from the text when omitted. Served (GRA-132). |
-| `recall` | `POST /query` | Same retrieval and body. `token_budget`, `as_of`, `namespace` and the budget's `truncated` and `tokens_used` are still planned. Served (GRA-132). |
+| `recall` | `POST /query` | Same retrieval and body. `token_budget`, `as_of` and the budget's `truncated` and `tokens_used` are still planned; `namespace` is served (GRA-45). Served (GRA-132). |
 | `forget` | `DELETE /documents/{doc_id}` | Takes `source_id` or `document_id`; the facade derives the id from the source. Served (GRA-132). |
 | `lookup` | none | Built over `GraphStore.get_node` / `get_node_edges` and name blocking in `EntityStore` (GRA-37). |
 
