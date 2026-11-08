@@ -138,7 +138,7 @@ curl -F "file=@some-report.md" http://localhost:8000/ingest
 # {"document_id": "...", "bucket": "documents", "object_key": "some-report.md", "status": "accepted"}
 ```
 
-Ingestion is asynchronous. `/ingest` writes the file to MinIO, publishes a Kafka
+An upload over `MAX_UPLOAD_BYTES` (default 10 MB) is refused with 413 and nothing is stored. Ingestion is asynchronous. `/ingest` writes the file to MinIO, publishes a Kafka
 trigger, and returns straight away; the consumer then runs the five stages. Follow
 it with `make logs` (which is `docker compose logs -f app`).
 

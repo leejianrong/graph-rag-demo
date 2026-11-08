@@ -55,7 +55,7 @@ Documents are untrusted: a tenant, or whoever wrote a document a tenant ingests,
 | An injected document reaches another tenant's data | Mitigated | The prompt contains only the document's own text and entities; retrieval for synthesis is scoped to the caller's tenant, so another tenant's text never enters the prompt | |
 | An injected document steers the synthesized answer | Partial | Synthesis is off by default (`synthesize` false, no LLM call); when on, the prompt is limited to retrieved evidence | Evidence from a malicious document within the same tenant can say "ignore the question". The grounded-answer instruction is not enforced by a check |
 | The model call leaks the key or runs tools | Mitigated | The model has no tools and sees no secrets; its output is parsed as data | |
-| A very large document drives LLM cost | Open | | `/v1/remember` caps text at `max_remember_bytes` (1 MB), but `/ingest` reads the whole upload with no limit. Card: GRA-135 |
+| A very large document drives LLM cost | Partial | `/v1/remember` caps text at `max_remember_bytes` (1 MB) and `/ingest` at `max_upload_bytes` (10 MB, 413 above it, nothing stored or queued; `tests/unit/test_ingest_cap.py`) | A cap bounds one request, not a tenant's total: many in-limit uploads still cost. Card: GRA-137 and GRA-58 |
 
 Tracked work: a red-team fixture set (documents containing instructions) run through ingest and recall, with the bench as the
 place to keep it. Card: GRA-140.
@@ -73,7 +73,7 @@ place to keep it. Card: GRA-140.
 
 | Threat | Status | Gap, and the card |
 |---|---|---|
-| One tenant exhausts the service | Open | No rate limit, quota or metering (GRA-58); `/ingest` has no size cap; ingest runs in the API process (GRA-31) |
+| One tenant exhausts the service | Open | No rate limit, quota or metering (GRA-58); `/ingest` is capped per request only; ingest runs in the API process (GRA-31) |
 | Slow or huge recall | Partial | `token_budget` bounds what is returned, not the work of finding it; I found no query timeout in the API or retriever |
 
 ## Follow-ups filed
@@ -81,7 +81,7 @@ place to keep it. Card: GRA-140.
 These cards were created from this review. Each is small; GRA-134 and GRA-135 are the ones to do before any hosted use.
 
 1. GRA-134 (done): refuse API keys for the `default` tenant.
-2. GRA-135: cap `/ingest` upload size.
+2. GRA-135 (done): cap `/ingest` upload size.
 3. GRA-136: refuse to start on a non-local bind with auth off.
 4. GRA-137: rate limit requests and failed keys.
 5. GRA-138: lock down the backends (no host-published store ports, no default credentials, authenticated Kafka triggers).
@@ -97,7 +97,7 @@ Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers se
 - [ ] No data was written with auth off, or it has been moved
 - [ ] The stores are not reachable from outside the service's network, and none uses a default credential
 - [ ] TLS terminates in front of the API
-- [ ] Upload size and request rates are capped
+- [ ] Upload size is capped (`MAX_UPLOAD_BYTES`, default 10 MB) and request rates are limited (GRA-137, not built)
 - [ ] The LLM cache is scoped or off
 - [ ] Logs are handled as holding user questions
 - [ ] `graph-rag-admin delete` has been tried on a staging tenant
