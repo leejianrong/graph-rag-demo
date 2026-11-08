@@ -109,6 +109,8 @@ def _triple(
     char_start: int | None = None,
     char_end: int | None = None,
     date: str | None = None,
+    valid_from: str | None = None,
+    valid_to: str | None = None,
 ) -> Triple:
     """Build a ``Triple`` with fully-specified provenance for the contract asserts."""
     return Triple(
@@ -125,6 +127,8 @@ def _triple(
             char_end=char_end,
         ),
         date=date,
+        valid_from=valid_from,
+        valid_to=valid_to,
     )
 
 
@@ -245,6 +249,44 @@ def test_dated_fact_is_an_edge_property_not_a_node(store: Neo4jGraphStore, drive
     date_nodes = driver.execute_query("MATCH (n:Date) RETURN count(n) AS c").records[0]["c"]
     assert date_nodes == 0
     assert store.node_count(DEFAULT_SCOPE) == 2
+
+
+def test_validity_interval_round_trips_and_unknown_stays_null(store: Neo4jGraphStore) -> None:
+    """valid_from/valid_to are edge properties; an edge without them reads back None (GRA-42)."""
+    store.upsert_entities(
+        DEFAULT_SCOPE,
+        [_entity("p:ada", "Ada", type_="PERSON"), _entity("o:acme", "Acme", type_="ORG")],
+    )
+    store.write_triples(
+        DEFAULT_SCOPE,
+        [
+            _triple("p:ada", "WORKS_FOR", "o:acme", doc="doc:1", valid_from="2019-05-01"),
+            _triple(
+                "p:ada",
+                "FOUNDED",
+                "o:acme",
+                doc="doc:2",
+                valid_from="2015-01-01",
+                valid_to="2018-06-30",
+            ),
+            _triple("p:ada", "RELATED_TO", "o:acme", doc="doc:3"),
+        ],
+    )
+    by_predicate = {e.predicate: e for e in store.get_node_edges(DEFAULT_SCOPE, "p:ada")}
+    assert (by_predicate["WORKS_FOR"].valid_from, by_predicate["WORKS_FOR"].valid_to) == (
+        "2019-05-01",
+        None,
+    )
+    assert (by_predicate["FOUNDED"].valid_from, by_predicate["FOUNDED"].valid_to) == (
+        "2015-01-01",
+        "2018-06-30",
+    )
+    assert (by_predicate["RELATED_TO"].valid_from, by_predicate["RELATED_TO"].valid_to) == (
+        None,
+        None,
+    )
+    sub = store.khop(DEFAULT_SCOPE, ["p:ada"], 1)
+    assert {e.valid_from for e in sub.edges} == {"2019-05-01", "2015-01-01", None}
 
 
 def test_delete_document_edges_is_doc_scoped_and_idempotent(store: Neo4jGraphStore) -> None:

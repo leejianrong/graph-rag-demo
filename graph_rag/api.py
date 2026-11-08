@@ -24,6 +24,7 @@ from typing import TYPE_CHECKING, Annotated
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import JSONResponse, Response
+from pydantic import TypeAdapter
 
 from graph_rag.agent_api import add_agent_routes
 from graph_rag.auth import ApiKeys, AuthError, JsonFileKeyStore
@@ -32,7 +33,7 @@ from graph_rag.ids import document_id
 from graph_rag.jobs import Job, JobStore
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityLookup
-from graph_rag.models import DeletedDocument, IngestTrigger, QueryRequest, QueryResponse
+from graph_rag.models import DeletedDocument, IngestTrigger, IsoDate, QueryRequest, QueryResponse
 from graph_rag.ports import ObjectStore, TriggerPublisher
 from graph_rag.scope import DEFAULT_SCOPE, RESERVED_KEY_PREFIX, Scope
 
@@ -133,7 +134,11 @@ def create_app(
         return {"status": "ok"}
 
     def accept(
-        object_key: str, data: bytes, force: bool, scope: Scope = DEFAULT_SCOPE
+        object_key: str,
+        data: bytes,
+        force: bool,
+        scope: Scope = DEFAULT_SCOPE,
+        document_date: str | None = None,
     ) -> dict[str, str]:
         """Store ``data`` under ``object_key`` and queue it, unless the source already holds it."""
         doc_id = document_id(bucket, object_key, scope)
@@ -155,6 +160,7 @@ def create_app(
                 object_key=object_key,
                 tenant=scope.tenant,
                 namespace=scope.namespace,
+                document_date=document_date,
             )
         )
 
@@ -177,6 +183,7 @@ def create_app(
         file: Annotated[UploadFile, File()],
         source_url: Annotated[str | None, Form()] = None,
         force: bool = False,
+        document_date: Annotated[str | None, Form()] = None,
         tenant: str = Depends(tenant_of),
     ) -> dict[str, str]:
         """Store an uploaded document and publish its ingest trigger.
@@ -197,7 +204,15 @@ def create_app(
             raise HTTPException(
                 status_code=400, detail=f"Keys may not start with {RESERVED_KEY_PREFIX!r}."
             )
-        return accept(object_key, data, force, Scope(tenant))
+        try:
+            dated = (
+                None
+                if document_date is None
+                else TypeAdapter(IsoDate).validate_python(document_date)
+            )
+        except ValueError as error:
+            raise HTTPException(status_code=400, detail=f"document_date: {error}") from error
+        return accept(object_key, data, force, Scope(tenant), dated)
 
     @app.get("/jobs/{doc_id}")
     def job(doc_id: str, tenant: str = Depends(tenant_of)) -> Job:

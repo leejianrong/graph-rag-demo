@@ -30,7 +30,8 @@ promoted to independent services without rewriting their logic.
 
 Supporting choices:
 
-- The Kafka trigger message carries only `{bucket, objectKey}`. Within the
+- The Kafka trigger message carries only the document's location, `{bucket, objectKey}`, plus its scope
+  (ADR-0015) and an optional `document_date` (GRA-42), never the text. Within the
   single process, stages hand off **in-memory** (Python objects), not via
   Elasticsearch round-trips. Elasticsearch writes happen at defined
   **checkpoints**, not between every stage:
