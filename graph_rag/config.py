@@ -38,6 +38,9 @@ class Settings(BaseSettings):
     minio_bucket: str = "documents"
     # The most text one /v1/remember call may carry (413 above it); ADR-0014.
     max_remember_bytes: int = 1_000_000
+    # The most one /ingest upload may carry (413 above it; GRA-135). Larger than remember's cap
+    # because files hold markup; a deployment sets it from what its LLM budget can take.
+    max_upload_bytes: int = 10_000_000
 
     # --- API keys (GRA-22, GRA-23) ------------------------------------------
     # With ``require_auth`` on, every endpoint but /health needs a bearer key from this file

@@ -23,6 +23,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import JSONResponse, Response
 
 from graph_rag.agent_api import add_agent_routes
 from graph_rag.auth import ApiKeys, AuthError, JsonFileKeyStore
@@ -49,6 +50,15 @@ def _holds(store: ObjectStore, scope: Scope, bucket: str, object_key: str, data:
         return store.get(scope, bucket, object_key) == data
     except FileNotFoundError:
         return False
+
+
+# Multipart framing (boundaries, headers) added to a file's bytes, so the declared length of a file
+# at exactly the cap does not trip the early check; the read in /ingest is the exact limit.
+_MULTIPART_SLACK = 64 * 1024
+
+
+def _too_large(limit: int) -> HTTPException:
+    return HTTPException(status_code=413, detail=f"The upload is over the {limit}-byte limit.")
 
 
 def create_app(
@@ -93,6 +103,20 @@ def create_app(
     if resolved_settings.require_auth and keys is None:
         keys = ApiKeys(JsonFileKeyStore(resolved_settings.api_keys_path))
     verifier = keys if resolved_settings.require_auth else None
+    max_upload = resolved_settings.max_upload_bytes
+
+    @app.middleware("http")
+    async def refuse_oversize_upload(request: Request, call_next: Callable) -> Response:  # type: ignore[type-arg]
+        """Turn away a declared-oversize /ingest before the server spools the body to disk."""
+        declared = request.headers.get("content-length", "")
+        if (
+            request.method == "POST"
+            and request.url.path == "/ingest"
+            and declared.isdigit()
+            and int(declared) > max_upload + _MULTIPART_SLACK
+        ):
+            return JSONResponse(status_code=413, content={"detail": _too_large(max_upload).detail})
+        return await call_next(request)  # type: ignore[no-any-return]
 
     def tenant_of(request: Request) -> str:
         """The tenant a request acts for: its key's tenant, or the default when auth is off."""
@@ -165,7 +189,9 @@ def create_app(
         behind it) does not run again. ``force=true`` ingests it anyway, for a source whose
         first attempt failed. Does NOT run the pipeline — that happens downstream.
         """
-        data = await file.read()
+        data = await file.read(max_upload + 1)  # one byte over is enough to know it is too big
+        if len(data) > max_upload:
+            raise _too_large(max_upload)
         object_key = source_url or file.filename or "upload"
         if object_key.startswith(RESERVED_KEY_PREFIX):
             raise HTTPException(
