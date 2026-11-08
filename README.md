@@ -405,6 +405,8 @@ The thinking is all written down, and it's worth reading before any code:
   data model, and the stage/checkpoint flow, consolidated from the ADRs.
 - **[docs/adr/](docs/adr/)** — architecture decision records, one per major
   choice, each with the alternatives weighed and the reasoning kept.
+- **[docs/THREAT-MODEL.md](docs/THREAT-MODEL.md)** — what is protected, the threats, what mitigates each and what is still open, with the
+  checklist before a hosted deployment.
 - **[docs/SLICES.md](docs/SLICES.md)** — the eight vertical slices the build
   followed, each with its own test plan.
 - **[docs/CONTEXT.md](docs/CONTEXT.md)** — the glossary and decision register.
