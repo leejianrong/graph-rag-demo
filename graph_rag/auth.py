@@ -25,7 +25,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
 
-from graph_rag.scope import Scope
+from graph_rag.scope import DEFAULT_TENANT, Scope
 
 __all__ = ["ApiKey", "ApiKeys", "AuthError", "InMemoryKeyStore", "JsonFileKeyStore", "KeyStore"]
 
@@ -136,6 +136,12 @@ class ApiKeys:
     def create(self, tenant: str, label: str = "") -> tuple[str, ApiKey]:
         """Make a key for ``tenant``. Returns the secret, which is not kept, and its record."""
         Scope(tenant=tenant)  # rejects a tenant that cannot be one
+        if tenant == DEFAULT_TENANT:
+            # The default scope holds everything written before tenancy and with auth off, so a
+            # key naming it would read data that belongs to no tenant (THREAT-MODEL.md, section 1).
+            raise ValueError(
+                f"no key for the {DEFAULT_TENANT!r} tenant: it holds data that predates tenancy"
+            )
         key_id = secrets.token_hex(4)
         secret = f"{_PREFIX}_{key_id}_{secrets.token_urlsafe(32)}"
         record = ApiKey(
@@ -161,6 +167,8 @@ class ApiKeys:
             raise AuthError("The API key is not recognised.")
         if not record.active:
             raise AuthError("The API key has been revoked.")
+        if record.tenant == DEFAULT_TENANT:  # a key file from before create refused it
+            raise AuthError("The API key is not recognised.")
         return record
 
     def revoke(self, key_id: str) -> bool:
