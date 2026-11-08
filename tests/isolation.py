@@ -202,3 +202,78 @@ def check_tenants_cannot_reach_each_other(client, keys, drain) -> None:  # type:
 
     assert client.delete(f"/documents/{doc_id}", headers=auth(a)).status_code == 200
     assert recall(a) == []
+
+
+def check_tenant_admin(stores, dims: int, tmp_path) -> None:  # type: ignore[no-untyped-def]
+    """Export and delete one tenant (two scopes) on ``stores``; another tenant is left whole.
+
+    ``stores`` is a ``graph_rag.tenant_admin.Stores``; ``tmp_path`` a directory to export into.
+    """
+    from graph_rag.tenant_admin import delete_tenant, export_tenant, tenant_scopes
+
+    tag = uuid.uuid4().hex[:8]
+    victim, bystander = f"gone{tag}", f"kept{tag}"
+    bucket = f"documents-{tag}"
+    vector = [1.0] + [0.0] * (dims - 1)
+
+    def populate(scope: Scope, name: str) -> None:
+        a, b = f"{name}-a-{tag}", f"{name}-b-{tag}"
+        doc = DocumentRecord(
+            document_id=document_id(bucket, f"{name}.md", scope),
+            bucket=bucket,
+            object_key=f"{name}.md",
+            text=f"{name} text",
+            sentences=[Sentence(text="x", char_start=0, char_end=1, index=0)],
+            sentence_vectors=[vector],
+        )
+        stores.objects.put(scope, bucket, f"{name}.md", f"{name} bytes".encode())
+        stores.documents.upsert(scope, doc)
+        for cid in (a, b):
+            entity = CanonicalEntity(canonical_id=cid, name=cid, type="ORG", vector=vector)
+            stores.entities.upsert(scope, entity)
+        stores.graph.upsert_entities(
+            scope, [CanonicalEntity(canonical_id=cid, name=cid, type="ORG") for cid in (a, b)]
+        )
+        edge = Triple(
+            subject_id=a,
+            predicate="PART_OF",
+            object_id=b,
+            provenance=EdgeProvenance(
+                source_doc_id=doc.document_id, sentence_index=0, source_sentence="a is part of b."
+            ),
+        )
+        stores.graph.write_triples(scope, [edge])
+
+    victim_scopes = [Scope(victim), Scope(victim, "notes")]
+    for scope in victim_scopes:
+        populate(scope, scope.namespace or "root")
+    populate(Scope(bystander), "other")
+    assert tenant_scopes(stores, victim) == sorted(victim_scopes, key=lambda s: s.key)
+
+    manifest = export_tenant(stores, victim, tmp_path)
+    assert set(manifest["scopes"]) == {victim, f"{victim}/notes"}
+    for entry in manifest["scopes"].values():
+        assert (entry["documents"], entry["entities"], entry["edges"], entry["objects"]) == (
+            1,
+            2,
+            1,
+            1,
+        )
+    notes = tmp_path / victim / "notes"
+    assert (notes / "objects" / "0.bin").read_bytes() == b"notes bytes"
+    assert "notes text" in (notes / "documents.jsonl").read_text()
+    assert "sentence_vectors" not in (notes / "documents.jsonl").read_text()
+
+    counts = delete_tenant(stores, victim)
+    assert counts == {"documents": 2, "objects": 2, "entities": 4}
+    assert tenant_scopes(stores, victim) == []
+    for scope in victim_scopes:
+        assert stores.documents.all(scope) == [] and stores.entities.all(scope) == []
+        assert stores.objects.keys(scope) == []
+        assert (stores.graph.node_count(scope), stores.graph.edge_count(scope)) == (0, 0)
+
+    kept = Scope(bystander)
+    assert len(stores.documents.all(kept)) == 1 and len(stores.entities.all(kept)) == 2
+    assert stores.objects.keys(kept) == [(bucket, "other.md")]
+    assert (stores.graph.node_count(kept), stores.graph.edge_count(kept)) == (2, 1)
+    assert delete_tenant(stores, victim) == {"documents": 0, "objects": 0, "entities": 0}

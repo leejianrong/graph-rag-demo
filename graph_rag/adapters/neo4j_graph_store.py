@@ -48,7 +48,7 @@ from typing import TYPE_CHECKING, Any
 
 from neo4j import GraphDatabase
 
-from graph_rag.adapters.scoping import scope_fields
+from graph_rag.adapters.scoping import scope_fields, scope_of_key
 from graph_rag.logging import get_logger
 from graph_rag.models import CanonicalEntity, EdgeProvenance, Subgraph, Triple
 from graph_rag.predicates import CLOSED_PREDICATES
@@ -292,6 +292,14 @@ class Neo4jGraphStore:
             scope=scope.key,
         )
         return int(records[0]["c"])
+
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold nodes (nodes stamped with a ``tenant``)."""
+        records = self._run(
+            "MATCH (n:Entity) WHERE n.tenant = $tenant RETURN DISTINCT n.scope AS scope",
+            tenant=tenant,
+        )
+        return sorted((scope_of_key(tenant, r["scope"]) for r in records), key=lambda s: s.key)
 
     def get_node(self, scope: Scope, canonical_id: str) -> CanonicalEntity | None:
         """Return the node for ``canonical_id``, or ``None`` if absent (test helper).

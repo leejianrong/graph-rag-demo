@@ -54,6 +54,10 @@ __all__ = [
 # --- V1-active fakes ---------------------------------------------------------
 
 
+def _scope_order(scope: Scope) -> tuple[str, str]:
+    return (scope.tenant, scope.namespace or "")
+
+
 class InMemoryObjectStore:
     """In-memory :class:`~graph_rag.ports.ObjectStore` backed by a dict.
 
@@ -82,6 +86,14 @@ class InMemoryObjectStore:
         """Remove the object; a no-op if it is not there."""
         self._objects.pop((scope, bucket, object_key), None)
 
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold objects."""
+        return sorted({s for s, _, _ in self._objects if s.tenant == tenant}, key=_scope_order)
+
+    def keys(self, scope: Scope) -> list[tuple[str, str]]:
+        """Every ``(bucket, object_key)`` in ``scope``."""
+        return [(b, k) for s, b, k in self._objects if s == scope]
+
 
 class InMemoryDocumentStore:
     """In-memory :class:`~graph_rag.ports.DocumentStore` backed by a dict.
@@ -104,6 +116,15 @@ class InMemoryDocumentStore:
     def delete(self, scope: Scope, document_id: str) -> bool:
         """Remove the record; ``True`` if there was one."""
         return self._records[scope].pop(document_id, None) is not None
+
+    def all(self, scope: Scope) -> list[DocumentRecord]:
+        """Every record in ``scope`` (insertion order)."""
+        return list(self._records[scope].values())
+
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold records."""
+        found = {s for s, records in self._records.items() if s.tenant == tenant and records}
+        return sorted(found, key=_scope_order)
 
     def entities_in_use(
         self, scope: Scope, canonical_ids: set[str], *, excluding: str | None = None
@@ -243,6 +264,11 @@ class InMemoryEntityStore:
         """Return every stored canonical entity (insertion order)."""
         return list(self._entities[scope].values())
 
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold entities."""
+        found = {s for s, entities in self._entities.items() if s.tenant == tenant and entities}
+        return sorted(found, key=_scope_order)
+
 
 class InMemoryGraphStore:
     """In-memory :class:`~graph_rag.ports.GraphStore` (V5-active).
@@ -326,6 +352,12 @@ class InMemoryGraphStore:
     def edge_count(self, scope: Scope) -> int:
         """Return the number of edges stored."""
         return len(self._edges[scope])
+
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold nodes or edges."""
+        found = {s for s, nodes in self._nodes.items() if s.tenant == tenant and nodes}
+        found |= {s for s, edges in self._edges.items() if s.tenant == tenant and edges}
+        return sorted(found, key=_scope_order)
 
     def get_node(self, scope: Scope, canonical_id: str) -> CanonicalEntity | None:
         """Return the node for ``canonical_id``, or ``None`` if absent."""

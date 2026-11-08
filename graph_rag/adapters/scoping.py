@@ -13,12 +13,18 @@ from typing import Any
 
 from graph_rag.scope import DEFAULT_SCOPE, RESERVED_KEY_PREFIX, Scope
 
-__all__ = ["es_in_scope", "es_scope_filter", "object_key", "scope_fields"]
+__all__ = ["es_in_scope", "es_scope_filter", "object_key", "scope_fields", "scope_of_key"]
 
 
 def scope_fields(scope: Scope) -> dict[str, str]:
     """The fields stamped on every record written for ``scope``."""
     return {"tenant": scope.tenant, "scope": scope.key}
+
+
+def scope_of_key(tenant: str, key: str) -> Scope:
+    """The scope a ``scope.key`` string (``tenant`` or ``tenant/namespace``) names."""
+    _, _, namespace = key.partition("/")
+    return Scope(tenant, namespace or None)
 
 
 def es_scope_filter(scope: Scope) -> dict[str, Any]:

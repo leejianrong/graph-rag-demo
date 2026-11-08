@@ -18,10 +18,10 @@ from minio.error import S3Error
 
 from graph_rag.adapters.scoping import object_key as scoped_key
 from graph_rag.logging import get_logger
+from graph_rag.scope import RESERVED_KEY_PREFIX, Scope
 
 if TYPE_CHECKING:
     from graph_rag.config import Settings
-    from graph_rag.scope import Scope
 
 __all__ = ["MinioObjectStore"]
 
@@ -103,6 +103,28 @@ class MinioObjectStore:
                 raise
             return
         _logger.info("deleted %s/%s", bucket, object_key)
+
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold objects (only non-default scopes are prefixed)."""
+        prefix = f"{RESERVED_KEY_PREFIX}{tenant}/"
+        found: set[Scope] = set()
+        for bucket in self._client.list_buckets():
+            for item in self._client.list_objects(bucket.name, prefix=prefix, recursive=True):
+                rest = item.object_name.removeprefix(prefix)
+                if rest.startswith("root/"):
+                    found.add(Scope(tenant))
+                elif rest.startswith("ns/"):
+                    found.add(Scope(tenant, rest.split("/")[1]))
+        return sorted(found, key=lambda s: s.key)
+
+    def keys(self, scope: Scope) -> list[tuple[str, str]]:
+        """Every ``(bucket, object_key)`` in a non-default ``scope``."""
+        prefix = scoped_key(scope, "")
+        return [
+            (bucket.name, item.object_name.removeprefix(prefix))
+            for bucket in self._client.list_buckets()
+            for item in self._client.list_objects(bucket.name, prefix=prefix, recursive=True)
+        ]
 
     def get(self, scope: Scope, bucket: str, object_key: str) -> bytes:
         """Return the bytes at ``(bucket, object_key)``.

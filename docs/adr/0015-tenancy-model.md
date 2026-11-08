@@ -39,6 +39,8 @@ candidates inside the scope only, so the same name in two scopes stays two entit
 body names one. It is off by default so existing local setups keep working; a hosted service must turn it on. The namespace travels in the request body and is the first scope
 field a caller can set.
 
+Operators export and delete a tenant with `graph-rag-admin` (GRA-59). The four stores each list the scopes a tenant holds (`scopes(tenant)`), then the existing per-scope calls do the work, and a delete ends by checking that no store still lists the tenant. The default tenant is refused: records from before tenancy carry no tenant field.
+
 Keys (GRA-22) are `grk_<key_id>_<token>`; only the SHA-256 is stored, in a JSON file (`API_KEYS_PATH`) that `graph-rag-keys` manages. A file suits one service instance; several instances need a shared store, which is not built.
 
 ## Consequences

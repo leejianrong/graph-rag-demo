@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 
 from elasticsearch import Elasticsearch, NotFoundError
 
-from graph_rag.adapters.scoping import es_in_scope, es_scope_filter, scope_fields
+from graph_rag.adapters.scoping import es_in_scope, es_scope_filter, scope_fields, scope_of_key
 from graph_rag.logging import get_logger
 from graph_rag.models import DocumentRecord, Sentence, SupportingSentence
 
@@ -176,6 +176,34 @@ class EsDocumentStore:
         except NotFoundError:
             return False
         return True
+
+    def all(self, scope: Scope) -> list[DocumentRecord]:
+        """Every record in ``scope``, read with a scan so no result cap applies."""
+        from elasticsearch import helpers
+
+        try:
+            hits = helpers.scan(
+                self._client,
+                index=self._index,
+                query={"query": {"bool": {"filter": [es_scope_filter(scope)]}}},
+            )
+            return [self._to_record(hit["_source"]) for hit in hits]
+        except NotFoundError:
+            return []
+
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold records (records stamped with a ``tenant``)."""
+        try:
+            response = self._client.search(
+                index=self._index,
+                size=0,
+                query={"term": {"tenant": tenant}},
+                aggs={"scopes": {"terms": {"field": "scope", "size": 10_000}}},
+            )
+        except NotFoundError:
+            return []
+        keys = [b["key"] for b in response["aggregations"]["scopes"]["buckets"]]
+        return sorted((scope_of_key(tenant, k) for k in keys), key=lambda s: s.key)
 
     def entities_in_use(
         self, scope: Scope, canonical_ids: set[str], *, excluding: str | None = None

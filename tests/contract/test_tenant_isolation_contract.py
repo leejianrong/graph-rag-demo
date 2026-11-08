@@ -101,3 +101,10 @@ def test_tenant_b_cannot_reach_tenant_a_through_the_api_on_real_services(stores)
         components.entity_store._client.indices.refresh(index="tenancy-entities")  # noqa: SLF001
 
     check_tenants_cannot_reach_each_other(TestClient(app), keys, drain)
+
+
+def test_export_and_delete_a_tenant_on_real_services(stores, tmp_path) -> None:
+    from graph_rag.tenant_admin import Stores
+    from tests.isolation import check_tenant_admin
+
+    check_tenant_admin(Stores(*stores), dims=Settings().embed_dim, tmp_path=tmp_path)

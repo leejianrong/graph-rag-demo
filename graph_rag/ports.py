@@ -76,6 +76,14 @@ class ObjectStore(Protocol):
         """Remove the object at ``(bucket, object_key)``; a no-op if it is not there."""
         ...
 
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold objects (operator use: export and delete)."""
+        ...
+
+    def keys(self, scope: Scope) -> list[tuple[str, str]]:
+        """Every ``(bucket, object_key)`` stored in ``scope``."""
+        ...
+
 
 @runtime_checkable
 class DocumentStore(Protocol):
@@ -95,6 +103,14 @@ class DocumentStore(Protocol):
 
     def delete(self, scope: Scope, document_id: str) -> bool:
         """Remove the record for ``document_id``; ``True`` if there was one."""
+        ...
+
+    def all(self, scope: Scope) -> list[DocumentRecord]:
+        """Every record in ``scope`` (operator use: export and delete)."""
+        ...
+
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold records (operator use)."""
         ...
 
     def entities_in_use(
@@ -195,6 +211,10 @@ class EntityStore(Protocol):
         """Return every stored canonical entity (test/inspection helper)."""
         ...
 
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold entities (operator use)."""
+        ...
+
 
 @runtime_checkable
 class GraphStore(Protocol):
@@ -263,6 +283,10 @@ class GraphStore(Protocol):
 
     def edge_count(self, scope: Scope) -> int:
         """Return the number of edges currently stored (test/inspection helper)."""
+        ...
+
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold nodes (operator use)."""
         ...
 
     def get_node(self, scope: Scope, canonical_id: str) -> CanonicalEntity | None:
