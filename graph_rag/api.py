@@ -29,6 +29,7 @@ from graph_rag.auth import ApiKeys, AuthError, JsonFileKeyStore
 from graph_rag.config import Settings, get_settings
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
+from graph_rag.lookup import EntityLookup
 from graph_rag.models import DeletedDocument, IngestTrigger, QueryRequest, QueryResponse
 from graph_rag.ports import ObjectStore, TriggerPublisher
 from graph_rag.scope import DEFAULT_SCOPE, RESERVED_KEY_PREFIX, Scope
@@ -57,6 +58,7 @@ def create_app(
     retriever: QueryRetriever | None = None,
     eraser: Callable[[str, Scope], DeletedDocument | None] | None = None,
     keys: ApiKeys | None = None,
+    lookup: EntityLookup | None = None,
 ) -> FastAPI:
     """Build the FastAPI app with its ports injected.
 
@@ -70,6 +72,7 @@ def create_app(
         eraser: Forgets one document by id (``Orchestrator.delete_document``) and returns
             what it removed, or ``None`` for an unknown id. **Optional**: when ``None``
             ``DELETE /documents/{id}`` responds ``503``.
+        lookup: Backs ``POST /v1/lookup``. **Optional**: when ``None`` it responds ``unavailable``.
         keys: Verifies API keys. **Optional**: when ``None`` and ``settings.require_auth`` is on,
             keys are read from ``settings.api_keys_path``. With ``require_auth`` off, no key is
             checked and every request runs in the default tenant.
@@ -210,5 +213,6 @@ def create_app(
         bucket=bucket,
         max_text_bytes=resolved_settings.max_remember_bytes,
         tenant_of=tenant_of,
+        lookup=lookup,
     )
     return app

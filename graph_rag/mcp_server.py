@@ -2,8 +2,7 @@
 
 It holds no pipeline of its own: each tool is one call to the ``/v1`` agent API (ADR-0014), so
 what an agent sees is what the HTTP contract says. Run it over stdio (``graph-rag-mcp``) and point
-it at the service with ``GRAPH_RAG_URL`` (default ``http://localhost:8000``). ``forget`` and
-``lookup`` are GRA-37.
+it at the service with ``GRAPH_RAG_URL`` (default ``http://localhost:8000``).
 """
 
 from __future__ import annotations
@@ -21,7 +20,8 @@ _INSTRUCTIONS = (
     "A knowledge-graph memory. `remember` stores text (it is read into the graph in the "
     "background, so a `recall` straight after may not see it yet). `recall` answers a question "
     "from what was remembered and returns the evidence: the sentences it rests on, each with the "
-    "document and character offsets it came from, so cite those rather than guessing."
+    "document and character offsets it came from, so cite those rather than guessing. `lookup` "
+    "describes one entity and its neighbours; `forget` removes a source."
 )
 
 
@@ -67,6 +67,42 @@ def build_server(client: httpx.Client) -> MCPServer:
         """
         body = {"question": question} | ({"namespace": namespace} if namespace else {})
         return _post(client, "/v1/recall", body)
+
+    @server.tool()
+    def forget(
+        source_id: str | None = None,
+        document_id: str | None = None,
+        namespace: str | None = None,
+    ) -> dict[str, Any]:
+        """Forget a source: its text, its facts and its sentences.
+
+        Name it by the `source_id` given to `remember`, or by the `document_id` it returned
+        (exactly one). Entities that no other source mentions go too; entities another source
+        still mentions are kept. After this, `recall` no longer returns the source's sentences.
+        """
+        body = {"source_id": source_id} if source_id else {}
+        body |= {"document_id": document_id} if document_id else {}
+        body |= {"namespace": namespace} if namespace else {}
+        return _post(client, "/v1/forget", body)
+
+    @server.tool()
+    def lookup(
+        name: str | None = None,
+        entity_id: str | None = None,
+        limit: int = 20,
+        namespace: str | None = None,
+    ) -> dict[str, Any]:
+        """Look an entity up by name or id (exactly one).
+
+        Returns each match with its aliases and its neighbours: the facts it takes part in, each
+        with the entity on the other side and the sentence the fact came from. A name can match
+        several entities (for example a person and a company); all are returned, best first.
+        """
+        body: dict[str, Any] = {"limit": limit}
+        body |= {"name": name} if name else {}
+        body |= {"entity_id": entity_id} if entity_id else {}
+        body |= {"namespace": namespace} if namespace else {}
+        return _post(client, "/v1/lookup", body)
 
     return server
 

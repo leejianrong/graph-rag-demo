@@ -199,3 +199,71 @@ def test_planned_fields_are_ignored_not_rejected(stack) -> None:
     client, _, _ = stack
     response = client.post("/v1/recall", json={"question": "q", "as_of": "2020-01-01"})
     assert response.status_code == 200
+
+
+# --- lookup (GRA-37) ---------------------------------------------------------------------
+
+
+@pytest.fixture
+def known(stack):
+    from graph_rag.lookup import EntityLookup
+
+    client, components, queue = stack
+    app = create_app(
+        components.object_store,
+        queue,
+        Settings(),
+        retriever=components.retriever,
+        eraser=components.orchestrator.delete_document,
+        lookup=EntityLookup(components.entity_store, components.graph_store),
+    )
+    client = TestClient(app)
+    client.post("/v1/remember", json={"text": TEXT, "source_id": "n"})
+    drain(components, queue)
+    return client
+
+
+def test_lookup_by_name_returns_aliases_and_neighbours_with_provenance(known) -> None:
+    spec = yaml.safe_load(SPEC_PATH.read_text())
+    found = known.post("/v1/lookup", json={"name": "acme corp"})
+    assert found.status_code == 200
+    assert fits(spec, "LookupResponse", found.json()) == []
+    [acme] = found.json()["entities"]
+    assert acme["name"] == "Acme Corp" and acme["type"] == "ORG"
+    assert acme["neighbours"], "Acme Corp takes part in at least one fact"
+    for n in acme["neighbours"]:
+        assert n["direction"] in {"outgoing", "incoming"}
+        assert n["provenance"]["source_sentence"] and n["entity"]["canonical_id"]
+    assert "vector" not in acme
+
+
+def test_lookup_by_id_and_the_limit(known) -> None:
+    acme = known.post("/v1/lookup", json={"name": "Acme Corp"}).json()["entities"][0]
+    again = known.post("/v1/lookup", json={"entity_id": acme["canonical_id"]}).json()
+    assert again["entities"][0]["canonical_id"] == acme["canonical_id"]
+    one = known.post("/v1/lookup", json={"name": "Acme Corp", "limit": 1}).json()
+    assert len(one["entities"][0]["neighbours"]) == 1
+
+
+def test_lookup_errors(known, stack) -> None:
+    assert (
+        known.post("/v1/lookup", json={"name": "Nobody Inc"}).json()["error"]["code"] == "not_found"
+    )
+    assert known.post("/v1/lookup", json={"entity_id": "nope"}).status_code == 404
+    both = known.post("/v1/lookup", json={"name": "a", "entity_id": "b"})
+    assert both.status_code == 400 and both.json()["error"]["code"] == "invalid_request"
+    assert known.post("/v1/lookup", json={}).status_code == 400
+    assert known.post("/v1/lookup", json={"name": "x", "limit": 0}).status_code == 400
+    assert stack[0].post("/v1/lookup", json={"name": "x"}).json()["error"]["code"] == "unavailable"
+
+
+def test_lookup_stays_inside_its_namespace(known) -> None:
+    assert (
+        known.post("/v1/lookup", json={"name": "Acme Corp", "namespace": "other"}).status_code
+        == 404
+    )
+
+
+def test_a_forgotten_source_leaves_no_entity_to_look_up(known) -> None:
+    known.post("/v1/forget", json={"source_id": "n"})
+    assert known.post("/v1/lookup", json={"name": "Acme Corp"}).status_code == 404

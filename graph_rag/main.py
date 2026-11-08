@@ -31,6 +31,7 @@ from graph_rag.adapters.neo4j_graph_store import Neo4jGraphStore
 from graph_rag.api import create_app
 from graph_rag.config import Settings
 from graph_rag.logging import configure_logging, get_logger
+from graph_rag.lookup import EntityLookup
 from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer, KafkaTriggerPublisher
 from graph_rag.orchestrator import Orchestrator
 from graph_rag.query.retriever import QueryRetriever
@@ -136,6 +137,7 @@ def main() -> None:
         settings,
         retriever=retriever,
         eraser=orchestrator.delete_document,
+        lookup=EntityLookup(entity_store, graph_store),
     )
 
     logger.info("serving FastAPI app on 0.0.0.0:8000")
