@@ -83,7 +83,8 @@ def test_ingest_does_not_run_pipeline() -> None:
 
     Proven structurally: the app is wired with ONLY an ObjectStore and a
     TriggerPublisher, so there is no path from /ingest into the pipeline here.
-    We assert the trigger carries just the location and the scope (ADR-0001, ADR-0015).
+    We assert the trigger carries just the location, the scope and the optional document date
+    (ADR-0001, ADR-0015, GRA-42), never the text.
     """
     store = InMemoryObjectStore()
     publisher = InMemoryTriggerPublisher()
@@ -92,7 +93,13 @@ def test_ingest_does_not_run_pipeline() -> None:
     client.post("/ingest", files={"file": ("doc.txt", b"body", "text/plain")})
 
     trigger = publisher.published[0]
-    assert trigger.model_dump().keys() == {"bucket", "object_key", "tenant", "namespace"}
+    assert trigger.model_dump().keys() == {
+        "bucket",
+        "object_key",
+        "tenant",
+        "namespace",
+        "document_date",
+    }
 
 
 def test_a_second_identical_ingest_is_unchanged_and_publishes_nothing() -> None:

@@ -235,6 +235,12 @@ components:
           type: boolean
           default: false
           description: Ingest the text again even if the source already holds it, for a source whose first attempt failed.
+        document_date:
+          type: string
+          format: date
+          description: |
+            When the text was written or true as of, as YYYY-MM-DD. The facts taken from it
+            start being valid on this date. Omit it when unknown and their dates stay null.
         namespace:
           $ref: "#/components/schemas/Namespace"
     RememberResponse:
@@ -429,6 +435,14 @@ components:
         object_id: { type: string }
         date:
           type: [string, "null"]
+        valid_from:
+          type: [string, "null"]
+          format: date
+          description: First day the fact held, inclusive. Null when unknown (not "always").
+        valid_to:
+          type: [string, "null"]
+          format: date
+          description: Day the fact stopped holding, exclusive. Null when unknown (not "still true").
         provenance: { $ref: "#/components/schemas/Provenance" }
     Provenance:
       type: object

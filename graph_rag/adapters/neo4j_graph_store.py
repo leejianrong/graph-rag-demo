@@ -391,6 +391,10 @@ def _edge_props(triple: Triple) -> dict[str, Any]:
         props["char_end"] = provenance.char_end
     if triple.date is not None:
         props["date"] = triple.date
+    if triple.valid_from is not None:
+        props["valid_from"] = triple.valid_from
+    if triple.valid_to is not None:
+        props["valid_to"] = triple.valid_to
     return props
 
 
@@ -422,4 +426,6 @@ def _to_triple(record: Any) -> Triple:
             char_end=(None if props.get("char_end") is None else int(props["char_end"])),
         ),
         date=props.get("date"),
+        valid_from=props.get("valid_from"),
+        valid_to=props.get("valid_to"),
     )

@@ -260,6 +260,13 @@ class Orchestrator:
                     triples = self._kg_build_stage.build(
                         doc_id, text, ner.sentences, el, canonical_entities
                     )
+                    if trigger.document_date is not None:
+                        triples = [
+                            t.model_copy(update={"valid_from": trigger.document_date})
+                            if t.valid_from is None
+                            else t
+                            for t in triples
+                        ]
                     self._graph_store.upsert_entities(scope, canonical_entities)
                     self._graph_store.delete_document_edges(scope, doc_id)
                     self._graph_store.write_triples(scope, triples)

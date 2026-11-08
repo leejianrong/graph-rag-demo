@@ -142,6 +142,9 @@ documents become one node and enables cross-document multi-hop reasoning.
   `MEMBER_OF` relations).
 - **`DATE` is an edge qualifier, not a node** — modeled as a date qualifier /
   attribute on the relevant edge, to keep the graph readable for multi-hop paths.
+- **Edges also carry `valid_from` / `valid_to`** (GRA-42): `YYYY-MM-DD`, from inclusive to exclusive, `None`
+  when unknown. `valid_from` is the `document_date` the caller gave `/ingest` or `/v1/remember`; nothing sets
+  `valid_to` until supersession exists (GRA-43).
 
 **Edges** — carry a predicate from the closed **~12-predicate set** with a
 `RELATED_TO` open fallback:

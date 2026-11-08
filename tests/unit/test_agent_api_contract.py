@@ -210,7 +210,7 @@ def test_a_field_the_contract_calls_planned_is_not_accepted_yet(spec: dict, serv
 def test_the_existing_remember_fields_are_accepted_by_ingest(spec: dict, served: dict) -> None:
     properties = spec["components"]["schemas"]["RememberRequest"]["properties"]
     existing = {f for f, s in properties.items() if s.get("x-status") != "planned"}
-    assert {"force", "namespace", "source_id", "text"} == existing
+    assert {"document_date", "force", "namespace", "source_id", "text"} == existing
     assert set(RememberRequest.model_fields) == existing  # the /v1 model accepts them all
     # text arrives as the uploaded file, source_id as source_url; force is a query parameter
-    assert {"file", "source_url", "force"} <= ingest_fields(served)
+    assert {"file", "source_url", "force", "document_date"} <= ingest_fields(served)

@@ -24,7 +24,7 @@ from graph_rag.auth import AuthError
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityDetail
-from graph_rag.models import DeletedDocument, QueryRequest, QueryResponse
+from graph_rag.models import DeletedDocument, IsoDate, QueryRequest, QueryResponse
 from graph_rag.query.budget import evidence_tokens, pack
 from graph_rag.scope import RESERVED_KEY_PREFIX, Scope
 
@@ -69,6 +69,7 @@ class RememberRequest(BaseModel):
     namespace: str | None = Field(default=None, min_length=1)
     source_id: str | None = Field(default=None, min_length=1)
     force: bool = False
+    document_date: IsoDate | None = None
 
 
 class RememberResponse(BaseModel):
@@ -130,7 +131,7 @@ def _derived_source_id(text: str) -> str:
 def add_agent_routes(
     app: FastAPI,
     *,
-    accept: Callable[[str, bytes, bool, Scope], dict[str, str]],
+    accept: Callable[..., dict[str, str]],
     retriever: QueryRetriever | None,
     eraser: Callable[[str, Scope], DeletedDocument | None] | None,
     bucket: str,
@@ -170,7 +171,13 @@ def add_agent_routes(
                 f"source_id may not start with {RESERVED_KEY_PREFIX!r}.",
                 {"field": "source_id"},
             )
-        stored = accept(source_id, data, request.force, _scope(tenant, request.namespace))
+        stored = accept(
+            source_id,
+            data,
+            request.force,
+            _scope(tenant, request.namespace),
+            request.document_date,
+        )
         return RememberResponse(
             document_id=stored["document_id"], source_id=source_id, status=stored["status"]
         )

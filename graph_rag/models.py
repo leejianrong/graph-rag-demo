@@ -52,9 +52,11 @@ V5 (knowledge-graph build) adds the graph triple + provenance (ADR-0006):
 
 from __future__ import annotations
 
-from typing import Literal
+import re
+from datetime import date as _date
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import AfterValidator, BaseModel, Field
 
 from graph_rag.scope import DEFAULT_SCOPE, Scope
 
@@ -107,6 +109,9 @@ class IngestTrigger(BaseModel):
     object_key: str
     tenant: str = DEFAULT_SCOPE.tenant
     namespace: str | None = None
+    # When the document was written or true as of, if the caller knew (GRA-42); the edges
+    # built from it start being valid then. ``None``: unknown, and the edges' dates stay unknown.
+    document_date: IsoDate | None = None
 
     @property
     def scope(self) -> Scope:
@@ -316,6 +321,21 @@ class PipelineResult(BaseModel):
 # --- V5 (knowledge-graph build) triples + provenance ------------------------
 
 
+def _iso_date(value: str) -> str:
+    """Accept only ``YYYY-MM-DD`` that is a real calendar date, so dates compare as strings."""
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        raise ValueError(f"{value!r} is not a YYYY-MM-DD date")
+    try:
+        _date.fromisoformat(value)
+    except ValueError as error:
+        raise ValueError(f"{value!r} is not a real date") from error
+    return value
+
+
+IsoDate = Annotated[str, AfterValidator(_iso_date)]
+"""A calendar date as ``YYYY-MM-DD`` (GRA-42). Same-width ISO dates sort the way time does."""
+
+
 class EdgeProvenance(BaseModel):
     """Per-edge provenance for one knowledge-graph triple (ADR-0006, §5c).
 
@@ -348,6 +368,11 @@ class Triple(BaseModel):
     ``"RELATED_TO"`` and ``provenance.raw_predicate`` holds the original phrase.
     ``date`` is the DATE **edge qualifier** (an ISO-ish date string) — dates are
     modeled as an attribute on the edge, never as standalone nodes.
+
+    ``valid_from`` and ``valid_to`` are when the fact held (GRA-42), ``valid_from`` inclusive and
+    ``valid_to`` exclusive, as ``YYYY-MM-DD``. ``None`` means unknown, not "always" or "still":
+    nothing assumes a date it was not given. Today ``valid_from`` is set from the document's date
+    when the caller gave one; nothing sets ``valid_to`` yet (that needs supersession, GRA-43).
     """
 
     subject_id: str
@@ -355,6 +380,8 @@ class Triple(BaseModel):
     object_id: str
     provenance: EdgeProvenance
     date: str | None = None  # DATE qualifier on the edge (not a node)
+    valid_from: IsoDate | None = None
+    valid_to: IsoDate | None = None
 
 
 class Subgraph(BaseModel):
