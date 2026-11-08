@@ -20,6 +20,10 @@ from tests.isolation import check_object_store
 
 pytestmark = pytest.mark.contract
 
+# minio/minio is no longer published to Docker Hub or Quay, so the testcontainers
+# default (a 2022 tag of it) cannot be pulled. This is the same server binary.
+_MINIO_IMAGE = "chainguard/minio:latest"
+
 # Import guard: testcontainers/docker deps or a missing daemon must skip, not error.
 try:
     from testcontainers.minio import MinioContainer
@@ -33,7 +37,7 @@ except Exception as exc:  # noqa: BLE001
 def object_store() -> Iterator[MinioObjectStore]:
     """A real :class:`MinioObjectStore` backed by a throwaway MinIO container."""
     try:
-        container = MinioContainer()
+        container = MinioContainer(_MINIO_IMAGE)
         container.start()
     except Exception as exc:  # noqa: BLE001 — Docker not available on this host.
         pytest.skip(f"Docker unavailable for MinIO contract test: {exc}")

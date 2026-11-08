@@ -29,7 +29,7 @@ services:
       start_period: 30s
 
   minio:
-    image: minio/minio:latest
+    image: chainguard/minio:latest
     command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
@@ -40,7 +40,16 @@ services:
     volumes:
       - minio-data:/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:9000/minio/health/live || exit 1"]
+      # The image has no curl or grep; bash's /dev/tcp reads the status line.
+      test:
+        - CMD
+        - bash
+        - -c
+        - |
+          exec 3<>/dev/tcp/localhost/9000
+          printf 'GET /minio/health/live HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3
+          read -r line <&3
+          [[ $$line == *' 200 '* ]]
       interval: 10s
       timeout: 5s
       retries: 12
