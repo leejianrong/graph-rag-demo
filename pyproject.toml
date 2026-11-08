@@ -70,6 +70,7 @@ mcp = [
 
 [project.scripts]
 graph-rag-mcp = "graph_rag.mcp_server:main"
+graph-rag-keys = "graph_rag.auth:main"
 
 [tool.uv.workspace]
 members = ["bench", "datagen"]

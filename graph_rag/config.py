@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     # The most text one /v1/remember call may carry (413 above it); ADR-0014.
     max_remember_bytes: int = 1_000_000
 
+    # --- API keys (GRA-22, GRA-23) ------------------------------------------
+    # With ``require_auth`` on, every endpoint but /health needs a bearer key from this file
+    # (``graph-rag-keys`` writes it). Off, requests run in the default tenant, as before.
+    require_auth: bool = False
+    api_keys_path: str = ".data/api-keys.json"
+
     # --- Elasticsearch / DocumentStore + EntityStore ------------------------
     elasticsearch_url: str = "http://elasticsearch:9200"
     documents_index: str = "documents"
