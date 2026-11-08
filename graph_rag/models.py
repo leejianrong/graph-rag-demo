@@ -411,6 +411,8 @@ class QueryRequest(BaseModel):
 
     question: str
     synthesize: bool = False
+    # Answer from the facts that held on this day (GRA-44); None is the current behaviour.
+    as_of: IsoDate | None = None
 
     def to_json(self) -> str:
         """Serialize this request to a JSON string."""

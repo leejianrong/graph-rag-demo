@@ -31,6 +31,7 @@ from typing import TYPE_CHECKING
 from graph_rag.logging import get_logger
 from graph_rag.models import QueryResponse
 from graph_rag.query.ranking import rank_nodes, select_answer
+from graph_rag.query.temporal import drop_sentences, subgraph_as_of
 from graph_rag.scope import DEFAULT_SCOPE, Scope
 
 if TYPE_CHECKING:
@@ -171,6 +172,14 @@ class QueryRetriever:
 
         # 3. Expand: k-hop BFS from the seed entities -> the connected subgraph.
         subgraph = self._graph_store.khop(scope, seed_ids=list(seed_scores), hops=self._khop_depth)
+
+        # 3b. As of a date (GRA-44): keep only the edges that held then, and the nodes and
+        #     sentences that depend on them. Without ``as_of`` nothing is filtered.
+        if request.as_of is not None:
+            subgraph, gone = subgraph_as_of(
+                subgraph, list(seed_scores), self._khop_depth, request.as_of
+            )
+            supporting_sentences = drop_sentences(supporting_sentences, gone)
 
         # 4. Hop distance: BFS over the RETURNED subgraph's edges from the seeds
         #    (seeds = 0; unreachable nodes are omitted -> the ranker treats them as

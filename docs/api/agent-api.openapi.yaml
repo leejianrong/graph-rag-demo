@@ -281,8 +281,12 @@ components:
         as_of:
           type: string
           format: date
-          description: Answer from the facts that were true on this date. Omit for the current facts.
-          x-status: planned
+          description: |
+            Answer from the facts that held on this date, YYYY-MM-DD. An edge holds when
+            `valid_from <= as_of < valid_to`; a bound that is null (unknown) does not exclude it,
+            so facts with no known dates are still returned. Nodes and sentences that rest only on
+            excluded edges are left out. Omit it for today's behaviour: nothing is filtered.
+          x-status: existing
           x-card: GRA-44
         namespace:
           $ref: "#/components/schemas/Namespace"

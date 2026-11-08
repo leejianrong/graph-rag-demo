@@ -82,6 +82,7 @@ class RecallRequest(BaseModel):
     question: str = Field(min_length=1)
     synthesize: bool = False
     token_budget: int | None = Field(default=None, ge=1)
+    as_of: IsoDate | None = None
     namespace: str | None = Field(default=None, min_length=1)
 
 
@@ -188,7 +189,9 @@ def add_agent_routes(
         if retriever is None:
             raise AgentError("unavailable", "Recall is not configured on this service.")
         found = retriever.retrieve(
-            QueryRequest(question=request.question, synthesize=request.synthesize),
+            QueryRequest(
+                question=request.question, synthesize=request.synthesize, as_of=request.as_of
+            ),
             _scope(tenant, request.namespace),
         )
         cut = False
