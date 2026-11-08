@@ -197,7 +197,7 @@ def ingest_fields(served: dict) -> set[str]:
 def test_a_field_the_contract_calls_planned_is_not_accepted_yet(spec: dict, served: dict) -> None:
     """When a card builds one of these, this fails: flip its x-status to existing."""
     planned = list(planned_fields(spec))
-    assert {"RecallRequest", "RecallResponse"} == {n for n, _ in planned}
+    assert [("RecallRequest", "as_of")] == planned
     accepted = {
         "RememberRequest": ingest_fields(served),
         "RecallRequest": set(QueryRequest.model_fields),

@@ -264,8 +264,13 @@ components:
         token_budget:
           type: integer
           minimum: 1
-          description: The most tokens of evidence to return, highest-ranked first. 0 or less is rejected.
-          x-status: planned
+          description: |
+            The most tokens of evidence to return, highest-ranked first. 0 or less is rejected.
+            The evidence is `supporting_sentences`, `ranked_nodes` and the `subgraph`; `answer`,
+            `answer_entity` and `prose` are always returned. Tokens are estimated at three
+            characters each, counted over the evidence items' JSON, so the estimate is
+            conservative for English but is not a model's exact tokenizer.
+          x-status: existing
           x-card: GRA-38
         as_of:
           type: string
@@ -302,12 +307,13 @@ components:
         truncated:
           type: boolean
           description: True when `token_budget` cut evidence out.
-          x-status: planned
+          x-status: existing
           x-card: GRA-38
         tokens_used:
           type: integer
           minimum: 0
-          x-status: planned
+          description: The estimated tokens of the evidence returned (never above `token_budget`).
+          x-status: existing
           x-card: GRA-38
     ForgetRequest:
       type: object

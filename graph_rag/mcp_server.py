@@ -58,14 +58,21 @@ def build_server(client: httpx.Client) -> MCPServer:
         return _post(client, "/v1/remember", body)
 
     @server.tool()
-    def recall(question: str, namespace: str | None = None) -> dict[str, Any]:
+    def recall(
+        question: str, namespace: str | None = None, token_budget: int | None = None
+    ) -> dict[str, Any]:
         """Answer a question from memory, with its evidence.
 
         Returns the answer entity, the ranked entities, the connected subgraph and the
         supporting sentences, each with its source document and character offsets. Pass the
         `namespace` the memory was remembered in; without one, the default namespace is searched.
+        Pass a `token_budget` (at least 1) to cap the evidence: the best-ranked sentences, entities
+        and facts are kept, `truncated` says whether anything was cut, and `tokens_used` is the
+        estimate (three characters a token, so it errs high).
         """
-        body = {"question": question} | ({"namespace": namespace} if namespace else {})
+        body: dict[str, Any] = {"question": question}
+        body |= {"namespace": namespace} if namespace else {}
+        body |= {"token_budget": token_budget} if token_budget is not None else {}
         return _post(client, "/v1/recall", body)
 
     @server.tool()

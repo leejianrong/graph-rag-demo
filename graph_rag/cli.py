@@ -67,6 +67,11 @@ def _parser() -> argparse.ArgumentParser:
     recall.add_argument("question")
     recall.add_argument("--namespace", help="the namespace the memory was stored in")
     recall.add_argument(
+        "--token-budget",
+        type=int,
+        help="cap the evidence at about this many tokens, keeping the best-ranked first",
+    )
+    recall.add_argument(
         "--synthesize", action="store_true", help="also write a grounded answer (uses an LLM)"
     )
 
@@ -111,7 +116,9 @@ def _body(args: argparse.Namespace) -> tuple[str, dict[str, Any]]:
         body = {"text": text, "force": args.force} | extra
         return "/v1/remember", body | ({"source_id": args.source_id} if args.source_id else {})
     if args.command == "recall":
-        return "/v1/recall", {"question": args.question, "synthesize": args.synthesize} | extra
+        budget = {"token_budget": args.token_budget} if args.token_budget is not None else {}
+        body = {"question": args.question, "synthesize": args.synthesize}
+        return "/v1/recall", body | budget | extra
     if args.command == "lookup":
         which = {"name": args.name} if args.name else {"entity_id": args.entity_id}
         return "/v1/lookup", which | {"limit": args.limit} | extra
@@ -143,6 +150,8 @@ def _show(command: str, result: dict[str, Any]) -> str:
     if result.get("prose"):
         lines += ["", result["prose"]]
     sources = result["supporting_sentences"]
+    if result.get("truncated"):
+        lines.append(f"(evidence cut to fit the budget; about {result['tokens_used']} tokens kept)")
     if sources:
         lines += ["", "sources:"]
         for n, s in enumerate(sources, 1):
