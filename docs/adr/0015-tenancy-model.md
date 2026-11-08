@@ -39,6 +39,8 @@ candidates inside the scope only, so the same name in two scopes stays two entit
 before they ship only tests supply another one. The namespace travels in the request body and is the first scope
 field a caller can set.
 
+Keys (GRA-22) are `grk_<key_id>_<token>`; only the SHA-256 is stored, in a JSON file (`API_KEYS_PATH`) that `graph-rag-keys` manages. A file suits one service instance; several instances need a shared store, which is not built.
+
 ## Consequences
 
 - Isolation holds only if every query carries the filter. The guards are the required argument (mypy lists every
