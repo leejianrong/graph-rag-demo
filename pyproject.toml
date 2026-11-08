@@ -74,6 +74,7 @@ mcp = [
 graph-rag-mcp = "graph_rag.mcp_server:main"
 graph-rag-keys = "graph_rag.auth:main"
 graphrag = "graph_rag.cli:main"
+graph-rag-offline = "graph_rag.offline_server:main"
 
 [tool.uv.workspace]
 members = ["bench", "datagen"]

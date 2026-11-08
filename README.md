@@ -113,6 +113,8 @@ by default.
 
 ## Running it locally
 
+In a hurry? [docs/QUICKSTART.md](docs/QUICKSTART.md) runs the service in one process with no Docker or LLM key and connects Claude Code to it. What follows is the full stack.
+
 You'll need Docker with Compose. For the LLM-backed stages you'll also need a key
 for any OpenAI-compatible provider; the query path itself runs without one.
 
@@ -158,7 +160,7 @@ curl -X POST localhost:8000/v1/forget -H 'content-type: application/json' -d '{"
 
 Add `"namespace": "my-project"` to any of the three calls to keep memory apart (per project, say): what is
 remembered in one namespace is never recalled or forgotten from another, and leaving it out is the default
-namespace. `lookup` is served too; the planned fields (`token_budget`, `as_of`) are not.
+namespace. `lookup` is served too, and `recall` takes `token_budget`; `as_of` is not served yet.
 
 ### Command line
 
