@@ -30,6 +30,7 @@ from graph_rag.adapters.minio_object_store import MinioObjectStore
 from graph_rag.adapters.neo4j_graph_store import Neo4jGraphStore
 from graph_rag.api import create_app
 from graph_rag.config import Settings
+from graph_rag.jobs import InMemoryJobStore
 from graph_rag.logging import configure_logging, get_logger
 from graph_rag.lookup import EntityLookup
 from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer, KafkaTriggerPublisher
@@ -83,6 +84,7 @@ def main() -> None:
     kg_build_stage = KgBuildStage.from_settings(settings)
 
     # --- The pipeline shell over those ports + stages -----------------------
+    job_store = InMemoryJobStore()  # in this process: the consumer thread and the API share it
     orchestrator = Orchestrator(
         object_store=object_store,
         document_store=document_store,
@@ -92,6 +94,7 @@ def main() -> None:
         graph_store=graph_store,
         kg_build_stage=kg_build_stage,
         entity_store=entity_store,
+        job_store=job_store,
     )
 
     # --- Prose synthesizer (N17, V7): the OPTIONAL gated LLM answer mode -----
@@ -138,6 +141,7 @@ def main() -> None:
         retriever=retriever,
         eraser=orchestrator.delete_document,
         lookup=EntityLookup(entity_store, graph_store),
+        jobs=job_store,
     )
 
     logger.info("serving FastAPI app on 0.0.0.0:8000")

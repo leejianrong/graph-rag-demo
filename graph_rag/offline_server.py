@@ -48,6 +48,7 @@ def build_app(settings: Settings | None = None) -> FastAPI:
         retriever=components.retriever,
         eraser=components.orchestrator.delete_document,
         lookup=EntityLookup(components.entity_store, components.graph_store),
+        jobs=components.job_store,
     )
 
 

@@ -28,6 +28,7 @@ from graph_rag.agent_api import add_agent_routes
 from graph_rag.auth import ApiKeys, AuthError, JsonFileKeyStore
 from graph_rag.config import Settings, get_settings
 from graph_rag.ids import document_id
+from graph_rag.jobs import Job, JobStore
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityLookup
 from graph_rag.models import DeletedDocument, IngestTrigger, QueryRequest, QueryResponse
@@ -59,6 +60,7 @@ def create_app(
     eraser: Callable[[str, Scope], DeletedDocument | None] | None = None,
     keys: ApiKeys | None = None,
     lookup: EntityLookup | None = None,
+    jobs: JobStore | None = None,
 ) -> FastAPI:
     """Build the FastAPI app with its ports injected.
 
@@ -72,6 +74,9 @@ def create_app(
         eraser: Forgets one document by id (``Orchestrator.delete_document``) and returns
             what it removed, or ``None`` for an unknown id. **Optional**: when ``None``
             ``DELETE /documents/{id}`` responds ``503``.
+        jobs: Where ingest progress is read from for ``GET /jobs/{id}``, and where ``accept``
+            records a document as queued. **Optional**: when ``None`` the jobs endpoint
+            responds ``503``. Share the instance with the orchestrator.
         lookup: Backs ``POST /v1/lookup``. **Optional**: when ``None`` it responds ``unavailable``.
         keys: Verifies API keys. **Optional**: when ``None`` and ``settings.require_auth`` is on,
             keys are read from ``settings.api_keys_path``. With ``require_auth`` off, no key is
@@ -118,6 +123,8 @@ def create_app(
             }
 
         object_store.put(scope, bucket, object_key, data)
+        if jobs is not None:  # before publishing, so a fast worker's "done" is not overwritten
+            jobs.queued(scope, doc_id, object_key)
         publisher.publish(
             IngestTrigger(
                 bucket=bucket,
@@ -165,6 +172,21 @@ def create_app(
                 status_code=400, detail=f"Keys may not start with {RESERVED_KEY_PREFIX!r}."
             )
         return accept(object_key, data, force, Scope(tenant))
+
+    @app.get("/jobs/{doc_id}")
+    def job(doc_id: str, tenant: str = Depends(tenant_of)) -> Job:
+        """Where a document is in the pipeline: queued, running, done or failed.
+
+        The id is the ``document_id`` that ``/ingest`` and ``/v1/remember`` returned. A failed
+        job says which stage failed. An id this tenant never queued is a 404, whoever else
+        has queued it, and a process restart forgets jobs (they are held in memory).
+        """
+        if jobs is None:
+            raise HTTPException(status_code=503, detail="Job status is not configured here.")
+        found = jobs.get(Scope(tenant), doc_id)
+        if found is None:
+            raise HTTPException(status_code=404, detail=f"No job {doc_id}.")
+        return found
 
     @app.delete("/documents/{doc_id}")
     def delete_document(doc_id: str, tenant: str = Depends(tenant_of)) -> DeletedDocument:
