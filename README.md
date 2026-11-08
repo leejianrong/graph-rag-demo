@@ -193,6 +193,20 @@ uv run graph-rag-keys revoke <key_id>
 
 The MCP server sends `GRAPH_RAG_API_KEY` when it is set. `/docs` and `/openapi.json` stay open.
 
+### Exporting and deleting a tenant
+
+An operator can take a tenant's data out, or remove it from every store, with `graph-rag-admin` (it reads the
+same `MINIO_*`, `ELASTICSEARCH_URL` and `NEO4J_*` settings as the service):
+
+```bash
+uv run graph-rag-admin show acme                    # what the tenant holds, per namespace
+uv run graph-rag-admin export acme --out ./export   # documents, entities, graph and raw files, as files
+uv run graph-rag-admin delete acme --yes            # without --yes it only shows; checks every store after
+```
+
+The export leaves out vectors (a re-ingest rebuilds them). The default tenant is refused, because data written
+before tenancy existed carries no tenant.
+
 ### Use it from Claude Code (MCP)
 
 `graph-rag-mcp` is an MCP server over stdio that exposes `remember`, `recall`, `forget` and `lookup` and calls a running

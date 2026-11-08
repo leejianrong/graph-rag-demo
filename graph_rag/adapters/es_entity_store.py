@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING, Any
 
 from elasticsearch import Elasticsearch, NotFoundError
 
-from graph_rag.adapters.scoping import es_in_scope, es_scope_filter, scope_fields
+from graph_rag.adapters.scoping import es_in_scope, es_scope_filter, scope_fields, scope_of_key
 from graph_rag.logging import get_logger
 from graph_rag.models import CanonicalEntity
 from graph_rag.normalize import normalize_name
@@ -244,6 +244,20 @@ class EsEntityStore:
             size=_MAX_RESULTS,
         )
         return [self._to_entity(hit["_source"]) for hit in response["hits"]["hits"]]
+
+    def scopes(self, tenant: str) -> list[Scope]:
+        """The scopes of ``tenant`` that hold entities (entities stamped with a ``tenant``)."""
+        try:
+            response = self._client.search(
+                index=self._index,
+                size=0,
+                query={"term": {"tenant": tenant}},
+                aggs={"scopes": {"terms": {"field": "scope", "size": _MAX_RESULTS}}},
+            )
+        except NotFoundError:
+            return []
+        keys = [b["key"] for b in response["aggregations"]["scopes"]["buckets"]]
+        return sorted((scope_of_key(tenant, k) for k in keys), key=lambda s: s.key)
 
     @staticmethod
     def _to_entity(source: dict[str, Any]) -> CanonicalEntity:
