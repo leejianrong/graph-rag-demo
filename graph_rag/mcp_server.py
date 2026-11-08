@@ -43,23 +43,32 @@ def build_server(client: httpx.Client) -> MCPServer:
 
     @server.tool()
     def remember(
-        text: str, source_id: str | None = None, namespace: str | None = None
+        text: str,
+        source_id: str | None = None,
+        namespace: str | None = None,
+        document_date: str | None = None,
     ) -> dict[str, Any]:
         """Store text in memory.
 
         Give a stable `source_id` (a URL, a path, a note id) to make repeats safe: the same id
         with the same text does nothing and returns status `unchanged`. Without one, identical
         text is still stored once. A `namespace` (for example a project name) keeps this memory
-        apart: recall it with the same namespace.
+        apart: recall it with the same namespace. Give the `document_date` (YYYY-MM-DD) when you
+        know when the text was written; the facts in it are then dated from that day, so `recall`
+        can answer as of an earlier date.
         """
         body = {"text": text}
+        body |= {"document_date": document_date} if document_date else {}
         body |= {"source_id": source_id} if source_id else {}
         body |= {"namespace": namespace} if namespace else {}
         return _post(client, "/v1/remember", body)
 
     @server.tool()
     def recall(
-        question: str, namespace: str | None = None, token_budget: int | None = None
+        question: str,
+        namespace: str | None = None,
+        token_budget: int | None = None,
+        as_of: str | None = None,
     ) -> dict[str, Any]:
         """Answer a question from memory, with its evidence.
 
@@ -68,11 +77,13 @@ def build_server(client: httpx.Client) -> MCPServer:
         `namespace` the memory was remembered in; without one, the default namespace is searched.
         Pass a `token_budget` (at least 1) to cap the evidence: the best-ranked sentences, entities
         and facts are kept, `truncated` says whether anything was cut, and `tokens_used` is the
-        estimate (three characters a token, so it errs high).
+        estimate (three characters a token, so it errs high). Pass `as_of` (YYYY-MM-DD) to answer
+        from the facts that held on that day; facts with no known dates are still included.
         """
         body: dict[str, Any] = {"question": question}
         body |= {"namespace": namespace} if namespace else {}
         body |= {"token_budget": token_budget} if token_budget is not None else {}
+        body |= {"as_of": as_of} if as_of else {}
         return _post(client, "/v1/recall", body)
 
     @server.tool()

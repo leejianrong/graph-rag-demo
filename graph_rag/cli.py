@@ -56,6 +56,11 @@ def _parser() -> argparse.ArgumentParser:
     )
     remember.add_argument("--namespace", help="keep this memory apart from other namespaces")
     remember.add_argument(
+        "--document-date",
+        metavar="YYYY-MM-DD",
+        help="when the text was written; its facts are dated from then (for recall --as-of)",
+    )
+    remember.add_argument(
         "--force", action="store_true", help="process it again even if it is unchanged"
     )
 
@@ -66,6 +71,9 @@ def _parser() -> argparse.ArgumentParser:
     )
     recall.add_argument("question")
     recall.add_argument("--namespace", help="the namespace the memory was stored in")
+    recall.add_argument(
+        "--as-of", metavar="YYYY-MM-DD", help="answer from the facts that held on this day"
+    )
     recall.add_argument(
         "--token-budget",
         type=int,
@@ -113,12 +121,14 @@ def _body(args: argparse.Namespace) -> tuple[str, dict[str, Any]]:
                 text = handle.read()
         else:
             text = args.text
-        body = {"text": text, "force": args.force} | extra
+        dated = {"document_date": args.document_date} if args.document_date else {}
+        body = {"text": text, "force": args.force} | dated | extra
         return "/v1/remember", body | ({"source_id": args.source_id} if args.source_id else {})
     if args.command == "recall":
         budget = {"token_budget": args.token_budget} if args.token_budget is not None else {}
         body = {"question": args.question, "synthesize": args.synthesize}
-        return "/v1/recall", body | budget | extra
+        as_of = {"as_of": args.as_of} if args.as_of else {}
+        return "/v1/recall", body | budget | as_of | extra
     if args.command == "lookup":
         which = {"name": args.name} if args.name else {"entity_id": args.entity_id}
         return "/v1/lookup", which | {"limit": args.limit} | extra

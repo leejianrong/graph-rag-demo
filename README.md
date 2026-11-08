@@ -164,7 +164,9 @@ curl -X POST localhost:8000/v1/forget -H 'content-type: application/json' -d '{"
 
 Add `"namespace": "my-project"` to any of the three calls to keep memory apart (per project, say): what is
 remembered in one namespace is never recalled or forgotten from another, and leaving it out is the default
-namespace. `lookup` is served too, and `recall` takes `token_budget`; `as_of` is not served yet.
+namespace. `lookup` is served too, and `recall` takes `token_budget` and `as_of`.
+
+To ask what was true on a past day, give `remember` a `document_date` and `recall` an `as_of` (both `YYYY-MM-DD`; `graphrag remember --document-date`, `graphrag recall --as-of`). `recall` then drops the facts that had not begun or had ended by that day, and the entities and sentences that rest only on them. A fact with no known dates is never dropped, since the service only knows a date it was given. Nothing ends a fact yet (GRA-43), so today `as_of` can tell you what was known by a day, not what had been replaced.
 
 ### Command line
 

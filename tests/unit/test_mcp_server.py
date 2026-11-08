@@ -149,3 +149,15 @@ def test_recall_takes_a_token_budget(pipeline) -> None:
     cut = call(http, "recall", {"question": "Where is Acme Corp based?", "token_budget": 60})
     assert cut.structured_content["truncated"] and cut.structured_content["tokens_used"] <= 60
     assert call(http, "recall", {"question": "x", "token_budget": 0}).is_error
+
+
+def test_recall_as_of_uses_the_document_date(pipeline) -> None:
+    http, components, queue = pipeline
+    call(http, "remember", {"text": TEXT, "source_id": "n", "document_date": "2018-01-01"})
+    for trigger in queue.triggers:
+        assert components.orchestrator.process_document(trigger)
+    question = {"question": "Where is Acme Corp based?"}
+    assert call(http, "recall", question).structured_content["subgraph"]["edges"]
+    then = call(http, "recall", question | {"as_of": "2017-01-01"})
+    assert then.structured_content["subgraph"]["edges"] == []
+    assert call(http, "recall", question | {"as_of": "soon"}).is_error

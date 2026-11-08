@@ -54,8 +54,8 @@ adding one is a contract change.
 **Tenancy comes from the key.** A request carries an API key as a bearer token; the key names the tenant, so no
 body has a tenant id. `namespace` (optional) partitions memory inside a tenant.
 
-**Planned fields are in the contract now.** `as_of` is
-specified, marked `x-status: planned` with the card that builds it, and ignored by today's server. `namespace` and `token_budget` were planned here and are built (GRA-45, ADR-0015; GRA-38). Specifying
+**Planned fields are in the contract now.** A field is
+specified and marked `x-status: planned` with the card that builds it, and ignored by the server until then. `namespace`, `token_budget` and `as_of` were planned here and are built (GRA-45, ADR-0015; GRA-38; GRA-44). Specifying
 them first fixes their names before three clients each invent one.
 
 ## Mapping onto what exists
@@ -63,7 +63,7 @@ them first fixes their names before three clients each invent one.
 | Verb | Wraps | `/v1` shape |
 |---|---|---|
 | `remember` | `POST /ingest` (multipart file, `source_url`, `?force`) | Text is the upload and `source_id` the `source_url`; `source_id` is derived from the text when omitted. Served (GRA-132). |
-| `recall` | `POST /query` | Same retrieval and body. `token_budget` (with `truncated` and `tokens_used`) is served (GRA-38) and `namespace` (GRA-45); `as_of` is still planned. Served (GRA-132). |
+| `recall` | `POST /query` | Same retrieval and body. `token_budget` (with `truncated` and `tokens_used`) is served (GRA-38) and `namespace` (GRA-45); `as_of` (GRA-44) keeps the edges that held on that day. Served (GRA-132). |
 | `forget` | `DELETE /documents/{doc_id}` | Takes `source_id` or `document_id`; the facade derives the id from the source. Served (GRA-132). |
 | `lookup` | none | Built over `GraphStore.get_node` / `get_node_edges` and name blocking in `EntityStore`; takes a name (or alias) or an entity id, and an optional `namespace`; no match is `404`. Served (GRA-37). |
 

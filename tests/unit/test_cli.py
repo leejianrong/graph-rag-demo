@@ -195,3 +195,15 @@ def test_recall_takes_a_token_budget(stack, capsys) -> None:
     assert "evidence cut to fit the budget" in out
     code, _, err = run(client, capsys, "recall", QUESTION, "--token-budget", "0")
     assert code == 1 and "token_budget" in err
+
+
+def test_recall_as_of_uses_the_document_date(stack, capsys) -> None:
+    client, components, queue = stack
+    run(client, capsys, "remember", TEXT, "--source-id", "n", "--document-date", "2018-01-01")
+    drain(components, queue)
+    _, now, _ = run(client, capsys, "--json", "recall", QUESTION)
+    _, then, _ = run(client, capsys, "--json", "recall", QUESTION, "--as-of", "2017-01-01")
+    assert json.loads(now)["subgraph"]["edges"]
+    assert json.loads(then)["subgraph"]["edges"] == []  # nothing was known yet
+    code, _, err = run(client, capsys, "recall", QUESTION, "--as-of", "last year")
+    assert code == 1 and "as_of" in err
