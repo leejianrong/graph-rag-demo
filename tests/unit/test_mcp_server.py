@@ -136,3 +136,16 @@ def test_lookup_returns_neighbours_and_reports_a_miss_as_a_tool_error(pipeline) 
     miss = call(http, "lookup", {"name": "Nobody Inc"})
     assert miss.is_error and "No entity" in miss.content[0].text
     assert call(http, "lookup", {}).is_error
+
+
+def test_recall_takes_a_token_budget(pipeline) -> None:
+    http, components, queue = pipeline
+    text = " ".join(
+        f"Person{i} works for Acme Corp. Acme Corp is based in London." for i in range(8)
+    )
+    call(http, "remember", {"text": text, "source_id": "n"})
+    for trigger in queue.triggers:
+        assert components.orchestrator.process_document(trigger)
+    cut = call(http, "recall", {"question": "Where is Acme Corp based?", "token_budget": 60})
+    assert cut.structured_content["truncated"] and cut.structured_content["tokens_used"] <= 60
+    assert call(http, "recall", {"question": "x", "token_budget": 0}).is_error

@@ -168,6 +168,7 @@ namespace. `lookup` is served too; the planned fields (`token_budget`, `as_of`) 
 ```bash
 graphrag remember "Acme Corp is based in London." --source-id note-1   # or --file notes.md, or stdin
 graphrag recall "Where is Acme Corp based?"                           # the answer, then its sources
+graphrag recall "Where is Acme Corp based?" --token-budget 500        # at most about 500 tokens of evidence
 graphrag --json recall "Where is Acme Corp based?"                    # the API's JSON, for scripts
 graphrag forget --source-id note-1
 graphrag lookup --name "Acme Corp"                                    # aliases and neighbouring facts

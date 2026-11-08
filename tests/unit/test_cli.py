@@ -179,3 +179,19 @@ def test_lookup_shows_neighbours_and_misses_exit_1(capsys) -> None:
     assert len(json.loads(out)["entities"][0]["neighbours"]) == 1
     code, _, err = run(client, capsys, "lookup", "--name", "Nobody Inc")
     assert code == 1 and "No entity matches" in err
+
+
+def test_recall_takes_a_token_budget(stack, capsys) -> None:
+    client, components, queue = stack
+    text = " ".join(
+        f"Person{i} works for Acme Corp. Acme Corp is based in London." for i in range(8)
+    )
+    run(client, capsys, "remember", text, "--source-id", "n")
+    drain(components, queue)
+    _, full, _ = run(client, capsys, "--json", "recall", QUESTION)
+    code, out, _ = run(client, capsys, "--json", "recall", QUESTION, "--token-budget", "60")
+    assert code == 0 and json.loads(out)["tokens_used"] <= 60 < json.loads(full)["tokens_used"]
+    _, out, _ = run(client, capsys, "recall", QUESTION, "--token-budget", "60")
+    assert "evidence cut to fit the budget" in out
+    code, _, err = run(client, capsys, "recall", QUESTION, "--token-budget", "0")
+    assert code == 1 and "token_budget" in err

@@ -25,6 +25,7 @@ from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityDetail
 from graph_rag.models import DeletedDocument, QueryRequest, QueryResponse
+from graph_rag.query.budget import evidence_tokens, pack
 from graph_rag.scope import RESERVED_KEY_PREFIX, Scope
 
 if TYPE_CHECKING:
@@ -79,7 +80,15 @@ class RememberResponse(BaseModel):
 class RecallRequest(BaseModel):
     question: str = Field(min_length=1)
     synthesize: bool = False
+    token_budget: int | None = Field(default=None, ge=1)
     namespace: str | None = Field(default=None, min_length=1)
+
+
+class RecallResponse(QueryResponse):
+    """``QueryResponse`` plus what the token budget did to the evidence."""
+
+    truncated: bool = False
+    tokens_used: int = 0
 
 
 class ForgetRequest(BaseModel):
@@ -167,13 +176,19 @@ def add_agent_routes(
         )
 
     @router.post("/recall")
-    def recall(request: RecallRequest, tenant: str = Depends(tenant_of)) -> QueryResponse:
+    def recall(request: RecallRequest, tenant: str = Depends(tenant_of)) -> RecallResponse:
         """Answer a question and return the evidence behind the answer."""
         if retriever is None:
             raise AgentError("unavailable", "Recall is not configured on this service.")
-        return retriever.retrieve(
+        found = retriever.retrieve(
             QueryRequest(question=request.question, synthesize=request.synthesize),
             _scope(tenant, request.namespace),
+        )
+        cut = False
+        if request.token_budget is not None:
+            found, cut = pack(found, request.token_budget)
+        return RecallResponse(
+            **found.model_dump(), truncated=cut, tokens_used=evidence_tokens(found)
         )
 
     @router.post("/forget")
