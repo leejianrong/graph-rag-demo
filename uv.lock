@@ -1005,6 +1005,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+cli = [
+    { name = "httpx" },
+]
 dev = [
     { name = "httpx" },
     { name = "kgbench" },
@@ -1033,6 +1036,7 @@ trf = [
 requires-dist = [
     { name = "elasticsearch", specifier = ">=8,<9" },
     { name = "fastapi" },
+    { name = "httpx", marker = "extra == 'cli'", specifier = ">=0.28.1" },
     { name = "httpx", marker = "extra == 'dev'" },
     { name = "httpx", marker = "extra == 'mcp'", specifier = ">=0.28.1" },
     { name = "kafka-python" },
@@ -1058,7 +1062,7 @@ requires-dist = [
     { name = "types-pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.12.20261103" },
     { name = "uvicorn", extras = ["standard"] },
 ]
-provides-extras = ["dev", "trf", "embed", "mcp"]
+provides-extras = ["dev", "trf", "embed", "cli", "mcp"]
 
 [[package]]
 name = "h11"

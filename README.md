@@ -160,6 +160,20 @@ Add `"namespace": "my-project"` to any of the three calls to keep memory apart (
 remembered in one namespace is never recalled or forgotten from another, and leaving it out is the default
 namespace. `lookup` and the planned fields (`token_budget`, `as_of`) are not served yet.
 
+### Command line
+
+`graphrag` calls a running service's `/v1` API from a terminal (`uv sync --extra cli`). It reads
+`GRAPH_RAG_URL` (default `http://localhost:8000`) and `GRAPH_RAG_API_KEY`:
+
+```bash
+graphrag remember "Acme Corp is based in London." --source-id note-1   # or --file notes.md, or stdin
+graphrag recall "Where is Acme Corp based?"                           # the answer, then its sources
+graphrag --json recall "Where is Acme Corp based?"                    # the API's JSON, for scripts
+graphrag forget --source-id note-1
+```
+
+Each command takes `--namespace`. Exit status is 0 on success, 1 when the service returned an error and 2 when it could not be reached.
+
 ### API keys
 
 By default the service checks no key and every request runs in the default tenant. Set
