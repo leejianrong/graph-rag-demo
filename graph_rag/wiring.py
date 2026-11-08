@@ -50,6 +50,7 @@ from graph_rag.fakes import (
     InMemoryGraphStore,
     InMemoryObjectStore,
 )
+from graph_rag.jobs import InMemoryJobStore, JobStore
 from graph_rag.models import CuratedType, EdgeProvenance, Mention, Sentence, Triple
 from graph_rag.orchestrator import Orchestrator
 from graph_rag.ports import DocumentStore, Embedder, EntityStore, GraphStore, ObjectStore
@@ -300,6 +301,7 @@ class BenchmarkComponents:
     bucket: str
     llm_calls: Callable[[], int]
     llm_usage: Callable[[], LlmUsage]
+    job_store: JobStore | None = None
 
 
 def build_offline_components(
@@ -367,9 +369,11 @@ def build_offline_components(
 
         ner_stage = SpacyNerStage.from_settings(settings)
 
+    job_store = InMemoryJobStore()
     orchestrator = Orchestrator(
         object_store=object_store,
         document_store=document_store,
+        job_store=job_store,
         ner_stage=ner_stage,
         coref_stage=LLMCorefStage(llm_client),
         # Merge-by-name: threshold -1 + kNN off → same surface ⇒ one canonical id
@@ -398,6 +402,7 @@ def build_offline_components(
         bucket=settings.minio_bucket,
         llm_calls=lambda: llm_client.calls,
         llm_usage=usage,
+        job_store=job_store,
     )
 
 

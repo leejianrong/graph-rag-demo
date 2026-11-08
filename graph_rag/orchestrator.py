@@ -57,6 +57,7 @@ from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.ner import SpacyNerStage
 
 if TYPE_CHECKING:
+    from graph_rag.jobs import JobState, JobStore
     from graph_rag.models import IngestTrigger
     from graph_rag.ports import DocumentStore, EntityStore, GraphStore, ObjectStore
     from graph_rag.stages.coref import CorefStage
@@ -88,6 +89,7 @@ class Orchestrator:
         graph_store: GraphStore | None = None,
         kg_build_stage: KgStage | None = None,
         entity_store: EntityStore | None = None,
+        job_store: JobStore | None = None,
     ) -> None:
         """Wire the active ports and stages.
 
@@ -129,6 +131,7 @@ class Orchestrator:
         self._graph_store: GraphStore | None = graph_store
         self._kg_build_stage: KgStage | None = kg_build_stage
         self._entity_store: EntityStore | None = entity_store
+        self._job_store: JobStore | None = job_store
 
     def delete_document(self, doc_id: str, scope: Scope = DEFAULT_SCOPE) -> DeletedDocument | None:
         """Forget one document: its edges, its record, its raw bytes, and entities only it used.
@@ -188,13 +191,13 @@ class Orchestrator:
             The :class:`~graph_rag.models.PipelineResult` (raw record + in-memory
             enrichment) on success, or ``None`` if this document failed (dropped).
         """
+        scope = trigger.scope
+        doc_id = document_id(trigger.bucket, trigger.object_key, scope)
+        stage = "read"
+        self._job(scope, doc_id, "running")
         try:
             # 1. Read stage (N5): fetch the raw bytes from the object store.
-            scope = trigger.scope
             data = self._object_store.get(scope, trigger.bucket, trigger.object_key)
-
-            # 2. Deterministic identity (ADR-0001): same location -> same id -> overwrite.
-            doc_id = document_id(trigger.bucket, trigger.object_key, scope)
 
             # 3. Decode to text. errors="replace" keeps a malformed byte from
             #    wedging the pipeline; the raw text is what we persist.
@@ -213,11 +216,13 @@ class Orchestrator:
 
             # 5. NER stage (N6): typed mentions + char spans + sentences in one
             #    pass, carried in-memory on the result (persisted at V4, not here).
+            stage = "entity recognition"
             ner = self._ner_stage.analyze(text)
 
             # 6. Coref stage (N7, first LLM use): a non-destructive within-doc
             #    cluster map over the raw text + mentions, also carried in-memory.
             #    A cached/identical run costs $0.
+            stage = "coreference"
             coref_clusters = self._coref_stage.resolve(text, ner.mentions)
 
             # 7. Entity-linking stage (N8) + EL checkpoint (V4, ADR-0004/0005).
@@ -229,6 +234,7 @@ class Orchestrator:
             el_result: list[EntityLink] = []
             triples: list[Triple] = []
             if self._entity_linking_stage is not None:
+                stage = "entity linking"
                 el = self._entity_linking_stage.link(
                     text, ner.mentions, ner.sentences, coref_clusters, scope
                 )
@@ -249,6 +255,7 @@ class Orchestrator:
                 #    its edges rather than duplicating them (graph idempotency,
                 #    TESTING gap #1). Nodes are idempotent by canonical_id.
                 if self._kg_build_stage is not None and self._graph_store is not None:
+                    stage = "knowledge graph"
                     canonical_entities = self._doc_canonical_entities(el.links)
                     triples = self._kg_build_stage.build(
                         doc_id, text, ner.sentences, el, canonical_entities
@@ -269,6 +276,7 @@ class Orchestrator:
                 len(el_result),
                 len(triples),
             )
+            self._job(scope, doc_id, "done")
             # 9. Return the in-memory carry so callers/tests can assert on it.
             return PipelineResult(
                 record=record,
@@ -278,13 +286,20 @@ class Orchestrator:
                 el_result=el_result,
                 triples=triples,
             )
-        except Exception:  # noqa: BLE001 — log-and-drop per document (ADR-0001).
+        except Exception as error:  # noqa: BLE001 — log-and-drop per document (ADR-0001).
+            # The reason names the stage and the error type, never the message, which can carry
+            # internals; the message is in the log.
+            self._job(scope, doc_id, "failed", f"{stage} failed: {type(error).__name__}")
             _logger.exception(
                 "dropping document %s/%s after processing error",
                 trigger.bucket,
                 trigger.object_key,
             )
             return None
+
+    def _job(self, scope: Scope, doc_id: str, state: JobState, error: str | None = None) -> None:
+        if self._job_store is not None:
+            self._job_store.update(scope, doc_id, state, error)
 
     @staticmethod
     def _doc_canonical_entities(links: list[EntityLink]) -> list[CanonicalEntity]:

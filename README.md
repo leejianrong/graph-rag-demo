@@ -158,6 +158,8 @@ curl -X POST localhost:8000/v1/recall -H 'content-type: application/json' \
 curl -X POST localhost:8000/v1/forget -H 'content-type: application/json' -d '{"source_id": "note-1"}'
 ```
 
+`remember` and `/ingest` return a `document_id`, and `GET /jobs/<document_id>` says where that document is: `queued`, `running`, `done` or `failed` (a failure names the stage and the error type; the detail is in the service log). Jobs are held in the service's memory, so a restart forgets them.
+
 Add `"namespace": "my-project"` to any of the three calls to keep memory apart (per project, say): what is
 remembered in one namespace is never recalled or forgotten from another, and leaving it out is the default
 namespace. `lookup` is served too, and `recall` takes `token_budget`; `as_of` is not served yet.
