@@ -117,3 +117,24 @@ def test_the_command_creates_lists_and_revokes(
     assert main(["--file", path, "revoke", key_id]) == 0
     assert main(["--file", path, "revoke", "nope"]) == 1
     assert main(["--file", path, "create", "a/b"]) == 2
+
+
+def test_the_default_tenant_gets_no_key(
+    keys: ApiKeys, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    with pytest.raises(ValueError, match="default"):
+        keys.create("default")
+    assert keys.list() == []
+    assert main(["--file", str(tmp_path / "k.json"), "create", "default"]) == 2
+    assert "predates tenancy" in capsys.readouterr().out
+    assert not (tmp_path / "k.json").exists()
+
+
+def test_an_old_key_for_the_default_tenant_no_longer_verifies(tmp_path: Path) -> None:
+    store = JsonFileKeyStore(tmp_path / "k.json")
+    secret, record = ApiKeys(store).create("acme")
+    data = json.loads((tmp_path / "k.json").read_text())
+    raw = json.dumps(data).replace('"acme"', '"default"')  # as written before the refusal
+    (tmp_path / "k.json").write_text(raw)
+    with pytest.raises(AuthError, match="not recognised"):
+        ApiKeys(JsonFileKeyStore(tmp_path / "k.json")).verify(secret)

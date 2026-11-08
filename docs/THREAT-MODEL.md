@@ -29,7 +29,7 @@ network level.
 | Guessing a key | Mitigated | 256 random bits in the token; only the SHA-256 is stored; the comparison is constant time and a miss costs the same as a wrong token (`graph_rag/auth.py`) | |
 | Brute-forcing keys or flooding with bad ones | Open | None | No rate limit or lockout on failed keys. Card: GRA-137 |
 | Reading the key file | Partial | Mode 0600, only hashes inside | A hash alone does not open the API, but the file also names every tenant. One file per instance; several instances need a shared store. No card yet; GRA-31 and GRA-57 (staging) will force it |
-| A key for the `default` tenant opens data it should not | **Open (found in this review)** | | `graph-rag-keys create default` works, and a `default` key reads the default scope, which holds all data written before tenancy and everything written with auth off. Card: GRA-134 |
+| A key for the `default` tenant opens data it should not | Mitigated (GRA-134) | `graph-rag-keys create default` is refused, and a `default` key already in a key file no longer verifies (`tests/unit/test_auth.py`) | |
 | Key shown in logs or shell history | Partial | The CLI and MCP server read the key only from `GRAPH_RAG_API_KEY`, never a flag; `graph-rag-keys create` prints it once | The key is in the environment of the process and in `claude mcp add --env`, which writes it to the client's config |
 | `/docs` and `/openapi.json` are public | Open, low | | They describe the API only; no data. Left open, no card |
 
@@ -80,7 +80,7 @@ place to keep it. Card: GRA-140.
 
 These cards were created from this review. Each is small; GRA-134 and GRA-135 are the ones to do before any hosted use.
 
-1. GRA-134: refuse API keys for the `default` tenant.
+1. GRA-134 (done): refuse API keys for the `default` tenant.
 2. GRA-135: cap `/ingest` upload size.
 3. GRA-136: refuse to start on a non-local bind with auth off.
 4. GRA-137: rate limit requests and failed keys.
@@ -94,7 +94,7 @@ Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers se
 ## Checklist before a hosted deployment
 
 - [ ] `REQUIRE_AUTH=true`, and the key file on a mounted volume with mode 0600 (one instance only)
-- [ ] No key exists for the `default` tenant; no data was written with auth off, or it has been moved
+- [ ] No data was written with auth off, or it has been moved
 - [ ] The stores are not reachable from outside the service's network, and none uses a default credential
 - [ ] TLS terminates in front of the API
 - [ ] Upload size and request rates are capped
