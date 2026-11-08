@@ -111,7 +111,7 @@ paths:
         Returns the entities that match, each with its aliases and its neighbours: the facts
         it takes part in, with the sentence each came from. A name can match several entities
         (homonyms); all are returned, best match first.
-      x-status: planned
+      x-status: existing
       x-card: GRA-37
       requestBody:
         required: true
@@ -151,9 +151,10 @@ components:
       type: http
       scheme: bearer
       description: |
-        An API key. It names the tenant, so no request carries a tenant id. Not enforced yet:
-        the server accepts unauthenticated calls until the key cards (GRA-22, GRA-23) land.
-      x-status: planned
+        An API key. It names the tenant, so no request carries a tenant id. A service started
+        with `REQUIRE_AUTH=true` rejects calls without one (401); otherwise it accepts them and
+        runs them in the default tenant (GRA-22, GRA-23).
+      x-status: existing
   responses:
     InvalidRequest:
       description: The request is malformed or breaks a rule.
@@ -347,6 +348,8 @@ components:
           minLength: 1
           description: A name or alias; matched ignoring case and punctuation.
         entity_id: { type: string, minLength: 1 }
+        namespace:
+          $ref: "#/components/schemas/Namespace"
         limit:
           type: integer
           minimum: 1

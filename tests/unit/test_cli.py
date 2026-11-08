@@ -155,3 +155,27 @@ def test_usage_errors_exit_2_and_help_covers_every_command(capsys) -> None:
         with pytest.raises(SystemExit):
             main([command, "--help"])
         assert "usage: graphrag " + command in capsys.readouterr().out
+
+
+def test_lookup_shows_neighbours_and_misses_exit_1(capsys) -> None:
+    from graph_rag.lookup import EntityLookup
+
+    components = build_offline_components()
+    queue = Queue()
+    app = create_app(
+        components.object_store,
+        queue,
+        Settings(),
+        lookup=EntityLookup(components.entity_store, components.graph_store),
+    )
+    client = TestClient(app, base_url="http://graph-rag")
+    run(client, capsys, "remember", TEXT, "--source-id", "n")
+    drain(components, queue)
+
+    code, out, _ = run(client, capsys, "lookup", "--name", "Acme Corp")
+    assert code == 0 and "Acme Corp [ORG]" in out and ("->" in out or "<-" in out)
+    assert "Acme Corp is based in London." in out
+    _, out, _ = run(client, capsys, "--json", "lookup", "--name", "acme corp", "--limit", "1")
+    assert len(json.loads(out)["entities"][0]["neighbours"]) == 1
+    code, _, err = run(client, capsys, "lookup", "--name", "Nobody Inc")
+    assert code == 1 and "No entity matches" in err

@@ -23,10 +23,12 @@ from pydantic import BaseModel, Field
 from graph_rag.auth import AuthError
 from graph_rag.ids import document_id
 from graph_rag.logging import get_logger
+from graph_rag.lookup import EntityDetail
 from graph_rag.models import DeletedDocument, QueryRequest, QueryResponse
 from graph_rag.scope import RESERVED_KEY_PREFIX, Scope
 
 if TYPE_CHECKING:
+    from graph_rag.lookup import EntityLookup
     from graph_rag.query.retriever import QueryRetriever
 
 __all__ = ["add_agent_routes"]
@@ -86,6 +88,17 @@ class ForgetRequest(BaseModel):
     namespace: str | None = Field(default=None, min_length=1)
 
 
+class LookupRequest(BaseModel):
+    name: str | None = Field(default=None, min_length=1)
+    entity_id: str | None = Field(default=None, min_length=1)
+    limit: int = Field(default=20, ge=1, le=100)
+    namespace: str | None = Field(default=None, min_length=1)
+
+
+class LookupResponse(BaseModel):
+    entities: list[EntityDetail]
+
+
 class ForgetResponse(BaseModel):
     document_id: str
     source_id: str
@@ -114,6 +127,7 @@ def add_agent_routes(
     bucket: str,
     max_text_bytes: int,
     tenant_of: Callable[[Request], str],
+    lookup: EntityLookup | None = None,
 ) -> None:
     """Serve ``/v1/remember``, ``/v1/recall`` and ``/v1/forget`` on ``app``.
 
@@ -125,6 +139,7 @@ def add_agent_routes(
         eraser: Backs ``forget``; ``None`` makes it answer ``unavailable``.
         bucket: The bucket a ``document_id`` is derived in.
         max_text_bytes: The largest text ``remember`` takes; more is ``payload_too_large``.
+        lookup: Backs ``lookup``; ``None`` makes it answer ``unavailable``.
         tenant_of: Names the tenant a request acts for, or raises :class:`AuthError`.
     """
     router = APIRouter(prefix=_PREFIX)
@@ -181,6 +196,23 @@ def add_agent_routes(
             entities_removed=removed.entities_removed,
             entities_kept=removed.entities_kept,
         )
+
+    @router.post("/lookup")
+    def lookup_entity(request: LookupRequest, tenant: str = Depends(tenant_of)) -> LookupResponse:
+        """Find entities by name or id, with their aliases and neighbours."""
+        if (request.name is None) == (request.entity_id is None):
+            raise AgentError("invalid_request", "Give exactly one of name and entity_id.", None)
+        if lookup is None:
+            raise AgentError("unavailable", "Lookup is not configured on this service.")
+        found = lookup.find(
+            _scope(tenant, request.namespace),
+            name=request.name,
+            entity_id=request.entity_id,
+            limit=request.limit,
+        )
+        if not found:
+            raise AgentError("not_found", f"No entity matches {request.name or request.entity_id}.")
+        return LookupResponse(entities=found)
 
     app.include_router(router)
 

@@ -158,7 +158,7 @@ curl -X POST localhost:8000/v1/forget -H 'content-type: application/json' -d '{"
 
 Add `"namespace": "my-project"` to any of the three calls to keep memory apart (per project, say): what is
 remembered in one namespace is never recalled or forgotten from another, and leaving it out is the default
-namespace. `lookup` and the planned fields (`token_budget`, `as_of`) are not served yet.
+namespace. `lookup` is served too; the planned fields (`token_budget`, `as_of`) are not.
 
 ### Command line
 
@@ -170,6 +170,7 @@ graphrag remember "Acme Corp is based in London." --source-id note-1   # or --fi
 graphrag recall "Where is Acme Corp based?"                           # the answer, then its sources
 graphrag --json recall "Where is Acme Corp based?"                    # the API's JSON, for scripts
 graphrag forget --source-id note-1
+graphrag lookup --name "Acme Corp"                                    # aliases and neighbouring facts
 ```
 
 Each command takes `--namespace`. Exit status is 0 on success, 1 when the service returned an error and 2 when it could not be reached.
@@ -191,7 +192,7 @@ The MCP server sends `GRAPH_RAG_API_KEY` when it is set. `/docs` and `/openapi.j
 
 ### Use it from Claude Code (MCP)
 
-`graph-rag-mcp` is an MCP server over stdio that exposes `remember` and `recall` and calls a running
+`graph-rag-mcp` is an MCP server over stdio that exposes `remember`, `recall`, `forget` and `lookup` and calls a running
 service's `/v1` API (it holds no pipeline of its own). Install the extra and register it:
 
 ```bash
@@ -200,7 +201,7 @@ claude mcp add graph-rag --env GRAPH_RAG_URL=http://localhost:8000 -- uv run --d
 ```
 
 `recall` returns the answer with its supporting sentences, each carrying its document and character
-offsets, so the agent can cite them. Both tools take an optional `namespace`. `forget` and `lookup` are not tools yet.
+offsets, so the agent can cite them. The tools are `remember`, `recall`, `forget` and `lookup` (an entity with its aliases and neighbours); each takes an optional `namespace`.
 
 To forget a document, delete it by the `document_id` that ingest returned:
 

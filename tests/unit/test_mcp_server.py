@@ -10,6 +10,7 @@ from mcp import Client
 
 from graph_rag.api import create_app
 from graph_rag.config import Settings
+from graph_rag.lookup import EntityLookup
 from graph_rag.mcp_server import build_server
 from graph_rag.models import IngestTrigger
 from graph_rag.wiring import build_offline_components
@@ -29,7 +30,14 @@ class Queue:
 def pipeline():
     components = build_offline_components()
     queue = Queue()
-    app = create_app(components.object_store, queue, Settings(), retriever=components.retriever)
+    app = create_app(
+        components.object_store,
+        queue,
+        Settings(),
+        retriever=components.retriever,
+        eraser=components.orchestrator.delete_document,
+        lookup=EntityLookup(components.entity_store, components.graph_store),
+    )
     return TestClient(app, base_url="http://graph-rag"), components, queue
 
 
@@ -41,13 +49,13 @@ def call(http: httpx.Client, tool: str, arguments: dict):
     return anyio.run(run)
 
 
-def test_both_tools_are_listed_with_descriptions(pipeline) -> None:
+def test_every_tool_is_listed_with_a_description(pipeline) -> None:
     async def run():
         async with Client(build_server(pipeline[0])) as client:
             return (await client.list_tools()).tools
 
     tools = {t.name: t for t in anyio.run(run)}
-    assert set(tools) == {"remember", "recall"}
+    assert set(tools) == {"remember", "recall", "forget", "lookup"}
     assert all(t.description for t in tools.values())
 
 
@@ -98,3 +106,33 @@ def test_a_namespace_keeps_memory_apart_through_the_tools(pipeline) -> None:
 
     assert found({"namespace": "work"})
     assert found({}) == [] and found({"namespace": "home"}) == []
+
+
+def test_forget_removes_what_recall_returned(pipeline) -> None:
+    http, components, queue = pipeline
+    call(http, "remember", {"text": TEXT, "source_id": "note-1"})
+    for trigger in queue.triggers:
+        assert components.orchestrator.process_document(trigger)
+    question = {"question": "Where is Acme Corp based?"}
+    assert call(http, "recall", question).structured_content["supporting_sentences"]
+
+    gone = call(http, "forget", {"source_id": "note-1"})
+    assert not gone.is_error and gone.structured_content["source_id"] == "note-1"
+    assert call(http, "recall", question).structured_content["supporting_sentences"] == []
+    again = call(http, "forget", {"source_id": "note-1"})
+    assert again.is_error and "No source" in again.content[0].text
+
+
+def test_lookup_returns_neighbours_and_reports_a_miss_as_a_tool_error(pipeline) -> None:
+    http, components, queue = pipeline
+    call(http, "remember", {"text": TEXT, "source_id": "note-1"})
+    for trigger in queue.triggers:
+        assert components.orchestrator.process_document(trigger)
+
+    found = call(http, "lookup", {"name": "Acme Corp"})
+    [acme] = found.structured_content["entities"]
+    assert acme["neighbours"] and acme["neighbours"][0]["provenance"]["source_sentence"]
+    assert call(http, "lookup", {"entity_id": acme["canonical_id"]}).is_error is False
+    miss = call(http, "lookup", {"name": "Nobody Inc"})
+    assert miss.is_error and "No entity" in miss.content[0].text
+    assert call(http, "lookup", {}).is_error

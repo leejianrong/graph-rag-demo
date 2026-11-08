@@ -1,4 +1,4 @@
-"""``graphrag``: remember, recall and forget from a terminal (GRA-39).
+"""``graphrag``: remember, recall, forget and lookup from a terminal (GRA-39, GRA-37).
 
 Each command is one call to a running service's ``/v1`` API (ADR-0014). Point it at the service
 with ``--url`` or ``GRAPH_RAG_URL`` (default ``http://localhost:8000``). The API key comes from
@@ -34,7 +34,7 @@ exit status: 0 success, 1 the service returned an error, 2 it could not be reach
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="graphrag",
-        description="Store text in a graph-rag memory, ask it questions and forget what it holds.",
+        description="Store text in a graph-rag memory, ask it questions, inspect and forget.",
         epilog=_EPILOG,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -70,6 +70,18 @@ def _parser() -> argparse.ArgumentParser:
         "--synthesize", action="store_true", help="also write a grounded answer (uses an LLM)"
     )
 
+    lookup = sub.add_parser(
+        "lookup",
+        help="describe an entity and its neighbours",
+        description="Show the entities matching a name or id, with their aliases and the facts "
+        "they take part in.",
+    )
+    which_entity = lookup.add_mutually_exclusive_group(required=True)
+    which_entity.add_argument("--name", help="a name or alias; case and punctuation are ignored")
+    which_entity.add_argument("--entity-id", help="a canonical entity id")
+    lookup.add_argument("--limit", type=int, default=20, help="most neighbours per entity")
+    lookup.add_argument("--namespace", help="the namespace to look in")
+
     forget = sub.add_parser(
         "forget",
         help="forget a source",
@@ -100,6 +112,9 @@ def _body(args: argparse.Namespace) -> tuple[str, dict[str, Any]]:
         return "/v1/remember", body | ({"source_id": args.source_id} if args.source_id else {})
     if args.command == "recall":
         return "/v1/recall", {"question": args.question, "synthesize": args.synthesize} | extra
+    if args.command == "lookup":
+        which = {"name": args.name} if args.name else {"entity_id": args.entity_id}
+        return "/v1/lookup", which | {"limit": args.limit} | extra
     key = {"source_id": args.source_id} if args.source_id else {"document_id": args.document_id}
     return "/v1/forget", key | extra
 
@@ -114,6 +129,16 @@ def _show(command: str, result: dict[str, Any]) -> str:
             f"forgot {result['source_id']} (document {result['document_id']})\n"
             f"entities removed: {len(gone)}, kept because another source mentions them: {len(kept)}"
         )
+    if command == "lookup":
+        lines = []
+        for entity in result["entities"]:
+            aliases = f" (also {', '.join(entity['aliases'])})" if entity["aliases"] else ""
+            lines.append(f"{entity['name']} [{entity['type']}] {entity['canonical_id']}{aliases}")
+            for n in entity["neighbours"]:
+                arrow = "->" if n["direction"] == "outgoing" else "<-"
+                lines.append(f"  {arrow} {n['predicate']} {n['entity']['name']}")
+                lines.append(f"     {n['provenance']['source_sentence']}")
+        return "\n".join(lines)
     lines = [f"answer: {result['answer'] or '(nothing found)'}"]
     if result.get("prose"):
         lines += ["", result["prose"]]
