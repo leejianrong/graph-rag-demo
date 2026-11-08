@@ -35,8 +35,8 @@ the existing strings, so stored data, the bench gate floors and every committed 
 migrated or re-ingested. A test pins the ids a default-scope ingest produces today. Entity linking blocks and ranks
 candidates inside the scope only, so the same name in two scopes stays two entities.
 
-**Until keys land, everything runs as the default tenant.** The tenant comes from the API key (GRA-22, GRA-23), so
-before they ship only tests supply another one. The namespace travels in the request body and is the first scope
+**With `REQUIRE_AUTH` off, everything runs as the default tenant.** With it on (GRA-23) the tenant comes from the API key and no
+body names one. It is off by default so existing local setups keep working; a hosted service must turn it on. The namespace travels in the request body and is the first scope
 field a caller can set.
 
 Keys (GRA-22) are `grk_<key_id>_<token>`; only the SHA-256 is stored, in a JSON file (`API_KEYS_PATH`) that `graph-rag-keys` manages. A file suits one service instance; several instances need a shared store, which is not built.

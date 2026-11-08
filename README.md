@@ -160,6 +160,21 @@ Add `"namespace": "my-project"` to any of the three calls to keep memory apart (
 remembered in one namespace is never recalled or forgotten from another, and leaving it out is the default
 namespace. `lookup` and the planned fields (`token_budget`, `as_of`) are not served yet.
 
+### API keys
+
+By default the service checks no key and every request runs in the default tenant. Set
+`REQUIRE_AUTH=true` and every endpoint except `/health` needs `Authorization: Bearer <key>`; the key names the
+tenant, and a key reaches only that tenant's memory. Keys live in the file `API_KEYS_PATH` (default
+`.data/api-keys.json`; one service instance only):
+
+```bash
+uv run graph-rag-keys create acme --label laptop   # prints the key once; only its hash is stored
+uv run graph-rag-keys list
+uv run graph-rag-keys revoke <key_id>
+```
+
+The MCP server sends `GRAPH_RAG_API_KEY` when it is set. `/docs` and `/openapi.json` stay open.
+
 ### Use it from Claude Code (MCP)
 
 `graph-rag-mcp` is an MCP server over stdio that exposes `remember` and `recall` and calls a running
