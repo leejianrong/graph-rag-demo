@@ -72,9 +72,11 @@ def build_server(client: httpx.Client) -> MCPServer:
 
 
 def main() -> None:
-    """Serve over stdio against the service named by ``GRAPH_RAG_URL``."""
+    """Serve over stdio against ``GRAPH_RAG_URL``, sending ``GRAPH_RAG_API_KEY`` when it is set."""
     url = os.environ.get("GRAPH_RAG_URL", "http://localhost:8000")
-    build_server(httpx.Client(base_url=url, timeout=60)).run()
+    key = os.environ.get("GRAPH_RAG_API_KEY")
+    headers = {"Authorization": f"Bearer {key}"} if key else {}
+    build_server(httpx.Client(base_url=url, timeout=60, headers=headers)).run()
 
 
 if __name__ == "__main__":
