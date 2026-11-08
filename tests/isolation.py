@@ -154,3 +154,51 @@ def check_graph_store(store: GraphStore) -> None:
 
     store.delete_document_edges(a, "doc-a")
     assert (store.edge_count(a), store.edge_count(b)) == (0, 1)
+
+
+def check_tenants_cannot_reach_each_other(client, keys, drain) -> None:  # type: ignore[no-untyped-def]
+    """Over the HTTP API with auth on: tenant B tries to read, query and delete tenant A's memory.
+
+    ``client`` is a test client for an app with ``require_auth``; ``keys`` an ``ApiKeys`` it
+    verifies against; ``drain`` runs the queued ingest triggers through the pipeline. Every
+    attempt must return nothing or 404, and A must still see its own data afterwards.
+    """
+    question = "Where is Acme Corp based?"
+    a, _ = keys.create(f"a{uuid.uuid4().hex[:8]}")
+    b, _ = keys.create(f"b{uuid.uuid4().hex[:8]}")
+
+    def auth(secret: str) -> dict[str, str]:
+        return {"Authorization": f"Bearer {secret}"}
+
+    def recall(secret: str) -> list:
+        found = client.post("/v1/recall", json={"question": question}, headers=auth(secret))
+        assert found.status_code == 200
+        return found.json()["supporting_sentences"]
+
+    text = "Ada Lovelace works for Acme Corp. Acme Corp is based in London."
+    stored = client.post("/v1/remember", json={"text": text, "source_id": "n"}, headers=auth(a))
+    assert stored.status_code == 202
+    drain()
+    doc_id = stored.json()["document_id"]
+
+    assert recall(a)
+    assert recall(b) == []
+    legacy = client.post("/query", json={"question": question}, headers=auth(b)).json()
+    assert legacy["supporting_sentences"] == [] and legacy["ranked_nodes"] == []
+
+    assert client.post("/v1/forget", json={"source_id": "n"}, headers=auth(b)).status_code == 404
+    forget_by_id = client.post("/v1/forget", json={"document_id": doc_id}, headers=auth(b))
+    assert forget_by_id.status_code == 404
+    assert client.delete(f"/documents/{doc_id}", headers=auth(b)).status_code == 404
+    assert recall(a)  # none of B's attempts removed anything
+
+    # B stores the same words under the same source id: a separate document, A's untouched.
+    again = client.post("/v1/remember", json={"text": text, "source_id": "n"}, headers=auth(b))
+    assert again.json()["document_id"] != doc_id and again.json()["status"] == "accepted"
+    drain()
+    assert recall(b) and recall(a)
+    assert client.post("/v1/forget", json={"source_id": "n"}, headers=auth(b)).status_code == 200
+    assert recall(b) == [] and recall(a)  # B's forget left A's memory
+
+    assert client.delete(f"/documents/{doc_id}", headers=auth(a)).status_code == 200
+    assert recall(a) == []

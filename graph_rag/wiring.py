@@ -308,6 +308,7 @@ def build_offline_components(
     embedder: Embedder | None = None,
     llm_stages: bool = False,
     spacy_ner: bool = False,
+    stores: tuple[ObjectStore, DocumentStore, EntityStore, GraphStore] | None = None,
 ) -> BenchmarkComponents:
     """Wire the fully offline, deterministic benchmark pipeline (fakes + heuristics).
 
@@ -329,16 +330,20 @@ def build_offline_components(
         spacy_ner: Use the real spaCy NER stage (``settings.ner_model``, falling back to a
             smaller installed model) instead of the heuristic one. Needs a model from
             ``make models``.
+        stores: Object, document, entity and graph stores to use in place of the in-memory
+            ones, for running the offline stages over real adapters (the cross-tenant suite).
 
     Returns:
         The wired :class:`BenchmarkComponents`.
     """
     settings = settings or Settings()
 
-    object_store = InMemoryObjectStore()
-    document_store = InMemoryDocumentStore()
-    entity_store = InMemoryEntityStore()
-    graph_store = InMemoryGraphStore()
+    object_store, document_store, entity_store, graph_store = stores or (
+        InMemoryObjectStore(),
+        InMemoryDocumentStore(),
+        InMemoryEntityStore(),
+        InMemoryGraphStore(),
+    )
     embedder = embedder or FakeEmbedder(dim=settings.embed_dim)
     llm_client: Any = FakeLLMClient()  # empty coref clusters; counts one call per document.
     usage: Callable[[], LlmUsage] = LlmUsage  # the fake stands in for a provider: nothing is spent

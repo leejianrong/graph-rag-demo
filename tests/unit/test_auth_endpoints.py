@@ -154,3 +154,10 @@ def test_with_auth_off_no_key_is_needed_and_the_default_tenant_is_used() -> None
     client = TestClient(create_app(components.object_store, queue, Settings()))
     assert client.post("/v1/remember", json={"text": "x"}).status_code == 202
     assert queue.triggers[0].tenant == "default"
+
+
+def test_the_cross_tenant_attempts_find_nothing_on_the_fakes(stack) -> None:
+    from tests.isolation import check_tenants_cannot_reach_each_other
+
+    client, components, queue, keys = stack
+    check_tenants_cannot_reach_each_other(client, keys, lambda: drain(components, queue))
