@@ -29,7 +29,7 @@ from graph_rag.adapters.llm_client import LiteLLMClient
 from graph_rag.adapters.minio_object_store import MinioObjectStore
 from graph_rag.adapters.neo4j_graph_store import Neo4jGraphStore
 from graph_rag.api import create_app
-from graph_rag.bind import enforce_bind
+from graph_rag.bind import enforce_bind, enforce_credentials
 from graph_rag.config import Settings
 from graph_rag.jobs import InMemoryJobStore
 from graph_rag.logging import configure_logging, get_logger
@@ -56,6 +56,7 @@ def main() -> None:
     logger = get_logger(__name__)
     # First, before any store is touched: an open service on a reachable address does not start.
     enforce_bind(settings.bind_host, settings, logger)
+    enforce_credentials(settings)
 
     # --- Real adapters behind the V1-active ports ---------------------------
     object_store = MinioObjectStore.from_settings(settings)
