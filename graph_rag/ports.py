@@ -316,6 +316,8 @@ class LLMClient(Protocol):
     Active from V3 (coref is the first LLM use, ADR-0008). Both methods are served
     through a persistent ``sha256(model + prompt + params)`` response cache, so a
     repeated call is a cache hit that never touches the provider (observably $0).
+    The cache is kept per tenant: the client reads :func:`~graph_rag.scope.current_tenant`, so
+    code that calls it for a tenant runs inside :func:`~graph_rag.scope.acting_for` (GRA-139).
     """
 
     def complete(self, prompt: str, **params: Any) -> str:

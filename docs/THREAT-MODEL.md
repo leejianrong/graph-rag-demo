@@ -27,7 +27,7 @@ network level.
 | A caller with no key reads or writes memory | Mitigated when `REQUIRE_AUTH=true` | 401 on every endpoint but `/health` (`tests/unit/test_auth_endpoints.py`). With auth off, the service refuses to start on any address but loopback unless `ALLOW_OPEN_BIND=true` (`graph_rag/bind.py`, `tests/unit/test_bind.py`, GRA-136) | Auth is still **off by default**; the check catches a forgotten flag only if the bind is reachable. The local compose stack sets `ALLOW_OPEN_BIND` on purpose, so copying it to a host defeats the check |
 | A stolen or leaked key is used | Partial | Keys can be revoked and the revoke applies on the next request (`graph-rag-keys revoke`) | No expiry, no per-key scopes, no way to tell a tenant their key was used from a new place |
 | Guessing a key | Mitigated | 256 random bits in the token; only the SHA-256 is stored; the comparison is constant time and a miss costs the same as a wrong token (`graph_rag/auth.py`) | |
-| Brute-forcing keys or flooding with bad ones | Open | None | No rate limit or lockout on failed keys. Card: GRA-137 |
+| Brute-forcing keys or flooding with bad ones | Partial | A key is 256 random bits, so guessing is not feasible. Failed requests are counted per client address (`FAILED_KEY_LIMIT_PER_MINUTE`, default 20); past that, bad keys get 429 instead of 401. Good keys are checked first and never throttled by it | Counts live in the process, so several instances each allow the full amount. Behind a proxy every client shares one address, so the throttle is global to bad keys. It limits noise, not the cost of a hash check |
 | Reading the key file | Partial | Mode 0600, only hashes inside | A hash alone does not open the API, but the file also names every tenant. One file per instance; several instances need a shared store. No card yet; GRA-31 and GRA-57 (staging) will force it |
 | A key for the `default` tenant opens data it should not | Mitigated (GRA-134) | `graph-rag-keys create default` is refused, and a `default` key already in a key file no longer verifies (`tests/unit/test_auth.py`) | |
 | Key shown in logs or shell history | Partial | The CLI and MCP server read the key only from `GRAPH_RAG_API_KEY`, never a flag; `graph-rag-keys create` prints it once | The key is in the environment of the process and in `claude mcp add --env`, which writes it to the client's config |
@@ -41,7 +41,7 @@ network level.
 | A tenant spells another's location through a key or id it controls | Mitigated | Object keys starting with `_scopes/` are rejected on `/ingest` and `/v1/remember`; tenant and namespace cannot contain `/` or `\|`; ids hash the scope | |
 | Same text from two tenants collides | Mitigated | Document and entity ids include the scope (`tests/unit/test_scope_ids.py`) | |
 | A bug in one store adapter ignores the scope | Partial | One shared isolation check runs on every adapter (`tests/isolation.py`) | A new adapter or a new query has to be added to it by hand. Cost of the Neo4j scope filter on large graphs is unmeasured |
-| Shared LLM response cache leaks across tenants | **Open (found in this review)** | | The cache is keyed by a hash of the model, prompt and parameters and shared by all tenants (`.cache/llm`). Identical text from two tenants reuses one answer, so a tenant could learn that another has processed the same text (by speed or cost; I did not try it), and a poisoned entry would reach both. The cached responses, which quote document sentences, are also kept on disk. Card: GRA-139 |
+| Shared LLM response cache leaks across tenants | Mitigated | Cached responses are kept per tenant: the default tenant keeps the cache root and any other tenant gets its own directory (named by a hash of the tenant). Ingest and synthesis run inside `acting_for(tenant)`, which the client reads. `graph-rag-admin delete` removes the tenant's directory. `tests/unit/test_llm_cache_tenancy.py` shows identical text in two tenants does not share an entry | Identical text in two tenants now costs two provider calls. The cache is per tenant, not per namespace. A new call site that reaches the LLM outside `acting_for` would use the default tenant's cache, so add it there. Entries are still plain files on disk |
 | Someone with access to the stores or Kafka bypasses the API | Partial (GRA-138) | `docker-compose.hosted.yml` publishes no store port, puts the stores on an internal network only `app` joins, and turns Elasticsearch security on; checked live with the four stores up: nothing answered from the host, Elasticsearch gave 401 without or with a wrong password and 200 with the right one, and a store had no route to the internet. **Triggers are not authenticated, by decision:** Kafka has no login in that stack and is safe only while `app` is its one client. A forged trigger names a tenant and an object key, and processing reads that tenant's own stored object, so it can only re-run documents the tenant already stored (cost, not injection; `tests/unit/test_hosted_stack.py`) | The local `docker-compose.yml` is still open on the host. Anyone who can reach the hosted Kafka or MinIO can still write there directly. MinIO and Neo4j traffic is plain, and Elasticsearch auth is over HTTP, inside the network. A shared or external Kafka needs SASL or signed triggers first. No audit log |
 | Data of a departed tenant remains | Mitigated | `graph-rag-admin delete` removes it from all four stores and checks none still lists it (GRA-59) | A trigger already queued in Kafka can recreate records; no audit log |
 
@@ -80,7 +80,7 @@ Not covered: a real model's behaviour, and a model that returns malformed or ove
 
 | Threat | Status | Gap, and the card |
 |---|---|---|
-| One tenant exhausts the service | Open | No rate limit, quota or metering (GRA-58); `/ingest` is capped per request only; ingest runs in the API process (GRA-31) |
+| One tenant exhausts the service | Partial | Each key has a request budget (`RATE_LIMIT_PER_MINUTE`, default 600, a burst of that many then a refill), so one key cannot starve another's requests; `/ingest` is capped per request | A request budget is not a cost budget: one `/ingest` can still cost an LLM bill, and ingest runs in the API process. No quota or metering (GRA-58, GRA-31). Per instance, as above. Not applied with `REQUIRE_AUTH` off |
 | Slow or huge recall | Partial | `token_budget` bounds what is returned, not the work of finding it; I found no query timeout in the API or retriever |
 
 ## Follow-ups filed
@@ -90,9 +90,9 @@ These cards were created from this review. Each is small; GRA-134 and GRA-135 ar
 1. GRA-134 (done): refuse API keys for the `default` tenant.
 2. GRA-135 (done): cap `/ingest` upload size.
 3. GRA-136 (done): refuse to start on a non-local bind with auth off.
-4. GRA-137: rate limit requests and failed keys.
+4. ~~GRA-137: rate limit requests and failed keys.~~ Done.
 5. GRA-138 (done): lock down the backends (no host-published store ports, no default credentials, authenticated Kafka triggers).
-6. GRA-139: scope the LLM response cache by tenant, or turn it off when hosted.
+6. ~~GRA-139: scope the LLM response cache by tenant, or turn it off when hosted.~~ Done.
 7. ~~GRA-140: prompt-injection tests through ingested documents.~~ Done.
 8. ~~GRA-141: a log policy, with question text and source names redacted.~~ Done.
 
@@ -104,7 +104,7 @@ Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers se
 - [ ] No data was written with auth off, or it has been moved
 - [ ] Run `docker-compose.hosted.yml` (or equivalent): the stores are on an internal network, none uses a default credential, and Kafka has no client but the service
 - [ ] TLS terminates in front of the API
-- [ ] Upload size is capped (`MAX_UPLOAD_BYTES`, default 10 MB) and request rates are limited (GRA-137, not built)
-- [ ] The LLM cache is scoped or off
+- [ ] Upload size is capped (`MAX_UPLOAD_BYTES`, default 10 MB) and request rates are limited (`RATE_LIMIT_PER_MINUTE`, per instance; behind several instances set it to the share each should allow)
+- [ ] The LLM cache directory is on storage only the service reads (entries are per tenant but are plain files)
 - [ ] Logs are handled per [LOG-POLICY.md](LOG-POLICY.md): info level carries no content; do not run at debug
 - [ ] `graph-rag-admin delete` has been tried on a staging tenant

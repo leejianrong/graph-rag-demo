@@ -26,6 +26,7 @@ from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityDetail
 from graph_rag.models import DeletedDocument, IsoDate, QueryRequest, QueryResponse
 from graph_rag.query.budget import evidence_tokens, pack
+from graph_rag.ratelimit import RateLimited
 from graph_rag.scope import RESERVED_KEY_PREFIX, Scope
 
 if TYPE_CHECKING:
@@ -41,6 +42,7 @@ _STATUS = {
     "unauthorized": 401,
     "not_found": 404,
     "payload_too_large": 413,
+    "rate_limited": 429,
     "unavailable": 503,
     "internal": 500,
 }
@@ -256,6 +258,21 @@ def add_agent_routes(
             response.headers.update(challenge)
             return response
         return JSONResponse({"detail": str(error)}, status_code=401, headers=challenge)
+
+    @app.exception_handler(RateLimited)
+    def rate_limited(request: Request, error: RateLimited) -> Response:
+        retry = {"Retry-After": str(error.retry_after)}
+        if on_v1(request):
+            response = _body(
+                AgentError(
+                    "rate_limited",
+                    f"{error} Retry in {error.retry_after} seconds.",
+                    {"retry_after_seconds": error.retry_after},
+                )
+            )
+            response.headers.update(retry)
+            return response
+        return JSONResponse({"detail": str(error)}, status_code=429, headers=retry)
 
     @app.exception_handler(RequestValidationError)
     async def invalid(request: Request, error: RequestValidationError) -> Response:

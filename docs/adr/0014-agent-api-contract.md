@@ -80,7 +80,8 @@ logic. Errors at the facade are converted from the existing ones (`404` and `503
 - The MCP server (GRA-36, GRA-37), the CLI (GRA-39) and the SDK (GRA-40) are built against this file, not against the
   Python models.
 - `openapi-spec-validator` joins the dev extra.
-- Not decided here: rate limits (`429`), pagination of `lookup` neighbours beyond `limit`, and streaming recall.
+- Rate limits are `429` with code `rate_limited` and a `Retry-After` header (GRA-137).
+- Not decided here: pagination of `lookup` neighbours beyond `limit`, and streaming recall.
 
 ## Alternatives considered
 
