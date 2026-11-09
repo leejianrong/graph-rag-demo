@@ -55,6 +55,7 @@ from graph_rag.models import (
 from graph_rag.scope import DEFAULT_SCOPE, Scope
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.ner import SpacyNerStage
+from graph_rag.supersession import supersede
 
 if TYPE_CHECKING:
     from graph_rag.jobs import JobState, JobStore
@@ -269,7 +270,20 @@ class Orchestrator:
                         ]
                     self._graph_store.upsert_entities(scope, canonical_entities)
                     self._graph_store.delete_document_edges(scope, doc_id)
+                    # A newer fact ends an older one (GRA-43); read after the delete above so
+                    # this document's own previous edges are neither compared nor left closed.
+                    existing = [
+                        edge
+                        for subject in sorted({t.subject_id for t in triples})
+                        for edge in self._graph_store.get_node_edges(scope, subject)
+                        if edge.subject_id == subject
+                    ]
+                    triples, closures = supersede(triples, existing, doc_id)
                     self._graph_store.write_triples(scope, triples)
+                    for closure in closures:
+                        self._graph_store.close_edge(
+                            scope, closure.edge, closure.valid_to, closure.by_doc
+                        )
 
             _logger.info(
                 "ingested document %s (%s/%s): %d mention(s), %d sentence(s), "

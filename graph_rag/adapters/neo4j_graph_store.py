@@ -238,7 +238,34 @@ class Neo4jGraphStore:
             doc=source_doc_id,
             scope=scope.key,
         )
+        # Edges this document had closed are open again: the fact that ended them is gone.
+        self._run(
+            "MATCH (a:Entity)-[r]->(b:Entity) "
+            f"WHERE r.superseded_by = $doc AND {_in('a')} AND {_in('b')} "
+            "REMOVE r.valid_to, r.superseded_by",
+            doc=source_doc_id,
+            scope=scope.key,
+        )
         _logger.debug("deleted edges for source_doc_id=%s", source_doc_id)
+
+    def close_edge(self, scope: Scope, edge: Triple, valid_to: str, superseded_by: str) -> None:
+        """End one edge on ``valid_to``, noting the document that ended it (it is kept)."""
+        if edge.predicate not in CLOSED_PREDICATES:
+            raise ValueError(f"predicate {edge.predicate!r} is not in the closed predicate set")
+        self._run(
+            f"MATCH (a:Entity {{canonical_id: $s}})-[r:{edge.predicate}]->"
+            f"(b:Entity {{canonical_id: $o}}) "
+            f"WHERE r.source_doc_id = $doc AND r.sentence_index = $sentence "
+            f"AND {_in('a')} AND {_in('b')} "
+            "SET r.valid_to = $valid_to, r.superseded_by = $by",
+            s=edge.subject_id,
+            o=edge.object_id,
+            doc=edge.provenance.source_doc_id,
+            sentence=edge.provenance.sentence_index,
+            valid_to=valid_to,
+            by=superseded_by,
+            scope=scope.key,
+        )
 
     def delete_nodes(self, scope: Scope, canonical_ids: list[str]) -> None:
         """Remove these nodes and every edge that touches them; unknown ids are ignored."""
@@ -395,6 +422,8 @@ def _edge_props(triple: Triple) -> dict[str, Any]:
         props["valid_from"] = triple.valid_from
     if triple.valid_to is not None:
         props["valid_to"] = triple.valid_to
+    if triple.superseded_by is not None:
+        props["superseded_by"] = triple.superseded_by
     return props
 
 
@@ -428,4 +457,5 @@ def _to_triple(record: Any) -> Triple:
         date=props.get("date"),
         valid_from=props.get("valid_from"),
         valid_to=props.get("valid_to"),
+        superseded_by=props.get("superseded_by"),
     )
