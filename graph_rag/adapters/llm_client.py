@@ -35,11 +35,12 @@ from typing import TYPE_CHECKING, Any, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from graph_rag.logging import get_logger
+from graph_rag.scope import DEFAULT_TENANT, current_tenant, tenant_dir
 
 if TYPE_CHECKING:
     from graph_rag.config import Settings
 
-__all__ = ["LiteLLMClient", "cache_key"]
+__all__ = ["LiteLLMClient", "cache_key", "tenant_cache_dir"]
 
 _logger = get_logger(__name__)
 
@@ -48,6 +49,12 @@ _StructuredT = TypeVar("_StructuredT", bound=BaseModel)
 # A backend takes the model + fully-rendered prompt (+ any provider params) and
 # returns the raw completion text. This is the seam tests patch to count calls.
 CompletionFn = Callable[..., str]
+
+
+def tenant_cache_dir(cache_dir: str | Path, tenant: str) -> Path:
+    """Where ``tenant``'s cached responses live: the root for the default tenant, else its own."""
+    root = Path(cache_dir)
+    return root if tenant == DEFAULT_TENANT else root / "tenants" / tenant_dir(tenant)
 
 
 def cache_key(model: str, prompt: str, params: Mapping[str, Any]) -> str:
@@ -237,8 +244,16 @@ class LiteLLMClient:
         )
 
     def _cache_path(self, key: str) -> Path:
-        """Return the on-disk path for a cache ``key``."""
-        return self._cache_dir / f"{key}.json"
+        """Return the on-disk path for a cache ``key``, in the acting tenant's own directory.
+
+        The default tenant keeps the cache root, so entries written before tenancy still hit.
+        Any other tenant gets a directory of its own: identical text in two tenants is two
+        entries, and one tenant never reads what another's documents produced (GRA-139).
+        """
+        return self._tenant_cache_dir() / f"{key}.json"
+
+    def _tenant_cache_dir(self) -> Path:
+        return tenant_cache_dir(self._cache_dir, current_tenant())
 
     def _read_cache(self, key: str) -> str | None:
         """Return the cached completion text for ``key``, or ``None`` on a miss."""
@@ -249,8 +264,9 @@ class LiteLLMClient:
 
     def _write_cache(self, key: str, text: str) -> None:
         """Persist ``text`` under ``key`` (creating the cache dir if needed)."""
-        self._cache_dir.mkdir(parents=True, exist_ok=True)
-        self._cache_path(key).write_text(text, encoding="utf-8")
+        path = self._cache_path(key)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text, encoding="utf-8")
 
     def _default_completion(self, *, model: str, prompt: str, **params: Any) -> str:
         """Default backend: call ``litellm.completion`` (imported lazily).

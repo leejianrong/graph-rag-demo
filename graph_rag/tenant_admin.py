@@ -15,11 +15,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from graph_rag.adapters.llm_client import tenant_cache_dir
+from graph_rag.config import get_settings
 from graph_rag.ports import DocumentStore, EntityStore, GraphStore, ObjectStore
 from graph_rag.scope import DEFAULT_SCOPE, Scope
 
@@ -105,8 +108,14 @@ def export_tenant(stores: Stores, tenant: str, out: Path) -> dict[str, Any]:
     return manifest
 
 
-def delete_tenant(stores: Stores, tenant: str) -> dict[str, int]:
-    """Remove ``tenant`` from every store; raise if any store still lists it afterwards."""
+def delete_tenant(
+    stores: Stores, tenant: str, cache_dir: str | Path | None = None
+) -> dict[str, int]:
+    """Remove ``tenant`` from every store; raise if any store still lists it afterwards.
+
+    With ``cache_dir`` it also removes the tenant's LLM response cache, which holds text derived
+    from its documents (GRA-139).
+    """
     scopes = tenant_scopes(stores, tenant)
     counts = {"documents": 0, "objects": 0, "entities": 0}
     for scope in scopes:
@@ -135,6 +144,8 @@ def delete_tenant(stores: Stores, tenant: str) -> dict[str, int]:
     }
     if left:
         raise RuntimeError(f"tenant {tenant!r} is not fully removed; still listed in: {left}")
+    if cache_dir is not None:
+        shutil.rmtree(tenant_cache_dir(cache_dir, tenant), ignore_errors=True)
     return counts
 
 
@@ -143,7 +154,6 @@ def _real_stores() -> Stores:
     from graph_rag.adapters.es_entity_store import EsEntityStore
     from graph_rag.adapters.minio_object_store import MinioObjectStore
     from graph_rag.adapters.neo4j_graph_store import Neo4jGraphStore
-    from graph_rag.config import get_settings
 
     settings = get_settings()
     return Stores(
@@ -187,7 +197,7 @@ def main(argv: list[str] | None = None, stores: Stores | None = None) -> int:
             if args.command == "delete":
                 print("nothing deleted; add --yes to delete")
         else:
-            counts = delete_tenant(active, args.tenant)
+            counts = delete_tenant(active, args.tenant, get_settings().llm_cache_dir)
             print(f"deleted tenant {args.tenant}: {counts}")
     except (ValueError, RuntimeError) as error:
         print(f"error: {error}", file=sys.stderr)
