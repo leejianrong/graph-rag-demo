@@ -166,7 +166,7 @@ Add `"namespace": "my-project"` to any of the three calls to keep memory apart (
 remembered in one namespace is never recalled or forgotten from another, and leaving it out is the default
 namespace. `lookup` is served too, and `recall` takes `token_budget` and `as_of`.
 
-To ask what was true on a past day, give `remember` a `document_date` and `recall` an `as_of` (both `YYYY-MM-DD`; `graphrag remember --document-date`, `graphrag recall --as-of`). `recall` then drops the facts that had not begun or had ended by that day, and the entities and sentences that rest only on them. A fact with no known dates is never dropped, since the service only knows a date it was given. Nothing ends a fact yet (GRA-43), so today `as_of` can tell you what was known by a day, not what had been replaced.
+To ask what was true on a past day, give `remember` a `document_date` and `recall` an `as_of` (both `YYYY-MM-DD`; `graphrag remember --document-date`, `graphrag recall --as-of`). `recall` then drops the facts that had not begun or had ended by that day, and the entities and sentences that rest only on them. A fact with no known dates is never dropped, since the service only knows a date it was given. A newer dated document also ends an older fact for the predicates that hold one object at a time (`WORKS_FOR`, `LOCATED_IN`, `HAS_ROLE`, `GOVERNED_BY`): the older edge gets a `valid_to` and stays as history. `recall` without `as_of` leaves ended facts out; with `as_of` it finds them. Both need `document_date` on the documents, since only dated documents can be ordered.
 
 ### Command line
 
@@ -187,6 +187,8 @@ Each command takes `--namespace`. Exit status is 0 on success, 1 when the servic
 ### API keys
 
 By default the service checks no key and every request runs in the default tenant. Set
+**Hosted:** `docker-compose.hosted.yml` is the stack for a deployment: no store publishes a port, every credential must be set, Elasticsearch has security on, auth is required and the API listens on 127.0.0.1 for a TLS proxy (header of the file has the steps). The service itself also refuses, with auth on, to start on a store credential that is still the local-dev value (`ALLOW_DEFAULT_CREDENTIALS=true` for staging).
+
 With auth off, the service starts only on a loopback address; on any other it exits unless `ALLOW_OPEN_BIND=true` (the local compose stack sets it). `REQUIRE_AUTH=true` and every endpoint except `/health` needs `Authorization: Bearer <key>`; the key names the
 tenant, and a key reaches only that tenant's memory. Keys live in the file `API_KEYS_PATH` (default
 `.data/api-keys.json`; one service instance only):

@@ -73,12 +73,7 @@ class KafkaTriggerPublisher:
         """Publish ``trigger`` to the ingest-trigger topic (JSON value)."""
         self._producer.send(self._topic, value=trigger.to_json())
         self._producer.flush()
-        _logger.info(
-            "published trigger bucket=%s object_key=%s topic=%s",
-            trigger.bucket,
-            trigger.object_key,
-            self._topic,
-        )
+        _logger.info("published trigger tenant=%s topic=%s", trigger.tenant, self._topic)
 
     def close(self) -> None:
         """Flush pending messages and close the underlying producer."""
@@ -145,17 +140,13 @@ class KafkaTriggerConsumer:
         try:
             trigger = IngestTrigger.from_json(raw_value)
         except Exception:  # noqa: BLE001 — a bad message must not wedge the loop.
-            _logger.exception("dropping malformed trigger message: %r", raw_value)
+            _logger.exception("dropping a malformed trigger message")
             return False
-        _logger.info("received trigger bucket=%s object_key=%s", trigger.bucket, trigger.object_key)
+        _logger.info("received trigger tenant=%s", trigger.tenant)
         try:
             self._handler(trigger)
         except Exception:  # noqa: BLE001 — handler failure must not wedge the loop.
-            _logger.exception(
-                "handler failed for trigger bucket=%s object_key=%s",
-                trigger.bucket,
-                trigger.object_key,
-            )
+            _logger.exception("handler failed for a trigger of tenant %s", trigger.tenant)
             return False
         return True
 

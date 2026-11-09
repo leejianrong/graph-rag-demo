@@ -303,7 +303,21 @@ class InMemoryGraphStore:
         rather than duplicates (graph idempotency, TESTING.md gap #1).
         """
         self._edges[scope] = [
-            edge for edge in self._edges[scope] if edge.provenance.source_doc_id != source_doc_id
+            edge.model_copy(update={"valid_to": None, "superseded_by": None})
+            if edge.superseded_by == source_doc_id
+            else edge
+            for edge in self._edges[scope]
+            if edge.provenance.source_doc_id != source_doc_id
+        ]
+
+    def close_edge(self, scope: Scope, edge: Triple, valid_to: str, superseded_by: str) -> None:
+        """End ``edge`` on ``valid_to`` (history is kept), noting which document ended it."""
+        wanted = _edge_key(edge)
+        self._edges[scope] = [
+            e.model_copy(update={"valid_to": valid_to, "superseded_by": superseded_by})
+            if _edge_key(e) == wanted
+            else e
+            for e in self._edges[scope]
         ]
 
     def delete_nodes(self, scope: Scope, canonical_ids: list[str]) -> None:
@@ -516,3 +530,14 @@ class FakeNerStage:
             mentions=list(self._mentions),
             sentences=list(self._sentences),
         )
+
+
+def _edge_key(edge: Triple) -> tuple[str, str, str, str, int]:
+    """What identifies one stored edge: its endpoints, predicate and the sentence it came from."""
+    return (
+        edge.subject_id,
+        edge.predicate,
+        edge.object_id,
+        edge.provenance.source_doc_id,
+        edge.provenance.sentence_index,
+    )

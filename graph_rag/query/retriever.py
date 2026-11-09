@@ -26,12 +26,13 @@ retriever over in-memory fakes with no Docker, no model download and no LLM.
 from __future__ import annotations
 
 from collections import deque
+from datetime import date
 from typing import TYPE_CHECKING
 
 from graph_rag.logging import get_logger
 from graph_rag.models import QueryResponse
 from graph_rag.query.ranking import rank_nodes, select_answer
-from graph_rag.query.temporal import drop_sentences, subgraph_as_of
+from graph_rag.query.temporal import drop_sentences, subgraph_as_of, subgraph_current
 from graph_rag.scope import DEFAULT_SCOPE, Scope, acting_for
 
 if TYPE_CHECKING:
@@ -175,11 +176,17 @@ class QueryRetriever:
 
         # 3b. As of a date (GRA-44): keep only the edges that held then, and the nodes and
         #     sentences that depend on them. Without ``as_of`` nothing is filtered.
+        #     Without it the view is the current one: edges a newer fact ended are left out
+        #     (GRA-43), and stay reachable through ``as_of``.
         if request.as_of is not None:
             subgraph, gone = subgraph_as_of(
                 subgraph, list(seed_scores), self._khop_depth, request.as_of
             )
-            supporting_sentences = drop_sentences(supporting_sentences, gone)
+        else:
+            subgraph, gone = subgraph_current(
+                subgraph, list(seed_scores), self._khop_depth, date.today().isoformat()
+            )
+        supporting_sentences = drop_sentences(supporting_sentences, gone)
 
         # 4. Hop distance: BFS over the RETURNED subgraph's edges from the seeds
         #    (seeds = 0; unreachable nodes are omitted -> the ranker treats them as
@@ -199,12 +206,11 @@ class QueryRetriever:
 
         _logger.info(
             "query answered: %d entity seed(s), %d sentence seed(s), "
-            "subgraph=%d node(s)/%d edge(s), answer=%r",
+            "subgraph=%d node(s)/%d edge(s)",
             len(seed_scores),
             len(supporting_sentences),
             len(subgraph.nodes),
             len(subgraph.edges),
-            answer,
         )
 
         # 6. Supporting sentences already come back scored + ordered by the sentence

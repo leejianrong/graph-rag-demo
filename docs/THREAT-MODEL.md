@@ -42,7 +42,7 @@ network level.
 | Same text from two tenants collides | Mitigated | Document and entity ids include the scope (`tests/unit/test_scope_ids.py`) | |
 | A bug in one store adapter ignores the scope | Partial | One shared isolation check runs on every adapter (`tests/isolation.py`) | A new adapter or a new query has to be added to it by hand. Cost of the Neo4j scope filter on large graphs is unmeasured |
 | Shared LLM response cache leaks across tenants | Mitigated | Cached responses are kept per tenant: the default tenant keeps the cache root and any other tenant gets its own directory (named by a hash of the tenant). Ingest and synthesis run inside `acting_for(tenant)`, which the client reads. `graph-rag-admin delete` removes the tenant's directory. `tests/unit/test_llm_cache_tenancy.py` shows identical text in two tenants does not share an entry | Identical text in two tenants now costs two provider calls. The cache is per tenant, not per namespace. A new call site that reaches the LLM outside `acting_for` would use the default tenant's cache, so add it there. Entries are still plain files on disk |
-| Someone with access to the stores or Kafka bypasses the API | Open | | Compose publishes Elasticsearch (9200, security off), MinIO, Kafka and Neo4j on the host with default credentials (`minioadmin`, `devpassword`). A Kafka message carries its own tenant, so anyone who can publish can write into any tenant. Card: GRA-138 |
+| Someone with access to the stores or Kafka bypasses the API | Partial (GRA-138) | `docker-compose.hosted.yml` publishes no store port, puts the stores on an internal network only `app` joins, and turns Elasticsearch security on; checked live with the four stores up: nothing answered from the host, Elasticsearch gave 401 without or with a wrong password and 200 with the right one, and a store had no route to the internet. **Triggers are not authenticated, by decision:** Kafka has no login in that stack and is safe only while `app` is its one client. A forged trigger names a tenant and an object key, and processing reads that tenant's own stored object, so it can only re-run documents the tenant already stored (cost, not injection; `tests/unit/test_hosted_stack.py`) | The local `docker-compose.yml` is still open on the host. Anyone who can reach the hosted Kafka or MinIO can still write there directly. MinIO and Neo4j traffic is plain, and Elasticsearch auth is over HTTP, inside the network. A shared or external Kafka needs SASL or signed triggers first. No audit log |
 | Data of a departed tenant remains | Mitigated | `graph-rag-admin delete` removes it from all four stores and checks none still lists it (GRA-59) | A trigger already queued in Kafka can recreate records; no audit log |
 
 ## 3. Ingested text and the LLM (prompt injection)
@@ -65,9 +65,9 @@ place to keep it. Card: GRA-140.
 | Threat | Status | What exists | Gap, and the card |
 |---|---|---|---|
 | Secrets committed to the repo | Mitigated | gitleaks runs in CI (`secret-scan`) on every PR | It scans for patterns; a weak default password is not a pattern |
-| Default credentials reach a deployment | Open | `minioadmin`, `devpassword` and no Elasticsearch security are the compose and `Settings` defaults, marked local-dev | Nothing stops them being used in production. Card: GRA-138 |
+| Default credentials reach a deployment | Mitigated for the hosted stack (GRA-138) | `docker-compose.hosted.yml` has no defaults and stops when one is unset; `app` with `REQUIRE_AUTH` on exits if a MinIO key, the Neo4j password or the (unset) Elasticsearch password is still the local-dev value, unless `ALLOW_DEFAULT_CREDENTIALS=true` (`tests/unit/test_hosted_stack.py`) | A weak but non-default password passes; nothing checks strength. The local compose and `Settings` still default to `minioadmin` and `devpassword` |
 | The LLM provider key leaks | Partial | Read from the environment (`Settings`); I found no log line that prints it and no key baked into the Dockerfile | Whoever runs a container can read it; tenants bringing their own key (GRA-25) would add per-tenant secrets that need storing |
-| Questions and document names in logs | Open | `/query` logs the question text and synthesis logs it when on; ingest logs document ids and source names. (`/v1/recall` without synthesis logs no question.) | Questions can hold personal data. Card: GRA-141 |
+| Questions and document names in logs | Mitigated | At info level and above nothing logs question text, answers, source names or object keys; a test drives ingest, query, recall and a failed document and checks none appears ([LOG-POLICY.md](LOG-POLICY.md)) | A traceback from `logger.exception` can quote a library's input; debug level is not covered; the web server's access log holds document ids in paths |
 
 ## 5. Availability
 
@@ -84,10 +84,10 @@ These cards were created from this review. Each is small; GRA-134 and GRA-135 ar
 2. GRA-135 (done): cap `/ingest` upload size.
 3. GRA-136 (done): refuse to start on a non-local bind with auth off.
 4. GRA-137: rate limit requests and failed keys.
-5. GRA-138: lock down the backends (no host-published store ports, no default credentials, authenticated Kafka triggers).
+5. GRA-138 (done): lock down the backends (no host-published store ports, no default credentials, authenticated Kafka triggers).
 6. ~~GRA-139: scope the LLM response cache by tenant, or turn it off when hosted.~~ Done.
 7. GRA-140: prompt-injection tests through ingested documents.
-8. GRA-141: a log policy, with question text and source names redacted.
+8. ~~GRA-141: a log policy, with question text and source names redacted.~~ Done.
 
 Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers separate from the API), GRA-25 (tenant LLM keys).
 
@@ -95,9 +95,9 @@ Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers se
 
 - [ ] `REQUIRE_AUTH=true` and `ALLOW_OPEN_BIND` unset (the service will not start otherwise), and the key file on a mounted volume with mode 0600 (one instance only)
 - [ ] No data was written with auth off, or it has been moved
-- [ ] The stores are not reachable from outside the service's network, and none uses a default credential
+- [ ] Run `docker-compose.hosted.yml` (or equivalent): the stores are on an internal network, none uses a default credential, and Kafka has no client but the service
 - [ ] TLS terminates in front of the API
 - [ ] Upload size is capped (`MAX_UPLOAD_BYTES`, default 10 MB) and request rates are limited (GRA-137, not built)
 - [ ] The LLM cache directory is on storage only the service reads (entries are per tenant but are plain files)
-- [ ] Logs are handled as holding user questions
+- [ ] Logs are handled per [LOG-POLICY.md](LOG-POLICY.md): info level carries no content; do not run at debug
 - [ ] `graph-rag-admin delete` has been tried on a staging tenant

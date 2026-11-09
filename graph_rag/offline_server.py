@@ -40,7 +40,7 @@ def build_app(settings: Settings | None = None) -> FastAPI:
             try:
                 components.orchestrator.process_document(trigger)
             except Exception:  # noqa: BLE001 - one bad document must not fail the request
-                _logger.exception("could not process %s", trigger.object_key)
+                _logger.exception("could not process a document")
 
     return create_app(
         components.object_store,
