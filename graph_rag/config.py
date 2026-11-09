@@ -50,10 +50,17 @@ class Settings(BaseSettings):
     # (graph_rag/bind.py, GRA-136). The container binds all addresses, so it needs one or the other.
     bind_host: str = "0.0.0.0"  # noqa: S104 - the container must; bind.py guards it
     allow_open_bind: bool = False
+    # With auth on, the service also refuses the local-dev store credentials (GRA-138); this lets a
+    # staging run use them anyway.
+    allow_default_credentials: bool = False
     api_keys_path: str = ".data/api-keys.json"
 
     # --- Elasticsearch / DocumentStore + EntityStore ------------------------
     elasticsearch_url: str = "http://elasticsearch:9200"
+    # Set a password and the client signs in as ``elasticsearch_user`` (the hosted compose
+    # file turns security on and requires one, GRA-138); empty is the open local-dev default.
+    elasticsearch_user: str = "elastic"
+    elasticsearch_password: str = ""
     documents_index: str = "documents"
     entities_index: str = "entities"
 
