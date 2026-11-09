@@ -289,6 +289,37 @@ def test_validity_interval_round_trips_and_unknown_stays_null(store: Neo4jGraphS
     assert {e.valid_from for e in sub.edges} == {"2019-05-01", "2015-01-01", None}
 
 
+def test_close_edge_keeps_the_edge_and_deleting_the_closer_reopens_it(
+    store: Neo4jGraphStore,
+) -> None:
+    """A superseded edge stays with a valid_to; removing the document that ended it clears that."""
+    store.upsert_entities(
+        DEFAULT_SCOPE,
+        [
+            _entity("p:ada", "Ada", type_="PERSON"),
+            _entity("o:acme", "Acme", type_="ORG"),
+            _entity("o:initech", "Initech", type_="ORG"),
+        ],
+    )
+    old = _triple("p:ada", "WORKS_FOR", "o:acme", doc="doc:old", valid_from="2018-01-01")
+    new = _triple("p:ada", "WORKS_FOR", "o:initech", doc="doc:new", valid_from="2020-06-01")
+    store.write_triples(DEFAULT_SCOPE, [old, new])
+
+    store.close_edge(DEFAULT_SCOPE, old, "2020-06-01", "doc:new")
+    by_object = {e.object_id: e for e in store.get_node_edges(DEFAULT_SCOPE, "p:ada")}
+    assert (by_object["o:acme"].valid_to, by_object["o:acme"].superseded_by) == (
+        "2020-06-01",
+        "doc:new",
+    )
+    assert by_object["o:acme"].valid_from == "2018-01-01"  # history is kept, not rewritten
+    assert by_object["o:initech"].valid_to is None
+
+    store.delete_document_edges(DEFAULT_SCOPE, "doc:new")
+    after = store.get_node_edges(DEFAULT_SCOPE, "p:ada")
+    assert [(e.object_id, e.valid_to, e.superseded_by) for e in after] == [("o:acme", None, None)]
+    assert after[0].valid_from == "2018-01-01"
+
+
 def test_delete_document_edges_is_doc_scoped_and_idempotent(store: Neo4jGraphStore) -> None:
     """Delete removes only one doc's edges (nodes kept); rewrite keeps edge_count stable."""
     store.upsert_entities(
