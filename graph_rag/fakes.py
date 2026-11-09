@@ -18,6 +18,8 @@ import math
 from collections import defaultdict
 from typing import TYPE_CHECKING, Any, TypeVar
 
+from graph_rag.merging import edge_key as _edge_key
+from graph_rag.merging import rewire
 from graph_rag.models import (
     CanonicalEntity,
     CorefCluster,
@@ -329,6 +331,17 @@ class InMemoryGraphStore:
             e for e in self._edges[scope] if e.subject_id not in gone and e.object_id not in gone
         ]
 
+    def merge_nodes(self, scope: Scope, keep_id: str, drop_ids: list[str]) -> None:
+        """Move the dropped nodes' edges onto ``keep_id`` and remove them."""
+        drop = set(drop_ids) - {keep_id}
+        if not drop:
+            return
+        touching = [e for e in self._edges[scope] if e.subject_id in drop or e.object_id in drop]
+        rest = [e for e in self._edges[scope] if e not in touching]
+        self._edges[scope] = rest + rewire(touching, keep_id, drop, rest)
+        for canonical_id in drop:
+            self._nodes[scope].pop(canonical_id, None)
+
     def khop(self, scope: Scope, seed_ids: list[str], hops: int) -> Subgraph:
         """Return the connected subgraph within ``hops`` of ``seed_ids`` (BFS).
 
@@ -530,14 +543,3 @@ class FakeNerStage:
             mentions=list(self._mentions),
             sentences=list(self._sentences),
         )
-
-
-def _edge_key(edge: Triple) -> tuple[str, str, str, str, int]:
-    """What identifies one stored edge: its endpoints, predicate and the sentence it came from."""
-    return (
-        edge.subject_id,
-        edge.predicate,
-        edge.object_id,
-        edge.provenance.source_doc_id,
-        edge.provenance.sentence_index,
-    )

@@ -415,6 +415,46 @@ def test_delete_nodes_removes_the_nodes_and_their_edges_like_the_fake(
     assert store.edge_count(DEFAULT_SCOPE) == fake.edge_count(DEFAULT_SCOPE) == 1
 
 
+def test_merge_nodes_moves_edges_to_the_survivor_like_the_fake(store: Neo4jGraphStore) -> None:
+    """merge_nodes moves a dropped node's edges onto the survivor, keeping provenance and validity,
+    drops the loop two merged nodes leave, does not repeat an edge, and ignores a missing id."""
+    from graph_rag.fakes import InMemoryGraphStore
+
+    entities = [_entity(i, i) for i in ("p:keep", "p:dup", "p:org", "p:city")]
+    triples = [
+        _triple(
+            "p:dup",
+            "WORKS_FOR",
+            "p:org",
+            doc="doc:1",
+            source_sentence="Dup works.",
+            valid_to="2020-01-01",
+        ),
+        _triple("p:keep", "LOCATED_IN", "p:city", doc="doc:2"),
+        _triple("p:dup", "LOCATED_IN", "p:city", doc="doc:2"),  # the same edge once merged
+        _triple("p:keep", "AFFILIATED_WITH", "p:dup", doc="doc:3"),  # a loop once merged
+        _triple("p:org", "AFFILIATED_WITH", "p:dup", doc="doc:4"),  # points at the dropped node
+    ]
+    fake = InMemoryGraphStore()
+    for g in (store, fake):
+        g.upsert_entities(DEFAULT_SCOPE, entities)
+        g.write_triples(DEFAULT_SCOPE, triples)
+        g.merge_nodes(DEFAULT_SCOPE, "p:keep", ["p:dup", "p:missing"])
+        g.merge_nodes(DEFAULT_SCOPE, "p:keep", ["p:dup"])  # repeating changes nothing
+        assert g.get_node(DEFAULT_SCOPE, "p:dup") is None
+    key = lambda e: (e.subject_id, e.predicate, e.object_id, e.provenance.source_doc_id)  # noqa: E731
+    real = sorted(store.get_node_edges(DEFAULT_SCOPE, "p:keep"), key=key)
+    assert real == sorted(fake.get_node_edges(DEFAULT_SCOPE, "p:keep"), key=key)
+    assert [key(e) for e in real] == [
+        ("p:keep", "LOCATED_IN", "p:city", "doc:2"),
+        ("p:keep", "WORKS_FOR", "p:org", "doc:1"),
+        ("p:org", "AFFILIATED_WITH", "p:keep", "doc:4"),
+    ]
+    moved = next(e for e in real if e.provenance.source_doc_id == "doc:1")
+    assert moved.provenance.source_sentence == "Dup works." and moved.valid_to == "2020-01-01"
+    assert store.node_count(DEFAULT_SCOPE) == fake.node_count(DEFAULT_SCOPE) == 3
+
+
 def test_scopes_are_isolated(store: Neo4jGraphStore) -> None:
     """One scope cannot read, traverse, count or delete another's nodes and edges (ADR-0015)."""
     check_graph_store(store)

@@ -86,11 +86,15 @@ class ELResult:
     A plain carrier (like :class:`~graph_rag.stages.ner.NerResult`) so the
     orchestrator can persist both at the EL checkpoint: ``links`` populate the
     :class:`~graph_rag.models.DocumentRecord`'s ``el_result`` and
-    ``sentence_vectors`` its passage vectors for query-side seeding (B5).
+    ``sentence_vectors`` its passage vectors for query-side seeding (B5). ``merged`` maps each
+    canonical id this document folded into another to the id that survives (GRA-30): the entity
+    store is already updated, and ``links`` already name the survivors, but the graph and the
+    other documents' links still name the old ids until the caller rewrites them.
     """
 
     links: list[EntityLink]
     sentence_vectors: list[list[float]]
+    merged: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -105,6 +109,7 @@ class _DocEntity:
     surface: str
     entity_type: CuratedType
     spans: list[tuple[int, int]] = field(default_factory=list)
+    also_known_as: list[str] = field(default_factory=list)
 
 
 @runtime_checkable
@@ -225,6 +230,7 @@ class EntityLinkingStage:
             doc-level entity and the document's sentence vectors.
         """
         links: list[EntityLink] = []
+        merged: dict[str, str] = {}
         for entity in self._doc_level_entities(mentions, coref_clusters):
             context = self._build_context(entity, sentences)
             vector = self._embedder.embed([context])[0]
@@ -239,9 +245,11 @@ class EntityLinkingStage:
             # node and break the multi-hop bridge. The lowest canonical_id is chosen
             # for order-independent stability. Genuine same-type/same-name homonyms
             # are left to the gated LLM tie-breaker on the fuzzy path below.
-            block = self._entity_store.block_candidates(
-                scope, entity_type=entity.entity_type, normalized_name=normalized
-            )
+            block = self._block(scope, entity)
+            if len({candidate.canonical_id for candidate in block}) > 1:
+                # One entity in this document that earlier documents kept as several: unify
+                # them (GRA-30) into the lowest id, whichever order the documents arrived in.
+                block = [self._unify(scope, block, merged)]
             best_entity: CanonicalEntity | None
             if block:
                 best_entity = min(block, key=lambda candidate: candidate.canonical_id)
@@ -265,7 +273,7 @@ class EntityLinkingStage:
                 )
 
             if merge and best_entity is not None:
-                self._merge(scope, best_entity, entity.surface, vector)
+                self._merge(scope, best_entity, [entity.surface, *entity.also_known_as], vector)
                 links.append(
                     EntityLink(
                         mention_text=entity.surface,
@@ -287,7 +295,7 @@ class EntityLinkingStage:
                     canonical_id=canonical_id,
                     name=entity.surface,
                     type=entity.entity_type,
-                    aliases=[],
+                    aliases=list(entity.also_known_as),
                     vector=vector,
                 ),
             )
@@ -301,7 +309,15 @@ class EntityLinkingStage:
                 )
             )
 
-        return ELResult(links=links, sentence_vectors=self.embed_sentences(sentences))
+        links = [
+            link.model_copy(update={"canonical_id": _survivor(merged, link.canonical_id)})
+            for link in links
+        ]
+        return ELResult(
+            links=links,
+            sentence_vectors=self.embed_sentences(sentences),
+            merged={drop: _survivor(merged, drop) for drop in merged},
+        )
 
     def embed_sentences(self, sentences: list[Sentence]) -> list[list[float]]:
         """Embed each sentence's text (one vector per sentence, in order).
@@ -340,8 +356,14 @@ class EntityLinkingStage:
                 continue
             covered.update(matched)
             spans = [(mentions[i].char_start, mentions[i].char_end) for i in matched]
+            names = {mentions[i].text for i in matched if mentions[i].type == entity_type}
             entities.append(
-                _DocEntity(surface=cluster.canonical, entity_type=entity_type, spans=spans)
+                _DocEntity(
+                    surface=cluster.canonical,
+                    entity_type=entity_type,
+                    spans=spans,
+                    also_known_as=sorted(names - {cluster.canonical}),
+                )
             )
 
         for i, mention in enumerate(mentions):
@@ -426,20 +448,58 @@ class EntityLinkingStage:
 
     # --- decision helpers ----------------------------------------------------
 
+    def _block(self, scope: Scope, entity: _DocEntity) -> list[CanonicalEntity]:
+        """Entities of this type that already answer to any of the entity's surface forms."""
+        found: dict[str, CanonicalEntity] = {}
+        for surface in [entity.surface, *entity.also_known_as]:
+            normalized = normalize_name(surface)
+            if not normalized:
+                continue
+            for candidate in self._entity_store.block_candidates(
+                scope, entity_type=entity.entity_type, normalized_name=normalized
+            ):
+                found[candidate.canonical_id] = candidate
+        return list(found.values())
+
+    def _unify(
+        self, scope: Scope, group: list[CanonicalEntity], merged: dict[str, str]
+    ) -> CanonicalEntity:
+        """Fold ``group`` into its lowest-id entity in the entity store; return the survivor.
+
+        The survivor keeps its name and vector and gains every other member's name and aliases.
+        The others are deleted and recorded in ``merged`` (dropped id to survivor id).
+        """
+        ordered = sorted(group, key=lambda entity: entity.canonical_id)
+        keep, others = ordered[0], ordered[1:]
+        aliases = list(keep.aliases)
+        known = {normalize_name(keep.name), *(normalize_name(a) for a in aliases)}
+        for other in others:
+            for surface in [other.name, *other.aliases]:
+                if normalize_name(surface) not in known:
+                    known.add(normalize_name(surface))
+                    aliases.append(surface)
+            self._entity_store.delete(scope, other.canonical_id)
+            merged[other.canonical_id] = keep.canonical_id
+        survivor = keep.model_copy(update={"aliases": aliases})
+        self._entity_store.upsert(scope, survivor)
+        return survivor
+
     def _merge(
-        self, scope: Scope, entity: CanonicalEntity, surface: str, vector: list[float]
+        self, scope: Scope, entity: CanonicalEntity, surfaces: list[str], vector: list[float]
     ) -> None:
-        """Merge ``surface`` into ``entity``: grow aliases, keep the seed vector.
+        """Merge ``surfaces`` into ``entity``: grow aliases, keep the seed vector.
 
         The canonical record's ``name`` + ``vector`` are kept as first-seeded
-        (order-sensitivity, ADR-0004); a genuinely new surface form is appended to
+        (order-sensitivity, ADR-0004); each genuinely new surface form is appended to
         ``aliases``. The upsert is idempotent by ``canonical_id`` (no duplicate).
         """
         aliases = list(entity.aliases)
-        normalized = normalize_name(surface)
         known = {normalize_name(entity.name), *(normalize_name(a) for a in aliases)}
-        if normalized and normalized not in known:
-            aliases.append(surface)
+        for surface in surfaces:
+            normalized = normalize_name(surface)
+            if normalized and normalized not in known:
+                known.add(normalized)
+                aliases.append(surface)
         self._entity_store.upsert(
             scope,
             CanonicalEntity(
@@ -508,6 +568,13 @@ class EntityLinkingStage:
         if not self._nil_enabled:
             return False
         return score < self._nil_floor
+
+
+def _survivor(merged: dict[str, str], canonical_id: str) -> str:
+    """Follow ``merged`` (dropped id to the id it went into) to the id that is still there."""
+    while canonical_id in merged:
+        canonical_id = merged[canonical_id]
+    return canonical_id
 
 
 def _cosine(a: list[float], b: list[float]) -> float:

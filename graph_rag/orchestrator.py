@@ -259,6 +259,7 @@ class Orchestrator:
                     text, ner.mentions, ner.sentences, coref_clusters, scope
                 )
                 el_result = el.links
+                self._apply_merges(scope, el.merged, doc_id)
                 record.mentions = ner.mentions
                 record.coref_clusters = coref_clusters
                 record.el_result = el.links
@@ -287,7 +288,9 @@ class Orchestrator:
                             else t
                             for t in triples
                         ]
-                    self._graph_store.upsert_entities(scope, canonical_entities)
+                    self._graph_store.upsert_entities(
+                        scope, self._as_stored(scope, canonical_entities)
+                    )
                     self._graph_store.delete_document_edges(scope, doc_id)
                     # A newer fact ends an older one (GRA-43); read after the delete above so
                     # this document's own previous edges are neither compared nor left closed.
@@ -336,6 +339,51 @@ class Orchestrator:
             self._job(scope, doc_id, "failed", f"{stage} failed: {type(error).__name__}")
             _logger.exception("dropping document %s after processing error", doc_id)
             return None
+
+    def _apply_merges(self, scope: Scope, merged: dict[str, str], doc_id: str) -> None:
+        """Make the graph and the other documents agree with entities the linker just merged.
+
+        The entity store was updated by the linking stage. Here the dropped nodes' edges move
+        onto the survivor and every other document's links are renamed to it (GRA-30).
+        """
+        if not merged:
+            return
+        if self._graph_store is not None:
+            for keep in sorted(set(merged.values())):
+                survivor = self._entity_store.get(scope, keep) if self._entity_store else None
+                if survivor is not None:
+                    self._graph_store.upsert_entities(
+                        scope, [survivor.model_copy(update={"vector": None})]
+                    )
+                drops = sorted(drop for drop, target in merged.items() if target == keep)
+                self._graph_store.merge_nodes(scope, keep, drops)
+        for record in self._document_store.all(scope):
+            if record.document_id == doc_id or not any(
+                link.canonical_id in merged for link in record.el_result
+            ):
+                continue
+            record.el_result = [
+                link.model_copy(
+                    update={"canonical_id": merged.get(link.canonical_id, link.canonical_id)}
+                )
+                for link in record.el_result
+            ]
+            self._document_store.upsert(scope, record)
+        _logger.info("merged entities merged=%d", len(merged))
+
+    def _as_stored(self, scope: Scope, entities: list[CanonicalEntity]) -> list[CanonicalEntity]:
+        """The entities as the entity store holds them, so graph nodes keep their aliases."""
+        if self._entity_store is None:
+            return entities
+        out = []
+        for entity in entities:
+            stored = self._entity_store.get(scope, entity.canonical_id)
+            out.append(
+                entity
+                if stored is None
+                else entity.model_copy(update={"name": stored.name, "aliases": stored.aliases})
+            )
+        return out
 
     def _job(self, scope: Scope, doc_id: str, state: JobState, error: str | None = None) -> None:
         if self._job_store is not None:

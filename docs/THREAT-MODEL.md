@@ -63,6 +63,7 @@ model, not whether a real model resists. Accepted behaviour it pins:
 
 - A false fact about the document's own entities is stored and believed, with its source sentence, and removed by forgetting the document.
 - Document sentences reach the synthesis prompt as evidence with no filter, and the reply is returned as `prose` unchecked.
+- A document can make the linker merge entities in its own tenant: if its coreference cluster names two forms that already belong to two entities of one type, they become one (GRA-30). Merges are not undone by forgetting the document, and there is no split yet (GRA-51).
 - A document's text can appear in an edge's raw predicate and in the sentences recall returns, so a client that shows them must treat them as untrusted text.
 
 Not covered: a real model's behaviour, and a model that returns malformed or oversized output beyond what the schema check rejects.
