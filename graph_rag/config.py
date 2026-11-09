@@ -46,6 +46,10 @@ class Settings(BaseSettings):
     # With ``require_auth`` on, every endpoint but /health needs a bearer key from this file
     # (``graph-rag-keys`` writes it). Off, requests run in the default tenant, as before.
     require_auth: bool = False
+    # Where the service listens, and the opt-out for serving without auth beyond loopback
+    # (graph_rag/bind.py, GRA-136). The container binds all addresses, so it needs one or the other.
+    bind_host: str = "0.0.0.0"  # noqa: S104 - the container must; bind.py guards it
+    allow_open_bind: bool = False
     api_keys_path: str = ".data/api-keys.json"
 
     # --- Elasticsearch / DocumentStore + EntityStore ------------------------

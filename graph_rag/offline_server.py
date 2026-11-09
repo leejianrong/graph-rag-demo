@@ -18,6 +18,7 @@ import uvicorn
 from fastapi import FastAPI
 
 from graph_rag.api import create_app
+from graph_rag.bind import enforce_bind
 from graph_rag.config import Settings
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityLookup
@@ -54,11 +55,10 @@ def build_app(settings: Settings | None = None) -> FastAPI:
 
 def main() -> None:
     """Run the offline service."""
-    uvicorn.run(
-        build_app(),
-        host=os.environ.get("HOST", "127.0.0.1"),
-        port=int(os.environ.get("PORT", "8000")),
-    )
+    settings = Settings()
+    host = os.environ.get("HOST", "127.0.0.1")
+    enforce_bind(host, settings, _logger)
+    uvicorn.run(build_app(settings), host=host, port=int(os.environ.get("PORT", "8000")))
 
 
 if __name__ == "__main__":

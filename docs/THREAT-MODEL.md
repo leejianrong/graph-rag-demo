@@ -24,7 +24,7 @@ network level.
 
 | Threat | Status | What exists | Gap, and the card |
 |---|---|---|---|
-| A caller with no key reads or writes memory | Mitigated when `REQUIRE_AUTH=true` | 401 on every endpoint but `/health` (`tests/unit/test_auth_endpoints.py`) | **Off by default**, so a deployment that forgets the flag is open. A hosted service must set it; nothing checks that it is set. Card: GRA-136 |
+| A caller with no key reads or writes memory | Mitigated when `REQUIRE_AUTH=true` | 401 on every endpoint but `/health` (`tests/unit/test_auth_endpoints.py`). With auth off, the service refuses to start on any address but loopback unless `ALLOW_OPEN_BIND=true` (`graph_rag/bind.py`, `tests/unit/test_bind.py`, GRA-136) | Auth is still **off by default**; the check catches a forgotten flag only if the bind is reachable. The local compose stack sets `ALLOW_OPEN_BIND` on purpose, so copying it to a host defeats the check |
 | A stolen or leaked key is used | Partial | Keys can be revoked and the revoke applies on the next request (`graph-rag-keys revoke`) | No expiry, no per-key scopes, no way to tell a tenant their key was used from a new place |
 | Guessing a key | Mitigated | 256 random bits in the token; only the SHA-256 is stored; the comparison is constant time and a miss costs the same as a wrong token (`graph_rag/auth.py`) | |
 | Brute-forcing keys or flooding with bad ones | Open | None | No rate limit or lockout on failed keys. Card: GRA-137 |
@@ -82,7 +82,7 @@ These cards were created from this review. Each is small; GRA-134 and GRA-135 ar
 
 1. GRA-134 (done): refuse API keys for the `default` tenant.
 2. GRA-135 (done): cap `/ingest` upload size.
-3. GRA-136: refuse to start on a non-local bind with auth off.
+3. GRA-136 (done): refuse to start on a non-local bind with auth off.
 4. GRA-137: rate limit requests and failed keys.
 5. GRA-138: lock down the backends (no host-published store ports, no default credentials, authenticated Kafka triggers).
 6. GRA-139: scope the LLM response cache by tenant, or turn it off when hosted.
@@ -93,7 +93,7 @@ Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers se
 
 ## Checklist before a hosted deployment
 
-- [ ] `REQUIRE_AUTH=true`, and the key file on a mounted volume with mode 0600 (one instance only)
+- [ ] `REQUIRE_AUTH=true` and `ALLOW_OPEN_BIND` unset (the service will not start otherwise), and the key file on a mounted volume with mode 0600 (one instance only)
 - [ ] No data was written with auth off, or it has been moved
 - [ ] The stores are not reachable from outside the service's network, and none uses a default credential
 - [ ] TLS terminates in front of the API
