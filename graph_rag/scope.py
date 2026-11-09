@@ -7,9 +7,20 @@ scopes existed.
 
 from __future__ import annotations
 
+import hashlib
+from collections.abc import Iterator
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 
-__all__ = ["DEFAULT_SCOPE", "RESERVED_KEY_PREFIX", "Scope"]
+__all__ = [
+    "DEFAULT_SCOPE",
+    "RESERVED_KEY_PREFIX",
+    "Scope",
+    "acting_for",
+    "current_tenant",
+    "tenant_dir",
+]
 
 DEFAULT_TENANT = "default"
 # Object keys under this prefix hold non-default scopes' objects; no caller may name one directly.
@@ -39,3 +50,31 @@ class Scope:
 
 
 DEFAULT_SCOPE = Scope()
+
+
+_acting_tenant: ContextVar[str] = ContextVar("acting_tenant", default=DEFAULT_TENANT)
+
+
+def current_tenant() -> str:
+    """The tenant the running call acts for; the default tenant outside :func:`acting_for`."""
+    return _acting_tenant.get()
+
+
+@contextmanager
+def acting_for(tenant: str) -> Iterator[None]:
+    """Mark the code inside as working for ``tenant``.
+
+    The four store ports take a scope, but the LLM client does not: it is shared by every tenant
+    and has no scope argument. Work that calls it (ingest, synthesis) runs inside this so the
+    client can keep a tenant's cached responses apart from everyone else's (GRA-139).
+    """
+    token = _acting_tenant.set(tenant)
+    try:
+        yield
+    finally:
+        _acting_tenant.reset(token)
+
+
+def tenant_dir(tenant: str) -> str:
+    """A directory name for ``tenant``: a hash, so a tenant name cannot name a path."""
+    return hashlib.sha256(tenant.encode()).hexdigest()[:16]

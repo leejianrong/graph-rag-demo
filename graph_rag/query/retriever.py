@@ -32,7 +32,7 @@ from graph_rag.logging import get_logger
 from graph_rag.models import QueryResponse
 from graph_rag.query.ranking import rank_nodes, select_answer
 from graph_rag.query.temporal import drop_sentences, subgraph_as_of
-from graph_rag.scope import DEFAULT_SCOPE, Scope
+from graph_rag.scope import DEFAULT_SCOPE, Scope, acting_for
 
 if TYPE_CHECKING:
     from graph_rag.config import Settings
@@ -222,9 +222,10 @@ class QueryRetriever:
         #    it AND a synthesizer is wired. Otherwise prose stays None and no LLM is
         #    touched — the response is byte-for-byte the V6 shape (ADR-0009).
         if request.synthesize and self._synthesizer is not None:
-            response.prose = self._synthesizer.synthesize(
-                question=request.question, response=response
-            )
+            with acting_for(scope.tenant):  # the LLM cache keeps tenants apart (GRA-139)
+                response.prose = self._synthesizer.synthesize(
+                    question=request.question, response=response
+                )
             _logger.info("query synthesized prose (%d char(s))", len(response.prose))
 
         return response

@@ -41,7 +41,7 @@ network level.
 | A tenant spells another's location through a key or id it controls | Mitigated | Object keys starting with `_scopes/` are rejected on `/ingest` and `/v1/remember`; tenant and namespace cannot contain `/` or `\|`; ids hash the scope | |
 | Same text from two tenants collides | Mitigated | Document and entity ids include the scope (`tests/unit/test_scope_ids.py`) | |
 | A bug in one store adapter ignores the scope | Partial | One shared isolation check runs on every adapter (`tests/isolation.py`) | A new adapter or a new query has to be added to it by hand. Cost of the Neo4j scope filter on large graphs is unmeasured |
-| Shared LLM response cache leaks across tenants | **Open (found in this review)** | | The cache is keyed by a hash of the model, prompt and parameters and shared by all tenants (`.cache/llm`). Identical text from two tenants reuses one answer, so a tenant could learn that another has processed the same text (by speed or cost; I did not try it), and a poisoned entry would reach both. The cached responses, which quote document sentences, are also kept on disk. Card: GRA-139 |
+| Shared LLM response cache leaks across tenants | Mitigated | Cached responses are kept per tenant: the default tenant keeps the cache root and any other tenant gets its own directory (named by a hash of the tenant). Ingest and synthesis run inside `acting_for(tenant)`, which the client reads. `graph-rag-admin delete` removes the tenant's directory. `tests/unit/test_llm_cache_tenancy.py` shows identical text in two tenants does not share an entry | Identical text in two tenants now costs two provider calls. The cache is per tenant, not per namespace. A new call site that reaches the LLM outside `acting_for` would use the default tenant's cache, so add it there. Entries are still plain files on disk |
 | Someone with access to the stores or Kafka bypasses the API | Open | | Compose publishes Elasticsearch (9200, security off), MinIO, Kafka and Neo4j on the host with default credentials (`minioadmin`, `devpassword`). A Kafka message carries its own tenant, so anyone who can publish can write into any tenant. Card: GRA-138 |
 | Data of a departed tenant remains | Mitigated | `graph-rag-admin delete` removes it from all four stores and checks none still lists it (GRA-59) | A trigger already queued in Kafka can recreate records; no audit log |
 
@@ -85,7 +85,7 @@ These cards were created from this review. Each is small; GRA-134 and GRA-135 ar
 3. GRA-136 (done): refuse to start on a non-local bind with auth off.
 4. GRA-137: rate limit requests and failed keys.
 5. GRA-138: lock down the backends (no host-published store ports, no default credentials, authenticated Kafka triggers).
-6. GRA-139: scope the LLM response cache by tenant, or turn it off when hosted.
+6. ~~GRA-139: scope the LLM response cache by tenant, or turn it off when hosted.~~ Done.
 7. GRA-140: prompt-injection tests through ingested documents.
 8. GRA-141: a log policy, with question text and source names redacted.
 
@@ -98,6 +98,6 @@ Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers se
 - [ ] The stores are not reachable from outside the service's network, and none uses a default credential
 - [ ] TLS terminates in front of the API
 - [ ] Upload size is capped (`MAX_UPLOAD_BYTES`, default 10 MB) and request rates are limited (GRA-137, not built)
-- [ ] The LLM cache is scoped or off
+- [ ] The LLM cache directory is on storage only the service reads (entries are per tenant but are plain files)
 - [ ] Logs are handled as holding user questions
 - [ ] `graph-rag-admin delete` has been tried on a staging tenant

@@ -52,7 +52,7 @@ from graph_rag.models import (
     PipelineResult,
     Triple,
 )
-from graph_rag.scope import DEFAULT_SCOPE, Scope
+from graph_rag.scope import DEFAULT_SCOPE, Scope, acting_for
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.ner import SpacyNerStage
 
@@ -191,6 +191,10 @@ class Orchestrator:
             The :class:`~graph_rag.models.PipelineResult` (raw record + in-memory
             enrichment) on success, or ``None`` if this document failed (dropped).
         """
+        with acting_for(trigger.scope.tenant):  # the LLM cache keeps tenants apart (GRA-139)
+            return self._process(trigger)
+
+    def _process(self, trigger: IngestTrigger) -> PipelineResult | None:
         scope = trigger.scope
         doc_id = document_id(trigger.bucket, trigger.object_key, scope)
         stage = "read"
