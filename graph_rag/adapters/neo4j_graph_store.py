@@ -50,6 +50,7 @@ from neo4j import GraphDatabase
 
 from graph_rag.adapters.scoping import scope_fields, scope_of_key
 from graph_rag.logging import get_logger
+from graph_rag.merging import rewire
 from graph_rag.models import CanonicalEntity, EdgeProvenance, Subgraph, Triple
 from graph_rag.predicates import CLOSED_PREDICATES
 
@@ -278,6 +279,20 @@ class Neo4jGraphStore:
             scope=scope.key,
         )
         _logger.debug("deleted %d graph nodes", len(canonical_ids))
+
+    def merge_nodes(self, scope: Scope, keep_id: str, drop_ids: list[str]) -> None:
+        """Move the dropped nodes' edges onto ``keep_id``, then delete them.
+
+        The moved edges are written before the old ones go, so a call that stops part-way
+        leaves an edge twice rather than lost, and repeating it finishes the job.
+        """
+        drop = set(drop_ids) - {keep_id}
+        if not drop:
+            return
+        present = self.get_node_edges(scope, keep_id)
+        touching = [edge for node in sorted(drop) for edge in self.get_node_edges(scope, node)]
+        self.write_triples(scope, rewire(touching, keep_id, drop, present))
+        self.delete_nodes(scope, sorted(drop))
 
     # --- Reads --------------------------------------------------------------
 

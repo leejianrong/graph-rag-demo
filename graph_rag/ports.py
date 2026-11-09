@@ -277,6 +277,16 @@ class GraphStore(Protocol):
         """Remove these nodes and every edge that touches them; ids with no node are ignored."""
         ...
 
+    def merge_nodes(self, scope: Scope, keep_id: str, drop_ids: list[str]) -> None:
+        """Fold the ``drop_ids`` nodes into ``keep_id``: their edges move onto it, then they go.
+
+        Provenance, dates and validity stay on each edge. An edge between merged nodes would
+        become a loop and is dropped; an edge ``keep_id`` already has is not repeated. The
+        ``keep_id`` node's own properties are untouched (upsert it for new aliases). Ids with no
+        node are ignored, and repeating a call changes nothing.
+        """
+        ...
+
     def khop(self, scope: Scope, seed_ids: list[str], hops: int) -> Subgraph:
         """Return the connected subgraph within ``hops`` of ``seed_ids``.
 

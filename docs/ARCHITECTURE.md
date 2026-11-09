@@ -147,6 +147,15 @@ documents become one node and enables cross-document multi-hop reasoning.
   by supersession (GRA-43, `graph_rag/supersession.py`): a newer dated document's `WORKS_FOR`, `LOCATED_IN`,
   `HAS_ROLE` or `GOVERNED_BY` edge ends an older same-subject one with a different object, and the older edge
   records `superseded_by` so deleting or re-ingesting the newer document reopens it.
+- **Duplicate entities merge when a later document links them** (GRA-30): linking is order-sensitive, so two documents
+  can leave one real entity as two canonical entities. When one coref cluster in a later document has surface forms
+  that already belong to two or more entities of the same type, the linker folds them into the lowest `canonical_id`
+  (`EntityLinkingStage._unify`): names and aliases are unioned in the entity store, `GraphStore.merge_nodes` moves
+  the dropped nodes' edges onto the survivor (provenance and validity untouched; an edge that would become a loop,
+  or one the survivor already has, is dropped; `graph_rag/merging.py`), and other documents' `el_result` links are
+  renamed. A cluster's other names are also kept as aliases when it creates or merges one entity, so the result does
+  not depend on which document arrives first: the same entities and edges come out, though the surviving id can
+  differ. A merge is not undone by deleting the document that caused it, and there is no split yet (GRA-51).
 - **A changed source replaces its old contribution** (GRA-27): ingesting the same source with different bytes swaps
   the document's record, sentences, mentions and edges for the new text's, and removes entities only the old text
   linked to (from the graph and the entity store) unless another document still does. Identical bytes are skipped
