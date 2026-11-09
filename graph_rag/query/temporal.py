@@ -8,6 +8,7 @@ than guessed away. Dates are ``YYYY-MM-DD`` strings, which sort the way time doe
 from __future__ import annotations
 
 from collections import deque
+from collections.abc import Callable
 
 from graph_rag.models import Subgraph, SupportingSentence, Triple
 
@@ -23,6 +24,23 @@ def _evidence(edge: Triple) -> tuple[str, int]:
     return (edge.provenance.source_doc_id, edge.provenance.sentence_index)
 
 
+def has_ended(edge: Triple, day: str) -> bool:
+    """True when ``edge`` stopped holding on or before ``day`` (an unknown end has not ended)."""
+    return edge.valid_to is not None and edge.valid_to <= day
+
+
+def subgraph_current(
+    subgraph: Subgraph, seed_ids: list[str], hops: int, today: str
+) -> tuple[Subgraph, set[tuple[str, int]]]:
+    """The slice of ``subgraph`` with the edges that have ended removed (GRA-43).
+
+    The default view when no ``as_of`` is given: a superseded fact stays in the graph as history
+    but does not come back next to the one that replaced it. Unlike ``as_of`` this does not hide an
+    edge for starting later than today, so a document dated ahead is still found.
+    """
+    return _restrict(subgraph, seed_ids, hops, lambda e: not has_ended(e, today))
+
+
 def subgraph_as_of(
     subgraph: Subgraph, seed_ids: list[str], hops: int, day: str
 ) -> tuple[Subgraph, set[tuple[str, int]]]:
@@ -34,8 +52,15 @@ def subgraph_as_of(
     ``(document_id, sentence_index)`` of each excluded edge's sentence that no kept edge also
     cites, for the caller to drop from the evidence.
     """
-    kept = [e for e in subgraph.edges if holds(e, day)]
-    dropped = [e for e in subgraph.edges if not holds(e, day)]
+    return _restrict(subgraph, seed_ids, hops, lambda e: holds(e, day))
+
+
+def _restrict(
+    subgraph: Subgraph, seed_ids: list[str], hops: int, keep: Callable[[Triple], bool]
+) -> tuple[Subgraph, set[tuple[str, int]]]:
+    """Keep the edges ``keep`` accepts and what still hangs off the seeds (see the callers)."""
+    kept = [e for e in subgraph.edges if keep(e)]
+    dropped = [e for e in subgraph.edges if not keep(e)]
     had_edges = {n for e in subgraph.edges for n in (e.subject_id, e.object_id)}
     node_ids = {n.canonical_id for n in subgraph.nodes}
 

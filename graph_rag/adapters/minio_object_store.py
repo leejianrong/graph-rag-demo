@@ -92,7 +92,7 @@ class MinioObjectStore:
             io.BytesIO(data),
             length=len(data),
         )
-        _logger.info("put %s/%s (%d bytes)", bucket, object_key, len(data))
+        _logger.info("put an object (%d bytes)", len(data))
 
     def delete(self, scope: Scope, bucket: str, object_key: str) -> None:
         """Remove the object; a no-op if it (or its bucket) is not there."""
@@ -102,7 +102,7 @@ class MinioObjectStore:
             if exc.code not in _MISSING_CODES:
                 raise
             return
-        _logger.info("deleted %s/%s", bucket, object_key)
+        _logger.info("deleted an object")
 
     def scopes(self, tenant: str) -> list[Scope]:
         """The scopes of ``tenant`` that hold objects (only non-default scopes are prefixed)."""

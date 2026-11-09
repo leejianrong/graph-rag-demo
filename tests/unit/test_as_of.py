@@ -150,8 +150,8 @@ def test_recall_as_of_returns_the_facts_of_that_day(stack) -> None:
     drain(components, queue)
     _end_the_facts(components, on="2020-01-01")
 
-    current = _recall(client)
-    assert current["subgraph"]["edges"], "no as_of keeps today's behaviour: nothing is filtered"
+    # Without as_of the view is the current one, and these facts ended in 2020 (GRA-43).
+    assert _recall(client)["subgraph"]["edges"] == []
 
     then = _recall(client, as_of="2019-06-01")
     assert then["subgraph"]["edges"] and then["supporting_sentences"]

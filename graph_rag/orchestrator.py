@@ -55,6 +55,7 @@ from graph_rag.models import (
 from graph_rag.scope import DEFAULT_SCOPE, Scope
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.ner import SpacyNerStage
+from graph_rag.supersession import supersede
 
 if TYPE_CHECKING:
     from graph_rag.jobs import JobState, JobStore
@@ -269,14 +270,25 @@ class Orchestrator:
                         ]
                     self._graph_store.upsert_entities(scope, canonical_entities)
                     self._graph_store.delete_document_edges(scope, doc_id)
+                    # A newer fact ends an older one (GRA-43); read after the delete above so
+                    # this document's own previous edges are neither compared nor left closed.
+                    existing = [
+                        edge
+                        for subject in sorted({t.subject_id for t in triples})
+                        for edge in self._graph_store.get_node_edges(scope, subject)
+                        if edge.subject_id == subject
+                    ]
+                    triples, closures = supersede(triples, existing, doc_id)
                     self._graph_store.write_triples(scope, triples)
+                    for closure in closures:
+                        self._graph_store.close_edge(
+                            scope, closure.edge, closure.valid_to, closure.by_doc
+                        )
 
             _logger.info(
-                "ingested document %s (%s/%s): %d mention(s), %d sentence(s), "
+                "ingested document %s: %d mention(s), %d sentence(s), "
                 "%d coref cluster(s), %d entity link(s), %d triple(s)",
                 doc_id,
-                trigger.bucket,
-                trigger.object_key,
                 len(ner.mentions),
                 len(ner.sentences),
                 len(coref_clusters),
@@ -297,11 +309,7 @@ class Orchestrator:
             # The reason names the stage and the error type, never the message, which can carry
             # internals; the message is in the log.
             self._job(scope, doc_id, "failed", f"{stage} failed: {type(error).__name__}")
-            _logger.exception(
-                "dropping document %s/%s after processing error",
-                trigger.bucket,
-                trigger.object_key,
-            )
+            _logger.exception("dropping document %s after processing error", doc_id)
             return None
 
     def _job(self, scope: Scope, doc_id: str, state: JobState, error: str | None = None) -> None:

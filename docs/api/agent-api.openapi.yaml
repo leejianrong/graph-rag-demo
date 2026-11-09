@@ -434,6 +434,11 @@ components:
           type: string
           enum: [outgoing, incoming]
           description: "`outgoing`: the looked-up entity is the subject of the fact."
+        valid_from: { type: [string, "null"], format: date }
+        valid_to:
+          type: [string, "null"]
+          format: date
+          description: Set when a newer fact ended this one; such a neighbour is listed after the open ones.
         provenance: { $ref: "#/components/schemas/Provenance" }
     Subgraph:
       type: object
@@ -463,7 +468,11 @@ components:
         valid_to:
           type: [string, "null"]
           format: date
-          description: Day the fact stopped holding, exclusive. Null when unknown (not "still true").
+          description: |
+            Day the fact stopped holding, exclusive. Null when unknown (not "still true"). Set when
+            a newer document states a replacing fact for a predicate that holds one object at a
+            time (WORKS_FOR, LOCATED_IN, HAS_ROLE, GOVERNED_BY); the older edge is kept as history.
+            Recall without `as_of` leaves ended edges out.
         provenance: { $ref: "#/components/schemas/Provenance" }
     Provenance:
       type: object

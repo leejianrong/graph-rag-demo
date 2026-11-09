@@ -56,3 +56,39 @@ def enforce_bind(host: str, settings: Settings, logger: logging.Logger) -> None:
         raise SystemExit(f"error: {error}") from error
     if warning:
         logger.warning(warning)
+
+
+def _local_dev(field: str) -> object:
+    return Settings.model_fields[field].default  # the field default is the local-dev value
+
+
+def default_credentials(settings: Settings) -> list[str]:
+    """Names of store credentials still at their local-dev value (Elasticsearch's: unset)."""
+    found = []
+    if settings.minio_access_key == _local_dev("minio_access_key"):
+        found.append("MINIO_ACCESS_KEY")
+    if settings.minio_secret_key == _local_dev("minio_secret_key"):
+        found.append("MINIO_SECRET_KEY")
+    if settings.neo4j_password == _local_dev("neo4j_password"):
+        found.append("NEO4J_PASSWORD")
+    if not settings.elasticsearch_password:
+        found.append("ELASTICSEARCH_PASSWORD")
+    return found
+
+
+def enforce_credentials(settings: Settings) -> None:
+    """With auth on, exit when a store credential is a local-dev default (GRA-138).
+
+    Auth on means a hosted deployment, where default passwords are the gap. With auth off this is
+    the open local stack, which uses them on purpose, so nothing is checked.
+    """
+    if not settings.require_auth or settings.allow_default_credentials:
+        return
+    names = default_credentials(settings)
+    if names:
+        raise SystemExit(
+            "error: REQUIRE_AUTH is on but these still have their local-dev values: "
+            + ", ".join(names)
+            + ". Set real ones (docker-compose.hosted.yml requires them), or set "
+            "ALLOW_DEFAULT_CREDENTIALS=true for a staging run."
+        )

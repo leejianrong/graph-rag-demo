@@ -252,8 +252,19 @@ class GraphStore(Protocol):
         """
         ...
 
+    def close_edge(self, scope: Scope, edge: Triple, valid_to: str, superseded_by: str) -> None:
+        """End ``edge`` on ``valid_to`` because document ``superseded_by`` states a newer fact.
+
+        The edge is found by subject, predicate, object, source document and sentence index, and
+        keeps everything else (it stays as history). An edge that is not there is ignored.
+        """
+        ...
+
     def delete_document_edges(self, scope: Scope, source_doc_id: str) -> None:
         """Remove every edge whose provenance ``source_doc_id`` matches.
+
+        Edges that this document closed (``superseded_by``) are reopened: their ``valid_to`` and
+        ``superseded_by`` are cleared, since the fact that ended them is gone.
 
         The KG-build checkpoint calls this **before** writing a document's triples
         so that RE-INGESTING a document REPLACES its edges rather than duplicating
