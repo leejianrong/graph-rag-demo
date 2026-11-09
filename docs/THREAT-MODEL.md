@@ -67,7 +67,7 @@ place to keep it. Card: GRA-140.
 | Secrets committed to the repo | Mitigated | gitleaks runs in CI (`secret-scan`) on every PR | It scans for patterns; a weak default password is not a pattern |
 | Default credentials reach a deployment | Open | `minioadmin`, `devpassword` and no Elasticsearch security are the compose and `Settings` defaults, marked local-dev | Nothing stops them being used in production. Card: GRA-138 |
 | The LLM provider key leaks | Partial | Read from the environment (`Settings`); I found no log line that prints it and no key baked into the Dockerfile | Whoever runs a container can read it; tenants bringing their own key (GRA-25) would add per-tenant secrets that need storing |
-| Questions and document names in logs | Open | `/query` logs the question text and synthesis logs it when on; ingest logs document ids and source names. (`/v1/recall` without synthesis logs no question.) | Questions can hold personal data. Card: GRA-141 |
+| Questions and document names in logs | Mitigated | At info level and above nothing logs question text, answers, source names or object keys; a test drives ingest, query, recall and a failed document and checks none appears ([LOG-POLICY.md](LOG-POLICY.md)) | A traceback from `logger.exception` can quote a library's input; debug level is not covered; the web server's access log holds document ids in paths |
 
 ## 5. Availability
 
@@ -87,7 +87,7 @@ These cards were created from this review. Each is small; GRA-134 and GRA-135 ar
 5. GRA-138: lock down the backends (no host-published store ports, no default credentials, authenticated Kafka triggers).
 6. GRA-139: scope the LLM response cache by tenant, or turn it off when hosted.
 7. GRA-140: prompt-injection tests through ingested documents.
-8. GRA-141: a log policy, with question text and source names redacted.
+8. ~~GRA-141: a log policy, with question text and source names redacted.~~ Done.
 
 Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers separate from the API), GRA-25 (tenant LLM keys).
 
@@ -99,5 +99,5 @@ Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers se
 - [ ] TLS terminates in front of the API
 - [ ] Upload size is capped (`MAX_UPLOAD_BYTES`, default 10 MB) and request rates are limited (GRA-137, not built)
 - [ ] The LLM cache is scoped or off
-- [ ] Logs are handled as holding user questions
+- [ ] Logs are handled per [LOG-POLICY.md](LOG-POLICY.md): info level carries no content; do not run at debug
 - [ ] `graph-rag-admin delete` has been tried on a staging tenant

@@ -143,7 +143,7 @@ def create_app(
         """Store ``data`` under ``object_key`` and queue it, unless the source already holds it."""
         doc_id = document_id(bucket, object_key, scope)
         if not force and _holds(object_store, scope, bucket, object_key, data):
-            _logger.info("unchanged document_id=%s object_key=%s", doc_id, object_key)
+            _logger.info("unchanged document_id=%s", doc_id)
             return {
                 "document_id": doc_id,
                 "bucket": bucket,
@@ -165,10 +165,8 @@ def create_app(
         )
 
         _logger.info(
-            "ingested document_id=%s bucket=%s object_key=%s bytes=%d",
+            "ingested document_id=%s bytes=%d",
             doc_id,
-            bucket,
-            object_key,
             len(data),
         )
         return {
@@ -260,12 +258,7 @@ def create_app(
                 detail="Query retriever is not configured on this service.",
             )
         response = retriever.retrieve(request, Scope(tenant))
-        _logger.info(
-            "query question=%r answer=%r ranked=%d",
-            request.question,
-            response.answer,
-            len(response.ranked_nodes),
-        )
+        _logger.info("query answered ranked=%d", len(response.ranked_nodes))
         return response
 
     add_agent_routes(

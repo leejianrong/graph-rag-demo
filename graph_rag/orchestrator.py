@@ -272,11 +272,9 @@ class Orchestrator:
                     self._graph_store.write_triples(scope, triples)
 
             _logger.info(
-                "ingested document %s (%s/%s): %d mention(s), %d sentence(s), "
+                "ingested document %s: %d mention(s), %d sentence(s), "
                 "%d coref cluster(s), %d entity link(s), %d triple(s)",
                 doc_id,
-                trigger.bucket,
-                trigger.object_key,
                 len(ner.mentions),
                 len(ner.sentences),
                 len(coref_clusters),
@@ -297,11 +295,7 @@ class Orchestrator:
             # The reason names the stage and the error type, never the message, which can carry
             # internals; the message is in the log.
             self._job(scope, doc_id, "failed", f"{stage} failed: {type(error).__name__}")
-            _logger.exception(
-                "dropping document %s/%s after processing error",
-                trigger.bucket,
-                trigger.object_key,
-            )
+            _logger.exception("dropping document %s after processing error", doc_id)
             return None
 
     def _job(self, scope: Scope, doc_id: str, state: JobState, error: str | None = None) -> None:

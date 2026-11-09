@@ -178,9 +178,8 @@ class AnswerSynthesizer:
         prompt = build_synthesis_prompt(question, response)
         prose = self._llm.complete(prompt)
         _logger.info(
-            "synthesized prose answer: question=%r subgraph=%d node(s)/%d edge(s), "
+            "synthesized prose answer: subgraph=%d node(s)/%d edge(s), "
             "%d supporting sentence(s), %d char(s)",
-            question,
             len(response.subgraph.nodes),
             len(response.subgraph.edges),
             len(response.supporting_sentences),

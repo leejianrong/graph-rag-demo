@@ -199,12 +199,11 @@ class QueryRetriever:
 
         _logger.info(
             "query answered: %d entity seed(s), %d sentence seed(s), "
-            "subgraph=%d node(s)/%d edge(s), answer=%r",
+            "subgraph=%d node(s)/%d edge(s)",
             len(seed_scores),
             len(supporting_sentences),
             len(subgraph.nodes),
             len(subgraph.edges),
-            answer,
         )
 
         # 6. Supporting sentences already come back scored + ordered by the sentence
