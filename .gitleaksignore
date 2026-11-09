@@ -1,0 +1,5 @@
+# False positive: `curl -u elastic:$$ELASTIC_PASSWORD` in an early draft of docker-compose.hosted.yml
+# (PR #125, closed). The value is a variable reference, not a credential, and the line was replaced
+# by an Authorization header in #126. The commit survives only on the stale branch
+# gra-138-prod-compose, which CI scans along with every other ref.
+490c248c8d0061782e43e24deeaa30b803eaedb0:docker-compose.hosted.yml:curl-auth-user:37
