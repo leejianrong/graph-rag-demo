@@ -41,6 +41,11 @@ class Settings(BaseSettings):
     # The most one /ingest upload may carry (413 above it; GRA-135). Larger than remember's cap
     # because files hold markup; a deployment sets it from what its LLM budget can take.
     max_upload_bytes: int = 10_000_000
+    # Requests one API key may make a minute (a burst of this many, then it refills), and failed
+    # requests one address may make a minute, after which its bad keys get 429 rather than 401
+    # (GRA-137). 0 turns one off. Neither applies with ``require_auth`` off.
+    rate_limit_per_minute: int = 600
+    failed_key_limit_per_minute: int = 20
 
     # --- API keys (GRA-22, GRA-23) ------------------------------------------
     # With ``require_auth`` on, every endpoint but /health needs a bearer key from this file

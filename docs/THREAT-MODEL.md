@@ -27,7 +27,7 @@ network level.
 | A caller with no key reads or writes memory | Mitigated when `REQUIRE_AUTH=true` | 401 on every endpoint but `/health` (`tests/unit/test_auth_endpoints.py`). With auth off, the service refuses to start on any address but loopback unless `ALLOW_OPEN_BIND=true` (`graph_rag/bind.py`, `tests/unit/test_bind.py`, GRA-136) | Auth is still **off by default**; the check catches a forgotten flag only if the bind is reachable. The local compose stack sets `ALLOW_OPEN_BIND` on purpose, so copying it to a host defeats the check |
 | A stolen or leaked key is used | Partial | Keys can be revoked and the revoke applies on the next request (`graph-rag-keys revoke`) | No expiry, no per-key scopes, no way to tell a tenant their key was used from a new place |
 | Guessing a key | Mitigated | 256 random bits in the token; only the SHA-256 is stored; the comparison is constant time and a miss costs the same as a wrong token (`graph_rag/auth.py`) | |
-| Brute-forcing keys or flooding with bad ones | Open | None | No rate limit or lockout on failed keys. Card: GRA-137 |
+| Brute-forcing keys or flooding with bad ones | Partial | A key is 256 random bits, so guessing is not feasible. Failed requests are counted per client address (`FAILED_KEY_LIMIT_PER_MINUTE`, default 20); past that, bad keys get 429 instead of 401. Good keys are checked first and never throttled by it | Counts live in the process, so several instances each allow the full amount. Behind a proxy every client shares one address, so the throttle is global to bad keys. It limits noise, not the cost of a hash check |
 | Reading the key file | Partial | Mode 0600, only hashes inside | A hash alone does not open the API, but the file also names every tenant. One file per instance; several instances need a shared store. No card yet; GRA-31 and GRA-57 (staging) will force it |
 | A key for the `default` tenant opens data it should not | Mitigated (GRA-134) | `graph-rag-keys create default` is refused, and a `default` key already in a key file no longer verifies (`tests/unit/test_auth.py`) | |
 | Key shown in logs or shell history | Partial | The CLI and MCP server read the key only from `GRAPH_RAG_API_KEY`, never a flag; `graph-rag-keys create` prints it once | The key is in the environment of the process and in `claude mcp add --env`, which writes it to the client's config |
@@ -73,7 +73,7 @@ place to keep it. Card: GRA-140.
 
 | Threat | Status | Gap, and the card |
 |---|---|---|
-| One tenant exhausts the service | Open | No rate limit, quota or metering (GRA-58); `/ingest` is capped per request only; ingest runs in the API process (GRA-31) |
+| One tenant exhausts the service | Partial | Each key has a request budget (`RATE_LIMIT_PER_MINUTE`, default 600, a burst of that many then a refill), so one key cannot starve another's requests; `/ingest` is capped per request | A request budget is not a cost budget: one `/ingest` can still cost an LLM bill, and ingest runs in the API process. No quota or metering (GRA-58, GRA-31). Per instance, as above. Not applied with `REQUIRE_AUTH` off |
 | Slow or huge recall | Partial | `token_budget` bounds what is returned, not the work of finding it; I found no query timeout in the API or retriever |
 
 ## Follow-ups filed
@@ -83,7 +83,7 @@ These cards were created from this review. Each is small; GRA-134 and GRA-135 ar
 1. GRA-134 (done): refuse API keys for the `default` tenant.
 2. GRA-135 (done): cap `/ingest` upload size.
 3. GRA-136 (done): refuse to start on a non-local bind with auth off.
-4. GRA-137: rate limit requests and failed keys.
+4. ~~GRA-137: rate limit requests and failed keys.~~ Done.
 5. GRA-138: lock down the backends (no host-published store ports, no default credentials, authenticated Kafka triggers).
 6. GRA-139: scope the LLM response cache by tenant, or turn it off when hosted.
 7. GRA-140: prompt-injection tests through ingested documents.
@@ -97,7 +97,7 @@ Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers se
 - [ ] No data was written with auth off, or it has been moved
 - [ ] The stores are not reachable from outside the service's network, and none uses a default credential
 - [ ] TLS terminates in front of the API
-- [ ] Upload size is capped (`MAX_UPLOAD_BYTES`, default 10 MB) and request rates are limited (GRA-137, not built)
+- [ ] Upload size is capped (`MAX_UPLOAD_BYTES`, default 10 MB) and request rates are limited (`RATE_LIMIT_PER_MINUTE`, per instance; behind several instances set it to the share each should allow)
 - [ ] The LLM cache is scoped or off
 - [ ] Logs are handled as holding user questions
 - [ ] `graph-rag-admin delete` has been tried on a staging tenant
