@@ -147,6 +147,10 @@ documents become one node and enables cross-document multi-hop reasoning.
   by supersession (GRA-43, `graph_rag/supersession.py`): a newer dated document's `WORKS_FOR`, `LOCATED_IN`,
   `HAS_ROLE` or `GOVERNED_BY` edge ends an older same-subject one with a different object, and the older edge
   records `superseded_by` so deleting or re-ingesting the newer document reopens it.
+- **A changed source replaces its old contribution** (GRA-27): ingesting the same source with different bytes swaps
+  the document's record, sentences, mentions and edges for the new text's, and removes entities only the old text
+  linked to (from the graph and the entity store) unless another document still does. Identical bytes are skipped
+  by `/ingest` before any of this runs.
 
 **Edges** — carry a predicate from the closed **~12-predicate set** with a
 `RELATED_TO` open fallback:
