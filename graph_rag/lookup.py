@@ -42,6 +42,8 @@ class Neighbour(BaseModel):
     entity: EntityRef
     predicate: str
     direction: str  # "outgoing": the looked-up entity is the subject
+    valid_from: str | None = None
+    valid_to: str | None = None  # set when a newer fact ended this one (GRA-43)
     provenance: EdgeProvenance
 
 
@@ -91,7 +93,7 @@ class EntityLookup:
         neighbours: list[Neighbour] = []
         for edge in sorted(
             self._graph.get_node_edges(scope, entity.canonical_id),
-            key=lambda t: (t.predicate, t.subject_id, t.object_id),
+            key=lambda t: (t.valid_to is not None, t.predicate, t.subject_id, t.object_id),
         ):
             outgoing = edge.subject_id == entity.canonical_id
             other_id = edge.object_id if outgoing else edge.subject_id
@@ -103,6 +105,8 @@ class EntityLookup:
                     entity=EntityRef.of(other),
                     predicate=edge.predicate,
                     direction="outgoing" if outgoing else "incoming",
+                    valid_from=edge.valid_from,
+                    valid_to=edge.valid_to,
                     provenance=edge.provenance,
                 )
             )

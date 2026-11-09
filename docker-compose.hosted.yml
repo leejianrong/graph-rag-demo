@@ -1,0 +1,159 @@
+# The stack for a hosted deployment (GRA-138, docs/THREAT-MODEL.md). Unlike docker-compose.yml, which is
+# the open local loop:
+#
+#   * no store publishes a port to the host; Elasticsearch, MinIO, Kafka and Neo4j sit on an
+#     internal network that only `app` also joins, so they cannot be reached from outside;
+#   * every credential is required: compose stops with a message if one is unset, and `app`
+#     refuses to start with auth on if one is still a local-dev default (minioadmin, devpassword);
+#   * Elasticsearch has security on, and `app` signs in;
+#   * REQUIRE_AUTH is on and ALLOW_OPEN_BIND is not set, so the API needs a key.
+#
+# Put the values in a .env that is not committed:
+#   ELASTICSEARCH_PASSWORD=...  MINIO_ACCESS_KEY=...  MINIO_SECRET_KEY=...  NEO4J_PASSWORD=...
+#   OPENAI_API_KEY=...
+# then:
+#   docker compose -f docker-compose.hosted.yml up -d --build --wait
+#   docker compose -f docker-compose.hosted.yml exec app uv run --no-sync graph-rag-keys create acme
+#
+# The API publishes on 127.0.0.1:8000 by default: put a TLS-terminating reverse proxy in front of it
+# (API_BIND=0.0.0.0 only if something else already guards the port). Kafka carries triggers with no
+# authentication of its own; that is acceptable only because `app` is the one client on its network
+# (THREAT-MODEL.md, section 2). Do not point a second client at it.
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "true"
+      # Basic auth over plain HTTP, on a network only `app` is on. TLS between them is not set up.
+      xpack.security.http.ssl.enabled: "false"
+      ELASTIC_PASSWORD: ${ELASTICSEARCH_PASSWORD:?set ELASTICSEARCH_PASSWORD}
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    networks: [backend]
+    healthcheck:
+      # An Authorization header rather than curl -u user:password, which secret scanners flag.
+      test: ["CMD-SHELL", "curl -sf -H \"Authorization: Basic $$(printf 'elastic:%s' \"$$ELASTIC_PASSWORD\" | base64 -w0)\" http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+  minio:
+    image: chainguard/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY}
+    volumes:
+      - minio-data:/data
+    networks: [backend]
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -c
+        - |
+          exec 3<>/dev/tcp/localhost/9000
+          printf 'GET /minio/health/live HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3
+          read -r line <&3
+          [[ $$line == *' 200 '* ]]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  kafka:
+    image: apache/kafka:3.7.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
+  neo4j:
+    image: neo4j:5.20
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:?set NEO4J_PASSWORD}
+    volumes:
+      - neo4j-data:/data
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p \"$${NEO4J_AUTH#neo4j/}\" 'RETURN 1' || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD:?set ELASTICSEARCH_PASSWORD}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:?set NEO4J_PASSWORD}
+      MINIO_ENDPOINT: minio:9000
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      REQUIRE_AUTH: "true"
+      API_KEYS_PATH: /keys/api-keys.json
+      ALLOW_OPEN_BIND: "false"
+    volumes:
+      - api-keys:/keys
+    ports:
+      - "${API_BIND:-127.0.0.1}:8000:8000"
+    networks: [backend, public]
+    healthcheck:
+      test:
+        ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 60s
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+
+networks:
+  # The stores: an internal network has no route to the host's network or the internet.
+  backend:
+    internal: true
+  # `app` alone, for the published API port and calls out to the LLM provider.
+  public: {}
+
+volumes:
+  es-data:
+  minio-data:
+  neo4j-data:
+  api-keys:

@@ -372,7 +372,9 @@ class Triple(BaseModel):
     ``valid_from`` and ``valid_to`` are when the fact held (GRA-42), ``valid_from`` inclusive and
     ``valid_to`` exclusive, as ``YYYY-MM-DD``. ``None`` means unknown, not "always" or "still":
     nothing assumes a date it was not given. Today ``valid_from`` is set from the document's date
-    when the caller gave one; nothing sets ``valid_to`` yet (that needs supersession, GRA-43).
+    when the caller gave one. ``valid_to`` is set when a newer document states a replacing fact
+    (:mod:`graph_rag.supersession`, GRA-43); ``superseded_by`` is that document's id, so deleting
+    or re-ingesting it can reopen this edge.
     """
 
     subject_id: str
@@ -382,6 +384,7 @@ class Triple(BaseModel):
     date: str | None = None  # DATE qualifier on the edge (not a node)
     valid_from: IsoDate | None = None
     valid_to: IsoDate | None = None
+    superseded_by: str | None = None
 
 
 class Subgraph(BaseModel):

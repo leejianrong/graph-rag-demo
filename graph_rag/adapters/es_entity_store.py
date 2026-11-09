@@ -27,6 +27,7 @@ from typing import TYPE_CHECKING, Any
 
 from elasticsearch import Elasticsearch, NotFoundError
 
+from graph_rag.adapters.es_client import es_client
 from graph_rag.adapters.scoping import es_in_scope, es_scope_filter, scope_fields, scope_of_key
 from graph_rag.logging import get_logger
 from graph_rag.models import CanonicalEntity
@@ -102,7 +103,7 @@ class EsEntityStore:
         Uses ``settings.elasticsearch_url``, ``settings.entities_index`` and
         ``settings.embed_dim``.
         """
-        client = Elasticsearch(hosts=[settings.elasticsearch_url])
+        client = es_client(settings)
         return cls(client=client, index=settings.entities_index, dims=settings.embed_dim)
 
     def ensure_index(self) -> None:
