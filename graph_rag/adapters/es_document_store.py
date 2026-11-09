@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any
 
 from elasticsearch import Elasticsearch, NotFoundError
 
+from graph_rag.adapters.es_client import es_client
 from graph_rag.adapters.scoping import es_in_scope, es_scope_filter, scope_fields, scope_of_key
 from graph_rag.logging import get_logger
 from graph_rag.models import DocumentRecord, Sentence, SupportingSentence
@@ -100,7 +101,7 @@ class EsDocumentStore:
         Uses ``settings.elasticsearch_url``, ``settings.documents_index`` and
         ``settings.embed_dim`` (the sentence ``dense_vector`` dims).
         """
-        client = Elasticsearch(hosts=[settings.elasticsearch_url])
+        client = es_client(settings)
         return cls(
             client=client,
             index=settings.documents_index,
