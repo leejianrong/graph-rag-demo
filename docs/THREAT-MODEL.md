@@ -51,14 +51,21 @@ Documents are untrusted: a tenant, or whoever wrote a document a tenant ingests,
 
 | Threat | Status | What exists | Gap, and the card |
 |---|---|---|---|
-| A document tells the extraction model to emit false or harmful facts | Partial | The model only returns triples; ones naming an id outside this document's linked entities, or a sentence index out of range, are dropped; predicates map to a closed set (`graph_rag/stages/kg_build.py`) | A document can still make the model state a false fact about its own entities. That fact is stored with its source sentence, so it is traceable, but it is believed. No red-team test exists |
-| An injected document reaches another tenant's data | Mitigated | The prompt contains only the document's own text and entities; retrieval for synthesis is scoped to the caller's tenant, so another tenant's text never enters the prompt | |
-| An injected document steers the synthesized answer | Partial | Synthesis is off by default (`synthesize` false, no LLM call); when on, the prompt is limited to retrieved evidence | Evidence from a malicious document within the same tenant can say "ignore the question". The grounded-answer instruction is not enforced by a check |
+| A document tells the extraction model to emit false or harmful facts | Partial | The model only returns triples; ones naming an id outside this document's linked entities, or a sentence index out of range, are dropped; predicates map to a closed set (`graph_rag/stages/kg_build.py`) | A document can still make the model state a false fact about its own entities. That fact is stored with its source sentence, so it is traceable and `forget` removes it, but it is believed. Tested against a model that obeys the injection (`tests/unit/test_prompt_injection.py`): ids outside the document, a sentence that does not exist and an instruction in the predicate are all handled as data. Whether a real model obeys is not measured |
+| An injected document reaches another tenant's data | Mitigated | The prompt contains only the document's own text and entities; retrieval for synthesis is scoped to the caller's tenant, so another tenant's text never enters the prompt. Tests ingest a victim's and an attacker's document and check neither prompt holds the other's text, and that edges aimed at the victim's entity ids are dropped | |
+| An injected document steers the synthesized answer | Partial | Synthesis is off by default (`synthesize` false, no LLM call); when on, the prompt is limited to retrieved evidence | Evidence from a malicious document within the same tenant can say "ignore the question". The grounded-answer instruction is not enforced by a check. Accepted for now and pinned by a test: the injected sentence reaches the synthesis prompt unfiltered and the model's reply comes back as `prose`; the retrieved evidence, answer and ranking do not depend on it. Default recall makes no model call |
 | The model call leaks the key or runs tools | Mitigated | The model has no tools and sees no secrets; its output is parsed as data | |
 | A very large document drives LLM cost | Partial | `/v1/remember` caps text at `max_remember_bytes` (1 MB) and `/ingest` at `max_upload_bytes` (10 MB, 413 above it, nothing stored or queued; `tests/unit/test_ingest_cap.py`) | A cap bounds one request, not a tenant's total: many in-limit uploads still cost. Card: GRA-137 and GRA-58 |
 
-Tracked work: a red-team fixture set (documents containing instructions) run through ingest and recall, with the bench as the
-place to keep it. Card: GRA-140.
+The red-team set is `tests/unit/test_prompt_injection.py`, in the fast suite and so in CI (GRA-140). It uses a stand-in model
+that does exactly what an injected document asks, so it checks what the pipeline does with hostile output and what it sends the
+model, not whether a real model resists. Accepted behaviour it pins:
+
+- A false fact about the document's own entities is stored and believed, with its source sentence, and removed by forgetting the document.
+- Document sentences reach the synthesis prompt as evidence with no filter, and the reply is returned as `prose` unchecked.
+- A document's text can appear in an edge's raw predicate and in the sentences recall returns, so a client that shows them must treat them as untrusted text.
+
+Not covered: a real model's behaviour, and a model that returns malformed or oversized output beyond what the schema check rejects.
 
 ## 4. Secrets
 
@@ -86,7 +93,7 @@ These cards were created from this review. Each is small; GRA-134 and GRA-135 ar
 4. ~~GRA-137: rate limit requests and failed keys.~~ Done.
 5. GRA-138 (done): lock down the backends (no host-published store ports, no default credentials, authenticated Kafka triggers).
 6. ~~GRA-139: scope the LLM response cache by tenant, or turn it off when hosted.~~ Done.
-7. GRA-140: prompt-injection tests through ingested documents.
+7. ~~GRA-140: prompt-injection tests through ingested documents.~~ Done.
 8. ~~GRA-141: a log policy, with question text and source names redacted.~~ Done.
 
 Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers separate from the API), GRA-25 (tenant LLM keys).
