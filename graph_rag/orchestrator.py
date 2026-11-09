@@ -149,14 +149,7 @@ class Orchestrator:
         if self._graph_store is not None:
             self._graph_store.delete_document_edges(scope, doc_id)
         self._object_store.delete(scope, record.bucket, record.object_key)
-        used = self._document_store.entities_in_use(scope, linked, excluding=doc_id)
-        orphans = sorted(linked - used)
-        if orphans:
-            if self._graph_store is not None:
-                self._graph_store.delete_nodes(scope, orphans)
-            if self._entity_store is not None:
-                for canonical_id in orphans:
-                    self._entity_store.delete(scope, canonical_id)
+        orphans, used = self._drop_unused(scope, linked, doc_id)
         self._document_store.delete(scope, doc_id)
         _logger.info(
             "deleted document_id=%s entities_removed=%d entities_kept=%d",
@@ -171,6 +164,24 @@ class Orchestrator:
             entities_removed=orphans,
             entities_kept=sorted(used),
         )
+
+    def _drop_unused(
+        self, scope: Scope, candidates: set[str], doc_id: str
+    ) -> tuple[list[str], set[str]]:
+        """Remove the candidate entities no other stored document links to.
+
+        Returns the ids removed and the ids kept. ``doc_id`` is excluded from the count, so it
+        works both for a document being deleted and for one just re-ingested.
+        """
+        used = self._document_store.entities_in_use(scope, candidates, excluding=doc_id)
+        orphans = sorted(candidates - used)
+        if orphans:
+            if self._graph_store is not None:
+                self._graph_store.delete_nodes(scope, orphans)
+            if self._entity_store is not None:
+                for canonical_id in orphans:
+                    self._entity_store.delete(scope, canonical_id)
+        return orphans, used
 
     def process_document(self, trigger: IngestTrigger) -> PipelineResult | None:
         """Process one ingest trigger end-to-end, log-and-drop on failure.
@@ -203,6 +214,10 @@ class Orchestrator:
         try:
             # 1. Read stage (N5): fetch the raw bytes from the object store.
             data = self._object_store.get(scope, trigger.bucket, trigger.object_key)
+            before = self._document_store.get(scope, doc_id)  # a changed source: what it linked
+            previously_linked = (
+                {link.canonical_id for link in before.el_result} if before else set()
+            )
 
             # 3. Decode to text. errors="replace" keeps a malformed byte from
             #    wedging the pipeline; the raw text is what we persist.
@@ -288,6 +303,12 @@ class Orchestrator:
                         self._graph_store.close_edge(
                             scope, closure.edge, closure.valid_to, closure.by_doc
                         )
+
+            # A changed document gives up the entities its old text introduced and its new text
+            # does not mention, unless another document still does.
+            if previously_linked:
+                stale = previously_linked - {link.canonical_id for link in el_result}
+                self._drop_unused(scope, stale, doc_id)
 
             _logger.info(
                 "ingested document %s: %d mention(s), %d sentence(s), "
