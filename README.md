@@ -187,7 +187,7 @@ Each command takes `--namespace`. Exit status is 0 on success, 1 when the servic
 ### API keys
 
 By default the service checks no key and every request runs in the default tenant. Set
-`REQUIRE_AUTH=true` and every endpoint except `/health` needs `Authorization: Bearer <key>`; the key names the
+With auth off, the service starts only on a loopback address; on any other it exits unless `ALLOW_OPEN_BIND=true` (the local compose stack sets it). `REQUIRE_AUTH=true` and every endpoint except `/health` needs `Authorization: Bearer <key>`; the key names the
 tenant, and a key reaches only that tenant's memory. Keys live in the file `API_KEYS_PATH` (default
 `.data/api-keys.json`; one service instance only):
 
