@@ -35,6 +35,7 @@ from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityLookup
 from graph_rag.models import DeletedDocument, IngestTrigger, IsoDate, QueryRequest, QueryResponse
 from graph_rag.ports import ObjectStore, TriggerPublisher
+from graph_rag.ratelimit import RateLimited, RateLimiter
 from graph_rag.scope import DEFAULT_SCOPE, RESERVED_KEY_PREFIX, Scope
 
 if TYPE_CHECKING:
@@ -119,14 +120,30 @@ def create_app(
             return JSONResponse(status_code=413, content={"detail": _too_large(max_upload).detail})
         return await call_next(request)  # type: ignore[no-any-return]
 
+    per_key = RateLimiter(resolved_settings.rate_limit_per_minute)
+    bad_keys = RateLimiter(resolved_settings.failed_key_limit_per_minute)
+
     def tenant_of(request: Request) -> str:
-        """The tenant a request acts for: its key's tenant, or the default when auth is off."""
+        """The tenant a request acts for: its key's tenant, or the default when auth is off.
+
+        A good key spends from its own budget and nothing else's. A request with no key or a bad
+        one spends from its address's failure budget; once that is gone it gets 429, not 401.
+        """
         if verifier is None:
             return DEFAULT_SCOPE.tenant
+        address = request.client.host if request.client else "unknown"
         scheme, _, token = request.headers.get("authorization", "").partition(" ")
-        if scheme.lower() != "bearer" or not token.strip():
-            raise AuthError("Send the API key as 'Authorization: Bearer <key>'.")
-        return verifier.verify(token.strip()).tenant
+        try:
+            if scheme.lower() != "bearer" or not token.strip():
+                raise AuthError("Send the API key as 'Authorization: Bearer <key>'.")
+            record = verifier.verify(token.strip())
+        except AuthError:
+            if (wait := bad_keys.spend(address)) is not None:
+                raise RateLimited("Too many failed requests from this address.", wait) from None
+            raise
+        if (wait := per_key.spend(record.key_id)) is not None:
+            raise RateLimited("This API key is over its request limit.", wait)
+        return record.tenant
 
     @app.get("/health")
     def health() -> dict[str, str]:
