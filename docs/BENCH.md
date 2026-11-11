@@ -14,6 +14,8 @@ make linking PRESET=small        # kgbench linking: B-cubed precision/recall per
 make order PRESET=small          # kgbench order: ingest one corpus in shuffled orders, report the spread
 ```
 
+`kgbench longmemeval` (also `kgbench run --dataset longmemeval`, `make longmemeval`) is the adapter for [LongMemEval](https://github.com/xiaowu0162/LongMemEval)-style memory questions: each question carries its own haystack of dated chat sessions, which is ingested into a fresh pipeline oldest first (one document per session), then asked. It scores BM25 and offline graph-rag per `question_type` with no LLM: session recall@k against the dataset's `answer_session_ids`, and answer@k, whether the normalised gold answer appears in the top-k sentences (a lenient proxy that only means something for answers the history states outright). `_abs` abstention questions are counted and skipped. The bundled fixture, `bench/kgbench/data/longmemeval_mini.json`, is six synthetic questions in four types; it checks the plumbing and its numbers say nothing about the real dataset. Point `--data` at the real `longmemeval_s` JSON (not downloaded by the repo or CI) to score it; the LLM-judged QA accuracy and the real-stack run are not built.
+
 `kgbench sweep` changes one world knob at a time and scores every system at each value
 ([docs/results/sweeps/sweep.md](results/sweeps/sweep.md), with a chart and the realised stats of every world). It
 reads 2-hop paths, the only hop count where the systems differ: BM25 and dense solve about 1% of them, offline graph-rag
