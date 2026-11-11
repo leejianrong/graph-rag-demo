@@ -73,6 +73,9 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      # Partitions cap how many workers can share the ingest topic (GRA-31): one worker per
+      # partition. The topic is created with this many on first use.
+      KAFKA_NUM_PARTITIONS: ${INGEST_PARTITIONS:-4}
     healthcheck:
       test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
       interval: 10s
@@ -100,13 +103,14 @@ services:
       start_period: 30s
 
   app:
+    image: graph-rag-demo:local    # the worker below runs this same image
     build:
       context: .
       dockerfile: Dockerfile
     env_file:
       - path: .env
         required: false    # copy .env.example -> .env; falls back to defaults below
-    environment:
+    environment: &pipeline-env
       # Override the service endpoints to the compose network hostnames so this
       # works regardless of what .env carries for local (host-side) runs.
       MINIO_ENDPOINT: minio:9000
@@ -118,6 +122,9 @@ services:
       # This local stack is open (REQUIRE_AUTH is off) and listens on all addresses, which the
       # service refuses unless told it is intended (GRA-136). Never copy this to a hosted setup.
       ALLOW_OPEN_BIND: ${ALLOW_OPEN_BIND:-true}
+      # The API only publishes; the `worker` service consumes (GRA-31). Job status then lives in
+      # Elasticsearch, where both can reach it.
+      INGEST_MODE: publish
     ports:
       - "8000:8000"    # FastAPI: /ingest + /query
     healthcheck:
@@ -133,6 +140,38 @@ services:
       retries: 18
       start_period: 60s
     depends_on:
+      elasticsearch:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+
+  # Ingest workers: same image, consume the trigger topic and run the pipeline. Scale with
+  #   docker compose up -d --scale worker=3
+  # up to INGEST_PARTITIONS (default 4) workers do work; more sit idle. Each loads the NER model
+  # and the embedder, so budget memory per worker.
+  worker:
+    image: graph-rag-demo:local
+    command: ["uv", "run", "--no-sync", "python", "-m", "graph_rag.worker"]
+    env_file:
+      - path: .env
+        required: false
+    environment: *pipeline-env
+    stop_grace_period: 120s    # SIGTERM finishes the document in hand before exiting
+    healthcheck:
+      # GET /healthz on the worker's own small server: 200 while its consume loop runs.
+      test:
+        ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/healthz', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 60s
+    depends_on:
+      app:
+        condition: service_healthy
       elasticsearch:
         condition: service_healthy
       minio:

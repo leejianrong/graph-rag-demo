@@ -17,8 +17,8 @@
 #
 # The API publishes on 127.0.0.1:8000 by default: put a TLS-terminating reverse proxy in front of it
 # (API_BIND=0.0.0.0 only if something else already guards the port). Kafka carries triggers with no
-# authentication of its own; that is acceptable only because `app` is the one client on its network
-# (THREAT-MODEL.md, section 2). Do not point a second client at it.
+# authentication of its own; that is acceptable only because `app` and its `worker`s are the only clients on its network
+# (THREAT-MODEL.md, section 2). Do not point another client at it.
 
 services:
   elasticsearch:
@@ -81,6 +81,8 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      # One ingest worker per partition (GRA-31); the topic is created with this many.
+      KAFKA_NUM_PARTITIONS: ${INGEST_PARTITIONS:-4}
     networks: [backend]
     healthcheck:
       test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
@@ -104,13 +106,14 @@ services:
       start_period: 30s
 
   app:
+    image: graph-rag-demo:hosted    # the worker below runs this same image
     build:
       context: .
       dockerfile: Dockerfile
     env_file:
       - path: .env
         required: false
-    environment:
+    environment: &pipeline-env
       ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD:?set ELASTICSEARCH_PASSWORD}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:?set MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:?set MINIO_SECRET_KEY}
@@ -123,6 +126,9 @@ services:
       REQUIRE_AUTH: "true"
       API_KEYS_PATH: /keys/api-keys.json
       ALLOW_OPEN_BIND: "false"
+      # The API only publishes; the `worker` service consumes (GRA-31). Job status then lives in
+      # Elasticsearch, where both can reach it.
+      INGEST_MODE: publish
     volumes:
       - api-keys:/keys
     ports:
@@ -136,6 +142,39 @@ services:
       retries: 18
       start_period: 60s
     depends_on:
+      elasticsearch:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+
+  # Ingest workers: same image, no published port. Scale with
+  #   docker compose -f docker-compose.hosted.yml up -d --scale worker=3
+  # Workers need the store credentials and the LLM provider (hence `public` for egress). If
+  # REQUIRE_TENANT_LLM_KEY is on, set TENANT_LLM_KEYS_PATH to a file on a volume the API and the
+  # workers share, or workers will not see the tenants' keys.
+  worker:
+    image: graph-rag-demo:hosted
+    command: ["uv", "run", "--no-sync", "python", "-m", "graph_rag.worker"]
+    env_file:
+      - path: .env
+        required: false
+    environment: *pipeline-env
+    networks: [backend, public]
+    stop_grace_period: 120s    # SIGTERM finishes the document in hand before exiting
+    healthcheck:
+      test:
+        ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/healthz', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 18
+      start_period: 60s
+    depends_on:
+      app:
+        condition: service_healthy
       elasticsearch:
         condition: service_healthy
       minio:
