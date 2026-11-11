@@ -193,14 +193,7 @@ class KgBuildStage:
         """
         from graph_rag.adapters.llm_client import LiteLLMClient
 
-        return cls(
-            LiteLLMClient(
-                model=settings.kg_build_model,
-                cache_dir=settings.llm_cache_dir,
-                max_retries=settings.llm_max_retries,
-                api_key=settings.openai_api_key,
-            )
-        )
+        return cls(LiteLLMClient.from_settings(settings, settings.kg_build_model))
 
     def build(
         self,

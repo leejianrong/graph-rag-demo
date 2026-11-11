@@ -125,6 +125,13 @@ class Settings(BaseSettings):
     # does. Read from ``OPENAI_API_KEY`` (LiteLLM's default for the gpt-4o-mini
     # default); point ``coref_model`` at another provider + set its key to swap.
     openai_api_key: str | None = None
+    # Bring-your-own provider key (GRA-25). On, a named tenant's LLM calls use the key it stored
+    # with ``graph-rag-keys llm-key set`` (never ``openai_api_key``) and ingest for a tenant with
+    # none is refused; the default tenant is unchanged. The stored keys are encrypted under
+    # ``tenant_llm_key_secret``, a Fernet key, which is required when this is on.
+    require_tenant_llm_key: bool = False
+    tenant_llm_keys_path: str = ".data/tenant-llm-keys.json"
+    tenant_llm_key_secret: str = ""
 
     # --- Neo4j / GraphStore (V5, ADR-0006) ----------------------------------
     # The knowledge-graph store. Defaults target the docker-compose ``neo4j``

@@ -25,6 +25,7 @@ from graph_rag.adapters.llm_client import tenant_cache_dir
 from graph_rag.config import get_settings
 from graph_rag.ports import DocumentStore, EntityStore, GraphStore, ObjectStore
 from graph_rag.scope import DEFAULT_SCOPE, Scope
+from graph_rag.tenant_keys import TenantLlmKeys
 
 __all__ = ["Stores", "delete_tenant", "export_tenant", "main", "tenant_scopes"]
 
@@ -109,12 +110,15 @@ def export_tenant(stores: Stores, tenant: str, out: Path) -> dict[str, Any]:
 
 
 def delete_tenant(
-    stores: Stores, tenant: str, cache_dir: str | Path | None = None
+    stores: Stores,
+    tenant: str,
+    cache_dir: str | Path | None = None,
+    llm_keys: TenantLlmKeys | None = None,
 ) -> dict[str, int]:
     """Remove ``tenant`` from every store; raise if any store still lists it afterwards.
 
     With ``cache_dir`` it also removes the tenant's LLM response cache, which holds text derived
-    from its documents (GRA-139).
+    from its documents (GRA-139). With ``llm_keys`` it removes the tenant's LLM key too (GRA-25).
     """
     scopes = tenant_scopes(stores, tenant)
     counts = {"documents": 0, "objects": 0, "entities": 0}
@@ -146,6 +150,8 @@ def delete_tenant(
         raise RuntimeError(f"tenant {tenant!r} is not fully removed; still listed in: {left}")
     if cache_dir is not None:
         shutil.rmtree(tenant_cache_dir(cache_dir, tenant), ignore_errors=True)
+    if llm_keys is not None:
+        llm_keys.remove(tenant)
     return counts
 
 
@@ -197,7 +203,11 @@ def main(argv: list[str] | None = None, stores: Stores | None = None) -> int:
             if args.command == "delete":
                 print("nothing deleted; add --yes to delete")
         else:
-            counts = delete_tenant(active, args.tenant, get_settings().llm_cache_dir)
+            settings = get_settings()
+            keys = TenantLlmKeys.from_settings(
+                settings, always=bool(settings.tenant_llm_key_secret)
+            )
+            counts = delete_tenant(active, args.tenant, settings.llm_cache_dir, keys)
             print(f"deleted tenant {args.tenant}: {counts}")
     except (ValueError, RuntimeError) as error:
         print(f"error: {error}", file=sys.stderr)
