@@ -3,3 +3,7 @@
 # by an Authorization header in #126. The commit survives only on the stale branch
 # gra-138-prod-compose, which CI scans along with every other ref.
 490c248c8d0061782e43e24deeaa30b803eaedb0:docker-compose.hosted.yml:curl-auth-user:37
+# False positive: placeholder provider keys in tests/unit/test_tenant_llm_keys.py (GRA-25), first commit
+# of PR #138; the values are renamed in the next commit and were never real keys.
+6abd6af343f3190ef93e7ee522fec5054f0e4212:tests/unit/test_tenant_llm_keys.py:generic-api-key:29
+6abd6af343f3190ef93e7ee522fec5054f0e4212:tests/unit/test_tenant_llm_keys.py:generic-api-key:30

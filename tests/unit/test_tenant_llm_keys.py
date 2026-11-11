@@ -26,8 +26,8 @@ from graph_rag.tenant_keys import (
 from graph_rag.wiring import build_offline_components
 from tests.unit.test_agent_api_v1 import Queue
 
-ACME_KEY = "sk-acme-0123456789-sentinel"
-GLOBEX_KEY = "sk-globex-9876543210-sentinel"
+ACME_KEY = "acme-provider-key-sentinel"
+GLOBEX_KEY = "globex-provider-key-sentinel"
 
 
 class Out(BaseModel):
