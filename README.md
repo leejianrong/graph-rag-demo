@@ -138,6 +138,8 @@ curl -F "file=@some-report.md" http://localhost:8000/ingest
 # {"document_id": "...", "bucket": "documents", "object_key": "some-report.md", "status": "accepted"}
 ```
 
+`/ingest` takes a text file, a PDF or an HTML page, or `-F url=https://...` instead of a file: the URL is fetched by the service (public addresses only, including after redirects; at most `MAX_UPLOAD_BYTES`, 10 s) and the URL is the source's identity. PDFs and pages are stored as their text; a source with no extractable text, an unreadable PDF or a failed fetch is a 422 and nothing is stored. Crawling is not supported.
+
 An upload over `MAX_UPLOAD_BYTES` (default 10 MB) is refused with 413 and nothing is stored. With `REQUIRE_AUTH` on, each key may make `RATE_LIMIT_PER_MINUTE` requests a minute (default 600) and each address `FAILED_KEY_LIMIT_PER_MINUTE` failed ones (default 20); past either the answer is 429 with `Retry-After` (`rate_limited` on `/v1`), and one key's traffic never counts against another's. Ingestion is asynchronous. `/ingest` writes the file to MinIO, publishes a Kafka
 trigger, and returns straight away; the consumer then runs the five stages. Follow
 it with `make logs` (which is `docker compose logs -f app`).
