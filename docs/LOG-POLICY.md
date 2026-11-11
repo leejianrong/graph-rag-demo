@@ -5,7 +5,8 @@ Logs are treated as holding user data, so they are kept free of it. Set in GRA-1
 
 ## What may be logged (info and above)
 
-- Ids: `document_id` (a hash), job ids, tenant names.
+- Ids: `document_id` (a hash), job ids, tenant names, trace ids. Metrics labels and span attributes follow the same rule
+  (route templates, status codes, stage names, model names; `tests/unit/test_observability.py`).
 - Counts and sizes: nodes, edges, sentences, bytes, characters.
 - Events: started, stopped, ingested, deleted, dropped, and which stage failed.
 

@@ -37,6 +37,7 @@ from graph_rag.jobs import Job, JobStore
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityLookup
 from graph_rag.models import DeletedDocument, IngestTrigger, IsoDate, QueryRequest, QueryResponse
+from graph_rag.observability import add_api_observability, current_traceparent
 from graph_rag.ports import ObjectStore, TriggerPublisher
 from graph_rag.ratelimit import RateLimited, RateLimiter
 from graph_rag.scope import DEFAULT_SCOPE, RESERVED_KEY_PREFIX, Scope
@@ -203,6 +204,7 @@ def create_app(
                 tenant=scope.tenant,
                 namespace=scope.namespace,
                 document_date=document_date,
+                traceparent=current_traceparent(),
             )
         )
 
@@ -368,4 +370,5 @@ def create_app(
         tenant_of=tenant_of,
         lookup=lookup,
     )
+    add_api_observability(app, resolved_settings)  # last, so it is the outermost middleware
     return app

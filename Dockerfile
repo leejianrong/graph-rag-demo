@@ -12,7 +12,7 @@ WORKDIR /app
 # `trf` (spacy-transformers + torch) and `embed` (sentence-transformers) extras
 # here — neither is in the fast CI/pre-push install.
 COPY pyproject.toml uv.lock ./
-RUN uv sync --frozen --extra trf --extra embed --no-install-project
+RUN uv sync --frozen --extra trf --extra embed --extra otel --no-install-project
 
 # Download the spaCy NER models the real stack loads: the transformer model
 # (Settings.ner_model default) plus the small model as the fallback in the chain.

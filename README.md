@@ -189,6 +189,8 @@ Each command takes `--namespace`. Exit status is 0 on success, 1 when the servic
 ### API keys
 
 By default the service checks no key and every request runs in the default tenant. Set
+**Observability** (off by default, GRA-56): `METRICS_ENABLED=true` serves Prometheus metrics at `/metrics` (and on the worker's health port): requests by route and status, latency, ingest stage time and failures, LLM calls and tokens by model, with no tenant, key or text in any label. With `REQUIRE_AUTH` on it needs `METRICS_TOKEN` as a bearer token; an API key is refused. Setting `OTEL_EXPORTER_OTLP_ENDPOINT` exports one trace per ingest, from the API request through the worker's stages and LLM calls to the graph write; `LOG_FORMAT=json` puts the trace id on each log line. `docker compose -f docker-compose.yml -f docker-compose.observability.yml up` adds Prometheus, a Grafana dashboard (http://localhost:3000) and Jaeger.
+
 **Hosted:** `docker-compose.hosted.yml` is the stack for a deployment: no store publishes a port, every credential must be set, Elasticsearch has security on, auth is required and the API listens on 127.0.0.1 for a TLS proxy (header of the file has the steps). The service itself also refuses, with auth on, to start on a store credential that is still the local-dev value (`ALLOW_DEFAULT_CREDENTIALS=true` for staging).
 
 With `REQUIRE_TENANT_LLM_KEY=true` (off by default) a named tenant's LLM calls use a key it brought: `graph-rag-keys llm-key set TENANT` reads it from stdin or a prompt and stores it encrypted under `TENANT_LLM_KEY_SECRET` (a Fernet key; `llm-key remove` and `list` too), and ingest for a tenant with none is refused with 400. The default tenant is unchanged.

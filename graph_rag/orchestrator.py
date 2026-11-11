@@ -52,6 +52,7 @@ from graph_rag.models import (
     PipelineResult,
     Triple,
 )
+from graph_rag.observability import enter_stage, finish_ingest, ingest_run
 from graph_rag.scope import DEFAULT_SCOPE, Scope, acting_for
 from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.ner import SpacyNerStage
@@ -203,7 +204,8 @@ class Orchestrator:
             The :class:`~graph_rag.models.PipelineResult` (raw record + in-memory
             enrichment) on success, or ``None`` if this document failed (dropped).
         """
-        with acting_for(trigger.scope.tenant):  # the LLM cache keeps tenants apart (GRA-139)
+        # The LLM cache keeps tenants apart (GRA-139); the spans continue the API's trace (GRA-56).
+        with acting_for(trigger.scope.tenant), ingest_run(trigger.traceparent):
             return self._process(trigger)
 
     def _process(self, trigger: IngestTrigger) -> PipelineResult | None:
@@ -397,6 +399,10 @@ class Orchestrator:
         error: str | None = None,
         stage: str | None = None,
     ) -> None:
+        if state == "running" and stage:
+            enter_stage(stage)
+        elif state in ("done", "failed"):
+            finish_ingest(state)
         if self._job_store is not None:
             self._job_store.update(scope, doc_id, state, error, stage)
 

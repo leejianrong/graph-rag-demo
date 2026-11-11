@@ -112,6 +112,9 @@ class IngestTrigger(BaseModel):
     # When the document was written or true as of, if the caller knew (GRA-42); the edges
     # built from it start being valid then. ``None``: unknown, and the edges' dates stay unknown.
     document_date: IsoDate | None = None
+    # The W3C trace context of the request that queued it, so the worker's spans join the API's
+    # trace (GRA-56). ``None``: no trace in progress.
+    traceparent: str | None = None
 
     @property
     def scope(self) -> Scope:

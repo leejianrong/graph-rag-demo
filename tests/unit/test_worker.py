@@ -166,7 +166,9 @@ def test_the_worker_entrypoint_runs_the_orchestrator_as_the_handler(monkeypatch)
     monkeypatch.setattr("graph_rag.bind.enforce_credentials", lambda s: None)
     monkeypatch.setattr("graph_rag.logging.configure_logging", lambda *a: None)
     ran: list[Any] = []
-    monkeypatch.setattr(worker, "run_worker", lambda consumer, port: ran.append((consumer, port)))
+    monkeypatch.setattr(
+        worker, "run_worker", lambda consumer, port, **kw: ran.append((consumer, port))
+    )
     monkeypatch.setattr(
         kafka_trigger, "KafkaTriggerConsumer", lambda **kw: patched.consumers.append(kw) or "c"
     )

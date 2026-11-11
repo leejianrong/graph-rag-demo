@@ -35,6 +35,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 from pydantic import BaseModel, ValidationError
 
 from graph_rag.logging import get_logger
+from graph_rag.observability import llm_call, observe_llm_tokens
 from graph_rag.scope import DEFAULT_TENANT, current_tenant, tenant_dir
 
 if TYPE_CHECKING:
@@ -243,7 +244,8 @@ class LiteLLMClient:
         extra = {"api_key": own} if own else {}
         start = time.perf_counter()
         try:
-            return self._completion_fn(model=self._model, prompt=prompt, **params, **extra)
+            with llm_call(self._model):  # a span and a count, under the stage that asked
+                return self._completion_fn(model=self._model, prompt=prompt, **params, **extra)
         finally:
             self.calls += 1
             self.seconds += time.perf_counter() - start
@@ -303,9 +305,10 @@ class LiteLLMClient:
             messages=[{"role": "user", "content": prompt}],
             **kwargs,
         )
+        tokens = int(getattr(getattr(response, "usage", None), "total_tokens", None) or 0)
+        observe_llm_tokens(model, tokens)
         if self._meter is not None:
-            tokens = getattr(getattr(response, "usage", None), "total_tokens", None)
-            self._meter.llm_tokens(current_tenant(), int(tokens or 0))
+            self._meter.llm_tokens(current_tenant(), tokens)
         try:
             self.cost_usd += float(litellm.completion_cost(completion_response=response))
         except Exception:  # noqa: BLE001 - an unpriced model (a local or recording server) is free

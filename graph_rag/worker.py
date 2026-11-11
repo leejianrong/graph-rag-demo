@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import signal
 import threading
+from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Protocol
 
@@ -34,9 +35,22 @@ class Consumer(Protocol):
     def close(self) -> None: ...
 
 
-def _health_server(port: int, alive: threading.Event) -> HTTPServer:
+# A scrape of ``GET /metrics``: takes the Authorization header, returns (status, body, type).
+MetricsHandler = Callable[[str | None], tuple[int, bytes, str]]
+
+
+def _health_server(
+    port: int, alive: threading.Event, metrics: MetricsHandler | None = None
+) -> HTTPServer:
     class Handler(BaseHTTPRequestHandler):
         def do_GET(self) -> None:  # noqa: N802 — http.server's name
+            if self.path == "/metrics" and metrics is not None:
+                code, body, kind = metrics(self.headers.get("Authorization"))
+                self.send_response(code)
+                self.send_header("Content-Type", kind)
+                self.end_headers()
+                self.wfile.write(body)
+                return
             ok = self.path == "/healthz" and alive.is_set()
             self.send_response(200 if ok else (404 if self.path != "/healthz" else 503))
             self.end_headers()
@@ -49,11 +63,15 @@ def _health_server(port: int, alive: threading.Event) -> HTTPServer:
 
 
 def run_worker(
-    consumer: Consumer, health_port: int | None = None, *, install_signals: bool = True
+    consumer: Consumer,
+    health_port: int | None = None,
+    *,
+    install_signals: bool = True,
+    metrics: MetricsHandler | None = None,
 ) -> None:
     """Run ``consumer`` in this thread until it stops or a termination signal arrives."""
     alive = threading.Event()
-    server = _health_server(health_port, alive) if health_port is not None else None
+    server = _health_server(health_port, alive, metrics) if health_port is not None else None
     if server is not None:
         threading.Thread(target=server.serve_forever, name="worker-health", daemon=True).start()
     if install_signals:
@@ -83,9 +101,12 @@ def main() -> None:
     from graph_rag.logging import configure_logging
     from graph_rag.main import build_pipeline
     from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer
+    from graph_rag.observability import check_metrics_settings, configure_tracing, metrics_response
 
     settings = Settings()
-    configure_logging(settings.log_level)
+    configure_logging(settings.log_level, settings.log_format)
+    configure_tracing(settings, "graph-rag-worker")
+    check_metrics_settings(settings)
     enforce_credentials(settings)
     if settings.ingest_mode != "publish":
         raise SystemExit(
@@ -98,7 +119,11 @@ def main() -> None:
         handler=pipeline.orchestrator.process_document,
     )
     _logger.info("worker consuming topic %r", settings.ingest_trigger_topic)
-    run_worker(consumer, settings.worker_health_port)
+    run_worker(
+        consumer,
+        settings.worker_health_port,
+        metrics=lambda auth: metrics_response(settings, auth),
+    )
 
 
 if __name__ == "__main__":
