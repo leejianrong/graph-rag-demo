@@ -160,7 +160,7 @@ curl -X POST localhost:8000/v1/forget -H 'content-type: application/json' -d '{"
 
 `remember` and `/ingest` take an optional `document_date` (`YYYY-MM-DD`): the facts taken from that document start being valid on it, and are returned with `valid_from` and `valid_to` (null when unknown).
 
-`remember` and `/ingest` return a `document_id`, and `GET /jobs/<document_id>` says where that document is: `queued`, `running`, `done` or `failed` (a failure names the stage and the error type; the detail is in the service log). Jobs are held in the service's memory, so a restart forgets them.
+`remember` and `/ingest` return a `document_id`, and `GET /jobs/<document_id>` says where that document is: `queued`, `running`, `done` or `failed` (a failure names the stage and the error type; the detail is in the service log). `GET /jobs/<document_id>/events` streams the same progress as server-sent events: one `stage` event per pipeline stage (`read`, `entity recognition`, `coreference`, `entity linking`, `knowledge graph`), then a final `done` or `failed` event carrying the job, after which the stream closes. Jobs are held in the service's memory, so a restart forgets them.
 
 Add `"namespace": "my-project"` to any of the three calls to keep memory apart (per project, say): what is
 remembered in one namespace is never recalled or forgotten from another, and leaving it out is the default

@@ -210,7 +210,7 @@ class Orchestrator:
         scope = trigger.scope
         doc_id = document_id(trigger.bucket, trigger.object_key, scope)
         stage = "read"
-        self._job(scope, doc_id, "running")
+        self._job(scope, doc_id, "running", stage="read")
         try:
             # 1. Read stage (N5): fetch the raw bytes from the object store.
             data = self._object_store.get(scope, trigger.bucket, trigger.object_key)
@@ -237,12 +237,14 @@ class Orchestrator:
             # 5. NER stage (N6): typed mentions + char spans + sentences in one
             #    pass, carried in-memory on the result (persisted at V4, not here).
             stage = "entity recognition"
+            self._job(scope, doc_id, "running", stage=stage)
             ner = self._ner_stage.analyze(text)
 
             # 6. Coref stage (N7, first LLM use): a non-destructive within-doc
             #    cluster map over the raw text + mentions, also carried in-memory.
             #    A cached/identical run costs $0.
             stage = "coreference"
+            self._job(scope, doc_id, "running", stage=stage)
             coref_clusters = self._coref_stage.resolve(text, ner.mentions)
 
             # 7. Entity-linking stage (N8) + EL checkpoint (V4, ADR-0004/0005).
@@ -255,6 +257,7 @@ class Orchestrator:
             triples: list[Triple] = []
             if self._entity_linking_stage is not None:
                 stage = "entity linking"
+                self._job(scope, doc_id, "running", stage=stage)
                 el = self._entity_linking_stage.link(
                     text, ner.mentions, ner.sentences, coref_clusters, scope
                 )
@@ -277,6 +280,7 @@ class Orchestrator:
                 #    TESTING gap #1). Nodes are idempotent by canonical_id.
                 if self._kg_build_stage is not None and self._graph_store is not None:
                     stage = "knowledge graph"
+                    self._job(scope, doc_id, "running", stage=stage)
                     canonical_entities = self._doc_canonical_entities(el.links)
                     triples = self._kg_build_stage.build(
                         doc_id, text, ner.sentences, el, canonical_entities
@@ -385,9 +389,16 @@ class Orchestrator:
             )
         return out
 
-    def _job(self, scope: Scope, doc_id: str, state: JobState, error: str | None = None) -> None:
+    def _job(
+        self,
+        scope: Scope,
+        doc_id: str,
+        state: JobState,
+        error: str | None = None,
+        stage: str | None = None,
+    ) -> None:
         if self._job_store is not None:
-            self._job_store.update(scope, doc_id, state, error)
+            self._job_store.update(scope, doc_id, state, error, stage)
 
     @staticmethod
     def _doc_canonical_entities(links: list[EntityLink]) -> list[CanonicalEntity]:
