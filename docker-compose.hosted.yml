@@ -129,8 +129,13 @@ services:
       # The API only publishes; the `worker` service consumes (GRA-31). Job status then lives in
       # Elasticsearch, where both can reach it.
       INGEST_MODE: publish
+      # Files the API and the workers both use live on one shared volume (GRA-31): usage counts
+      # (METER_USAGE, GRA-58) and tenants' LLM keys (REQUIRE_TENANT_LLM_KEY, GRA-25).
+      USAGE_PATH: /state/usage.json
+      TENANT_LLM_KEYS_PATH: /state/tenant-llm-keys.json
     volumes:
       - api-keys:/keys
+      - shared-state:/state
     ports:
       - "${API_BIND:-127.0.0.1}:8000:8000"
     networks: [backend, public]
@@ -153,9 +158,8 @@ services:
 
   # Ingest workers: same image, no published port. Scale with
   #   docker compose -f docker-compose.hosted.yml up -d --scale worker=3
-  # Workers need the store credentials and the LLM provider (hence `public` for egress). If
-  # REQUIRE_TENANT_LLM_KEY is on, set TENANT_LLM_KEYS_PATH to a file on a volume the API and the
-  # workers share, or workers will not see the tenants' keys.
+  # Workers need the store credentials and the LLM provider (hence `public` for egress). The
+  # usage file and tenants' LLM keys sit on the `shared-state` volume both services mount.
   worker:
     image: graph-rag-demo:hosted
     command: ["uv", "run", "--no-sync", "python", "-m", "graph_rag.worker"]
@@ -163,6 +167,8 @@ services:
       - path: .env
         required: false
     environment: *pipeline-env
+    volumes:
+      - shared-state:/state
     networks: [backend, public]
     stop_grace_period: 120s    # SIGTERM finishes the document in hand before exiting
     healthcheck:
@@ -196,3 +202,4 @@ volumes:
   minio-data:
   neo4j-data:
   api-keys:
+  shared-state:

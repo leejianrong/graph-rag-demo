@@ -253,3 +253,12 @@ def test_the_es_job_store_logic_meets_the_shared_contract_over_a_fake_client() -
 
     shared = FakeEs()
     check_job_store(EsJobStore(shared, "jobs"), EsJobStore(shared, "jobs"))  # type: ignore[arg-type]
+
+
+def test_the_worker_pipeline_meters_llm_tokens_into_the_shared_usage_file(tmp_path) -> None:
+    from graph_rag.adapters.llm_client import LiteLLMClient
+
+    settings = Settings(meter_usage=True, usage_path=str(tmp_path / "usage.json"))
+    # build_pipeline makes its coref and KG-build clients this way
+    assert LiteLLMClient.from_settings(settings)._meter is not None  # noqa: SLF001
+    assert LiteLLMClient.from_settings(Settings())._meter is None  # noqa: SLF001

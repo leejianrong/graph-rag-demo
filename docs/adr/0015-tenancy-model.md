@@ -44,7 +44,14 @@ key per named tenant, encrypted with Fernet under a master key from `TENANT_LLM_
 manage them (the key is read from stdin or a prompt, not an argument). The LLM client reads the acting tenant, as the cache does,
 and uses that tenant's key or raises; it never falls back to the deployment key. `/ingest` and `/v1/remember` refuse a tenant with no
 key (400, `invalid_request` with `field: llm_key` on `/v1`) before storing anything. The default tenant is exempt and `graph-rag-admin delete` removes
-the tenant's key. Off by default, and then nothing changes. Metering stays GRA-58.
+the tenant's key. Off by default, and then nothing changes. 
+
+**Usage is metered per tenant (GRA-58).** With `METER_USAGE` on (off by default), `graph_rag/usage.py` counts, per tenant, documents
+accepted (not `unchanged` ones; `force` counts; counted at the door so retries and redeliveries do not add), successful queries
+(`/query`, `/v1/recall`) and the tokens the provider reports per call (read from the acting tenant, as the cache and the key are;
+a cache hit is free, a retry is a second call and counts). Totals are one file, `USAGE_PATH`, one instance, and survive a restart.
+Operators read them with `graph-rag-admin usage [TENANT]`; there is no HTTP route, so no API key sees any counts. Deleting a tenant
+keeps its usage. Not invoicing.
 
 Operators export and delete a tenant with `graph-rag-admin` (GRA-59). The four stores each list the scopes a tenant holds (`scopes(tenant)`), then the existing per-scope calls do the work, and a delete ends by checking that no store still lists the tenant. The default tenant is refused: records from before tenancy carry no tenant field.
 

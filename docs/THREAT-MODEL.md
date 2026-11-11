@@ -81,7 +81,7 @@ Not covered: a real model's behaviour, and a model that returns malformed or ove
 
 | Threat | Status | Gap, and the card |
 |---|---|---|
-| One tenant exhausts the service | Partial | Each key has a request budget (`RATE_LIMIT_PER_MINUTE`, default 600, a burst of that many then a refill), so one key cannot starve another's requests; `/ingest` is capped per request | A request budget is not a cost budget: one `/ingest` can still cost an LLM bill, and ingest runs in the API process. No quota or metering (GRA-58, GRA-31). Per instance, as above. Not applied with `REQUIRE_AUTH` off |
+| One tenant exhausts the service | Partial | Each key has a request budget (`RATE_LIMIT_PER_MINUTE`, default 600, a burst of that many then a refill), so one key cannot starve another's requests; `/ingest` is capped per request | A request budget is not a cost budget: one `/ingest` can still cost an LLM bill, and ingest runs in the API process unless `INGEST_MODE=publish` moves it to workers (GRA-31). Counts are metered (GRA-58), but there is no quota. Per instance, as above. Not applied with `REQUIRE_AUTH` off |
 | Slow or huge recall | Partial | `token_budget` bounds what is returned, not the work of finding it; I found no query timeout in the API or retriever |
 
 ## Follow-ups filed
@@ -97,7 +97,7 @@ These cards were created from this review. Each is small; GRA-134 and GRA-135 ar
 7. ~~GRA-140: prompt-injection tests through ingested documents.~~ Done.
 8. ~~GRA-141: a log policy, with question text and source names redacted.~~ Done.
 
-Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers separate from the API), GRA-25 (tenant LLM keys, done behind `REQUIRE_TENANT_LLM_KEY`).
+Existing cards that also close rows above: GRA-58 (metering, done behind `METER_USAGE`; counts, not limits), GRA-31 (workers separate from the API), GRA-25 (tenant LLM keys, done behind `REQUIRE_TENANT_LLM_KEY`).
 
 ## Checklist before a hosted deployment
 

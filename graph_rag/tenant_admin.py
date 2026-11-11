@@ -182,11 +182,24 @@ def main(argv: list[str] | None = None, stores: Stores | None = None) -> int:
     export = sub.add_parser("export", help="write a tenant's data to files")
     export.add_argument("tenant")
     export.add_argument("--out", required=True, type=Path, help="directory to write into")
+    usage = sub.add_parser("usage", help="documents, queries and LLM tokens used, per tenant")
+    usage.add_argument("tenant", nargs="?", help="one tenant (default: all)")
     delete = sub.add_parser("delete", help="remove a tenant from every store")
     delete.add_argument("tenant")
     delete.add_argument("--yes", action="store_true", help="really delete; without it, only show")
     args = parser.parse_args(argv)
 
+    if args.command == "usage":  # reads the usage file only, so it needs no stores
+        from graph_rag.usage import UsageMeter
+
+        meter = UsageMeter.from_settings(get_settings().model_copy(update={"meter_usage": True}))
+        assert meter is not None
+        for name, used in sorted(meter.totals(args.tenant).items()):
+            print(
+                f"{name}: {used.documents} documents, {used.queries} queries, "
+                f"{used.llm_tokens} llm tokens"
+            )
+        return 0
     try:
         active = stores or _real_stores()
         if args.command == "export":

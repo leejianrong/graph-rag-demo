@@ -141,6 +141,12 @@ class Settings(BaseSettings):
     tenant_llm_keys_path: str = ".data/tenant-llm-keys.json"
     tenant_llm_key_secret: str = ""
 
+    # --- Usage metering (GRA-58) ---------------------------------------------
+    # On, documents accepted, queries answered and LLM tokens are counted per tenant in
+    # ``usage_path`` (one file, one service instance); ``graph-rag-admin usage`` reads it.
+    meter_usage: bool = False
+    usage_path: str = ".data/usage.json"
+
     # --- Neo4j / GraphStore (V5, ADR-0006) ----------------------------------
     # The knowledge-graph store. Defaults target the docker-compose ``neo4j``
     # service (bolt on 7687); tests/local runs point ``NEO4J_URI`` at

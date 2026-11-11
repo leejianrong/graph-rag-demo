@@ -50,7 +50,7 @@ Two deliberately different entry points into shared stores (ADR-0001, ADR-0007):
   share one consumer group; the trigger topic has `INGEST_PARTITIONS` partitions (default 4)
   and the publisher keys a trigger by its source, so one document stays in order on one worker
   while different documents spread. Scale with `docker compose up -d --scale worker=N`, useful
-  up to the partition count. A worker serves `GET /healthz` on `WORKER_HEALTH_PORT` (8001),
+  up to the partition count. The files the API and workers both write (`USAGE_PATH`, `TENANT_LLM_KEYS_PATH`) sit on a `shared-state` volume mounted by both; the usage file is safe for several processes (a file lock around each read-modify-write). Documents and queries are counted in the API and LLM tokens in the worker, into the same file. A worker serves `GET /healthz` on `WORKER_HEALTH_PORT` (8001),
   200 while its consume loop runs, and on SIGTERM finishes the document in hand, commits and exits.
 - The **Kafka consumer loop is a thin driver**: it resolves one trigger to a
   `process_document({bucket, objectKey})` call, so the orchestrator is decoupled

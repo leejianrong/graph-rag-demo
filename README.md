@@ -142,7 +142,7 @@ curl -F "file=@some-report.md" http://localhost:8000/ingest
 
 An upload over `MAX_UPLOAD_BYTES` (default 10 MB) is refused with 413 and nothing is stored. With `REQUIRE_AUTH` on, each key may make `RATE_LIMIT_PER_MINUTE` requests a minute (default 600) and each address `FAILED_KEY_LIMIT_PER_MINUTE` failed ones (default 20); past either the answer is 429 with `Retry-After` (`rate_limited` on `/v1`), and one key's traffic never counts against another's. Ingestion is asynchronous. `/ingest` writes the file to MinIO, publishes a Kafka
 trigger, and returns straight away; the consumer then runs the five stages. Follow
-it with `make logs` (which is `docker compose logs -f app worker`). In compose the API only publishes and the `worker` service consumes: `docker compose up -d --scale worker=3` adds workers (up to `INGEST_PARTITIONS`, default 4; each loads the NER model and embedder, so budget memory). Outside compose the API runs the consumer itself unless `INGEST_MODE=publish`, which then needs `graph-rag-worker` running.
+it with `make logs` (which is `docker compose logs -f app worker`). In compose the API only publishes and the `worker` service consumes: `docker compose up -d --scale worker=3` adds workers (up to `INGEST_PARTITIONS`, default 4; each loads the NER model and embedder, so budget memory). With `METER_USAGE` on, the API and the workers write one usage file on a shared volume. Outside compose the API runs the consumer itself unless `INGEST_MODE=publish`, which then needs `graph-rag-worker` running.
 
 A source is keyed by its filename, or by `-F source_url=https://...` when you give one. Posting the
 same source with the same bytes again returns `"status": "unchanged"` and does nothing: no write, no
@@ -213,6 +213,7 @@ same `MINIO_*`, `ELASTICSEARCH_URL` and `NEO4J_*` settings as the service):
 ```bash
 uv run graph-rag-admin show acme                    # what the tenant holds, per namespace
 uv run graph-rag-admin export acme --out ./export   # documents, entities, graph and raw files, as files
+uv run graph-rag-admin usage [acme]                 # with METER_USAGE=true: documents, queries, LLM tokens per tenant
 uv run graph-rag-admin delete acme --yes            # without --yes it only shows; checks every store after
 ```
 
