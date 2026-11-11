@@ -41,7 +41,17 @@ Two deliberately different entry points into shared stores (ADR-0001, ADR-0007):
 - The **pipeline** is a **single in-process consumer**, not microservices — one
   service consumes the trigger topic and runs every **stage** in-process, handing
   off in-memory. Chosen for local simplicity and debuggability; the modular stage
-  boundaries keep a future microservices split open (ADR-0001).
+  boundaries keep a future microservices split open (ADR-0001). The consumer runs in a
+  thread of the API process by default (`INGEST_MODE=inline`, job status in memory). With
+  `INGEST_MODE=publish` (what both compose files set, GRA-31) the API only publishes and
+  separate `graph-rag-worker` processes (the compose `worker` service, same image) consume,
+  so ingest load does not starve queries. Job status then lives in Elasticsearch
+  (`JOBS_INDEX`, `EsJobStore`) so the API reads, and streams, what the workers write. Workers
+  share one consumer group; the trigger topic has `INGEST_PARTITIONS` partitions (default 4)
+  and the publisher keys a trigger by its source, so one document stays in order on one worker
+  while different documents spread. Scale with `docker compose up -d --scale worker=N`, useful
+  up to the partition count. The files the API and workers both write (`USAGE_PATH`, `TENANT_LLM_KEYS_PATH`) sit on a `shared-state` volume mounted by both; the usage file is safe for several processes (a file lock around each read-modify-write). Documents and queries are counted in the API and LLM tokens in the worker, into the same file. A worker serves `GET /healthz` on `WORKER_HEALTH_PORT` (8001),
+  200 while its consume loop runs, and on SIGTERM finishes the document in hand, commits and exits.
 - The **Kafka consumer loop is a thin driver**: it resolves one trigger to a
   `process_document({bucket, objectKey})` call, so the orchestrator is decoupled
   from Kafka and can be driven directly in tests (ADR-0001, ADR-0010).

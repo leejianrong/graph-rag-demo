@@ -79,6 +79,7 @@ graph-rag-keys = "graph_rag.auth:main"
 graphrag = "graph_rag.cli:main"
 graph-rag-admin = "graph_rag.tenant_admin:main"
 graph-rag-offline = "graph_rag.offline_server:main"
+graph-rag-worker = "graph_rag.worker:main"
 
 [tool.uv.workspace]
 members = ["bench", "datagen"]

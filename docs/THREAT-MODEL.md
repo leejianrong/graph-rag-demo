@@ -81,7 +81,7 @@ Not covered: a real model's behaviour, and a model that returns malformed or ove
 
 | Threat | Status | Gap, and the card |
 |---|---|---|
-| One tenant exhausts the service | Partial | Each key has a request budget (`RATE_LIMIT_PER_MINUTE`, default 600, a burst of that many then a refill), so one key cannot starve another's requests; `/ingest` is capped per request | A request budget is not a cost budget: one `/ingest` can still cost an LLM bill, and ingest runs in the API process. No quota or metering (GRA-58, GRA-31). Per instance, as above. Not applied with `REQUIRE_AUTH` off |
+| One tenant exhausts the service | Partial | Each key has a request budget (`RATE_LIMIT_PER_MINUTE`, default 600, a burst of that many then a refill), so one key cannot starve another's requests; `/ingest` is capped per request | A request budget is not a cost budget: one `/ingest` can still cost an LLM bill, and ingest runs in the API process unless `INGEST_MODE=publish` moves it to workers (GRA-31). Counts are metered (GRA-58), but there is no quota. Per instance, as above. Not applied with `REQUIRE_AUTH` off |
 | Slow or huge recall | Partial | `token_budget` bounds what is returned, not the work of finding it; I found no query timeout in the API or retriever |
 
 ## Follow-ups filed

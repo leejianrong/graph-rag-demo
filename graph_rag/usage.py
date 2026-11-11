@@ -20,14 +20,20 @@ What is counted, and when:
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import tempfile
 import threading
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Protocol
+
+try:
+    import fcntl
+except ImportError:  # not on Windows: there, only one process may write the file
+    fcntl = None  # type: ignore[assignment]
 
 from graph_rag.scope import DEFAULT_TENANT
 
@@ -46,7 +52,8 @@ __all__ = [
 ]
 
 # Every file-backed store in the process shares this, so two components writing one file
-# (the API and the LLM client) cannot interleave a read-modify-write.
+# (the API and the LLM client) cannot interleave a read-modify-write. Another process (the ingest
+# worker, GRA-31) is kept out by an ``flock`` on a sidecar file, taken inside this lock.
 _FILE_LOCK = threading.Lock()
 _QUERY_PATHS = frozenset({"/query", "/v1/recall"})
 
@@ -96,10 +103,28 @@ class InMemoryUsageStore:
 
 
 class JsonFileUsageStore:
-    """Totals in one JSON file, written atomically on every change and read on every call."""
+    """Totals in one JSON file, written atomically on every change and read on every call.
+
+    Safe for several processes on one file (the API and ingest workers sharing a volume): each
+    change is a read-modify-write under a file lock.
+    """
 
     def __init__(self, path: str | Path) -> None:
         self._path = Path(path)
+
+    @contextlib.contextmanager
+    def _locked(self) -> Iterator[None]:
+        with _FILE_LOCK:
+            if fcntl is None:
+                yield
+                return
+            self._path.parent.mkdir(parents=True, exist_ok=True)
+            with open(f"{self._path}.lock", "a") as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX)
+                try:
+                    yield
+                finally:
+                    fcntl.flock(lock, fcntl.LOCK_UN)
 
     def _read(self) -> dict[str, Usage]:
         try:
@@ -109,7 +134,7 @@ class JsonFileUsageStore:
         return {tenant: Usage(**fields) for tenant, fields in raw.items()}
 
     def add(self, tenant: str, delta: Usage) -> None:
-        with _FILE_LOCK:
+        with self._locked():
             totals = self._read()
             totals[tenant] = totals.get(tenant, Usage()) + delta
             self._path.parent.mkdir(parents=True, exist_ok=True)
@@ -122,7 +147,7 @@ class JsonFileUsageStore:
         return self.all().get(tenant, Usage())
 
     def all(self) -> dict[str, Usage]:
-        with _FILE_LOCK:
+        with self._locked():
             return self._read()
 
 

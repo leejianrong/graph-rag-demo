@@ -196,3 +196,37 @@ def test_a_url_ingest_counts_once_and_a_refused_one_counts_nothing() -> None:
         "/ingest", data={"url": "https://example.test/k"}, headers=bearer(secret)
     )
     assert refused.status_code == 400 and store.get("acme") == Usage()
+
+
+def _add_many(path: str, tenant: str, n: int) -> None:
+    store = JsonFileUsageStore(path)
+    for _ in range(n):
+        store.add(tenant, Usage(documents=1, llm_tokens=2))
+
+
+def test_two_processes_adding_to_one_file_lose_nothing(tmp_path) -> None:
+    """The API and an ingest worker share one usage file (GRA-31): no update may be lost."""
+    import multiprocessing
+
+    path = str(tmp_path / "usage.json")
+    ctx = multiprocessing.get_context("fork")
+    workers = [ctx.Process(target=_add_many, args=(path, "acme", 60)) for _ in range(2)]
+    for w in workers:
+        w.start()
+    _add_many(path, "acme", 60)
+    for w in workers:
+        w.join(30)
+        assert w.exitcode == 0
+    assert JsonFileUsageStore(path).get("acme") == Usage(documents=180, llm_tokens=360)
+
+
+def test_two_store_instances_in_threads_lose_nothing(tmp_path) -> None:
+    import threading
+
+    path = str(tmp_path / "usage.json")
+    threads = [threading.Thread(target=_add_many, args=(path, "acme", 40)) for _ in range(2)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(30)
+    assert JsonFileUsageStore(path).get("acme") == Usage(documents=80, llm_tokens=160)

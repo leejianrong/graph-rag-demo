@@ -10,6 +10,7 @@ accessor.
 from __future__ import annotations
 
 from functools import lru_cache
+from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -72,6 +73,13 @@ class Settings(BaseSettings):
     # --- Kafka / messaging seam ---------------------------------------------
     kafka_bootstrap_servers: str = "kafka:9092"
     ingest_trigger_topic: str = "ingest-triggers"
+    # Where the Kafka consumer runs (GRA-31). ``inline``: a thread in the API process (the
+    # default; job status is held in memory). ``publish``: the API only publishes, and a
+    # separate ``graph-rag-worker`` process consumes. Both then keep job status in Elasticsearch
+    # (``jobs_index``) so the API can read what the worker writes.
+    ingest_mode: Literal["inline", "publish"] = "inline"
+    jobs_index: str = "jobs"
+    worker_health_port: int = 8001
 
     # --- NER stage (V2, ADR-0002) -------------------------------------------
     # The spaCy pipeline the real stack loads. Defaults to the transformer model

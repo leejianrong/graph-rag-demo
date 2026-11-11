@@ -51,6 +51,7 @@ class KafkaTriggerPublisher:
         self._producer = KafkaProducer(
             bootstrap_servers=bootstrap_servers,
             value_serializer=lambda v: v.encode("utf-8"),
+            key_serializer=lambda k: k.encode("utf-8"),
         )
         _logger.debug(
             "KafkaTriggerPublisher initialised bootstrap=%s topic=%s",
@@ -71,7 +72,10 @@ class KafkaTriggerPublisher:
 
     def publish(self, trigger: IngestTrigger) -> None:
         """Publish ``trigger`` to the ingest-trigger topic (JSON value)."""
-        self._producer.send(self._topic, value=trigger.to_json())
+        # Keyed by source, so a document's triggers stay in order on one partition (and so on one
+        # worker) while different documents spread over the partitions and the workers (GRA-31).
+        key = f"{trigger.scope.key}|{trigger.object_key}"
+        self._producer.send(self._topic, key=key, value=trigger.to_json())
         self._producer.flush()
         _logger.info("published trigger tenant=%s topic=%s", trigger.tenant, self._topic)
 
@@ -171,17 +175,19 @@ class KafkaTriggerConsumer:
                     handled += 1
         return handled
 
-    def run_forever(self, poll_timeout_ms: int = 1000) -> None:
+    def run_forever(self, poll_timeout_ms: int = 1000, max_records: int | None = None) -> None:
         """Consume and dispatch messages until :meth:`stop` is called.
 
         Args:
             poll_timeout_ms: Per-iteration poll timeout.
+            max_records: Cap per poll. A worker passes 1 so that stopping waits for one
+                document, and no fetched-but-unprocessed message is committed on close.
         """
         self._running = True
         _logger.info("consumer loop started topic=%s", self._topic)
         try:
             while self._running:
-                self.poll_once(timeout_ms=poll_timeout_ms)
+                self.poll_once(timeout_ms=poll_timeout_ms, max_records=max_records)
         finally:
             _logger.info("consumer loop stopped topic=%s", self._topic)
 

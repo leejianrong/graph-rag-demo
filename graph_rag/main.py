@@ -19,19 +19,21 @@ contracted names.
 from __future__ import annotations
 
 import threading
+from dataclasses import dataclass
 
 import uvicorn
 
 from graph_rag.adapters.embedder import SentenceTransformerEmbedder
 from graph_rag.adapters.es_document_store import EsDocumentStore
 from graph_rag.adapters.es_entity_store import EsEntityStore
+from graph_rag.adapters.es_job_store import EsJobStore
 from graph_rag.adapters.llm_client import LiteLLMClient
 from graph_rag.adapters.minio_object_store import MinioObjectStore
 from graph_rag.adapters.neo4j_graph_store import Neo4jGraphStore
 from graph_rag.api import create_app
 from graph_rag.bind import enforce_bind, enforce_credentials
 from graph_rag.config import Settings
-from graph_rag.jobs import InMemoryJobStore
+from graph_rag.jobs import InMemoryJobStore, JobStore
 from graph_rag.logging import configure_logging, get_logger
 from graph_rag.lookup import EntityLookup
 from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer, KafkaTriggerPublisher
@@ -43,21 +45,23 @@ from graph_rag.stages.entity_linking import EntityLinkingStage
 from graph_rag.stages.kg_build import KgBuildStage
 from graph_rag.stages.ner import SpacyNerStage
 
-__all__ = ["main"]
+__all__ = ["Pipeline", "build_pipeline", "main"]
 
 
-def main() -> None:
-    """Wire the real stack and run the ingest/query service.
+@dataclass
+class Pipeline:
+    """The real stores and stages, built once and shared by the API and the worker."""
 
-    Blocks serving the FastAPI app; the Kafka consumer runs in a daemon thread.
-    """
-    settings = Settings()
-    configure_logging(settings.log_level)
-    logger = get_logger(__name__)
-    # First, before any store is touched: an open service on a reachable address does not start.
-    enforce_bind(settings.bind_host, settings, logger)
-    enforce_credentials(settings)
+    object_store: MinioObjectStore
+    entity_store: EsEntityStore
+    graph_store: Neo4jGraphStore
+    job_store: JobStore
+    orchestrator: Orchestrator
+    retriever: QueryRetriever
 
+
+def build_pipeline(settings: Settings) -> Pipeline:
+    """Build the real adapters, stages, orchestrator and retriever (no consumer, no API)."""
     # --- Real adapters behind the V1-active ports ---------------------------
     object_store = MinioObjectStore.from_settings(settings)
     document_store = EsDocumentStore.from_settings(settings)
@@ -88,7 +92,13 @@ def main() -> None:
     kg_build_stage = KgBuildStage.from_settings(settings)
 
     # --- The pipeline shell over those ports + stages -----------------------
-    job_store = InMemoryJobStore()  # in this process: the consumer thread and the API share it
+    job_store: JobStore
+    if settings.ingest_mode == "inline":
+        job_store = InMemoryJobStore()  # in this process: the consumer thread and the API share it
+    else:  # the worker is another process, so the jobs must live where both can reach them
+        es_jobs = EsJobStore.from_settings(settings)
+        es_jobs.ensure_index()
+        job_store = es_jobs
     orchestrator = Orchestrator(
         object_store=object_store,
         document_store=document_store,
@@ -122,20 +132,51 @@ def main() -> None:
         synthesizer=synthesizer,
     )
 
+    return Pipeline(
+        object_store=object_store,
+        entity_store=entity_store,
+        graph_store=graph_store,
+        job_store=job_store,
+        orchestrator=orchestrator,
+        retriever=retriever,
+    )
+
+
+def main() -> None:
+    """Wire the real stack and run the ingest/query service.
+
+    Blocks serving the FastAPI app. With ``INGEST_MODE=inline`` (the default) the Kafka consumer
+    runs in a daemon thread; with ``publish`` the API only publishes and ``graph-rag-worker``
+    consumes (GRA-31).
+    """
+    settings = Settings()
+    configure_logging(settings.log_level)
+    logger = get_logger(__name__)
+    # First, before any store is touched: an open service on a reachable address does not start.
+    enforce_bind(settings.bind_host, settings, logger)
+    enforce_credentials(settings)
+    pipeline = build_pipeline(settings)
+    object_store, entity_store = pipeline.object_store, pipeline.entity_store
+    graph_store, job_store = pipeline.graph_store, pipeline.job_store
+    orchestrator, retriever = pipeline.orchestrator, pipeline.retriever
+
     # --- Messaging seam: publisher (for POST /ingest) + consumer driver -----
     publisher = KafkaTriggerPublisher.from_settings(settings)
-    consumer = KafkaTriggerConsumer(
-        bootstrap_servers=settings.kafka_bootstrap_servers,
-        topic=settings.ingest_trigger_topic,
-        handler=orchestrator.process_document,
-    )
-    consumer_thread = threading.Thread(
-        target=consumer.run_forever,
-        name="kafka-trigger-consumer",
-        daemon=True,
-    )
-    consumer_thread.start()
-    logger.info("started Kafka trigger consumer on topic %r", settings.ingest_trigger_topic)
+    if settings.ingest_mode == "inline":
+        consumer = KafkaTriggerConsumer(
+            bootstrap_servers=settings.kafka_bootstrap_servers,
+            topic=settings.ingest_trigger_topic,
+            handler=orchestrator.process_document,
+        )
+        consumer_thread = threading.Thread(
+            target=consumer.run_forever,
+            name="kafka-trigger-consumer",
+            daemon=True,
+        )
+        consumer_thread.start()
+        logger.info("started Kafka trigger consumer on topic %r", settings.ingest_trigger_topic)
+    else:
+        logger.info("publish-only: ingest is consumed by graph-rag-worker processes")
 
     # --- FastAPI app (POST /ingest publishes; POST /query retrieves) --------
     app = create_app(
