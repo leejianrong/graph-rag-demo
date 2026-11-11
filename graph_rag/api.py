@@ -25,6 +25,7 @@ from collections.abc import AsyncIterator, Callable
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse, Response, StreamingResponse
 from pydantic import TypeAdapter
 
@@ -39,6 +40,7 @@ from graph_rag.models import DeletedDocument, IngestTrigger, IsoDate, QueryReque
 from graph_rag.ports import ObjectStore, TriggerPublisher
 from graph_rag.ratelimit import RateLimited, RateLimiter
 from graph_rag.scope import DEFAULT_SCOPE, RESERVED_KEY_PREFIX, Scope
+from graph_rag.sources import Fetcher, SafeFetcher, SourceError, extract_text
 from graph_rag.tenant_keys import TenantLlmKeys
 from graph_rag.usage import UsageMeter, add_query_metering
 
@@ -77,6 +79,7 @@ def create_app(
     keys: ApiKeys | None = None,
     lookup: EntityLookup | None = None,
     jobs: JobStore | None = None,
+    fetcher: Fetcher | None = None,
     llm_keys: TenantLlmKeys | None = None,
     meter: UsageMeter | None = None,
 ) -> FastAPI:
@@ -95,6 +98,7 @@ def create_app(
         jobs: Where ingest progress is read from for ``GET /jobs/{id}``, and where ``accept``
             records a document as queued. **Optional**: when ``None`` the jobs endpoint
             responds ``503``. Share the instance with the orchestrator.
+        fetcher: Gets the bytes for an ingest ``url``. Defaults to a :class:`SafeFetcher`.
         lookup: Backs ``POST /v1/lookup``. **Optional**: when ``None`` it responds ``unavailable``.
         keys: Verifies API keys. **Optional**: when ``None`` and ``settings.require_auth`` is on,
             keys are read from ``settings.api_keys_path``. With ``require_auth`` off, no key is
@@ -123,6 +127,7 @@ def create_app(
     if llm_keys is None:
         llm_keys = TenantLlmKeys.from_settings(resolved_settings)  # None while the flag is off
     max_upload = resolved_settings.max_upload_bytes
+    url_fetcher: Fetcher = fetcher or SafeFetcher()
 
     @app.middleware("http")
     async def refuse_oversize_upload(request: Request, call_next: Callable) -> Response:  # type: ignore[type-arg]
@@ -217,8 +222,9 @@ def create_app(
 
     @app.post("/ingest")
     async def ingest(
-        file: Annotated[UploadFile, File()],
+        file: Annotated[UploadFile | None, File()] = None,
         source_url: Annotated[str | None, Form()] = None,
+        url: Annotated[str | None, Form()] = None,
         force: bool = False,
         document_date: Annotated[str | None, Form()] = None,
         tenant: str = Depends(tenant_of),
@@ -232,15 +238,37 @@ def create_app(
         bytes, in which case nothing is stored or published, so the pipeline (and any LLM
         behind it) does not run again. ``force=true`` ingests it anyway, for a source whose
         first attempt failed. Does NOT run the pipeline — that happens downstream.
+
+        Send a ``file`` or a ``url`` (GRA-34). A ``url`` is fetched here, from public addresses
+        only, and is the source's identity. A PDF or an HTML page, uploaded or fetched, is
+        stored as its text; one that yields no text is a 422, not an empty document.
         """
-        data = await file.read(max_upload + 1)  # one byte over is enough to know it is too big
-        if len(data) > max_upload:
-            raise _too_large(max_upload)
-        object_key = source_url or file.filename or "upload"
+        if (file is None) == (url is None):
+            raise HTTPException(status_code=400, detail="Send either a file or a url.")
+        if file is not None:
+            data = await file.read(max_upload + 1)  # one byte over is enough to know it is too big
+            if len(data) > max_upload:
+                raise _too_large(max_upload)
+            object_key = source_url or file.filename or "upload"
+            kind = file.content_type or ""
+        else:
+            assert url is not None  # noqa: S101 — narrowed by the check above
+            object_key = url
+            if resolved_settings.require_tenant_llm_key and llm_keys is not None:
+                llm_keys.require(tenant)  # refuse before fetching anything for a keyless tenant
+            try:
+                page = await run_in_threadpool(url_fetcher.fetch, url, max_upload)
+            except SourceError as error:
+                raise HTTPException(status_code=422, detail=str(error)) from error
+            data, kind = page.data, page.content_type
         if object_key.startswith(RESERVED_KEY_PREFIX):
             raise HTTPException(
                 status_code=400, detail=f"Keys may not start with {RESERVED_KEY_PREFIX!r}."
             )
+        try:
+            data = extract_text(data, content_type=kind, name=object_key)
+        except SourceError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
         try:
             dated = (
                 None
