@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+import threading
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -149,3 +152,82 @@ def test_a_tenant_sees_only_its_own_jobs_and_needs_a_key() -> None:
     )
     assert client.get(f"/jobs/{doc}", headers={"Authorization": f"Bearer {b}"}).status_code == 404
     assert components.job_store.get(Scope("tenant-b"), doc) is None
+
+
+def _events(text: str) -> list[tuple[str, dict]]:
+    out = []
+    for block in text.strip().split("\n\n"):
+        name, data = block.split("\n")
+        out.append((name.removeprefix("event: "), json.loads(data.removeprefix("data: "))))
+    return out
+
+
+def test_the_event_stream_has_one_event_per_stage_and_closes_on_done(stack) -> None:
+    client, components, queue = stack
+    doc = client.post("/v1/remember", json={"text": TEXT, "source_id": "n"}).json()["document_id"]
+    drain(components, queue)
+    with client.stream("GET", f"/jobs/{doc}/events") as response:
+        assert response.headers["content-type"].startswith("text/event-stream")
+        events = _events("".join(response.iter_text()))
+    assert [name for name, _ in events] == ["stage"] * 5 + ["done"]
+    assert [d["stage"] for _, d in events[:5]] == [
+        "read",
+        "entity recognition",
+        "coreference",
+        "entity linking",
+        "knowledge graph",
+    ]
+    assert events[-1][1]["state"] == "done"
+
+
+def test_the_event_stream_closes_on_failed_with_the_stage(stack) -> None:
+    client, components, queue = stack
+
+    class Boom:
+        def analyze(self, text: str) -> NerResult:
+            raise RuntimeError("secret")
+
+    components.orchestrator._ner_stage = Boom()  # noqa: SLF001
+    doc = client.post("/v1/remember", json={"text": TEXT, "source_id": "n"}).json()["document_id"]
+    components.orchestrator.process_document(queue.triggers[0])
+    with client.stream("GET", f"/jobs/{doc}/events") as response:
+        events = _events("".join(response.iter_text()))
+    assert [n for n, _ in events] == ["stage", "stage", "failed"]
+    assert events[-1][1]["error"] == "entity recognition failed: RuntimeError"
+
+
+def test_the_event_stream_follows_a_job_that_is_still_running(stack) -> None:
+    client, components, queue = stack
+    doc = client.post("/v1/remember", json={"text": TEXT, "source_id": "n"}).json()["document_id"]
+    worker = threading.Timer(0.2, lambda: drain(components, queue))
+    worker.start()
+    with client.stream("GET", f"/jobs/{doc}/events") as response:
+        events = _events("".join(response.iter_text()))
+    worker.join()
+    assert events[-1][0] == "done" and len(events) == 6
+
+
+def test_the_event_stream_is_404_for_another_tenant_and_503_unconfigured() -> None:
+    components = build_offline_components()
+    queue = Queue()
+    keys = ApiKeys(InMemoryKeyStore())
+    app = create_app(
+        components.object_store,
+        queue,
+        Settings(require_auth=True),
+        jobs=components.job_store,
+        keys=keys,
+    )
+    client = TestClient(app)
+    a, _ = keys.create("tenant-a")
+    b, _ = keys.create("tenant-b")
+    doc = client.post(
+        "/v1/remember",
+        json={"text": TEXT, "source_id": "n"},
+        headers={"Authorization": f"Bearer {a}"},
+    ).json()["document_id"]
+    assert client.get(f"/jobs/{doc}/events").status_code == 401
+    other = client.get(f"/jobs/{doc}/events", headers={"Authorization": f"Bearer {b}"})
+    assert other.status_code == 404
+    bare = TestClient(create_app(components.object_store, queue, Settings()))
+    assert bare.get("/jobs/x/events").status_code == 503

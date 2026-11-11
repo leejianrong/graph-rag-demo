@@ -19,11 +19,13 @@ constructs an adapter itself (ADR-0010).
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import asyncio
+import json
+from collections.abc import AsyncIterator, Callable
 from typing import TYPE_CHECKING, Annotated
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse, Response, StreamingResponse
 from pydantic import TypeAdapter
 
 from graph_rag.agent_api import add_agent_routes
@@ -243,6 +245,36 @@ def create_app(
         if found is None:
             raise HTTPException(status_code=404, detail=f"No job {doc_id}.")
         return found
+
+    @app.get("/jobs/{doc_id}/events")
+    async def job_events(doc_id: str, tenant: str = Depends(tenant_of)) -> StreamingResponse:
+        """Stream a job's progress as server-sent events until it is done or failed (GRA-33).
+
+        One ``stage`` event per pipeline stage entered (``data`` is ``{"stage": ...}``), then a
+        final ``done`` or ``failed`` event carrying the job. A job already finished replays its
+        stages and closes. An id this tenant never queued is a 404, as for ``/jobs/{id}``.
+        """
+        if jobs is None:
+            raise HTTPException(status_code=503, detail="Job status is not configured here.")
+        scope = Scope(tenant)
+        if jobs.get(scope, doc_id) is None:
+            raise HTTPException(status_code=404, detail=f"No job {doc_id}.")
+
+        async def events() -> AsyncIterator[str]:
+            sent = 0
+            while True:
+                current = jobs.get(scope, doc_id)
+                if current is None:  # forgotten while we streamed
+                    return
+                for stage in current.stages[sent:]:
+                    yield f"event: stage\ndata: {json.dumps({'stage': stage})}\n\n"
+                sent = len(current.stages)
+                if current.state in ("done", "failed"):
+                    yield f"event: {current.state}\ndata: {current.model_dump_json()}\n\n"
+                    return
+                await asyncio.sleep(0.05)
+
+        return StreamingResponse(events(), media_type="text/event-stream")
 
     @app.delete("/documents/{doc_id}")
     def delete_document(doc_id: str, tenant: str = Depends(tenant_of)) -> DeletedDocument:

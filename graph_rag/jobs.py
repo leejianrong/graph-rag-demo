@@ -32,6 +32,7 @@ class Job(BaseModel):
     queued_at: str
     updated_at: str
     error: str | None = None  # set when state is "failed": which stage, and the error type
+    stages: list[str] = []  # the pipeline stages entered so far, in order (GRA-33)
 
 
 class JobStore(Protocol):
@@ -42,9 +43,17 @@ class JobStore(Protocol):
         ...
 
     def update(
-        self, scope: Scope, document_id: str, state: JobState, error: str | None = None
+        self,
+        scope: Scope,
+        document_id: str,
+        state: JobState,
+        error: str | None = None,
+        stage: str | None = None,
     ) -> None:
-        """Move a document to ``state``. Unknown documents are recorded too."""
+        """Move a document to ``state``, noting the ``stage`` just entered, if any.
+
+        Unknown documents are recorded too.
+        """
         ...
 
     def get(self, scope: Scope, document_id: str) -> Job | None:
@@ -75,7 +84,12 @@ class InMemoryJobStore:
             )
 
     def update(
-        self, scope: Scope, document_id: str, state: JobState, error: str | None = None
+        self,
+        scope: Scope,
+        document_id: str,
+        state: JobState,
+        error: str | None = None,
+        stage: str | None = None,
     ) -> None:
         with self._lock:
             job = self._jobs.get((scope, document_id))
@@ -88,7 +102,12 @@ class InMemoryJobStore:
                     updated_at=_now(),
                 )
             self._jobs[(scope, document_id)] = job.model_copy(
-                update={"state": state, "updated_at": _now(), "error": error}
+                update={
+                    "state": state,
+                    "updated_at": _now(),
+                    "error": error,
+                    "stages": [*job.stages, stage] if stage else job.stages,
+                }
             )
 
     def get(self, scope: Scope, document_id: str) -> Job | None:
