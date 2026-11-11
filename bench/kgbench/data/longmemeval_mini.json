@@ -1,0 +1,316 @@
+[
+ {
+  "question_id": "q1",
+  "question_type": "single-session-user",
+  "question": "What breed is the dog that Maren adopted?",
+  "answer": "greyhound",
+  "question_date": "2024/03/01 (Fri) 09:00",
+  "haystack_session_ids": [
+   "q1_s1",
+   "q1_s2",
+   "q1_s3"
+  ],
+  "haystack_dates": [
+   "2024/01/05 (Fri) 10:00",
+   "2024/01/12 (Fri) 18:30",
+   "2024/02/02 (Fri) 08:15"
+  ],
+  "haystack_sessions": [
+   [
+    {
+     "role": "user",
+     "content": "Maren here. I finally adopted a greyhound named Biscuit from the shelter."
+    },
+    {
+     "role": "assistant",
+     "content": "Congratulations on adopting Biscuit."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "Can you suggest a recipe for lentil soup?"
+    },
+    {
+     "role": "assistant",
+     "content": "Try simmering lentils with carrots and cumin."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "My train to Lisbon leaves at noon."
+    },
+    {
+     "role": "assistant",
+     "content": "Safe travels to Lisbon."
+    }
+   ]
+  ],
+  "answer_session_ids": [
+   "q1_s1"
+  ]
+ },
+ {
+  "question_id": "q2",
+  "question_type": "single-session-user",
+  "question": "Which city did Tomas move to for his new job?",
+  "answer": "Rotterdam",
+  "question_date": "2024/03/01 (Fri) 09:00",
+  "haystack_session_ids": [
+   "q2_s1",
+   "q2_s2",
+   "q2_s3"
+  ],
+  "haystack_dates": [
+   "2024/01/03 (Wed) 12:00",
+   "2024/01/20 (Sat) 20:00",
+   "2024/02/11 (Sun) 09:45"
+  ],
+  "haystack_sessions": [
+   [
+    {
+     "role": "user",
+     "content": "Tomas speaking. I started packing for Rotterdam, where my new job begins in March."
+    },
+    {
+     "role": "assistant",
+     "content": "Rotterdam is a great port city."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "How do I sharpen a kitchen knife?"
+    },
+    {
+     "role": "assistant",
+     "content": "Use a whetstone at a steady angle."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "I need a playlist for running."
+    },
+    {
+     "role": "assistant",
+     "content": "Here are some upbeat tracks."
+    }
+   ]
+  ],
+  "answer_session_ids": [
+   "q2_s1"
+  ]
+ },
+ {
+  "question_id": "q3",
+  "question_type": "multi-session",
+  "question": "Which two instruments does Ilse play?",
+  "answer": "piano and cello",
+  "question_date": "2024/03/01 (Fri) 09:00",
+  "haystack_session_ids": [
+   "q3_s1",
+   "q3_s2",
+   "q3_s3"
+  ],
+  "haystack_dates": [
+   "2024/01/04 (Thu) 17:00",
+   "2024/01/18 (Thu) 19:00",
+   "2024/02/08 (Thu) 21:00"
+  ],
+  "haystack_sessions": [
+   [
+    {
+     "role": "user",
+     "content": "Ilse here. I practise the piano every evening after work."
+    },
+    {
+     "role": "assistant",
+     "content": "Daily piano practice builds skill."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "Where can I buy fresh basil?"
+    },
+    {
+     "role": "assistant",
+     "content": "Most farmers markets sell basil."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "Ilse again. My cello needs new strings before the concert."
+    },
+    {
+     "role": "assistant",
+     "content": "Fresh cello strings make a big difference."
+    }
+   ]
+  ],
+  "answer_session_ids": [
+   "q3_s1",
+   "q3_s3"
+  ]
+ },
+ {
+  "question_id": "q4",
+  "question_type": "temporal-reasoning",
+  "question": "Which did Odile do first, run the marathon or start the pottery class?",
+  "answer": "run the marathon",
+  "question_date": "2024/03/01 (Fri) 09:00",
+  "haystack_session_ids": [
+   "q4_s1",
+   "q4_s2",
+   "q4_s3"
+  ],
+  "haystack_dates": [
+   "2023/10/08 (Sun) 14:00",
+   "2023/11/15 (Wed) 18:00",
+   "2023/12/01 (Fri) 11:00"
+  ],
+  "haystack_sessions": [
+   [
+    {
+     "role": "user",
+     "content": "Odile here. I just ran the marathon and my legs are sore."
+    },
+    {
+     "role": "assistant",
+     "content": "Well done on the marathon."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "Odile again. I signed up for the pottery class tonight."
+    },
+    {
+     "role": "assistant",
+     "content": "Pottery is a relaxing hobby."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "What is a good gift for a coworker?"
+    },
+    {
+     "role": "assistant",
+     "content": "A small plant makes a nice gift."
+    }
+   ]
+  ],
+  "answer_session_ids": [
+   "q4_s1",
+   "q4_s2"
+  ]
+ },
+ {
+  "question_id": "q5",
+  "question_type": "knowledge-update",
+  "question": "What is Ravi's current job title?",
+  "answer": "staff engineer",
+  "question_date": "2024/03/01 (Fri) 09:00",
+  "haystack_session_ids": [
+   "q5_s1",
+   "q5_s2",
+   "q5_s3"
+  ],
+  "haystack_dates": [
+   "2023/06/01 (Thu) 09:00",
+   "2023/09/14 (Thu) 16:00",
+   "2024/01/22 (Mon) 10:30"
+  ],
+  "haystack_sessions": [
+   [
+    {
+     "role": "user",
+     "content": "Ravi here. I work as a junior engineer at the logistics firm."
+    },
+    {
+     "role": "assistant",
+     "content": "Good luck as a junior engineer."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "How do I remove a coffee stain?"
+    },
+    {
+     "role": "assistant",
+     "content": "Blot it with cold water first."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "Ravi again. I was promoted and I am now a staff engineer."
+    },
+    {
+     "role": "assistant",
+     "content": "Congratulations on becoming a staff engineer."
+    }
+   ]
+  ],
+  "answer_session_ids": [
+   "q5_s3"
+  ]
+ },
+ {
+  "question_id": "q6",
+  "question_type": "knowledge-update",
+  "question": "Where does Sunniva keep her bicycle now?",
+  "answer": "the garage",
+  "question_date": "2024/03/01 (Fri) 09:00",
+  "haystack_session_ids": [
+   "q6_s1",
+   "q6_s2",
+   "q6_s3"
+  ],
+  "haystack_dates": [
+   "2023/07/02 (Sun) 08:00",
+   "2023/12/10 (Sun) 13:00",
+   "2024/02/03 (Sat) 15:00"
+  ],
+  "haystack_sessions": [
+   [
+    {
+     "role": "user",
+     "content": "Sunniva here. I keep my bicycle in the hallway."
+    },
+    {
+     "role": "assistant",
+     "content": "A hallway works for a bicycle."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "Suggest a board game for four players."
+    },
+    {
+     "role": "assistant",
+     "content": "Try a cooperative board game."
+    }
+   ],
+   [
+    {
+     "role": "user",
+     "content": "Sunniva again. I moved my bicycle into the garage last week."
+    },
+    {
+     "role": "assistant",
+     "content": "The garage is safer for a bicycle."
+    }
+   ]
+  ],
+  "answer_session_ids": [
+   "q6_s3"
+  ]
+ }
+]

@@ -991,6 +991,7 @@ name = "graph-rag-demo"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "cryptography" },
     { name = "elasticsearch" },
     { name = "fastapi" },
     { name = "kafka-python" },
@@ -1035,6 +1036,7 @@ trf = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cryptography" },
     { name = "elasticsearch", specifier = ">=8,<9" },
     { name = "fastapi" },
     { name = "httpx", marker = "extra == 'cli'", specifier = ">=0.28.1" },

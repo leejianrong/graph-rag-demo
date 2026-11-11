@@ -184,3 +184,34 @@ def test_the_real_fetcher_refuses_a_redirect_to_a_private_address(monkeypatch) -
     with pytest.raises(SourceError, match="non-public"):
         fetcher.fetch("http://example.com/start", 1000)
     assert calls == ["http://example.com/start"]  # the private hop was never requested
+
+
+def test_a_url_ingest_is_refused_for_a_tenant_with_no_llm_key() -> None:
+    from cryptography.fernet import Fernet
+
+    from graph_rag.auth import ApiKeys, InMemoryKeyStore
+    from graph_rag.tenant_keys import InMemoryTenantKeyStore, TenantLlmKeys
+
+    components = build_offline_components()
+    queue = Queue()
+    api_keys = ApiKeys(InMemoryKeyStore())
+    llm_keys = TenantLlmKeys(InMemoryTenantKeyStore(), Fernet.generate_key().decode())
+    fetcher = FakeFetcher(FetchedPage(TEXT.encode(), "text/plain"))
+    client = TestClient(
+        create_app(
+            components.object_store,
+            queue,
+            Settings(require_auth=True, require_tenant_llm_key=True),
+            keys=api_keys,
+            llm_keys=llm_keys,
+            fetcher=fetcher,
+        )
+    )
+    token, _ = api_keys.create("globex")
+    auth = {"Authorization": f"Bearer {token}"}
+    refused = client.post("/ingest", data={"url": "https://example.com/a"}, headers=auth)
+    assert refused.status_code == 400 and "no LLM provider key" in refused.json()["detail"]
+    assert fetcher.urls == [] and queue.triggers == []
+    llm_keys.set("globex", "globex-provider-key-sentinel")
+    ok = client.post("/ingest", data={"url": "https://example.com/a"}, headers=auth)
+    assert ok.status_code == 200 and len(queue.triggers) == 1

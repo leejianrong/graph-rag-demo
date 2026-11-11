@@ -31,6 +31,8 @@ dependencies = [
     # driver opens a connection only on first query.
     "neo4j>=6.2.0,<7",
     "pypdf>=7.0.1",
+    # Per-tenant LLM keys are stored encrypted (Fernet), GRA-25. Already in the lock via mcp.
+    "cryptography",
 ]
 
 [project.optional-dependencies]

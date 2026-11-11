@@ -39,6 +39,13 @@ candidates inside the scope only, so the same name in two scopes stays two entit
 body names one. It is off by default so existing local setups keep working; a hosted service must turn it on. The namespace travels in the request body and is the first scope
 field a caller can set.
 
+**A tenant can bring its own LLM key (GRA-25).** With `REQUIRE_TENANT_LLM_KEY` on, `graph_rag/tenant_keys.py` holds one provider
+key per named tenant, encrypted with Fernet under a master key from `TENANT_LLM_KEY_SECRET`; `graph-rag-keys llm-key set|remove|list`
+manage them (the key is read from stdin or a prompt, not an argument). The LLM client reads the acting tenant, as the cache does,
+and uses that tenant's key or raises; it never falls back to the deployment key. `/ingest` and `/v1/remember` refuse a tenant with no
+key (400, `invalid_request` with `field: llm_key` on `/v1`) before storing anything. The default tenant is exempt and `graph-rag-admin delete` removes
+the tenant's key. Off by default, and then nothing changes. Metering stays GRA-58.
+
 Operators export and delete a tenant with `graph-rag-admin` (GRA-59). The four stores each list the scopes a tenant holds (`scopes(tenant)`), then the existing per-scope calls do the work, and a delete ends by checking that no store still lists the tenant. The default tenant is refused: records from before tenancy carry no tenant field.
 
 Keys (GRA-22) are `grk_<key_id>_<token>`; only the SHA-256 is stored, in a JSON file (`API_KEYS_PATH`) that `graph-rag-keys` manages. A file suits one service instance; several instances need a shared store, which is not built.

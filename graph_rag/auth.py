@@ -187,6 +187,34 @@ class ApiKeys:
         return sorted(keys, key=lambda k: k.created_at)
 
 
+def _llm_key_command(args: argparse.Namespace) -> int:
+    """``graph-rag-keys llm-key``: set, remove and list tenants' own LLM keys, encrypted."""
+    import sys
+    from getpass import getpass
+
+    from graph_rag.config import get_settings
+    from graph_rag.tenant_keys import TenantLlmKeys
+
+    try:
+        stored = TenantLlmKeys.from_settings(get_settings(), always=True)
+        assert stored is not None
+        if args.llm_command == "list":
+            print("\n".join(stored.tenants()))
+        elif args.llm_command == "remove":
+            if not stored.remove(args.tenant):
+                print(f"error: {args.tenant} has no LLM key")
+                return 1
+            print(f"removed the LLM key of {args.tenant}")
+        else:  # the key comes from stdin or a prompt, never an argument, so it stays out of history
+            key = sys.stdin.read() if not sys.stdin.isatty() else getpass("LLM provider key: ")
+            stored.set(args.tenant, key)
+            print(f"stored an encrypted LLM key for {args.tenant}")
+    except ValueError as error:
+        print(f"error: {error}")
+        return 2
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """The ``graph-rag-keys`` command."""
     from graph_rag.config import get_settings
@@ -201,8 +229,15 @@ def main(argv: list[str] | None = None) -> int:
     listing.add_argument("--tenant")
     revoke = sub.add_parser("revoke", help="stop a key working")
     revoke.add_argument("key_id")
+    llm = sub.add_parser("llm-key", help="a tenant's own LLM provider key (GRA-25)")
+    llm_sub = llm.add_subparsers(dest="llm_command", required=True)
+    llm_sub.add_parser("set", help="store it, read from stdin or a prompt").add_argument("tenant")
+    llm_sub.add_parser("remove", help="remove it").add_argument("tenant")
+    llm_sub.add_parser("list", help="tenants that have one, never the keys")
     args = parser.parse_args(argv)
 
+    if args.command == "llm-key":
+        return _llm_key_command(args)
     keys = ApiKeys(JsonFileKeyStore(args.file or get_settings().api_keys_path))
     if args.command == "create":
         try:
