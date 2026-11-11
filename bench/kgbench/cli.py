@@ -36,6 +36,7 @@ from kgbench import hard as hards
 from kgbench import judge as judges
 from kgbench import judge_scaled as scaled
 from kgbench import longmemeval as longmemevals
+from kgbench import nightly as nightlies
 from kgbench import order as orders
 from kgbench import reader as readers
 from kgbench import real as reals
@@ -86,6 +87,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run.add_argument("--per-question", action="store_true", help="Also print per-question scores.")
     run.add_argument("--json", type=Path, help="Write scores, cost and latency as JSON here.")
+    ng = commands.add_parser(
+        "nightly",
+        help="Fail if EM, token F1 or supporting-fact F1 drop past a tolerance (offline, no key).",
+    )
+    ng.add_argument("--baseline", type=Path, default=nightlies.DEFAULT_BASELINE)
+    ng.add_argument("--dataset", default=str(_DEFAULT_DATASET), help="As in `run`.")
+    ng.add_argument("--tolerance", type=float, help="Override the baseline file's tolerance.")
+    ng.add_argument("--summary", type=Path, help="Append a markdown summary here (job summary).")
+    ng.add_argument(
+        "--update", action="store_true", help="Rewrite the baseline from the current numbers."
+    )
     lme = commands.add_parser(
         "longmemeval",
         help="Score LongMemEval-style chat sessions per question type (offline, no LLM).",
@@ -905,6 +917,32 @@ def _longmemeval(args: argparse.Namespace) -> int:
     return 0
 
 
+def _nightly(args: argparse.Namespace) -> int:
+    config = nightlies.load(args.baseline)
+    subset = config["subset"]
+    examples = select_subset(load_examples(args.dataset), subset)
+    if not examples:
+        print(f"No examples selected from {args.dataset} (subset={subset}).")
+        return 1
+    result = BenchmarkHarness(build_offline_components()).run(examples, subset=subset)
+    tolerance = config["tolerance"] if args.tolerance is None else args.tolerance
+    if args.update:
+        nightlies.save(args.baseline, subset, tolerance, result.aggregate)
+        print(f"Wrote the baseline to {args.baseline}")
+        return 0
+    baseline = config["baseline"]
+    text = nightlies.summary_markdown(result.aggregate, baseline, tolerance)
+    print(text)
+    if args.summary:
+        with args.summary.open("a") as f:
+            f.write(text)
+    drops = nightlies.check(result.aggregate, baseline, tolerance)
+    for d in drops:
+        got = "not measured" if d.value is None else f"{d.value:.4f}"
+        print(f"REGRESSION {d.metric}: {got} is more than {tolerance} below {d.baseline}")
+    return 1 if drops else 0
+
+
 def _run(args: argparse.Namespace) -> int:
     if args.dataset == "longmemeval":  # the bundled LongMemEval fixture, as `kgbench longmemeval`
         return _longmemeval(
@@ -935,6 +973,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(list(argv) if argv is not None else None)
     if args.command == "run":
         return _run(args)
+    if args.command == "nightly":
+        return _nightly(args)
     if args.command == "longmemeval":
         return _longmemeval(args)
     if args.command == "extract":

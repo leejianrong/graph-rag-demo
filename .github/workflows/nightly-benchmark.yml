@@ -1,0 +1,51 @@
+name: Nightly benchmark
+
+# Not a PR check and not one of the required jobs in ci.yml. Scheduled workflows only run from
+# the default branch, so this starts working once it is on main. workflow_dispatch lets you run it
+# by hand (from any branch that has this file).
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nightly-benchmark
+  cancel-in-progress: false
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      HAS_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - name: Set up Python
+        run: uv python install 3.12
+      - name: Sync (frozen)
+        run: uv sync --frozen --extra dev
+      # Offline and deterministic ($0, no key): EM, token F1 and supporting-fact F1 on the small
+      # subset against bench/kgbench/nightly.json. Fails the job on a drop past the tolerance.
+      - name: Answer metrics vs baseline
+        run: uv run kgbench nightly --summary "$GITHUB_STEP_SUMMARY"
+      # The retrieval, extraction and linking floors (bench/kgbench/gate.json), as on every PR.
+      - name: Retrieval, extraction and linking floors
+        run: uv run kgbench gate
+      # Real-provider smoke: runs only when the repo has an OPENAI_API_KEY secret, otherwise the
+      # step is skipped and says so. The secret is never printed.
+      - name: Real-provider benchmark smoke
+        if: ${{ env.HAS_KEY == 'true' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: uv run pytest -m "llm or benchmark" -q
+      - name: Note when the real-provider step is skipped
+        if: ${{ env.HAS_KEY != 'true' }}
+        run: echo "No provider key configured, so the real-provider step was skipped." >> "$GITHUB_STEP_SUMMARY"
