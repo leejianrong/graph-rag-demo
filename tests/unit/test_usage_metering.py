@@ -7,6 +7,7 @@ import types
 from pathlib import Path
 
 import pytest
+from cryptography.fernet import Fernet
 from fastapi.testclient import TestClient
 
 from graph_rag.adapters.llm_client import LiteLLMClient
@@ -149,3 +150,49 @@ def test_operators_read_the_totals_with_the_admin_command(
         get_settings.cache_clear()
     assert "acme: 2 documents, 3 queries, 400 llm tokens" in both and "globex: 1 documents" in both
     assert "acme: 2 documents" in one and "globex" not in one
+
+
+def test_a_url_ingest_counts_once_and_a_refused_one_counts_nothing() -> None:
+    from graph_rag.sources import FetchedPage
+    from tests.unit.test_ingest_sources import FakeFetcher
+
+    page = FetchedPage(b"Ada Lovelace works for Acme Corp.", "text/plain")
+    store = InMemoryUsageStore()
+    components = build_offline_components()
+
+    def client(fetcher: FakeFetcher) -> TestClient:
+        app = create_app(
+            components.object_store, Queue(), Settings(), meter=UsageMeter(store), fetcher=fetcher
+        )
+        return TestClient(app)
+
+    ok = client(FakeFetcher(page)).post("/ingest", data={"url": "https://example.test/a"})
+    assert ok.status_code == 200 and store.get("default").documents == 1
+    again = client(FakeFetcher(page)).post("/ingest", data={"url": "https://example.test/a"})
+    assert again.json()["status"] == "unchanged" and store.get("default").documents == 1
+
+    blocked = client(FakeFetcher(error="refused: private address")).post(
+        "/ingest", data={"url": "https://10.0.0.1/x"}
+    )
+    empty_page = FetchedPage(b"<html><body></body></html>", "text/html")
+    empty = client(FakeFetcher(empty_page)).post("/ingest", data={"url": "https://example.test/e"})
+    assert blocked.status_code == 422 and empty.status_code == 422
+    assert store.get("default").documents == 1
+
+    from graph_rag.tenant_keys import InMemoryTenantKeyStore, TenantLlmKeys
+
+    api_keys = ApiKeys(InMemoryKeyStore())
+    secret, _ = api_keys.create("acme")
+    keyless = create_app(
+        components.object_store,
+        Queue(),
+        Settings(require_auth=True, require_tenant_llm_key=True),
+        keys=api_keys,
+        llm_keys=TenantLlmKeys(InMemoryTenantKeyStore(), Fernet.generate_key().decode()),
+        meter=UsageMeter(store),
+        fetcher=FakeFetcher(page),
+    )
+    refused = TestClient(keyless).post(
+        "/ingest", data={"url": "https://example.test/k"}, headers=bearer(secret)
+    )
+    assert refused.status_code == 400 and store.get("acme") == Usage()
