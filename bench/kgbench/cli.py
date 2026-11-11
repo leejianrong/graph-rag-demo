@@ -35,6 +35,7 @@ from kgbench import faithfulness as faithful
 from kgbench import hard as hards
 from kgbench import judge as judges
 from kgbench import judge_scaled as scaled
+from kgbench import longmemeval as longmemevals
 from kgbench import order as orders
 from kgbench import reader as readers
 from kgbench import real as reals
@@ -85,6 +86,22 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run.add_argument("--per-question", action="store_true", help="Also print per-question scores.")
     run.add_argument("--json", type=Path, help="Write scores, cost and latency as JSON here.")
+    lme = commands.add_parser(
+        "longmemeval",
+        help="Score LongMemEval-style chat sessions per question type (offline, no LLM).",
+    )
+    lme.add_argument(
+        "--data",
+        type=Path,
+        default=longmemevals.DEFAULT_DATA,
+        help="A LongMemEval JSON file (default: the bundled synthetic mini fixture).",
+    )
+    lme.add_argument("--limit", type=int, help="Cap the number of questions.")
+    lme.add_argument("--k", type=int, nargs="+", default=list(longmemevals.DEFAULT_KS))
+    lme.add_argument(
+        "--systems", nargs="+", choices=longmemevals.SYSTEMS, default=list(longmemevals.SYSTEMS)
+    )
+    lme.add_argument("--json", type=Path, help="Write every number as JSON here.")
     extract = commands.add_parser(
         "extract", help="Score extraction (mentions, entities, triples) against generated gold."
     )
@@ -876,7 +893,30 @@ def _extract(args: argparse.Namespace) -> int:
     return 0
 
 
+def _longmemeval(args: argparse.Namespace) -> int:
+    questions = longmemevals.load_longmemeval(args.data)[: args.limit]
+    if not questions:
+        print(f"No questions in {args.data}.")
+        return 1
+    result = longmemevals.run_longmemeval(questions, ks=args.k, systems=args.systems)
+    print(result.format_table())
+    if args.json:
+        args.json.write_text(json.dumps(result.to_dict(), indent=1) + "\n")
+    return 0
+
+
 def _run(args: argparse.Namespace) -> int:
+    if args.dataset == "longmemeval":  # the bundled LongMemEval fixture, as `kgbench longmemeval`
+        return _longmemeval(
+            argparse.Namespace(
+                **{
+                    **vars(args),
+                    "data": longmemevals.DEFAULT_DATA,
+                    "k": list(longmemevals.DEFAULT_KS),
+                    "systems": list(longmemevals.SYSTEMS),
+                }
+            )
+        )
     examples = select_subset(load_examples(args.dataset), args.subset, limit=args.limit)
     if not examples:
         print(f"No examples selected from {args.dataset} (subset={args.subset}).")
@@ -895,6 +935,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(list(argv) if argv is not None else None)
     if args.command == "run":
         return _run(args)
+    if args.command == "longmemeval":
+        return _longmemeval(args)
     if args.command == "extract":
         return _extract(args)
     if args.command == "linking":

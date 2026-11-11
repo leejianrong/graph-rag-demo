@@ -373,6 +373,8 @@ uv run kgbench run --subset small --dataset path/to/2wiki.json
 # or, over the in-repo mini fixture: make benchmark
 ```
 
+For long-term chat memory, `uv run kgbench run --dataset longmemeval` (or `make longmemeval`) scores LongMemEval-style sessions per question type over a bundled synthetic fixture; see [docs/BENCH.md](docs/BENCH.md).
+
 Every result, the table and the JSON alike, carries its wall time and the LLM calls and dollars behind it.
 
 `make benchmark` runs the same thing against a small bundled fixture with no
