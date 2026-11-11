@@ -33,12 +33,17 @@ dependencies = [
     "pypdf>=7.0.1",
     # Per-tenant LLM keys are stored encrypted (Fernet), GRA-25. Already in the lock via mcp.
     "cryptography",
+    # Observability (GRA-56). The tracing API is a no-op until an SDK is installed (the `otel`
+    # extra), and prometheus-client is small and pure Python, so neither weighs on the base install.
+    "opentelemetry-api",
+    "prometheus-client",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
     "httpx",
+    "opentelemetry-sdk",  # tests read spans through its in-memory exporter
     "testcontainers[minio,elasticsearch,kafka,neo4j]",
     "ruff",
     # The standalone generator (kggen) and the evaluation bench (ADR-0011) are workspace
@@ -64,6 +69,12 @@ trf = [
 # separately (`make embed-model`), never installed as a dep.
 embed = [
     "sentence-transformers",
+]
+# Trace export (GRA-56): the SDK and the OTLP/HTTP exporter. Only used when
+# OTEL_EXPORTER_OTLP_ENDPOINT is set; the image installs it, the base install does not need it.
+otel = [
+    "opentelemetry-sdk",
+    "opentelemetry-exporter-otlp-proto-http",
 ]
 # The `graphrag` command (GRA-39) calls a running service over its /v1 API.
 cli = ["httpx>=0.28.1"]

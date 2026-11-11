@@ -37,6 +37,7 @@ from graph_rag.jobs import InMemoryJobStore, JobStore
 from graph_rag.logging import configure_logging, get_logger
 from graph_rag.lookup import EntityLookup
 from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer, KafkaTriggerPublisher
+from graph_rag.observability import configure_tracing
 from graph_rag.orchestrator import Orchestrator
 from graph_rag.query.retriever import QueryRetriever
 from graph_rag.query.synthesis import AnswerSynthesizer
@@ -150,7 +151,8 @@ def main() -> None:
     consumes (GRA-31).
     """
     settings = Settings()
-    configure_logging(settings.log_level)
+    configure_logging(settings.log_level, settings.log_format)
+    configure_tracing(settings, "graph-rag")
     logger = get_logger(__name__)
     # First, before any store is touched: an open service on a reachable address does not start.
     enforce_bind(settings.bind_host, settings, logger)

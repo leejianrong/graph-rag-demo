@@ -250,8 +250,18 @@ endpoint (incl. DeepSeek) is swappable via `.env`.
 - **Config/secrets** via `.env` / environment variables (OpenAI/DeepSeek key,
   service endpoints, per-stage models, EL thresholds, k-hop depth) — secrets stay
   out of code, providers are swappable.
-- **Logging** via basic Python `logging` behind a seam, so structured/JSON
-  logging can be swapped in later.
+- **Logging** via basic Python `logging` behind a seam; `LOG_FORMAT=json` writes one object per line
+  with the trace id (`graph_rag/logging.py`). Content stays out of logs (`docs/LOG-POLICY.md`).
+- **Metrics and traces** (GRA-56, `graph_rag/observability.py`), both off by default. `METRICS_ENABLED`
+  serves Prometheus text at `/metrics` on the API and on the worker's health port: request count and
+  latency by route *template* and status, ingest stage duration and failures, documents by outcome, LLM
+  calls, duration and tokens by model. Tenant is not a label (unbounded, and usage already counts it);
+  with `REQUIRE_AUTH` on, `/metrics` needs `METRICS_TOKEN`, never a tenant key. Traces use the
+  OpenTelemetry API (a no-op until `OTEL_EXPORTER_OTLP_ENDPOINT` is set and the `otel` extra is installed,
+  which the image has): the API puts a W3C `traceparent` on the ingest trigger and the worker continues
+  it, so one trace runs API accept, then `ingest.<stage>` (read, entity recognition, coreference, entity
+  linking, knowledge graph, which is the graph write), with an `llm.call` span under the stage that made it.
+  A Grafana dashboard, Prometheus and Jaeger come from `docker-compose.observability.yml`.
 - **Testing seam** (ADR-0010): fast suite runs both entry points fully in-process
   against fakes ($0, no Docker); a thin real-container contract layer
   (docker-compose / testcontainers) proves each real adapter behaves like its

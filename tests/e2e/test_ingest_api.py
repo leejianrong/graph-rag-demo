@@ -99,6 +99,7 @@ def test_ingest_does_not_run_pipeline() -> None:
         "tenant",
         "namespace",
         "document_date",
+        "traceparent",
     }
 
 

@@ -1,0 +1,14 @@
+# Scrapes the API and the worker (GRA-56). Used by docker-compose.observability.yml.
+# The local stack runs with auth off, so /metrics is open there. With REQUIRE_AUTH on, set
+# METRICS_TOKEN and add to each job:
+#   authorization: { credentials_file: /etc/prometheus/metrics-token }
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: graph-rag-api
+    static_configs:
+      - targets: ["app:8000"]
+  - job_name: graph-rag-worker
+    static_configs:
+      - targets: ["worker:8001"]

@@ -176,6 +176,18 @@ class Settings(BaseSettings):
 
     # --- Logging seam --------------------------------------------------------
     log_level: str = "INFO"
+    # ``json`` writes one object per line (time, level, logger, message, trace id) for a log
+    # collector; ``text`` is the default. Content stays out of both (docs/LOG-POLICY.md).
+    log_format: str = "text"
+
+    # --- Metrics and traces (GRA-56) ----------------------------------------
+    # ``/metrics`` (Prometheus text) is served only when on. With ``require_auth`` it needs
+    # ``metrics_token`` as a bearer token, never a tenant's API key. The worker serves the same on
+    # its health port. Spans are exported over OTLP/HTTP only when an endpoint is set (needs the
+    # ``otel`` extra); unset, tracing is a no-op.
+    metrics_enabled: bool = False
+    metrics_token: str = ""
+    otel_exporter_otlp_endpoint: str = ""
 
 
 @lru_cache(maxsize=1)
