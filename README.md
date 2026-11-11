@@ -189,6 +189,8 @@ Each command takes `--namespace`. Exit status is 0 on success, 1 when the servic
 By default the service checks no key and every request runs in the default tenant. Set
 **Hosted:** `docker-compose.hosted.yml` is the stack for a deployment: no store publishes a port, every credential must be set, Elasticsearch has security on, auth is required and the API listens on 127.0.0.1 for a TLS proxy (header of the file has the steps). The service itself also refuses, with auth on, to start on a store credential that is still the local-dev value (`ALLOW_DEFAULT_CREDENTIALS=true` for staging).
 
+With `REQUIRE_TENANT_LLM_KEY=true` (off by default) a named tenant's LLM calls use a key it brought: `graph-rag-keys llm-key set TENANT` reads it from stdin or a prompt and stores it encrypted under `TENANT_LLM_KEY_SECRET` (a Fernet key; `llm-key remove` and `list` too), and ingest for a tenant with none is refused with 400. The default tenant is unchanged.
+
 With auth off, the service starts only on a loopback address; on any other it exits unless `ALLOW_OPEN_BIND=true` (the local compose stack sets it). `REQUIRE_AUTH=true` and every endpoint except `/health` needs `Authorization: Bearer <key>`; the key names the
 tenant, and a key reaches only that tenant's memory. Keys live in the file `API_KEYS_PATH` (default
 `.data/api-keys.json`; one service instance only):

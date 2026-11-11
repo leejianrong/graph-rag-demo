@@ -74,7 +74,7 @@ Not covered: a real model's behaviour, and a model that returns malformed or ove
 |---|---|---|---|
 | Secrets committed to the repo | Mitigated | gitleaks runs in CI (`secret-scan`) on every PR | It scans for patterns; a weak default password is not a pattern |
 | Default credentials reach a deployment | Mitigated for the hosted stack (GRA-138) | `docker-compose.hosted.yml` has no defaults and stops when one is unset; `app` with `REQUIRE_AUTH` on exits if a MinIO key, the Neo4j password or the (unset) Elasticsearch password is still the local-dev value, unless `ALLOW_DEFAULT_CREDENTIALS=true` (`tests/unit/test_hosted_stack.py`) | A weak but non-default password passes; nothing checks strength. The local compose and `Settings` still default to `minioadmin` and `devpassword` |
-| The LLM provider key leaks | Partial | Read from the environment (`Settings`); I found no log line that prints it and no key baked into the Dockerfile | Whoever runs a container can read it; tenants bringing their own key (GRA-25) would add per-tenant secrets that need storing |
+| The LLM provider key leaks | Partial | Read from the environment (`Settings`); I found no log line that prints it and no key baked into the Dockerfile | Whoever runs a container can read it. With `REQUIRE_TENANT_LLM_KEY=true` (GRA-25, off by default) each named tenant's calls use a key it stored itself, encrypted with Fernet under `TENANT_LLM_KEY_SECRET` in a 0600 file, and the deployment key is never used for them; `tests/unit/test_tenant_llm_keys.py` shows the key absent from logs, responses and command output. The master key sits in the environment next to the other secrets and decrypts every tenant's key; the file is per instance, like the API key file; a key is plaintext in process memory while a call runs |
 | Questions and document names in logs | Mitigated | At info level and above nothing logs question text, answers, source names or object keys; a test drives ingest, query, recall and a failed document and checks none appears ([LOG-POLICY.md](LOG-POLICY.md)) | A traceback from `logger.exception` can quote a library's input; debug level is not covered; the web server's access log holds document ids in paths |
 
 ## 5. Availability
@@ -97,7 +97,7 @@ These cards were created from this review. Each is small; GRA-134 and GRA-135 ar
 7. ~~GRA-140: prompt-injection tests through ingested documents.~~ Done.
 8. ~~GRA-141: a log policy, with question text and source names redacted.~~ Done.
 
-Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers separate from the API), GRA-25 (tenant LLM keys).
+Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers separate from the API), GRA-25 (tenant LLM keys, done behind `REQUIRE_TENANT_LLM_KEY`).
 
 ## Checklist before a hosted deployment
 

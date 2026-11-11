@@ -150,12 +150,7 @@ class AnswerSynthesizer:
         if llm_client is None:
             from graph_rag.adapters.llm_client import LiteLLMClient
 
-            llm_client = LiteLLMClient(
-                model=settings.synthesis_model,
-                cache_dir=settings.llm_cache_dir,
-                max_retries=settings.llm_max_retries,
-                api_key=settings.openai_api_key,
-            )
+            llm_client = LiteLLMClient.from_settings(settings, settings.synthesis_model)
         return cls(llm_client)
 
     def synthesize(self, *, question: str, response: QueryResponse) -> str:
