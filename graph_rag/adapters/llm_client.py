@@ -40,6 +40,7 @@ from graph_rag.scope import DEFAULT_TENANT, current_tenant, tenant_dir
 if TYPE_CHECKING:
     from graph_rag.config import Settings
     from graph_rag.tenant_keys import TenantLlmKeys
+    from graph_rag.usage import UsageMeter
 
 __all__ = ["LiteLLMClient", "cache_key", "tenant_cache_dir"]
 
@@ -120,6 +121,7 @@ class LiteLLMClient:
         api_key: str | None = None,
         completion_fn: CompletionFn | None = None,
         tenant_keys: TenantLlmKeys | None = None,
+        meter: UsageMeter | None = None,
     ) -> None:
         """Wire the client.
 
@@ -136,12 +138,14 @@ class LiteLLMClient:
             tenant_keys: Per-tenant provider keys (GRA-25). When set, a named tenant's provider
                 calls use its own key and raise ``LlmKeyRequired`` without one, never falling back
                 to ``api_key``; the default tenant is unchanged. Cache hits need no key.
+            meter: Counts the tokens each provider call spends, per acting tenant (GRA-58).
         """
         self._model = model
         self._cache_dir = Path(cache_dir)
         self._max_retries = max_retries
         self._api_key = api_key
         self._tenant_keys = tenant_keys
+        self._meter = meter
         self._completion_fn: CompletionFn = completion_fn or self._default_completion
         # Usage since construction, read by the bench to price a run (GRA-87).
         self.calls = 0  # provider calls, retries included; a cache hit is not one
@@ -158,6 +162,7 @@ class LiteLLMClient:
         the tenants' own keys.
         """
         from graph_rag.tenant_keys import TenantLlmKeys
+        from graph_rag.usage import UsageMeter
 
         return cls(
             model=model or settings.coref_model,
@@ -165,6 +170,7 @@ class LiteLLMClient:
             max_retries=settings.llm_max_retries,
             api_key=settings.openai_api_key,
             tenant_keys=TenantLlmKeys.from_settings(settings),
+            meter=UsageMeter.from_settings(settings),
         )
 
     # --- Public API (the LLMClient port) ------------------------------------
@@ -297,6 +303,9 @@ class LiteLLMClient:
             messages=[{"role": "user", "content": prompt}],
             **kwargs,
         )
+        if self._meter is not None:
+            tokens = getattr(getattr(response, "usage", None), "total_tokens", None)
+            self._meter.llm_tokens(current_tenant(), int(tokens or 0))
         try:
             self.cost_usd += float(litellm.completion_cost(completion_response=response))
         except Exception:  # noqa: BLE001 - an unpriced model (a local or recording server) is free

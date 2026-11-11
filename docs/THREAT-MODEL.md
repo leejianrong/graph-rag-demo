@@ -97,7 +97,7 @@ These cards were created from this review. Each is small; GRA-134 and GRA-135 ar
 7. ~~GRA-140: prompt-injection tests through ingested documents.~~ Done.
 8. ~~GRA-141: a log policy, with question text and source names redacted.~~ Done.
 
-Existing cards that also close rows above: GRA-58 (metering), GRA-31 (workers separate from the API), GRA-25 (tenant LLM keys, done behind `REQUIRE_TENANT_LLM_KEY`).
+Existing cards that also close rows above: GRA-58 (metering, done behind `METER_USAGE`; counts, not limits), GRA-31 (workers separate from the API), GRA-25 (tenant LLM keys, done behind `REQUIRE_TENANT_LLM_KEY`).
 
 ## Checklist before a hosted deployment
 
