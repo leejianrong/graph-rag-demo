@@ -30,6 +30,7 @@ dependencies = [
     # fake, so this import stays offline and never connects at import time — the
     # driver opens a connection only on first query.
     "neo4j>=6.2.0,<7",
+    "pypdf>=7.0.1",
 ]
 
 [project.optional-dependencies]
