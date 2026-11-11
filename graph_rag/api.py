@@ -40,6 +40,7 @@ from graph_rag.ports import ObjectStore, TriggerPublisher
 from graph_rag.ratelimit import RateLimited, RateLimiter
 from graph_rag.scope import DEFAULT_SCOPE, RESERVED_KEY_PREFIX, Scope
 from graph_rag.tenant_keys import TenantLlmKeys
+from graph_rag.usage import UsageMeter, add_query_metering
 
 if TYPE_CHECKING:
     from graph_rag.query.retriever import QueryRetriever
@@ -77,6 +78,7 @@ def create_app(
     lookup: EntityLookup | None = None,
     jobs: JobStore | None = None,
     llm_keys: TenantLlmKeys | None = None,
+    meter: UsageMeter | None = None,
 ) -> FastAPI:
     """Build the FastAPI app with its ports injected.
 
@@ -101,6 +103,8 @@ def create_app(
             ``settings.require_tenant_llm_key`` is on, they are read from
             ``settings.tenant_llm_keys_path``. With the setting on, ingest for a named tenant
             with no key is refused (400); off, nothing is checked.
+        meter: Counts documents and queries per tenant (GRA-58). **Optional**: when ``None`` and
+            ``settings.meter_usage`` is on, totals go to ``settings.usage_path``.
 
     Returns:
         A configured :class:`fastapi.FastAPI` app exposing ``POST /ingest``,
@@ -113,6 +117,9 @@ def create_app(
     if resolved_settings.require_auth and keys is None:
         keys = ApiKeys(JsonFileKeyStore(resolved_settings.api_keys_path))
     verifier = keys if resolved_settings.require_auth else None
+    meter = meter or UsageMeter.from_settings(resolved_settings)
+    if meter is not None:
+        add_query_metering(app, meter)
     if llm_keys is None:
         llm_keys = TenantLlmKeys.from_settings(resolved_settings)  # None while the flag is off
     max_upload = resolved_settings.max_upload_bytes
@@ -153,6 +160,7 @@ def create_app(
             raise
         if (wait := per_key.spend(record.key_id)) is not None:
             raise RateLimited("This API key is over its request limit.", wait)
+        request.state.tenant = record.tenant  # read by the query meter
         return record.tenant
 
     @app.get("/health")
@@ -193,6 +201,8 @@ def create_app(
             )
         )
 
+        if meter is not None:
+            meter.document(scope.tenant)
         _logger.info(
             "ingested document_id=%s bytes=%d",
             doc_id,

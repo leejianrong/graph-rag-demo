@@ -211,6 +211,7 @@ same `MINIO_*`, `ELASTICSEARCH_URL` and `NEO4J_*` settings as the service):
 ```bash
 uv run graph-rag-admin show acme                    # what the tenant holds, per namespace
 uv run graph-rag-admin export acme --out ./export   # documents, entities, graph and raw files, as files
+uv run graph-rag-admin usage [acme]                 # with METER_USAGE=true: documents, queries, LLM tokens per tenant
 uv run graph-rag-admin delete acme --yes            # without --yes it only shows; checks every store after
 ```
 
