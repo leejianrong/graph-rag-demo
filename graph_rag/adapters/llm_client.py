@@ -39,6 +39,7 @@ from graph_rag.scope import DEFAULT_TENANT, current_tenant, tenant_dir
 
 if TYPE_CHECKING:
     from graph_rag.config import Settings
+    from graph_rag.tenant_keys import TenantLlmKeys
 
 __all__ = ["LiteLLMClient", "cache_key", "tenant_cache_dir"]
 
@@ -118,6 +119,7 @@ class LiteLLMClient:
         max_retries: int = 2,
         api_key: str | None = None,
         completion_fn: CompletionFn | None = None,
+        tenant_keys: TenantLlmKeys | None = None,
     ) -> None:
         """Wire the client.
 
@@ -131,11 +133,15 @@ class LiteLLMClient:
             completion_fn: The injectable backend seam. Defaults to
                 :meth:`_default_completion` (lazy ``litellm.completion``); tests
                 inject a call-counting fake so no network/key is needed.
+            tenant_keys: Per-tenant provider keys (GRA-25). When set, a named tenant's provider
+                calls use its own key and raise ``LlmKeyRequired`` without one, never falling back
+                to ``api_key``; the default tenant is unchanged. Cache hits need no key.
         """
         self._model = model
         self._cache_dir = Path(cache_dir)
         self._max_retries = max_retries
         self._api_key = api_key
+        self._tenant_keys = tenant_keys
         self._completion_fn: CompletionFn = completion_fn or self._default_completion
         # Usage since construction, read by the bench to price a run (GRA-87).
         self.calls = 0  # provider calls, retries included; a cache hit is not one
@@ -144,17 +150,21 @@ class LiteLLMClient:
         self.cost_usd = 0.0  # LiteLLM's price estimate; 0 for a model it cannot price
 
     @classmethod
-    def from_settings(cls, settings: Settings) -> LiteLLMClient:
+    def from_settings(cls, settings: Settings, model: str | None = None) -> LiteLLMClient:
         """Construct from :class:`~graph_rag.config.Settings`.
 
-        Uses ``settings.coref_model`` (the V3 stage model, B6), the shared LLM
-        cache dir, retry budget and the env-sourced API key.
+        Uses ``model`` (default ``settings.coref_model``, the V3 stage model, B6), the shared LLM
+        cache dir, retry budget, the env-sourced API key and, with ``require_tenant_llm_key`` on,
+        the tenants' own keys.
         """
+        from graph_rag.tenant_keys import TenantLlmKeys
+
         return cls(
-            model=settings.coref_model,
+            model=model or settings.coref_model,
             cache_dir=settings.llm_cache_dir,
             max_retries=settings.llm_max_retries,
             api_key=settings.openai_api_key,
+            tenant_keys=TenantLlmKeys.from_settings(settings),
         )
 
     # --- Public API (the LLMClient port) ------------------------------------
@@ -222,9 +232,12 @@ class LiteLLMClient:
 
     def _call_provider(self, prompt: str, params: Mapping[str, Any]) -> str:
         """One provider call through the backend seam, counted and timed."""
+        # A tenant's own key goes through the seam, so tests can see which key a call used.
+        own = self._tenant_keys.require(current_tenant()) if self._tenant_keys else None
+        extra = {"api_key": own} if own else {}
         start = time.perf_counter()
         try:
-            return self._completion_fn(model=self._model, prompt=prompt, **params)
+            return self._completion_fn(model=self._model, prompt=prompt, **params, **extra)
         finally:
             self.calls += 1
             self.seconds += time.perf_counter() - start
@@ -277,7 +290,7 @@ class LiteLLMClient:
         import litellm  # lazy: keeps import/construction offline + key-free
 
         kwargs: dict[str, Any] = dict(params)
-        if self._api_key:
+        if self._api_key and "api_key" not in kwargs:
             kwargs["api_key"] = self._api_key
         response = litellm.completion(
             model=model,

@@ -28,6 +28,7 @@ from graph_rag.models import DeletedDocument, IsoDate, QueryRequest, QueryRespon
 from graph_rag.query.budget import evidence_tokens, pack
 from graph_rag.ratelimit import RateLimited
 from graph_rag.scope import RESERVED_KEY_PREFIX, Scope
+from graph_rag.tenant_keys import LlmKeyRequired
 
 if TYPE_CHECKING:
     from graph_rag.lookup import EntityLookup
@@ -258,6 +259,12 @@ def add_agent_routes(
             response.headers.update(challenge)
             return response
         return JSONResponse({"detail": str(error)}, status_code=401, headers=challenge)
+
+    @app.exception_handler(LlmKeyRequired)
+    def llm_key_required(request: Request, error: LlmKeyRequired) -> Response:
+        if on_v1(request):
+            return _body(AgentError("invalid_request", str(error), {"field": "llm_key"}))
+        return JSONResponse({"detail": str(error)}, status_code=400)
 
     @app.exception_handler(RateLimited)
     def rate_limited(request: Request, error: RateLimited) -> Response:

@@ -355,12 +355,7 @@ def build_offline_components(
         from graph_rag.stages.kg_build import KgBuildStage
 
         coref_llm = LiteLLMClient.from_settings(settings)
-        kg_llm = LiteLLMClient(
-            model=settings.kg_build_model,
-            cache_dir=settings.llm_cache_dir,
-            max_retries=settings.llm_max_retries,
-            api_key=settings.openai_api_key,
-        )
+        kg_llm = LiteLLMClient.from_settings(settings, settings.kg_build_model)
         llm_client, kg_stage, usage = coref_llm, KgBuildStage(kg_llm), usage_of(coref_llm, kg_llm)
 
     ner_stage: NerStage = HeuristicNerStage()
@@ -432,12 +427,7 @@ def build_real_components(settings: Settings | None = None) -> BenchmarkComponen
 
     settings = settings or Settings()
     coref_llm = LiteLLMClient.from_settings(settings)
-    kg_llm = LiteLLMClient(  # as KgBuildStage.from_settings, but kept so its usage can be read
-        model=settings.kg_build_model,
-        cache_dir=settings.llm_cache_dir,
-        max_retries=settings.llm_max_retries,
-        api_key=settings.openai_api_key,
-    )
+    kg_llm = LiteLLMClient.from_settings(settings, settings.kg_build_model)  # kept for usage
     usage = usage_of(coref_llm, kg_llm)
 
     object_store = MinioObjectStore.from_settings(settings)

@@ -39,6 +39,7 @@ from graph_rag.models import DeletedDocument, IngestTrigger, IsoDate, QueryReque
 from graph_rag.ports import ObjectStore, TriggerPublisher
 from graph_rag.ratelimit import RateLimited, RateLimiter
 from graph_rag.scope import DEFAULT_SCOPE, RESERVED_KEY_PREFIX, Scope
+from graph_rag.tenant_keys import TenantLlmKeys
 
 if TYPE_CHECKING:
     from graph_rag.query.retriever import QueryRetriever
@@ -75,6 +76,7 @@ def create_app(
     keys: ApiKeys | None = None,
     lookup: EntityLookup | None = None,
     jobs: JobStore | None = None,
+    llm_keys: TenantLlmKeys | None = None,
 ) -> FastAPI:
     """Build the FastAPI app with its ports injected.
 
@@ -95,6 +97,10 @@ def create_app(
         keys: Verifies API keys. **Optional**: when ``None`` and ``settings.require_auth`` is on,
             keys are read from ``settings.api_keys_path``. With ``require_auth`` off, no key is
             checked and every request runs in the default tenant.
+        llm_keys: Tenants' own LLM keys (GRA-25). **Optional**: when ``None`` and
+            ``settings.require_tenant_llm_key`` is on, they are read from
+            ``settings.tenant_llm_keys_path``. With the setting on, ingest for a named tenant
+            with no key is refused (400); off, nothing is checked.
 
     Returns:
         A configured :class:`fastapi.FastAPI` app exposing ``POST /ingest``,
@@ -107,6 +113,8 @@ def create_app(
     if resolved_settings.require_auth and keys is None:
         keys = ApiKeys(JsonFileKeyStore(resolved_settings.api_keys_path))
     verifier = keys if resolved_settings.require_auth else None
+    if llm_keys is None:
+        llm_keys = TenantLlmKeys.from_settings(resolved_settings)  # None while the flag is off
     max_upload = resolved_settings.max_upload_bytes
 
     @app.middleware("http")
@@ -170,6 +178,8 @@ def create_app(
                 "status": "unchanged",
             }
 
+        if resolved_settings.require_tenant_llm_key and llm_keys is not None:
+            llm_keys.require(scope.tenant)  # LlmKeyRequired -> 400, before anything is stored
         object_store.put(scope, bucket, object_key, data)
         if jobs is not None:  # before publishing, so a fast worker's "done" is not overwritten
             jobs.queued(scope, doc_id, object_key)
