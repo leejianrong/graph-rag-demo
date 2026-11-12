@@ -10,7 +10,8 @@ What is counted, and when:
 
 * **documents**: a document the API accepted and queued (``/ingest``, ``/v1/remember``). An
   ``unchanged`` re-ingest is not counted, since nothing runs for it. ``force=true`` is a new
-  ingest and counts. It is counted at the door, so a Kafka redelivery or a stage retry never adds
+  ingest and counts. A retry of a failed document (GRA-152) is not counted again. It is counted
+  at the door, so a Kafka redelivery or a stage retry never adds
   to it, and a document that later fails still counts.
 * **queries**: a successful ``/query`` or ``/v1/recall``, whether or not it synthesised prose.
 * **llm_tokens**: tokens the provider reported for a call, kept in ``tenant``'s name by the

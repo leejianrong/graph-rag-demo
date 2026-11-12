@@ -147,8 +147,10 @@ it with `make logs` (which is `docker compose logs -f app worker`). In compose t
 
 A source is keyed by its filename, or by `-F source_url=https://...` when you give one. Posting the
 same source with the same bytes again returns `"status": "unchanged"` and does nothing: no write, no
-trigger, so no pipeline run and no LLM call. Changed bytes are ingested again; add `?force=true` to
-push identical bytes through anyway (for a source whose first attempt failed).
+trigger, so no pipeline run and no LLM call. The exception is a source whose last job `failed`: posting it
+again queues it again and answers `"status": "accepted"` (counted once in usage, not twice). A `queued`,
+`running` or `done` source stays `unchanged`. Changed bytes are ingested again; add `?force=true` to
+push identical bytes through anyway.
 
 The agent API under `/v1` (contract: `docs/api/agent-api.openapi.yaml`, ADR-0014) takes JSON and answers
 failures as `{"error": {"code", "message"}}`:

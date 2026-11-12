@@ -231,3 +231,133 @@ def test_the_event_stream_is_404_for_another_tenant_and_503_unconfigured() -> No
     assert other.status_code == 404
     bare = TestClient(create_app(components.object_store, queue, Settings()))
     assert bare.get("/jobs/x/events").status_code == 503
+
+
+# --- GRA-152: posting an unchanged document whose job failed retries it ---------------------------
+
+
+class _Boom:
+    def analyze(self, text: str) -> NerResult:
+        raise RuntimeError("down")
+
+
+def _fail_once(client, components, queue, **post) -> str:
+    """Ingest with a failing NER stage, leave the job failed, then restore the real stage."""
+    real = components.orchestrator._ner_stage  # noqa: SLF001
+    components.orchestrator._ner_stage = _Boom()  # noqa: SLF001
+    first = client.post("/ingest", **post).json()
+    components.orchestrator.process_document(queue.triggers.pop())
+    assert first["status"] == "accepted"
+    components.orchestrator._ner_stage = real  # noqa: SLF001
+    return first["document_id"]
+
+
+def _file(text: str = TEXT) -> dict:
+    return {"files": {"file": ("a.txt", text.encode(), "text/plain")}}
+
+
+def test_posting_a_failed_document_again_retries_it_to_done(stack) -> None:
+    client, components, queue = stack
+    doc = _fail_once(client, components, queue, **_file())
+    assert client.get(f"/jobs/{doc}").json()["state"] == "failed"
+    again = client.post("/ingest", **_file()).json()
+    assert again["status"] == "accepted" and again["document_id"] == doc
+    queued = client.get(f"/jobs/{doc}").json()
+    assert queued["state"] == "queued" and queued["error"] is None and queued["stages"] == []
+    assert len(queue.triggers) == 1
+    drain(components, queue)
+    assert client.get(f"/jobs/{doc}").json()["state"] == "done"
+    assert client.post("/ingest", **_file()).json()["status"] == "unchanged"
+    assert queue.triggers == []
+
+
+def test_a_failed_url_source_is_retried_too() -> None:
+    from graph_rag.sources import FetchedPage
+    from tests.unit.test_ingest_sources import FakeFetcher
+
+    components = build_offline_components()
+    queue = Queue()
+    fetcher = FakeFetcher(FetchedPage(TEXT.encode(), "text/plain"))
+    client = TestClient(
+        create_app(
+            components.object_store,
+            queue,
+            Settings(),
+            retriever=components.retriever,
+            jobs=components.job_store,
+            fetcher=fetcher,
+        )
+    )
+    doc = _fail_once(client, components, queue, data={"url": "https://example.com/a"})
+    again = client.post("/ingest", data={"url": "https://example.com/a"}).json()
+    assert again["status"] == "accepted" and again["document_id"] == doc
+    drain(components, queue)
+    assert client.get(f"/jobs/{doc}").json()["state"] == "done"
+
+
+def test_queued_and_running_documents_are_not_queued_twice(stack) -> None:
+    client, components, queue = stack
+    doc = client.post("/ingest", **_file()).json()["document_id"]
+    assert client.post("/ingest", **_file()).json()["status"] == "unchanged"  # queued
+    components.job_store.update(DEFAULT_SCOPE, doc, "running", stage="read")
+    assert client.post("/ingest", **_file()).json()["status"] == "unchanged"  # running
+    assert len(queue.triggers) == 1
+
+
+def _metered_client():
+    from graph_rag.usage import InMemoryUsageStore, UsageMeter
+
+    components = build_offline_components()
+    queue = Queue()
+    meter = UsageMeter(InMemoryUsageStore())
+    client = TestClient(
+        create_app(
+            components.object_store,
+            queue,
+            Settings(),
+            retriever=components.retriever,
+            jobs=components.job_store,
+            meter=meter,
+        )
+    )
+    return client, components, queue, meter
+
+
+def test_force_still_ingests_identical_bytes_and_counts() -> None:
+    client, _, _, meter = _metered_client()
+    client.post("/ingest", **_file())
+    assert client.post("/ingest?force=true", **_file()).json()["status"] == "accepted"
+    assert meter.totals()["default"].documents == 2
+
+
+def test_a_retry_is_not_metered_again() -> None:
+    client, components, queue, meter = _metered_client()
+    _fail_once(client, components, queue, **_file())
+    assert client.post("/ingest", **_file()).json()["status"] == "accepted"
+    assert meter.totals()["default"].documents == 1
+
+
+def test_another_tenants_copy_of_a_failed_document_is_independent() -> None:
+    components = build_offline_components()
+    queue = Queue()
+    keys = ApiKeys(InMemoryKeyStore())
+    client = TestClient(
+        create_app(
+            components.object_store,
+            queue,
+            Settings(require_auth=True),
+            retriever=components.retriever,
+            jobs=components.job_store,
+            keys=keys,
+        )
+    )
+    a, _ = keys.create("tenant-a")
+    b, _ = keys.create("tenant-b")
+    ha, hb = {"Authorization": f"Bearer {a}"}, {"Authorization": f"Bearer {b}"}
+    _fail_once(client, components, queue, headers=ha, **_file())
+    # tenant b never held these bytes, so it is a normal accept, and b's repeat stays unchanged
+    assert client.post("/ingest", headers=hb, **_file()).json()["status"] == "accepted"
+    queue.triggers.clear()
+    assert client.post("/ingest", headers=hb, **_file()).json()["status"] == "unchanged"
+    assert client.post("/ingest", headers=ha, **_file()).json()["status"] == "accepted"
+    assert len(queue.triggers) == 1 and queue.triggers[0].tenant == "tenant-a"
