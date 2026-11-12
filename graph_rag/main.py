@@ -27,12 +27,14 @@ from graph_rag.adapters.embedder import SentenceTransformerEmbedder
 from graph_rag.adapters.es_document_store import EsDocumentStore
 from graph_rag.adapters.es_entity_store import EsEntityStore
 from graph_rag.adapters.es_job_store import EsJobStore
+from graph_rag.adapters.es_merge_store import EsMergeRecordStore
 from graph_rag.adapters.llm_client import LiteLLMClient
 from graph_rag.adapters.minio_object_store import MinioObjectStore
 from graph_rag.adapters.neo4j_graph_store import Neo4jGraphStore
 from graph_rag.api import create_app
 from graph_rag.bind import enforce_bind, enforce_credentials
 from graph_rag.config import Settings
+from graph_rag.curation_api import EntityCurator
 from graph_rag.entities_api import EntityExplorer
 from graph_rag.jobs import InMemoryJobStore, JobStore
 from graph_rag.logging import configure_logging, get_logger
@@ -59,6 +61,7 @@ class Pipeline:
     entity_store: EsEntityStore
     graph_store: Neo4jGraphStore
     job_store: JobStore
+    merge_store: EsMergeRecordStore
     orchestrator: Orchestrator
     retriever: QueryRetriever
 
@@ -102,6 +105,8 @@ def build_pipeline(settings: Settings) -> Pipeline:
         es_jobs = EsJobStore.from_settings(settings)
         es_jobs.ensure_index()
         job_store = es_jobs
+    merge_store = EsMergeRecordStore.from_settings(settings)
+    merge_store.ensure_index()
     orchestrator = Orchestrator(
         object_store=object_store,
         document_store=document_store,
@@ -141,6 +146,7 @@ def build_pipeline(settings: Settings) -> Pipeline:
         entity_store=entity_store,
         graph_store=graph_store,
         job_store=job_store,
+        merge_store=merge_store,
         orchestrator=orchestrator,
         retriever=retriever,
     )
@@ -187,7 +193,12 @@ def main() -> None:
         retriever=retriever,
         eraser=orchestrator.delete_document,
         lookup=EntityLookup(entity_store, graph_store),
-        explorer=EntityExplorer(entity_store, graph_store, pipeline.document_store),
+        explorer=EntityExplorer(
+            entity_store, graph_store, pipeline.document_store, pipeline.merge_store
+        ),
+        curator=EntityCurator(
+            entity_store, graph_store, pipeline.document_store, pipeline.merge_store
+        ),
         jobs=job_store,
     )
 

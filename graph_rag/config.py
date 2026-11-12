@@ -98,6 +98,7 @@ class Settings(BaseSettings):
     # (``jobs_index``) so the API can read what the worker writes.
     ingest_mode: Literal["inline", "publish"] = "inline"
     jobs_index: str = "jobs"
+    merges_index: str = "entity-merges"  # records of manual entity merges (GRA-144)
     worker_health_port: int = 8001
 
     # --- NER stage (V2, ADR-0002) -------------------------------------------

@@ -32,6 +32,7 @@ from pydantic import TypeAdapter
 from graph_rag.agent_api import add_agent_routes
 from graph_rag.auth import ApiKeys, AuthError, JsonFileKeyStore
 from graph_rag.config import Settings, get_settings
+from graph_rag.curation_api import EntityCurator
 from graph_rag.entities_api import EntityExplorer
 from graph_rag.ids import document_id
 from graph_rag.jobs import Job, JobStore
@@ -82,6 +83,7 @@ def create_app(
     keys: ApiKeys | None = None,
     lookup: EntityLookup | None = None,
     explorer: EntityExplorer | None = None,
+    curator: EntityCurator | None = None,
     jobs: JobStore | None = None,
     fetcher: Fetcher | None = None,
     llm_keys: TenantLlmKeys | None = None,
@@ -106,6 +108,8 @@ def create_app(
         lookup: Backs ``POST /v1/lookup``. **Optional**: when ``None`` it responds ``unavailable``.
         explorer: Backs ``GET /v1/entities`` (GRA-142). **Optional**: when ``None`` it responds
             ``unavailable``.
+        curator: Backs ``POST /v1/entities/{id}/merge`` (GRA-144). **Optional**: when ``None`` it
+            responds ``unavailable``.
         keys: Verifies API keys. **Optional**: when ``None`` and ``settings.require_auth`` is on,
             keys are read from ``settings.api_keys_path``. With ``require_auth`` off, no key is
             checked and every request runs in the default tenant.
@@ -376,6 +380,7 @@ def create_app(
         tenant_of=tenant_of,
         lookup=lookup,
         explorer=explorer,
+        curator=curator,
     )
     add_key_routes(app, verifier, tenant_of, resolved_settings)
     add_api_observability(app, resolved_settings)  # last, so it is the outermost middleware

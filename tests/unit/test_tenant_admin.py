@@ -81,3 +81,27 @@ def test_delete_fails_loudly_if_a_store_still_lists_the_tenant() -> None:
     stores.graph.upsert_entities(Scope("acme"), [entity])
     with pytest.raises(RuntimeError, match="still listed in"):
         delete_tenant(stores, "acme")
+
+
+def test_merge_records_are_exported_and_deleted_with_the_tenant(tmp_path: Path) -> None:
+    from graph_rag.merge_records import DroppedEntity, InMemoryMergeRecordStore, MergeRecord
+    from graph_rag.scope import Scope
+
+    stores = fakes()
+    stores.merges = InMemoryMergeRecordStore()
+    record = MergeRecord(
+        merge_id="m1",
+        keep_id="k",
+        status="done",
+        created_at="2026-01-01T00:00:00Z",
+        dropped=[DroppedEntity(canonical_id="d", name="D", type="ORG", vector=[0.1])],
+    )
+    stores.merges.put(Scope("acme"), record)
+    stores.merges.put(Scope("globex"), record)
+
+    assert main(["export", "acme", "--out", str(tmp_path)], stores=stores) == 0
+    [line] = (tmp_path / "acme" / "_root" / "merges.jsonl").read_text().splitlines()
+    assert json.loads(line)["dropped"][0]["name"] == "D" and "vector" not in line
+
+    assert main(["delete", "acme", "--yes"], stores=stores) == 0
+    assert stores.merges.all(Scope("acme")) == [] and len(stores.merges.all(Scope("globex"))) == 1

@@ -20,6 +20,7 @@ from fastapi import FastAPI
 from graph_rag.api import create_app
 from graph_rag.bind import enforce_bind
 from graph_rag.config import Settings
+from graph_rag.curation_api import EntityCurator
 from graph_rag.entities_api import EntityExplorer
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityLookup
@@ -51,7 +52,16 @@ def build_app(settings: Settings | None = None) -> FastAPI:
         eraser=components.orchestrator.delete_document,
         lookup=EntityLookup(components.entity_store, components.graph_store),
         explorer=EntityExplorer(
-            components.entity_store, components.graph_store, components.document_store
+            components.entity_store,
+            components.graph_store,
+            components.document_store,
+            components.merge_store,
+        ),
+        curator=EntityCurator(
+            components.entity_store,
+            components.graph_store,
+            components.document_store,
+            components.merge_store,
         ),
         jobs=components.job_store,
     )

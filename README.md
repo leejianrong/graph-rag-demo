@@ -173,6 +173,13 @@ name or alias, newest first (pass `next_cursor` back as `cursor`), and `GET /v1/
 entity with its aliases, its outgoing and incoming facts (`neighbours_limit`, `sources_limit`) and the documents that
 mention it, by id, name and mention count. Both take `namespace` and only ever see the caller's own tenant.
 
+To fix a linking mistake, `POST /v1/entities/<keep_id>/merge` with `{"merge_ids": ["<id>", ...]}` (1 to 10 ids of the
+same type, none the kept one) folds those entities into the kept one (GRA-144): it gains their names as aliases, their
+edges and the documents' links move onto it, and they leave the entity store. The merge is recorded first, so it can be
+undone later, and the entity detail lists it as `merged_from`. Repeating a merge is a no-op (`200`), an unknown or
+other-tenant id is `404`, and entities of different types are `409`. A merged-away id answers `404` with
+`details.merged_into`, and a later document that names it links to the kept entity.
+
 To ask what was true on a past day, give `remember` a `document_date` and `recall` an `as_of` (both `YYYY-MM-DD`; `graphrag remember --document-date`, `graphrag recall --as-of`). `recall` then drops the facts that had not begun or had ended by that day, and the entities and sentences that rest only on them. A fact with no known dates is never dropped, since the service only knows a date it was given. A newer dated document also ends an older fact for the predicates that hold one object at a time (`WORKS_FOR`, `LOCATED_IN`, `HAS_ROLE`, `GOVERNED_BY`): the older edge gets a `valid_to` and stays as history. `recall` without `as_of` leaves ended facts out; with `as_of` it finds them. Both need `document_date` on the documents, since only dated documents can be ordered.
 
 ### Command line

@@ -31,6 +31,7 @@ from graph_rag.scope import RESERVED_KEY_PREFIX, Scope
 from graph_rag.tenant_keys import LlmKeyRequired
 
 if TYPE_CHECKING:
+    from graph_rag.curation_api import EntityCurator
     from graph_rag.entities_api import EntityExplorer
     from graph_rag.lookup import EntityLookup
     from graph_rag.query.retriever import QueryRetriever
@@ -43,6 +44,7 @@ _STATUS = {
     "invalid_request": 400,
     "unauthorized": 401,
     "not_found": 404,
+    "conflict": 409,
     "payload_too_large": 413,
     "rate_limited": 429,
     "unavailable": 503,
@@ -154,6 +156,7 @@ def add_agent_routes(
     tenant_of: Callable[[Request], str],
     lookup: EntityLookup | None = None,
     explorer: EntityExplorer | None = None,
+    curator: EntityCurator | None = None,
 ) -> None:
     """Serve ``/v1/remember``, ``/v1/recall`` and ``/v1/forget`` on ``app``.
 
@@ -167,6 +170,7 @@ def add_agent_routes(
         max_text_bytes: The largest text ``remember`` takes; more is ``payload_too_large``.
         lookup: Backs ``lookup``; ``None`` makes it answer ``unavailable``.
         explorer: Backs ``GET /v1/entities``; ``None`` makes it answer ``unavailable``.
+        curator: Backs ``POST /v1/entities/{id}/merge``; ``None`` makes it answer ``unavailable``.
         tenant_of: Names the tenant a request acts for, or raises :class:`AuthError`.
     """
     router = APIRouter(prefix=_PREFIX)
@@ -258,6 +262,9 @@ def add_agent_routes(
     from graph_rag.entities_api import add_entity_routes  # it imports this module
 
     add_entity_routes(router, explorer, tenant_of)
+    from graph_rag.curation_api import add_curation_routes  # it imports this module too
+
+    add_curation_routes(router, curator, tenant_of)
 
     @router.get("/me")
     def me(

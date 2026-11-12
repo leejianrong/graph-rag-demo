@@ -6,9 +6,10 @@ tenant is refused: records written before tenancy existed carry no tenant, so it
 apart safely from the tenant of the same name.
 
 Export writes, per scope, ``documents.jsonl``, ``entities.jsonl``, ``graph.json`` and the raw
-objects, plus a ``manifest.json``. Vectors are left out: they are derived and large, and a
-re-ingest rebuilds them. Delete removes the records, the edges, the objects and the entities,
-then checks that no store still lists the tenant.
+objects, plus ``merges.jsonl`` (manual merge records) and a ``manifest.json``. Vectors are left
+out: they are derived and large, and a re-ingest rebuilds them. Delete removes the records, the
+edges, the objects, the entities and the merge records, then checks that no store still lists the
+tenant.
 """
 
 from __future__ import annotations
@@ -23,6 +24,7 @@ from typing import Any
 
 from graph_rag.adapters.llm_client import tenant_cache_dir
 from graph_rag.config import get_settings
+from graph_rag.merge_records import MergeRecordStore
 from graph_rag.ports import DocumentStore, EntityStore, GraphStore, ObjectStore
 from graph_rag.scope import DEFAULT_SCOPE, Scope
 from graph_rag.tenant_keys import TenantLlmKeys
@@ -32,12 +34,13 @@ __all__ = ["Stores", "delete_tenant", "export_tenant", "main", "tenant_scopes"]
 
 @dataclass
 class Stores:
-    """The four stores a tenant's data lives in."""
+    """The stores a tenant's data lives in. ``merges`` holds records of manual merges (GRA-144)."""
 
     objects: ObjectStore
     documents: DocumentStore
     entities: EntityStore
     graph: GraphStore
+    merges: MergeRecordStore | None = None
 
 
 def _check(tenant: str) -> None:
@@ -49,11 +52,16 @@ def _check(tenant: str) -> None:
         )
 
 
+def _stores_of(stores: Stores) -> list[Any]:
+    held = [stores.objects, stores.documents, stores.entities, stores.graph]
+    return [*held, stores.merges] if stores.merges is not None else held
+
+
 def tenant_scopes(stores: Stores, tenant: str) -> list[Scope]:
     """Every scope of ``tenant`` that holds data in any store."""
     _check(tenant)
     found: set[Scope] = set()
-    for store in (stores.objects, stores.documents, stores.entities, stores.graph):
+    for store in _stores_of(stores):
         found |= set(store.scopes(tenant))
     return sorted(found, key=lambda s: s.key)
 
@@ -81,6 +89,14 @@ def export_tenant(stores: Stores, tenant: str, out: Path) -> dict[str, Any]:
         with (folder / "entities.jsonl").open("w") as handle:
             for entity in entities:
                 handle.write(json.dumps(_dump(entity, {"vector"})) + "\n")
+
+        if stores.merges is not None:  # the records hold dropped entities, edges and links
+            with (folder / "merges.jsonl").open("w") as handle:
+                for record in stores.merges.all(scope):
+                    dump = record.model_dump(
+                        mode="json", exclude={"dropped": {"__all__": {"vector"}}}
+                    )
+                    handle.write(json.dumps(dump) + "\n")
 
         graph = stores.graph.khop(scope, [e.canonical_id for e in entities], 1)
         (folder / "graph.json").write_text(
@@ -136,6 +152,9 @@ def delete_tenant(
             for entity_id in ids:
                 stores.entities.delete(scope, entity_id)
             counts["entities"] += len(ids)
+        if stores.merges is not None:
+            for record in stores.merges.all(scope):
+                stores.merges.delete(scope, record.merge_id)
     left = {
         name: [s.key for s in store.scopes(tenant)]
         for name, store in (
@@ -143,8 +162,9 @@ def delete_tenant(
             ("documents", stores.documents),
             ("entities", stores.entities),
             ("graph", stores.graph),
+            ("merges", stores.merges),
         )
-        if store.scopes(tenant)
+        if store is not None and store.scopes(tenant)
     }
     if left:
         raise RuntimeError(f"tenant {tenant!r} is not fully removed; still listed in: {left}")
@@ -158,6 +178,7 @@ def delete_tenant(
 def _real_stores() -> Stores:
     from graph_rag.adapters.es_document_store import EsDocumentStore
     from graph_rag.adapters.es_entity_store import EsEntityStore
+    from graph_rag.adapters.es_merge_store import EsMergeRecordStore
     from graph_rag.adapters.minio_object_store import MinioObjectStore
     from graph_rag.adapters.neo4j_graph_store import Neo4jGraphStore
 
@@ -167,6 +188,7 @@ def _real_stores() -> Stores:
         documents=EsDocumentStore.from_settings(settings),
         entities=EsEntityStore.from_settings(settings),
         graph=Neo4jGraphStore.from_settings(settings),
+        merges=EsMergeRecordStore.from_settings(settings),
     )
 
 
