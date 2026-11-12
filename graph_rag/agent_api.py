@@ -1,4 +1,4 @@
-"""The ``/v1`` agent API: ``remember``, ``recall`` and ``forget`` as JSON calls (ADR-0014, GRA-132).
+"""The ``/v1`` agent API: ``remember``, ``recall``, ``forget``, ``lookup`` and ``me`` (ADR-0014).
 
 A thin facade. Each verb reshapes a request onto the endpoint logic that already exists (ingest,
 the retriever, the eraser) and answers failures in the contract's one shape,
@@ -111,6 +111,16 @@ class LookupRequest(BaseModel):
 
 class LookupResponse(BaseModel):
     entities: list[EntityDetail]
+
+
+class MeResponse(BaseModel):
+    """Who the request is: the tenant, and only the end of the key that named it."""
+
+    tenant: str
+    namespace: str | None = None
+    key_suffix: str | None = Field(
+        default=None, description="The last four characters of the key; null with auth off."
+    )
 
 
 class ForgetResponse(BaseModel):
@@ -241,6 +251,18 @@ def add_agent_routes(
         if not found:
             raise AgentError("not_found", f"No entity matches {request.name or request.entity_id}.")
         return LookupResponse(entities=found)
+
+    @router.get("/me")
+    def me(
+        request: Request, namespace: str | None = None, tenant: str = Depends(tenant_of)
+    ) -> MeResponse:
+        """The tenant this request acts for, the namespace it names, and the key's last four."""
+        scope = _scope(tenant, namespace or None)
+        _, _, token = request.headers.get("authorization", "").partition(" ")
+        token = token.strip()
+        return MeResponse(
+            tenant=scope.tenant, namespace=scope.namespace, key_suffix=token[-4:] or None
+        )
 
     app.include_router(router)
 
