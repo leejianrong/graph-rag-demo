@@ -45,7 +45,7 @@ default path makes no LLM call (`synthesize: false`).
 | `unauthorized` | 401 | The API key is missing or wrong |
 | `not_found` | 404 | No source or entity matches |
 | `payload_too_large` | 413 | The text is over the size limit |
-| `unavailable` | 503 | A part the call needs (the retriever, the eraser, a store) is not running or not configured. `remember` answers it with `details.reason` `llm_not_configured` when no LLM provider key or endpoint is set (GRA-154); nothing is stored or queued |
+| `unavailable` | 503 | A part the call needs (the retriever, the eraser, a store) is not running or not configured. `remember` answers it with `details.reason` `llm_not_configured` when no LLM provider key or endpoint is set (GRA-154); nothing is stored or queued. The original `POST /ingest` route refuses the same case with a `503` whose body is `{"detail": ...}`, not this error shape |
 | `internal` | 500 | Anything else; the message does not leak internals |
 
 Clients branch on `code`; `message` is one sentence for a person that says what to change. The code set is closed:
