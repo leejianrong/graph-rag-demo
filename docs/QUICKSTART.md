@@ -92,6 +92,11 @@ Put one of these in `.env` and restart:
 - semula, a recording OpenAI-compatible server whose prompts are answered by an agent. It suits the bench and
   agent-driven sessions; it is not an unattended local model.
 
+If the endpoint is set but nothing answers (a closed port, a wrong host, a timeout), the document is accepted
+and its job fails with, for example, `coreference failed: InternalServerError. The LLM endpoint at
+llm.internal is unreachable (check OPENAI_API_BASE).` Only the host is shown, never the URL or a key.
+Post the document again once the endpoint is up.
+
 Cost on a small hosted model is roughly $0.2 to $0.3 per 1,000 small documents, uncached (an estimate).
 
 ## What is tested

@@ -29,6 +29,18 @@ _OPENAI_BARE = ("gpt-", "chatgpt-", "o1", "o3", "o4")
 _AUTH_ERRORS = {"AuthenticationError", "PermissionDeniedError"}
 _CONNECTION_ERRORS = {"APIConnectionError", "APITimeoutError", "Timeout", "ServiceUnavailableError"}
 _MISSING_KEY_TEXT = ("missing credentials", "api_key", "incorrect api key")
+# LiteLLM often wraps a refused connection, a DNS failure or a timeout in a bare InternalServerError
+# (``OpenAIException - Connection error.``); only these phrases make it "unreachable". A genuine
+# provider 500 carries none of them, so it is left unexplained rather than mislabelled.
+_UNREACHABLE_TEXT = (
+    "connection error",
+    "connection refused",
+    "name or service not known",
+    "temporary failure in name resolution",
+    "nodename nor servname",
+    "timed out",
+    "max retries exceeded",
+)
 
 
 class LlmNotConfigured(Exception):
@@ -81,6 +93,18 @@ def _host(environ: Mapping[str, str]) -> str:
     return (urlsplit(base).hostname or "") if base else ""
 
 
+def _chain_text(error: BaseException) -> str:
+    """The lower-cased text of an error and the errors it was raised from, outermost first."""
+    parts: list[str] = []
+    seen: set[int] = set()
+    current: BaseException | None = error
+    while current is not None and id(current) not in seen and len(seen) < 8:
+        seen.add(id(current))
+        parts.append(str(current).lower())
+        current = current.__cause__ or current.__context__
+    return " ".join(parts)
+
+
 def explain_llm_error(error: BaseException, environ: Mapping[str, str] | None = None) -> str | None:
     """A readable reason for a provider auth or connection failure, or ``None`` for any other.
 
@@ -92,10 +116,12 @@ def explain_llm_error(error: BaseException, environ: Mapping[str, str] | None = 
     text = str(error).lower()
     if names & _AUTH_ERRORS:
         return "The LLM provider rejected the API key (check OPENAI_API_KEY)."
-    if names & _CONNECTION_ERRORS:
+    if "InternalServerError" in names and any(t in text for t in _MISSING_KEY_TEXT):
+        return "No LLM API key is configured (set OPENAI_API_KEY or OPENAI_API_BASE)."
+    if names & _CONNECTION_ERRORS or (
+        "InternalServerError" in names and any(t in _chain_text(error) for t in _UNREACHABLE_TEXT)
+    ):
         host = _host(env)
         where = f"at {host} " if host else ""
         return f"The LLM endpoint {where}is unreachable (check OPENAI_API_BASE)."
-    if "InternalServerError" in names and any(t in text for t in _MISSING_KEY_TEXT):
-        return "No LLM API key is configured (set OPENAI_API_KEY or OPENAI_API_BASE)."
     return None

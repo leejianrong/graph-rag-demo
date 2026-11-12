@@ -227,6 +227,40 @@ def test_missing_credentials_surfaced_as_an_internal_error_is_explained() -> Non
     assert "No LLM API key" in (explain_llm_error(error, NOTHING) or "")
 
 
+@pytest.mark.parametrize(
+    "message",
+    [
+        "OpenAIException - Connection error.",
+        "OpenAIException - [Errno 111] Connection refused",
+        "[Errno -2] Name or service not known",
+        "Temporary failure in name resolution",
+        "Request timed out.",
+        "HTTPConnectionPool(host='x', port=1): Max retries exceeded with url: /v1",
+    ],
+)
+def test_a_refused_connection_arriving_as_an_internal_error_is_unreachable(message: str) -> None:
+    error = litellm.InternalServerError(message=message, llm_provider="openai", model="m")
+    env = {"OPENAI_API_BASE": "http://user:pw@llm.internal:8000/v1?token=abc"}
+    why = explain_llm_error(error, env)
+    assert why == "The LLM endpoint at llm.internal is unreachable (check OPENAI_API_BASE)."
+    assert "pw" not in why and "token" not in why and "/v1" not in why
+
+
+def test_the_chained_cause_is_inspected() -> None:
+    error = litellm.InternalServerError(message="failed", llm_provider="openai", model="m")
+    error.__cause__ = ConnectionRefusedError("[Errno 111] Connection refused")
+    assert "unreachable" in (explain_llm_error(error, NOTHING) or "")
+
+
+def test_a_genuine_provider_500_is_not_called_unreachable() -> None:
+    error = litellm.InternalServerError(
+        message="OpenAIException - The server had an error while processing your request",
+        llm_provider="openai",
+        model="m",
+    )
+    assert explain_llm_error(error, NOTHING) is None
+
+
 @pytest.mark.parametrize("error", [RuntimeError("db down"), ValueError("bad"), KeyError("k")])
 def test_other_errors_are_left_alone(error: Exception) -> None:
     assert explain_llm_error(error, NOTHING) is None
