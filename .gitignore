@@ -48,4 +48,6 @@ Thumbs.db
 # UI (GRA-46)
 ui/node_modules/
 ui/dist/
+ui/playwright-report/
+ui/test-results/
 ui/src/api/schema.d.ts

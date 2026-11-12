@@ -194,6 +194,11 @@ class Settings(BaseSettings):
     rank_weight_seed: float = 0.7
     rank_weight_proximity: float = 0.3
 
+    # --- Web UI (GRA-53) ------------------------------------------------------
+    # Where the built UI is (the image puts it here). The service serves it at ``/`` when the
+    # directory holds an index.html; an empty value, or no build there, serves the API alone.
+    ui_dir: str = "/app/ui-dist"
+
     # --- Logging seam --------------------------------------------------------
     log_level: str = "INFO"
     # ``json`` writes one object per line (time, level, logger, message, trace id) for a log

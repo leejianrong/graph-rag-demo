@@ -44,6 +44,7 @@ coref/KG-build/synthesis are deterministic and free. NER is local + deterministi
 |------|-------------|-------|:-----------------:|
 | **Fast suite** | in-memory fakes | all pipeline + query logic, both entry points, unit seams | ✅ yes ($0, no Docker) |
 | **Integration / contract** | real adapters via docker-compose / testcontainers | prove each real adapter behaves like its fake (one contract test per port) | ❌ no (slower; gates adapters, not logic) |
+| **Browser (e2e job)** | `graph-rag-offline` + built UI, real chromium | sign in, ingest, query, sign out through the UI (`ui/e2e/`, Playwright; `make ui-e2e`, CI job `e2e`). Not the pytest `e2e` marker | ❌ no (needs a browser) |
 | **Benchmark smoke** | small fixture corpus | end-to-end scores are stable + reproducible | ❌ no (separate target) |
 
 The contract layer is deliberately **small** — enough to prove real `EntityStore`

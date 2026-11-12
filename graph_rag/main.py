@@ -48,6 +48,7 @@ from graph_rag.stages.coref import LLMCorefStage
 from graph_rag.stages.entity_linking import EntityLinkingStage
 from graph_rag.stages.kg_build import KgBuildStage
 from graph_rag.stages.ner import SpacyNerStage
+from graph_rag.ui_static import mount_ui
 
 __all__ = ["Pipeline", "build_pipeline", "main"]
 
@@ -202,6 +203,8 @@ def main() -> None:
         jobs=job_store,
     )
 
+    if mount_ui(app, settings):  # after every API route, so none is shadowed
+        logger.info("serving the web UI at / from %s", settings.ui_dir)
     logger.info("serving FastAPI app on %s:8000", settings.bind_host)
     uvicorn.run(app, host=settings.bind_host, port=8000)
 

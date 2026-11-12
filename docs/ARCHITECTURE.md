@@ -60,7 +60,7 @@ Two deliberately different entry points into shared stores (ADR-0001, ADR-0007):
 - The **query service** is a synchronous FastAPI endpoint that runs retrieval
   read-only; queries are interactive, not a pipeline, so they never touch the queue
   (ADR-0007).
-- One FastAPI service exposes both `/ingest` and `/query`.
+- One FastAPI service exposes both `/ingest` and `/query`. It also serves the built web UI at `/` (same origin, so no CORS), mounted after every API route so none is shadowed (`graph_rag/ui_static.py`, `UI_DIR`; GRA-53). The image builds the UI in a Node stage and copies it to `/app/ui-dist`; with no build there the service is the API alone.
 
 ## 3. Component / port architecture
 
