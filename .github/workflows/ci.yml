@@ -48,6 +48,26 @@ jobs:
       - name: Check site/index.html (parses + anchors resolve)
         run: python3 scripts/check_landing_page.py
 
+  # --- Cheap gate: the web UI (ui/, GRA-46) ---------------------------------
+  # Type-check and build the Vite + Svelte app. `npm run check` and `build` regenerate the API
+  # client from docs/openapi.json first; the fast suite fails if that file drifts from the app.
+  ui:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
+
   # --- Cheap gate: fast suite, fakes only, NO Docker (the required gate) ----
   fast:
     runs-on: ubuntu-latest

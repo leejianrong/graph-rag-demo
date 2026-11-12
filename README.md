@@ -316,6 +316,17 @@ A few things trip people up the first time:
 
 The test layers and how to run them are in [CONTRIBUTING.md](CONTRIBUTING.md#tests).
 
+## Web UI
+
+`ui/` is a Vite + Svelte + TypeScript app over the HTTP API. So far it is a shell with a health page; the
+views for sign-in, ingest, query, the graph and API keys follow. Its client types are generated from
+`docs/openapi.json`, which `make openapi` rewrites from the app (a fast test fails when it is stale).
+Needs Node 22+. With the API on port 8000 (for example `graph-rag-offline`):
+
+    make ui-install
+    make ui-dev     # http://localhost:5173, proxies the API paths to :8000
+    make ui-build   # type-check and build into ui/dist
+
 ## Synthetic data generator
 
 ![The generator UI: a generated world drawn as a graph, with one question's gold path highlighted](docs/assets/kggen-ui.png)

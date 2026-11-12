@@ -80,6 +80,7 @@ behaviour at the seam, never internal call order. See `docs/TESTING.md`. Markers
 
 ## Where things are (only the non-obvious)
 
+- `ui/` — the product web UI (Vite + Svelte + TS; `make ui-install | ui-dev | ui-build`, CI job `ui`; not `make ui`, which is the generator UI). Its API client is generated from `docs/openapi.json`; after an API change run `make openapi` (a fast test fails on drift). One file per view in `ui/src/views/`.
 - `graph_rag/` — the pipeline; `datagen/kggen/` — the standalone data generator (CLI `kggen`); `bench/kgbench/` — the evaluation bench (CLI `kgbench`).
 - `docs/adr/` — the "why" (ADR-0011 is the bench, ADR-0012 the standalone generator); `docs/ARCHITECTURE.md`, `docs/TESTING.md`.
 - `agent_docs/build-status.md` — how each V1–V8 slice works in detail.
