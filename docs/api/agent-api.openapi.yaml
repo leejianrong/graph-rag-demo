@@ -132,6 +132,62 @@ paths:
         "404": { $ref: "#/components/responses/NotFound" }
         "429": { $ref: "#/components/responses/RateLimited" }
         "503": { $ref: "#/components/responses/Unavailable" }
+  /v1/entities:
+    get:
+      operationId: searchEntities
+      tags: [memory]
+      summary: Search entities by name or alias.
+      description: |
+        For the explorer: one page of the scope's entities whose name or any alias contains `q`
+        (ignoring case and punctuation), newest first. Without `q` every entity is listed. Pass
+        `next_cursor` back as `cursor` for the next page; it is null on the last.
+      x-status: existing
+      x-card: GRA-142
+      parameters:
+        - { name: q, in: query, schema: { type: string, maxLength: 200 } }
+        - name: type
+          in: query
+          schema: { $ref: "#/components/schemas/EntityType" }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: namespace, in: query, schema: { $ref: "#/components/schemas/Namespace" } }
+      responses:
+        "200":
+          description: A page of entities.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EntitySearchResponse" }
+        "400": { $ref: "#/components/responses/InvalidRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+  /v1/entities/{entity_id}:
+    get:
+      operationId: getEntity
+      tags: [memory]
+      summary: One entity with its neighbours, aliases and source documents.
+      description: |
+        Up to `neighbours_limit` outgoing and as many incoming facts (the totals say how many
+        exist) and the documents that mention the entity, most mentions first. An id the scope
+        does not hold is `404`, including another tenant's.
+      x-status: existing
+      x-card: GRA-142
+      parameters:
+        - { name: entity_id, in: path, required: true, schema: { type: string } }
+        - { name: neighbours_limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 25 } }
+        - { name: sources_limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+        - { name: namespace, in: query, schema: { $ref: "#/components/schemas/Namespace" } }
+      responses:
+        "200":
+          description: The entity.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EntityNeighbourhood" }
+        "400": { $ref: "#/components/responses/InvalidRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "503": { $ref: "#/components/responses/Unavailable" }
   /health:
     get:
       operationId: health
@@ -424,6 +480,49 @@ components:
             neighbours:
               type: array
               items: { $ref: "#/components/schemas/Neighbour" }
+    EntityType:
+      type: string
+      enum: [PERSON, ORG, LOCATION, LAW, DATE, EVENT, NORP, PRODUCT]
+    EntitySummary:
+      allOf:
+        - $ref: "#/components/schemas/Entity"
+        - type: object
+          properties:
+            first_seen:
+              type: [string, "null"]
+              description: When the entity was first stored (UTC, ISO-8601); null if stored before this was kept.
+    EntitySearchResponse:
+      type: object
+      required: [entities]
+      properties:
+        entities:
+          type: array
+          items: { $ref: "#/components/schemas/EntitySummary" }
+        next_cursor:
+          type: [string, "null"]
+          description: Opaque; null on the last page.
+    EntitySource:
+      type: object
+      required: [document_id, name, mentions]
+      properties:
+        document_id: { type: string }
+        name: { type: string, description: The source id the document was stored under. }
+        mentions: { type: integer, minimum: 1 }
+    EntityNeighbourhood:
+      allOf:
+        - $ref: "#/components/schemas/EntitySummary"
+        - type: object
+          properties:
+            neighbours:
+              type: array
+              description: Outgoing facts first, then incoming; each direction cut at `neighbours_limit`.
+              items: { $ref: "#/components/schemas/Neighbour" }
+            outgoing_total: { type: integer }
+            incoming_total: { type: integer }
+            sources:
+              type: array
+              items: { $ref: "#/components/schemas/EntitySource" }
+            sources_total: { type: integer }
     Neighbour:
       type: object
       required: [entity, predicate, direction, provenance]

@@ -67,6 +67,25 @@ them first fixes their names before three clients each invent one.
 | `forget` | `DELETE /documents/{doc_id}` | Takes `source_id` or `document_id`; the facade derives the id from the source. Served (GRA-132). |
 | `lookup` | none | Built over `GraphStore.get_node` / `get_node_edges` and name blocking in `EntityStore`; takes a name (or alias) or an entity id, and an optional `namespace`; no match is `404`. Served (GRA-37). |
 
+### Entity browsing (GRA-142)
+
+Two read-only routes beside the verbs feed the graph explorer; they are not agent tools (no MCP or CLI mapping).
+Both take the optional `namespace` query parameter, run in the key's tenant, and answer in the same error shape.
+
+- `GET /v1/entities?q=&type=&limit=&cursor=&namespace=`: entities whose name or any alias contains `q` (case and
+  punctuation ignored; no `q` lists all), optionally of one `type`, newest first (`first_seen` descending, then
+  `canonical_id`). `limit` is 1 to 100 (default 20). `next_cursor` is an opaque keyset cursor to pass back as
+  `cursor`, and `null` on the last page; a cursor this API did not issue is `invalid_request`.
+- `GET /v1/entities/{entity_id}?neighbours_limit=&sources_limit=&namespace=`: the entity (`canonical_id` is its
+  stable id), `aliases`, `first_seen`, `neighbours` (outgoing facts, then incoming, each direction cut at
+  `neighbours_limit`, 1 to 100, default 25, with `outgoing_total` and `incoming_total`) and `sources` (documents that
+  mention it, most mentions first, cut at `sources_limit`, with `sources_total`). A source is `{document_id, name,
+  mentions}`: the source id and a count, never document text. An id the scope does not hold, including another
+  tenant's, is `404`. Entities merged later (GRA-144) will add a `merged_from` list; it is not there yet.
+
+`first_seen` is stamped by the entity store on an id's first write and kept through later ones. An entity stored
+before it was kept has `first_seen: null` and sorts last.
+
 Today's endpoints keep working. The `/v1` facade is a thin layer that renames and reshapes; it adds no pipeline
 logic. Errors at the facade are converted from the existing ones (`404` and `503` already carry the meaning).
 

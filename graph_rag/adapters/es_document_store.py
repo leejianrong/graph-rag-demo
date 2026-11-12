@@ -20,7 +20,7 @@ from elasticsearch import Elasticsearch, NotFoundError
 from graph_rag.adapters.es_client import es_client
 from graph_rag.adapters.scoping import es_in_scope, es_scope_filter, scope_fields, scope_of_key
 from graph_rag.logging import get_logger
-from graph_rag.models import DocumentRecord, Sentence, SupportingSentence
+from graph_rag.models import DocumentRecord, EntitySource, Sentence, SupportingSentence
 
 if TYPE_CHECKING:
     from graph_rag.config import Settings
@@ -205,6 +205,43 @@ class EsDocumentStore:
             return []
         keys = [b["key"] for b in response["aggregations"]["scopes"]["buckets"]]
         return sorted((scope_of_key(tenant, k) for k in keys), key=lambda s: s.key)
+
+    def entity_sources(self, scope: Scope, canonical_id: str) -> list[EntitySource]:
+        """The records that link to the entity, most links first (at most 1000 records).
+
+        The same keyword-or-``.keyword`` match as :meth:`entities_in_use`; the links are
+        counted from each hit's ``el_result``.
+        """
+        match = {
+            "bool": {
+                "should": [
+                    {"term": {"el_result.canonical_id": canonical_id}},
+                    {"term": {"el_result.canonical_id.keyword": canonical_id}},
+                ],
+                "minimum_should_match": 1,
+            }
+        }
+        try:
+            response = self._client.search(
+                index=self._index,
+                query={"bool": {"filter": [es_scope_filter(scope), match]}},
+                size=1000,
+                source_includes=["document_id", "object_key", "el_result.canonical_id"],
+            )
+        except NotFoundError:
+            return []
+        found = []
+        for hit in response["hits"]["hits"]:
+            source = hit["_source"]
+            links = source.get("el_result", [])
+            count = sum(1 for link in links if link["canonical_id"] == canonical_id)
+            found.append(
+                EntitySource(
+                    document_id=source["document_id"], name=source["object_key"], mentions=count
+                )
+            )
+        found.sort(key=lambda s: (-s.mentions, s.document_id))
+        return found
 
     def entities_in_use(
         self, scope: Scope, canonical_ids: set[str], *, excluding: str | None = None

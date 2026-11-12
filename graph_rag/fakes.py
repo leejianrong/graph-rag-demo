@@ -25,6 +25,7 @@ from graph_rag.models import (
     CorefCluster,
     CuratedType,
     DocumentRecord,
+    EntitySource,
     IngestTrigger,
     Mention,
     Sentence,
@@ -35,8 +36,11 @@ from graph_rag.models import (
 from graph_rag.normalize import normalize_name
 from graph_rag.scope import Scope
 from graph_rag.stages.ner import NerResult
+from graph_rag.timeutil import utc_now_iso
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from pydantic import BaseModel
 
 _StructuredT = TypeVar("_StructuredT", bound="BaseModel")
@@ -128,6 +132,20 @@ class InMemoryDocumentStore:
         found = {s for s, records in self._records.items() if s.tenant == tenant and records}
         return sorted(found, key=_scope_order)
 
+    def entity_sources(self, scope: Scope, canonical_id: str) -> list[EntitySource]:
+        """The records that link to the entity, most links first."""
+        found = []
+        for record in self._records[scope].values():
+            count = sum(1 for link in record.el_result if link.canonical_id == canonical_id)
+            if count:
+                found.append(
+                    EntitySource(
+                        document_id=record.document_id, name=record.object_key, mentions=count
+                    )
+                )
+        found.sort(key=lambda s: (-s.mentions, s.document_id))
+        return found[:1000]
+
     def entities_in_use(
         self, scope: Scope, canonical_ids: set[str], *, excluding: str | None = None
     ) -> set[str]:
@@ -202,12 +220,45 @@ class InMemoryEntityStore:
     the real Elasticsearch adapter is proved against by its contract test.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, clock: Callable[[], str] | None = None) -> None:
         self._entities: dict[Scope, dict[str, CanonicalEntity]] = defaultdict(dict)
+        self._first_seen: dict[Scope, dict[str, str]] = defaultdict(dict)
+        self._clock = clock or utc_now_iso
 
     def upsert(self, scope: Scope, entity: CanonicalEntity) -> None:
         """Insert or overwrite the entity keyed by ``entity.canonical_id`` (idempotent)."""
         self._entities[scope][entity.canonical_id] = entity
+        self._first_seen[scope].setdefault(entity.canonical_id, self._clock())
+
+    def first_seen(self, scope: Scope, canonical_id: str) -> str | None:
+        """When the id was first upserted, kept through later upserts."""
+        return self._first_seen[scope].get(canonical_id)
+
+    def search(
+        self,
+        scope: Scope,
+        *,
+        query: str | None = None,
+        entity_type: CuratedType | None = None,
+        limit: int,
+        after: tuple[str, str] | None = None,
+    ) -> list[tuple[CanonicalEntity, str]]:
+        """Entities whose normalized name or alias contains the query, newest first."""
+        key = normalize_name(query or "")
+        rows: list[tuple[CanonicalEntity, str]] = []
+        for entity in self._entities[scope].values():
+            if entity_type is not None and entity.type != entity_type:
+                continue
+            names = (entity.name, *entity.aliases)
+            if key and not any(key in normalize_name(n) for n in names):
+                continue
+            rows.append((entity, self._first_seen[scope].get(entity.canonical_id, "")))
+        rows.sort(key=lambda r: r[0].canonical_id)
+        rows.sort(key=lambda r: r[1], reverse=True)  # stable: ties stay in id order
+        if after is not None:
+            seen, last = after
+            rows = [r for r in rows if r[1] < seen or (r[1] == seen and r[0].canonical_id > last)]
+        return rows[:limit]
 
     def delete(self, scope: Scope, canonical_id: str) -> None:
         """Remove the entity; a no-op if it is not there."""
