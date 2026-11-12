@@ -13,7 +13,7 @@ from collections.abc import Iterator
 import pytest
 
 from graph_rag.config import Settings
-from tests.merge_checks import check_entity_merge, check_merge_store
+from tests.merge_checks import check_entity_merge, check_entity_split, check_merge_store
 
 pytestmark = pytest.mark.contract
 
@@ -88,3 +88,26 @@ def test_a_merge_over_real_elasticsearch_and_neo4j_matches_the_fakes(
     graph = Neo4jGraphStore(driver=neo4j_driver)  # type: ignore[arg-type]
     graph.init()
     check_entity_merge(entities, graph, documents, merges, dims)
+
+
+def test_a_split_over_real_elasticsearch_and_neo4j_matches_the_fakes(
+    es_url: str, neo4j_driver: object
+) -> None:
+    from elasticsearch import Elasticsearch
+
+    from graph_rag.adapters.es_document_store import EsDocumentStore
+    from graph_rag.adapters.es_entity_store import EsEntityStore
+    from graph_rag.adapters.es_merge_store import EsMergeRecordStore
+    from graph_rag.adapters.neo4j_graph_store import Neo4jGraphStore
+
+    client = Elasticsearch(hosts=[es_url])
+    dims = Settings().embed_dim
+    entities = EsEntityStore(client=client, index="split-entities", dims=dims)
+    entities.ensure_index()
+    documents = EsDocumentStore(client=client, index="split-documents")
+    documents.ensure_index()
+    merges = EsMergeRecordStore(client, "split-merge-records")
+    merges.ensure_index()
+    graph = Neo4jGraphStore(driver=neo4j_driver)  # type: ignore[arg-type]
+    graph.init()
+    check_entity_split(entities, graph, documents, merges, dims)

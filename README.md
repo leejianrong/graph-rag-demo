@@ -181,6 +181,14 @@ undone later, and the entity detail lists it as `merged_from`. Repeating a merge
 other-tenant id is `404`, and entities of different types are `409`. A merged-away id answers `404` with
 `details.merged_into`, and a later document that names it links to the kept entity.
 
+A wrong merge can be undone: `POST /v1/entities/<keep_id>/split` with `{"merge_id": "<id>", "entity_ids": ["<id>"]}`
+(`merge_id` is in the merge response and in `merged_from`; leave it out when the entity has one merge, and `entity_ids`
+out to split all of it) puts the entities that merge folded in back with their edges, aliases, document links and
+first-seen time (GRA-145). Only a recorded merge can be split: no merge to split, a merge that never finished, a
+kept entity that was itself merged into another (split that one first) and a restored id that is taken again are `409`
+with `details.reason`; an unknown or other-tenant id is `404`. Splitting twice is a no-op (`200`, `already_split`).
+Edges, links and aliases the kept entity gained after the merge stay with it.
+
 To ask what was true on a past day, give `remember` a `document_date` and `recall` an `as_of` (both `YYYY-MM-DD`; `graphrag remember --document-date`, `graphrag recall --as-of`). `recall` then drops the facts that had not begun or had ended by that day, and the entities and sentences that rest only on them. A fact with no known dates is never dropped, since the service only knows a date it was given. A newer dated document also ends an older fact for the predicates that hold one object at a time (`WORKS_FOR`, `LOCATED_IN`, `HAS_ROLE`, `GOVERNED_BY`): the older edge gets a `valid_to` and stays as history. `recall` without `as_of` leaves ended facts out; with `as_of` it finds them. Both need `document_date` on the documents, since only dated documents can be ordered.
 
 ### Command line

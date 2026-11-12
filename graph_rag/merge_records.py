@@ -7,7 +7,9 @@ document links that named it. :class:`MergeRecordStore` keeps records per scope.
 
 The record is the only copy of a dropped entity once the merge is done. A split rebuilds from it
 alone: put each ``DroppedEntity`` back in the entity and graph stores, write its ``edges``, and
-point its ``document_links`` at it again. ``status`` becomes ``split`` when that is done (GRA-145).
+point its ``document_links`` at it again. A split (GRA-145) records which dropped ids it has
+restored in ``split_ids``; ``status`` is ``splitting`` while one is in flight and ``split`` once
+every dropped entity is back (a partial split leaves the record ``done``).
 """
 
 from __future__ import annotations
@@ -29,7 +31,7 @@ __all__ = [
     "MergeRecordStore",
 ]
 
-MergeStatus = Literal["pending", "done", "split"]
+MergeStatus = Literal["pending", "done", "splitting", "split"]
 
 
 class DocumentLink(BaseModel):
@@ -66,6 +68,20 @@ class MergeRecord(BaseModel):
     completed_at: str | None = None
     keep_aliases_before: list[str] = Field(default_factory=list)
     dropped: list[DroppedEntity] = Field(default_factory=list)
+    # Survivor edges the merge found identical to a moved one and so did not duplicate (GRA-145):
+    # a split must leave these in place when it takes the moved copy back out.
+    shadowed_edges: list[Triple] = Field(default_factory=list)
+    split_ids: list[str] = Field(default_factory=list)  # dropped ids a split has restored
+    splitting_ids: list[str] = Field(default_factory=list)  # the ids of the split in flight
+    split_at: str | None = None  # when the last split finished
+
+    def holds(self, entity_id: str) -> bool:
+        """Whether ``entity_id`` is folded into the survivor by this finished merge right now."""
+        return (
+            self.status in ("done", "splitting")
+            and entity_id not in self.split_ids
+            and any(d.canonical_id == entity_id for d in self.dropped)
+        )
 
 
 class MergeRecordStore(Protocol):

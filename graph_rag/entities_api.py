@@ -175,8 +175,8 @@ class EntityExplorer:
         """The id that finished a merge dropping ``entity_id``, or ``None`` if none did."""
         if self._merges is None:
             return None
-        done = [r for r in self._merges.containing(scope, entity_id) if r.status == "done"]
-        return done[-1].keep_id if done else None
+        held = [r for r in self._merges.containing(scope, entity_id) if r.holds(entity_id)]
+        return held[-1].keep_id if held else None
 
     def _merged_from(self, scope: Scope, entity_id: str) -> list[MergedFrom]:
         if self._merges is None:
@@ -191,8 +191,9 @@ class EntityExplorer:
                 merged_at=r.completed_at or r.created_at,
             )
             for r in self._merges.for_entity(scope, entity_id)
-            if r.status == "done"
+            if r.status in ("done", "splitting")
             for d in r.dropped
+            if r.holds(d.canonical_id)
         ]
 
     def _neighbours(

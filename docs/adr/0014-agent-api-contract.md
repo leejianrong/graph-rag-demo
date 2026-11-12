@@ -133,8 +133,8 @@ survivor, EntitySummary>}`.
   [Triple as stored], document_links: [{document_id, link: EntityLink as stored}]}`. A split restores from it alone:
   upsert each dropped entity (vector included) in both stores, write its `edges`, set each `document_links` link back to
   the dropped id (match on `document_id`, `mention_text` and `canonical_id == keep_id`), take the dropped names out of the
-  survivor's aliases (keeping those in `keep_aliases_before` and any added since), and set `status` to `split`. One gap
-  for GRA-145: `EntityStore.upsert` stamps `first_seen` itself, so restoring the recorded one needs a small port change.
+  survivor's aliases (keeping those in `keep_aliases_before` and any added since), and set `status` to `split` (GRA-145,
+  below; `EntityStore.upsert` takes an optional `first_seen` for that).
   `GET /v1/entities/{id}` returns the finished records as `merged_from: [{canonical_id, name, type, aliases, merge_id,
   merged_at}]` (no vector, no edges). Records go with the tenant in `graph-rag-admin` export and delete.
 - **Consistency.** There is no transaction across the entity store, the graph and the documents, so the record is written
@@ -149,6 +149,62 @@ survivor, EntitySummary>}`.
 
 Today's endpoints keep working. The `/v1` facade is a thin layer that renames and reshapes; it adds no pipeline
 logic. Errors at the facade are converted from the existing ones (`404` and `503` already carry the meaning).
+
+### Addendum: splitting a merged entity (GRA-145)
+
+`POST /v1/entities/{keep_id}/split` with `{"merge_id"?, "entity_ids"?, "namespace"?}` undoes a recorded merge
+(`graph_rag/curation_api.py`, `graph_rag/splitting.py`; in `docs/openapi.json`, not in the hand-written contract). It
+restores only what a merge record lists, so it cannot split an entity that was never merged. `merge_id` names the record
+(from a merge response or from `merged_from`); left out, it is the only record of `keep_id` that still has entities to
+split out (none: `409`; several: `400 invalid_request` with `details.merge_ids`). `entity_ids` (1 to 10, distinct) picks
+some of the record's dropped entities; left out, all that are still merged. It answers `200`:
+`{"merge_id", "split": [EntitySummary put back by this call], "already_split": [ids an earlier call put back], "entity":
+<the survivor now, EntitySummary>}`. `first_seen` of a restored entity is the one it had before the merge.
+
+- **Errors.** Unknown or other-tenant or other-namespace `keep_id`, or an unknown `merge_id`: `404 not_found`, nothing
+  written. `409 conflict` with `details.reason`: `no_merge_record` (the entity has no merge to split, the record is for a
+  different survivor, or `entity_ids` holds an id the merge did not fold in; `details.entity_ids` for the last),
+  `merge_pending` (the merge never finished; repeat the merge request first), `survivor_merged` (`keep_id` was itself
+  merged into another entity, `details.merged_into` and `details.merge_id`; split it out of that one first),
+  `entity_exists` (a restored id has been taken by another entity since), `neighbour_merged` (an edge to restore ends at
+  an entity that has been merged away since; split that one out first). The checks run before anything is written.
+- **Idempotent.** Splitting ids a record has already split is a `200` no-op with those ids in `already_split`, as a
+  repeated merge is (a `409` would make a retry after a lost response look like a failure).
+- **What goes back.** Entities: each dropped entity is put back in the entity store (vector, aliases, recorded
+  `first_seen` through `EntityStore.upsert(..., first_seen=)`) and in the graph, and its names that only it brought leave
+  the survivor's aliases. A name stays if the survivor had it before the merge (`keep_aliases_before`), if it is the
+  survivor's own name, or if another still-merged entity brought it too. A name the survivor also earned from a later
+  document cannot be told apart from the merged one and goes too. Edges: each edge the record lists for a restored entity
+  returns to its original endpoints, and the copy the merge put on the survivor is removed
+  (`GraphStore.split_nodes`). Where the other end is another dropped entity that is staying merged, the edge points at the
+  survivor. An edge that became a loop on the survivor comes back as the edge it was. A repeat the merge did not duplicate
+  (the survivor had an identical edge) is restored as the dropped entity's own edge while the survivor keeps its copy,
+  because the merge recorded the survivor's colliding edges (`shadowed_edges`). Links: each recorded link goes back to
+  the dropped id, matched on the document and on every field but the id among the links that now name the survivor; two
+  links identical but for the id cannot be told apart, so the first goes. A document deleted or re-ingested since is
+  skipped.
+- **What stays.** Edges, links and aliases created after the merge stay with the survivor: only what the record lists
+  moves. A later document that linked to the survivor through a dropped name keeps that link. From the split on, a
+  document naming the restored entity links to it by its own name, since the survivor no longer has it as an alias
+  (`tests/unit/test_entity_split.py`).
+- **Entity detail.** `merged_from` lists only the records' entities that are still merged. A restored id answers
+  `GET /v1/entities/{id}` `200` and no longer gives `merged_into`.
+- **Order and chains.** A record is split by the survivor it merged into. A merged into B and B into C: A cannot be split
+  out of B while B is dropped (`survivor_merged`); split B out of C, then A out of B. The other order needs no rule. The
+  same ordering holds for a neighbour (`neighbour_merged`). A restored entity that is merged elsewhere again gets a new
+  record; the old one keeps it listed in `split_ids`, so repeating the old split is a no-op.
+- **The record.** `MergeRecord` gained `split_ids` (dropped ids restored), `splitting_ids` (the ids of the split in
+  flight), `split_at`, `shadowed_edges`, and the status `splitting`. Status is `done` while some dropped entities are
+  still merged, `splitting` during a split and `split` once every dropped entity is back. Records written before this
+  change have no `shadowed_edges`, so splitting one removes the survivor's identical edge if there was one.
+- **Consistency.** As for the merge, with no shared transaction: the record is marked `splitting` first, then the graph
+  (`split_nodes`: nodes, then the edges to add, then the edges to remove), the documents' links, the restored entities,
+  the survivor's aliases, and last the record is marked split. Every step is safe to run again. A crash leaves a
+  `splitting` record and some steps applied: until the restored entity is written it is missing from entity search while
+  its edges and links are already back, and after that and before the alias step both it and the survivor answer to its
+  name. Repeating the split request, or any merge that names the survivor or a dropped id of the record, finishes
+  it first. Nothing heals it by itself. The lock that serialises merges and splits lives in one process only.
+- **Not in scope.** Splitting an entity with no merge record, or splitting by moving arbitrary edges.
 
 ## Consequences
 
