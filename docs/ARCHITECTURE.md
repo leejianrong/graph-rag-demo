@@ -263,6 +263,10 @@ endpoint (incl. DeepSeek) is swappable via `.env`.
   which the image has): the API puts a W3C `traceparent` on the ingest trigger and the worker continues
   it, so one trace runs API accept, then `ingest.<stage>` (read, entity recognition, coreference, entity
   linking, knowledge graph, which is the graph write), with an `llm.call` span under the stage that made it.
+  Only spans leave the process, and only when the endpoint is set: unset, no OTLP exporter, reader or
+  thread starts and nothing connects (API, worker and offline server all call `configure_tracing` first,
+  which also defaults `FASTAPI_OTEL_AUTO_CONFIGURE=false` and `OTEL_{TRACES,METRICS,LOGS}_EXPORTER=none`
+  so FastAPI's built-in telemetry and the SDK's environment setup cannot add exporters of their own; GRA-153).
   A Grafana dashboard, Prometheus and Jaeger come from `docker-compose.observability.yml`.
 - **Testing seam** (ADR-0010): fast suite runs both entry points fully in-process
   against fakes ($0, no Docker); a thin real-container contract layer

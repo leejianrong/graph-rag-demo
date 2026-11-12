@@ -25,6 +25,7 @@ from graph_rag.entities_api import EntityExplorer
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityLookup
 from graph_rag.models import IngestTrigger
+from graph_rag.observability import configure_tracing
 from graph_rag.ui_static import mount_ui
 from graph_rag.wiring import build_offline_components
 
@@ -36,6 +37,7 @@ _logger = get_logger(__name__)
 def build_app(settings: Settings | None = None) -> FastAPI:
     """The service over in-memory stores, processing each document as it arrives."""
     settings = settings or Settings()
+    configure_tracing(settings, "graph-rag-offline")
     components = build_offline_components(settings=settings)
 
     class Inline:

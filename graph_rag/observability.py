@@ -26,6 +26,7 @@ for the usage meter, not by a second wrapper.
 from __future__ import annotations
 
 import hmac
+import os
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
@@ -140,11 +141,27 @@ def _tracer() -> trace.Tracer:
     return (_provider or trace.get_tracer_provider()).get_tracer("graph_rag")
 
 
+def _keep_other_exporters_off() -> None:
+    """Stop libraries that read ``OTEL_*`` from starting exporters of their own (GRA-153).
+
+    FastAPI's built-in telemetry and the OpenTelemetry SDK's environment setup create OTLP trace,
+    metric and log exporters, with periodic readers that retry ``localhost:4318``, when told to. We
+    export spans in one place (:func:`configure_tracing`), so turn the rest off unless the
+    operator chose otherwise. Call before the app is built: FastAPI reads this at construction.
+    """
+    os.environ.setdefault("FASTAPI_OTEL_AUTO_CONFIGURE", "false")
+    for signal in ("TRACES", "METRICS", "LOGS"):
+        os.environ.setdefault(f"OTEL_{signal}_EXPORTER", "none")
+
+
 def configure_tracing(settings: Settings, service: str) -> bool:
     """Export spans over OTLP/HTTP when an endpoint is set. True when export is on.
 
-    Needs the ``otel`` extra; without it, or with no endpoint, spans stay no-ops.
+    Needs the ``otel`` extra; without it, or with no endpoint, spans stay no-ops: no exporter, no
+    reader, no thread, no connection. Only spans are exported, never OTLP metrics (those are
+    Prometheus's ``/metrics``). Call it in every process entry point before building the app.
     """
+    _keep_other_exporters_off()
     endpoint = settings.otel_exporter_otlp_endpoint.strip()
     if not endpoint:
         return False
