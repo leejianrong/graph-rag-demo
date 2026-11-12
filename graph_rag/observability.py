@@ -12,7 +12,7 @@ and a metric series per tenant is a cost and a leak; per-tenant counts are usage
 token (``METRICS_TOKEN``), which no tenant's API key equals, so tenants cannot read it; with auth
 off it is as open as the rest of the service. The worker serves the same text on its health port.
 
-**Traces** use the OpenTelemetry API, a no-op until an SDK is configured. With
+**Traces** use the OpenTelemetry API, a no-op until :func:`configure_tracing` sets a provider. With
 ``OTEL_EXPORTER_OTLP_ENDPOINT`` set (and the ``otel`` extra installed) spans are exported over
 OTLP/HTTP; unset, nothing is exported and the API costs nothing. One trace spans API accept, the
 worker's stages, each LLM call and the graph write: the API puts a W3C ``traceparent`` on the
@@ -69,7 +69,8 @@ __all__ = [
 
 _logger = get_logger(__name__)
 _propagator = TraceContextTextMapPropagator()
-_provider: Any = None  # set by configure_tracing; else the global (no-op) provider
+_provider: Any = None  # set by configure_tracing; else spans are no-ops
+_NOOP_TRACER = trace.NoOpTracer()
 
 _LATENCY = (0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0)
 _SLOW = (0.1, 0.5, 1.0, 2.5, 5.0, 10.0, 30.0, 60.0, 120.0, 300.0)
@@ -138,31 +139,42 @@ def use_tracer_provider(provider: Any) -> None:
 
 
 def _tracer() -> trace.Tracer:
-    return (_provider or trace.get_tracer_provider()).get_tracer("graph_rag")
+    """Our provider's tracer, else a private no-op one.
 
-
-def _keep_other_exporters_off() -> None:
-    """Stop libraries that read ``OTEL_*`` from starting exporters of their own (GRA-153).
-
-    FastAPI's built-in telemetry and the OpenTelemetry SDK's environment setup create OTLP trace,
-    metric and log exporters, with periodic readers that retry ``localhost:4318``, when told to. We
-    export spans in one place (:func:`configure_tracing`), so turn the rest off unless the
-    operator chose otherwise. Call before the app is built: FastAPI reads this at construction.
+    Never the global provider: a library can install an SDK provider there (``transformers`` does,
+    with an exporter pointed at ``localhost:4318``), and spans recorded on it would be exported.
     """
-    os.environ.setdefault("FASTAPI_OTEL_AUTO_CONFIGURE", "false")
-    for signal in ("TRACES", "METRICS", "LOGS"):
-        os.environ.setdefault(f"OTEL_{signal}_EXPORTER", "none")
+    return _provider.get_tracer("graph_rag") if _provider else _NOOP_TRACER
+
+
+def _keep_other_exporters_off(endpoint: str) -> None:
+    """Keep OpenTelemetry quiet unless an OTLP endpoint is set (GRA-153).
+
+    ``transformers`` (4.53, ``utils/metrics.py``), imported when spaCy's transformer model or
+    ``sentence-transformers`` loads, builds OTLP trace and metric exporters at import time, a
+    metric reader that fires every second, and installs them as the *global* providers whenever the
+    OpenTelemetry SDK and the OTLP exporter are importable (the image's ``otel`` extra makes them
+    so). Pointed at ``localhost:4318`` with no collector, it logs a connection error each second.
+    ``OTEL_SDK_DISABLED`` makes the SDK's providers no-ops, so nothing records or exports. It must
+    be in the environment before that import, so :func:`configure_tracing` runs first in every
+    entry point and ``setdefault`` leaves an operator's own value alone. With an endpoint set the
+    flag stays off (our spans export), and ``transformers`` sends its own spans and metrics to
+    that same collector.
+    """
+    if not endpoint:
+        os.environ.setdefault("OTEL_SDK_DISABLED", "true")
 
 
 def configure_tracing(settings: Settings, service: str) -> bool:
     """Export spans over OTLP/HTTP when an endpoint is set. True when export is on.
 
     Needs the ``otel`` extra; without it, or with no endpoint, spans stay no-ops: no exporter, no
-    reader, no thread, no connection. Only spans are exported, never OTLP metrics (those are
-    Prometheus's ``/metrics``). Call it in every process entry point before building the app.
+    reader, no thread, no connection, and ``OTEL_SDK_DISABLED`` is set so no library's SDK provider
+    exports either. We export only spans, never OTLP metrics (those are Prometheus's
+    ``/metrics``). Call it first in every process entry point, before any model library loads.
     """
-    _keep_other_exporters_off()
     endpoint = settings.otel_exporter_otlp_endpoint.strip()
+    _keep_other_exporters_off(endpoint)
     if not endpoint:
         return False
     try:
