@@ -44,7 +44,9 @@ export function makeClient(baseUrl = "", fetchImpl?: typeof fetch, auth?: AuthHo
 }
 
 /** A call's outcome: the data, or the HTTP status (0 for a network failure) and the API's own message. */
-export type Outcome<T> = { ok: true; data: T } | { ok: false; status: number; message?: string };
+export type Outcome<T> =
+  | { ok: true; data: T }
+  | { ok: false; status: number; message?: string; code?: string; details?: Record<string, unknown> };
 
 type Client = ReturnType<typeof makeClient>;
 
@@ -54,8 +56,16 @@ async function settle<T>(
   try {
     const { data, error, response } = await call();
     if (data !== undefined && response.ok) return { ok: true, data };
-    const body = error as { error?: { message?: string } } | undefined;
-    return { ok: false, status: response.status, message: body?.error?.message };
+    const body = error as
+      | { error?: { code?: string; message?: string; details?: Record<string, unknown> } }
+      | undefined;
+    return {
+      ok: false,
+      status: response.status,
+      message: body?.error?.message,
+      code: body?.error?.code,
+      details: body?.error?.details,
+    };
   } catch {
     return { ok: false, status: 0 };
   }
@@ -73,6 +83,32 @@ export function searchEntities(client: Client, query: SearchQuery) {
 export function entityDetail(client: Client, entityId: string, query: DetailQuery = {}) {
   return settle(() =>
     client.GET("/v1/entities/{entity_id}", { params: { path: { entity_id: entityId }, query } }),
+  );
+}
+
+/** `POST /v1/entities/{keep_id}/merge`: fold `mergeIds` into `keepId`. A 409's `details.reason` says why not. */
+export function mergeEntities(client: Client, keepId: string, mergeIds: string[], namespace?: string) {
+  return settle(() =>
+    client.POST("/v1/entities/{keep_id}/merge", {
+      params: { path: { keep_id: keepId } },
+      body: { merge_ids: mergeIds, namespace },
+    }),
+  );
+}
+
+/** `POST /v1/entities/{keep_id}/split`: put `entityIds` of merge `mergeId` back as separate entities. */
+export function splitEntity(
+  client: Client,
+  keepId: string,
+  mergeId: string,
+  entityIds: string[],
+  namespace?: string,
+) {
+  return settle(() =>
+    client.POST("/v1/entities/{keep_id}/split", {
+      params: { path: { keep_id: keepId } },
+      body: { merge_id: mergeId, entity_ids: entityIds, namespace },
+    }),
   );
 }
 

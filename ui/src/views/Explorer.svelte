@@ -11,6 +11,8 @@
     retrySearch,
     setQuery,
   } from "../lib/explorer.svelte";
+  import { closeCuration, curation, openPicker, setFocusFallback, startSplit } from "../lib/curation.svelte";
+  import CurationPanel from "./CurationPanel.svelte";
   import { firstSeen, moreCount, spanLabel, splitNeighbours, validity, type Neighbour } from "../lib/explorer";
 
   let text = $state("");
@@ -19,8 +21,10 @@
 
   onMount(() => {
     claimExplorer();
+    setFocusFallback(() => centreEl);
     text = explorer.search.q;
     if (!explorer.search.loaded) setQuery(text, true);
+    return () => closeCuration(false);
   });
 
   const detail = $derived(explorer.detail);
@@ -36,6 +40,7 @@
     if (id !== lastId) {
       lastId = id;
       evidence = null;
+      closeCuration(false);
       if (id) void tick().then(() => centreEl?.focus());
     }
   });
@@ -112,6 +117,10 @@
     <section class="hood" aria-labelledby="hood-title" aria-busy={explorer.loadingDetail}>
       <h2 id="hood-title">Neighbourhood of {detail?.name ?? explorer.trail[explorer.trail.length - 1].name}</h2>
 
+      {#if explorer.notice}
+        <p class="notice" role="status">{explorer.notice}</p>
+      {/if}
+
       {#if explorer.trail.length > 1}
         <nav class="trail" aria-label="Entities you have visited">
           <ol>
@@ -173,6 +182,9 @@
           </div>
         </div>
         <p class="hint">Select a neighbour to centre on it. "Evidence" shows the sentence an edge came from.</p>
+        {#if curation.mode !== "idle"}
+          <CurationPanel keep={detail} />
+        {/if}
       {/if}
     </section>
 
@@ -196,7 +208,39 @@
           {/if}
         </div>
 
-        <!-- A "Merged from" section and the merge and split actions go here (GRA-51). -->
+        <div class="block">
+          <h3>Merged from</h3>
+          {#if detail.merged_from.length}
+            <ul class="merged">
+              {#each detail.merged_from as m (m.merge_id + m.canonical_id)}
+                <li>
+                  <span class="m-who">
+                    <button
+                      type="button"
+                      class="link"
+                      onclick={() => centreOn({ id: m.canonical_id, name: m.name })}
+                    >{m.name}</button>
+                    <span class="mono p-meta">{m.type} · {m.canonical_id}</span>
+                  </span>
+                  <button
+                    type="button"
+                    class="btn small"
+                    aria-label={`Split ${m.name} out of ${detail.name}`}
+                    onclick={(e) => startSplit(m, e.currentTarget)}
+                  >Split</button>
+                </li>
+              {/each}
+            </ul>
+          {:else}
+            <span class="none">Nothing has been merged into this entity.</span>
+          {/if}
+          <button
+            type="button"
+            class="btn small"
+            aria-expanded={curation.mode === "pick" || curation.mode === "confirm-merge"}
+            onclick={(e) => openPicker(e.currentTarget)}
+          >Merge another entity into this one…</button>
+        </div>
 
         {#if evidence}
           <div class="block" aria-live="polite">
@@ -587,6 +631,42 @@
     gap: 6px;
     font-size: 13px;
     overflow-wrap: anywhere;
+  }
+  .notice {
+    margin: 0;
+    padding: 10px 14px;
+    font-size: 14px;
+    background: var(--soft);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius-m);
+  }
+  .merged {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .merged li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .m-who {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    min-width: 0;
+  }
+  .btn.small {
+    min-height: 36px;
+    padding: 4px 12px;
+    font-size: 13px;
   }
   .quote {
     margin: 0;

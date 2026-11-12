@@ -23,6 +23,8 @@ export const explorer = $state<{
   detail: Neighbourhood | null;
   loadingDetail: boolean;
   detailError: ExplorerError | null;
+  /** A polite one-line outcome (a merge, a split, a redirect) for the view's live region. */
+  notice: string | null;
 }>({
   search: emptySearch(),
   searching: false,
@@ -31,6 +33,7 @@ export const explorer = $state<{
   detail: null,
   loadingDetail: false,
   detailError: null,
+  notice: null,
 });
 
 export const PAGE_SIZE = 20;
@@ -81,30 +84,55 @@ async function load(id: string) {
   const result = await entityDetail(api, id, { namespace: namespace() });
   if (mine !== detailSeq) return;
   explorer.loadingDetail = false;
-  if (result.ok) explorer.detail = result.data;
-  else explorer.detailError = describeError(result.status, result.message);
+  if (result.ok) {
+    explorer.detail = result.data;
+    // A step opened by id alone (a redirect to a survivor) learns its name here.
+    const last = explorer.trail[explorer.trail.length - 1];
+    if (last && last.id === id && last.name !== result.data.name) {
+      explorer.trail = [...explorer.trail.slice(0, -1), { id, name: result.data.name }];
+    }
+    return;
+  }
+  const into = result.details?.merged_into;
+  if (result.status === 404 && typeof into === "string") {
+    // The entity was merged away: show the survivor, not a blank page.
+    const gone = explorer.trail[explorer.trail.length - 1]?.name ?? id;
+    explorer.trail = visit(explorer.trail.slice(0, -1), { id: into, name: into });
+    explorer.notice = `${gone} was merged into another entity, so you are looking at that one.`;
+    void load(into);
+    return;
+  }
+  explorer.detailError = describeError(result.status, result.message);
 }
 
 /** Open an entity picked from the search results; the trail starts over. */
 export function pick(entity: EntitySummary) {
+  explorer.notice = null;
   explorer.trail = visit([], { id: entity.canonical_id, name: entity.name }, true);
   void load(entity.canonical_id);
 }
 
 /** Centre on a neighbour, keeping the trail so the user can go back. */
 export function centreOn(step: Step) {
+  explorer.notice = null;
   explorer.trail = visit(explorer.trail, step);
   void load(step.id);
 }
 
 /** Return to an earlier entity in the trail. */
 export function goBack(index: number) {
+  explorer.notice = null;
   explorer.trail = backTo(explorer.trail, index);
   const focus = explorer.trail[explorer.trail.length - 1];
   if (focus) void load(focus.id);
 }
 
-/** Reload the focused entity, after a failure. */
+/** Say `text` in the view's live region; null clears it. */
+export function announce(text: string | null) {
+  explorer.notice = text;
+}
+
+/** Reload the focused entity, after a failure or a change to it. */
 export function retryDetail() {
   const focus = explorer.trail[explorer.trail.length - 1];
   if (focus) void load(focus.id);
@@ -130,4 +158,5 @@ export function resetExplorer() {
   explorer.detail = null;
   explorer.loadingDetail = false;
   explorer.detailError = null;
+  explorer.notice = null;
 }
