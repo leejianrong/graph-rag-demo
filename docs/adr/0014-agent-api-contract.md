@@ -67,6 +67,8 @@ them first fixes their names before three clients each invent one.
 | `forget` | `DELETE /documents/{doc_id}` | Takes `source_id` or `document_id`; the facade derives the id from the source. Served (GRA-132). |
 | `lookup` | none | Built over `GraphStore.get_node` / `get_node_edges` and name blocking in `EntityStore`; takes a name (or alias) or an entity id, and an optional `namespace`; no match is `404`. Served (GRA-37). |
 
+`GET /v1/me` is not a verb. It answers who the key is: the tenant, the `namespace` the request names, and the key's last four characters (never the key), so a UI can sign in with a key and show the tenant (GRA-47). A bad or missing key is `401`.
+
 Today's endpoints keep working. The `/v1` facade is a thin layer that renames and reshapes; it adds no pipeline
 logic. Errors at the facade are converted from the existing ones (`404` and `503` already carry the meaning).
 
