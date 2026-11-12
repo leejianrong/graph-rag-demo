@@ -25,6 +25,7 @@ from graph_rag.entities_api import EntityExplorer
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityLookup
 from graph_rag.models import IngestTrigger
+from graph_rag.ui_static import mount_ui
 from graph_rag.wiring import build_offline_components
 
 __all__ = ["build_app", "main"]
@@ -44,7 +45,7 @@ def build_app(settings: Settings | None = None) -> FastAPI:
             except Exception:  # noqa: BLE001 - one bad document must not fail the request
                 _logger.exception("could not process a document")
 
-    return create_app(
+    app = create_app(
         components.object_store,
         Inline(),
         settings,
@@ -65,6 +66,8 @@ def build_app(settings: Settings | None = None) -> FastAPI:
         ),
         jobs=components.job_store,
     )
+    mount_ui(app, settings)  # after every API route, so none is shadowed
+    return app
 
 
 def main() -> None:

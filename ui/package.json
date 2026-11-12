@@ -8,12 +8,14 @@
     "dev": "npm run gen:api && vite",
     "build": "npm run gen:api && vite build",
     "check": "npm run gen:api && svelte-check --tsconfig ./tsconfig.json",
-    "test": "npm run gen:api && vitest run"
+    "test": "npm run gen:api && vitest run",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "openapi-fetch": "0.17.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "@sveltejs/vite-plugin-svelte": "7.3.1",
     "openapi-typescript": "7.13.0",
     "svelte": "5.57.2",

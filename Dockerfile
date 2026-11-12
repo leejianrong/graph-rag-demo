@@ -1,3 +1,16 @@
+# Web UI build stage (GRA-53): Vite + Svelte. `npm run build` regenerates the typed API client from
+# docs/openapi.json first, so the spec is copied beside ui/ the way the repo lays it out. Only the
+# files the build reads are copied (there is no .dockerignore, and a local node_modules must not
+# come along). Nothing from this stage but the built files reaches the final image.
+FROM node:24.11.0-slim AS ui
+WORKDIR /build/ui
+COPY ui/package.json ui/package-lock.json ./
+RUN npm ci
+COPY docs/openapi.json ../docs/openapi.json
+COPY ui/index.html ui/svelte.config.js ui/tsconfig.json ui/vite.config.ts ./
+COPY ui/src ./src
+RUN npm run build
+
 # Pipeline/API service image (ARCHITECTURE §8): Python 3.12 + uv.
 FROM python:3.12-slim
 
@@ -40,6 +53,9 @@ COPY README.md ./
 COPY bench/pyproject.toml ./bench/pyproject.toml
 COPY datagen/pyproject.toml ./datagen/pyproject.toml
 RUN uv pip install --no-deps .
+
+# The built web UI, served at / by the API process (Settings.ui_dir, default /app/ui-dist).
+COPY --from=ui /build/ui/dist ./ui-dist
 
 EXPOSE 8000
 

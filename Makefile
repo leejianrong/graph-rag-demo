@@ -1,7 +1,7 @@
 # One-command dev loop (dev-playbook #17). See docs/ARCHITECTURE.md §8.
 # Bare `make` prints this help; it never starts anything.
 .DEFAULT_GOAL := help
-.PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint types fmt check ui ui-install ui-dev ui-build openapi world fixtures extract linking order sweep compare gate nightly longmemeval
+.PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint types fmt check ui ui-install ui-dev ui-build ui-e2e openapi world fixtures extract linking order sweep compare gate nightly longmemeval
 
 # The generator UI uses a local indah checkout when one exists (its Graph component is not on PyPI
 # until indah 0.12), else PyPI indah. Override: INDAH=/path/to/indah-python-ui, or INDAH= for PyPI.
@@ -120,6 +120,9 @@ ui-dev: ## Web UI dev server; proxies the API at http://localhost:8000 (API_URL=
 
 ui-build: ## Type-check and build the web UI into ui/dist.
 	cd ui && npm run check && npm run build
+
+ui-e2e: ## Browser test: sign in, ingest, query, sign out over graph-rag-offline (needs `npx playwright install chromium`).
+	cd ui && npm run build && npm run e2e
 
 openapi: ## Regenerate docs/openapi.json from the app (the UI client is generated from it).
 	uv run python scripts/gen_openapi.py

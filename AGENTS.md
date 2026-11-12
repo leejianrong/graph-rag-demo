@@ -80,7 +80,7 @@ behaviour at the seam, never internal call order. See `docs/TESTING.md`. Markers
 
 ## Where things are (only the non-obvious)
 
-- `ui/` — the product web UI (Vite + Svelte + TS; `make ui-install | ui-dev | ui-build`, CI job `ui`; not `make ui`, which is the generator UI). Its API client is generated from `docs/openapi.json`; after an API change run `make openapi` (a fast test fails on drift). One file per view in `ui/src/views/`.
+- `ui/` — the product web UI (Vite + Svelte + TS; `make ui-install | ui-dev | ui-build`, CI job `ui`; not `make ui`, which is the generator UI). Its API client is generated from `docs/openapi.json`; after an API change run `make openapi` (a fast test fails on drift). One file per view in `ui/src/views/`. The API process serves the build at `/` (`graph_rag/ui_static.py`, `UI_DIR`, default `/app/ui-dist` in the image, none if absent); `make ui-e2e` runs the Playwright test against `graph-rag-offline` (CI job `e2e`).
 - `graph_rag/` — the pipeline; `datagen/kggen/` — the standalone data generator (CLI `kggen`); `bench/kgbench/` — the evaluation bench (CLI `kgbench`).
 - `docs/adr/` — the "why" (ADR-0011 is the bench, ADR-0012 the standalone generator); `docs/ARCHITECTURE.md`, `docs/TESTING.md`.
 - `agent_docs/build-status.md` — how each V1–V8 slice works in detail.
