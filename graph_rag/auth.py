@@ -13,6 +13,7 @@ The ``graph-rag-keys`` command manages the file: ``create TENANT``, ``list`` and
 from __future__ import annotations
 
 import argparse
+import contextlib
 import hashlib
 import hmac
 import json
@@ -20,10 +21,16 @@ import os
 import secrets
 import tempfile
 import threading
+from collections.abc import Iterator
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
+
+try:
+    import fcntl
+except ImportError:  # not on Windows: there, only one process may write the file
+    fcntl = None  # type: ignore[assignment]
 
 from graph_rag.scope import DEFAULT_TENANT, Scope
 
@@ -46,6 +53,7 @@ class ApiKey:
     key_hash: str
     created_at: str
     revoked_at: str | None = None
+    suffix: str = ""  # the last four characters of the secret, to tell keys apart; "" if unknown
 
     @property
     def active(self) -> bool:
@@ -84,11 +92,29 @@ class InMemoryKeyStore:
 
 
 class JsonFileKeyStore:
-    """Key records in one JSON file, read on every call so a revoke takes effect at once."""
+    """Key records in one JSON file, read on every call so a revoke takes effect at once.
+
+    A change is a read-modify-write under a thread lock and an ``flock`` on a sidecar file, so the
+    API and ``graph-rag-keys`` can both write without losing each other's change (GRA-143).
+    """
 
     def __init__(self, path: str | Path) -> None:
         self._path = Path(path)
         self._lock = threading.Lock()
+
+    @contextlib.contextmanager
+    def _locked(self) -> Iterator[None]:
+        with self._lock:
+            if fcntl is None:
+                yield
+                return
+            self._path.parent.mkdir(parents=True, exist_ok=True)
+            with open(f"{self._path}.lock", "a") as lock:
+                fcntl.flock(lock, fcntl.LOCK_EX)
+                try:
+                    yield
+                finally:
+                    fcntl.flock(lock, fcntl.LOCK_UN)
 
     def _read(self) -> dict[str, ApiKey]:
         try:
@@ -106,7 +132,7 @@ class JsonFileKeyStore:
         os.replace(temp, self._path)
 
     def add(self, key: ApiKey) -> None:
-        with self._lock:
+        with self._locked():
             keys = self._read()
             keys[key.key_id] = key
             self._write(keys)
@@ -150,6 +176,7 @@ class ApiKeys:
             label=label,
             key_hash=_hash(secret),
             created_at=datetime.now(UTC).isoformat(timespec="seconds"),
+            suffix=secret[-4:],
         )
         self._store.add(record)
         return secret, record
