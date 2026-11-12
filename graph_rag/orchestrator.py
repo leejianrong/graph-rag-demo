@@ -43,6 +43,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from graph_rag.ids import document_id
+from graph_rag.llm_config import explain_llm_error
 from graph_rag.logging import get_logger
 from graph_rag.models import (
     CanonicalEntity,
@@ -342,7 +343,9 @@ class Orchestrator:
         except Exception as error:  # noqa: BLE001 — log-and-drop per document (ADR-0001).
             # The reason names the stage and the error type, never the message, which can carry
             # internals; the message is in the log.
-            self._job(scope, doc_id, "failed", f"{stage} failed: {type(error).__name__}")
+            why = explain_llm_error(error)  # a provider auth/connection failure, in words
+            suffix = f". {why}" if why else ""
+            self._job(scope, doc_id, "failed", f"{stage} failed: {type(error).__name__}{suffix}")
             _logger.exception("dropping document %s after processing error", doc_id)
             return None
 

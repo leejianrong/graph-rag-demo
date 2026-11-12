@@ -99,6 +99,7 @@ def main() -> None:
     """Build the real pipeline and consume triggers until told to stop."""
     from graph_rag.bind import enforce_credentials
     from graph_rag.config import Settings
+    from graph_rag.llm_config import log_if_llm_missing
     from graph_rag.logging import configure_logging
     from graph_rag.main import build_pipeline
     from graph_rag.messaging.factory import build_consumer
@@ -113,6 +114,7 @@ def main() -> None:
         raise SystemExit(
             "The worker needs INGEST_MODE=publish, so job status is shared with the API."
         )
+    log_if_llm_missing(settings, _logger)  # one ERROR line, not a crash loop
     pipeline = build_pipeline(settings)
     consumer = build_consumer(settings, pipeline.orchestrator.process_document)
     _logger.info("worker consuming triggers from %s", settings.trigger_backend)

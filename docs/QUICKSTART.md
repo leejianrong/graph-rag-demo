@@ -77,6 +77,23 @@ Pass `--env GRAPH_RAG_API_KEY=grk_...` to `claude mcp add` for the agent.
 For real extraction over Elasticsearch, Neo4j, MinIO and Valkey, run `docker compose up --build` (README, "Running
 it locally") and use the same commands against it.
 
+### Give ingest an LLM
+
+This quickstart needs no LLM because `graph-rag-offline` extracts with simple rules. The full stack does:
+coreference and fact extraction call one, so `/ingest` and `/v1/remember` (CLI `remember`, MCP `remember`)
+are refused with `503` and `details.reason` `llm_not_configured` until you set one up, and nothing is stored.
+`/query`, `/v1/recall`, `/v1/lookup` and `/v1/forget` never need an LLM, and neither does the offline server.
+Put one of these in `.env` and restart:
+
+- `OPENAI_API_KEY=...` for OpenAI (the default `gpt-4o-mini`), or another provider's key with `COREF_MODEL`
+  and `KG_BUILD_MODEL` set to a model that provider serves.
+- `OPENAI_API_BASE=http://host:port/v1` for any OpenAI-compatible endpoint: a hosted provider, or a local
+  server such as Ollama or vLLM (set `OPENAI_API_KEY` to any word if the server ignores it).
+- semula, a recording OpenAI-compatible server whose prompts are answered by an agent. It suits the bench and
+  agent-driven sessions; it is not an unattended local model.
+
+Cost on a small hosted model is roughly $0.2 to $0.3 per 1,000 small documents, uncached (an estimate).
+
 ## What is tested
 
 Steps 1 and 2 and the API-key step run in CI against the same app `graph-rag-offline` serves
