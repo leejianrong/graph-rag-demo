@@ -345,8 +345,8 @@ The test layers and how to run them are in [CONTRIBUTING.md](CONTRIBUTING.md#tes
 
 ## Web UI
 
-`ui/` is a Vite + Svelte + TypeScript app over the HTTP API. So far it is a shell with a health page; the
-views for sign-in, ingest, query, the graph and API keys follow. Its client types are generated from
+`ui/` is a Vite + Svelte + TypeScript app over the HTTP API. It has sign-in, an ingest console, a query
+playground, a graph explorer and API key management. Its client types are generated from
 `docs/openapi.json`, which `make openapi` rewrites from the app (a fast test fails when it is stale).
 Needs Node 22+. With the API on port 8000 (for example `graph-rag-offline`):
 
