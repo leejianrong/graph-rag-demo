@@ -518,6 +518,43 @@
         "title": "LookupResponse",
         "type": "object"
       },
+      "MeResponse": {
+        "description": "Who the request is: the tenant, and only the end of the key that named it.",
+        "properties": {
+          "key_suffix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The last four characters of the key; null with auth off.",
+            "title": "Key Suffix"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "tenant": {
+            "title": "Tenant",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tenant"
+        ],
+        "title": "MeResponse",
+        "type": "object"
+      },
       "Neighbour": {
         "description": "One fact the entity takes part in, with the entity on its other side.",
         "properties": {
@@ -1389,6 +1426,53 @@
           }
         },
         "summary": "Lookup Entity"
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "description": "The tenant this request acts for, the namespace it names, and the key's last four.",
+        "operationId": "me_v1_me_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Me"
       }
     },
     "/v1/recall": {

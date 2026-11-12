@@ -1,0 +1,76 @@
+/* Design tokens, defined once. Views use the variables, never raw colours. */
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+
+:root {
+  --ground: #f3f5f4;
+  --panel: #ffffff;
+  --ink: #14211f;
+  --muted: #55645f;
+  --line: #d9e0de;
+  --hover: #e6ecea;
+  --accent: #0b6e6e;
+  --on-accent: #ffffff;
+  --soft: #ddf0ee;
+  --bad: #b3261e;
+  --ok: #1f7a4d;
+
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --radius-s: 6px;
+  --radius-m: 8px;
+  --radius-l: 12px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #0f1716;
+    --panel: #172220;
+    --ink: #e6efed;
+    --muted: #9db0ab;
+    --line: #2a3a37;
+    --hover: #1f2d2b;
+    --accent: #4fb8b4;
+    --on-accent: #08201f;
+    --soft: #1b3a38;
+    --bad: #ff8a80;
+    --ok: #6fcf9a;
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
