@@ -129,7 +129,8 @@ The first build is large and slow. The image installs PyTorch and downloads
 spaCy's transformer model and the bge embedding model, which runs to a few
 gigabytes; after that it's cached. Compose brings up Valkey (the ingest queue), MinIO, Elasticsearch,
 Neo4j, and the FastAPI service on port 8000. The MinIO console is on 9001 and the
-Neo4j browser on 7474 if you want to poke at the stores directly.
+Neo4j browser on 7474 if you want to poke at the stores directly. The web UI is served by the same
+service: open http://localhost:8000/ and sign in with an API key (see [Quickstart](docs/QUICKSTART.md)).
 
 Ingest a document with a multipart upload:
 
@@ -344,14 +345,18 @@ The test layers and how to run them are in [CONTRIBUTING.md](CONTRIBUTING.md#tes
 
 ## Web UI
 
-`ui/` is a Vite + Svelte + TypeScript app over the HTTP API. So far it is a shell with a health page; the
-views for sign-in, ingest, query, the graph and API keys follow. Its client types are generated from
+`ui/` is a Vite + Svelte + TypeScript app over the HTTP API. It has sign-in, an ingest console, a query
+playground, a graph explorer and API key management. Its client types are generated from
 `docs/openapi.json`, which `make openapi` rewrites from the app (a fast test fails when it is stale).
 Needs Node 22+. With the API on port 8000 (for example `graph-rag-offline`):
 
     make ui-install
     make ui-dev     # http://localhost:5173, proxies the API paths to :8000
     make ui-build   # type-check and build into ui/dist
+    make ui-e2e     # browser test: sign in, ingest, query (needs `npx playwright install chromium`)
+
+The API process serves `ui/dist` at `/` when `UI_DIR` points at it (the image sets this up; for
+`graph-rag-offline` run `UI_DIR=ui/dist graph-rag-offline` after a build).
 
 ## Synthetic data generator
 

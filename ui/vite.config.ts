@@ -8,5 +8,5 @@ const paths = ["/health", "/ingest", "/jobs", "/documents", "/query", "/v1"];
 export default defineConfig({
   plugins: [svelte()],
   server: { proxy: Object.fromEntries(paths.map((p) => [p, api])) },
-  test: { environment: "node" },
+  test: { environment: "node", exclude: ["e2e/**", "node_modules/**", "dist/**"] },
 });

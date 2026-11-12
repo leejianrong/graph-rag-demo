@@ -15,6 +15,8 @@ uv sync --extra cli --extra mcp
 uv run graph-rag-offline          # serves http://127.0.0.1:8000; leave it running
 ```
 
+The web UI is at http://127.0.0.1:8000/ once it has been built (`make ui-build`; the Docker image has it built in, so after `docker compose up` open http://localhost:8000/). Sign in with an API key (step 4 shows how to make one).
+
 ## 2. Remember something and ask about it
 
 In a second terminal, in the same directory:
