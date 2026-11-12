@@ -6,8 +6,8 @@ Wires the real stack for local Docker Compose and runs the service:
 * construct the real adapters — ``MinioObjectStore`` and ``EsDocumentStore``
   (creating the documents index) — behind their ports;
 * build the :class:`~graph_rag.orchestrator.Orchestrator` over those ports;
-* build the ``KafkaTriggerPublisher`` and the FastAPI app via ``create_app``;
-* start the ``KafkaTriggerConsumer`` in a background thread, injecting
+* build the trigger publisher (``TRIGGER_BACKEND``) and the FastAPI app via ``create_app``;
+* start the trigger consumer in a background thread, injecting
   ``orchestrator.process_document`` as its handler (the thin driver, ADR-0001);
 * serve the FastAPI app with uvicorn.
 
@@ -36,7 +36,7 @@ from graph_rag.config import Settings
 from graph_rag.jobs import InMemoryJobStore, JobStore
 from graph_rag.logging import configure_logging, get_logger
 from graph_rag.lookup import EntityLookup
-from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer, KafkaTriggerPublisher
+from graph_rag.messaging.factory import build_consumer, build_publisher
 from graph_rag.observability import configure_tracing
 from graph_rag.orchestrator import Orchestrator
 from graph_rag.query.retriever import QueryRetriever
@@ -146,7 +146,7 @@ def build_pipeline(settings: Settings) -> Pipeline:
 def main() -> None:
     """Wire the real stack and run the ingest/query service.
 
-    Blocks serving the FastAPI app. With ``INGEST_MODE=inline`` (the default) the Kafka consumer
+    Blocks serving the FastAPI app. With ``INGEST_MODE=inline`` (the default) the trigger consumer
     runs in a daemon thread; with ``publish`` the API only publishes and ``graph-rag-worker``
     consumes (GRA-31).
     """
@@ -163,20 +163,16 @@ def main() -> None:
     orchestrator, retriever = pipeline.orchestrator, pipeline.retriever
 
     # --- Messaging seam: publisher (for POST /ingest) + consumer driver -----
-    publisher = KafkaTriggerPublisher.from_settings(settings)
+    publisher = build_publisher(settings)
     if settings.ingest_mode == "inline":
-        consumer = KafkaTriggerConsumer(
-            bootstrap_servers=settings.kafka_bootstrap_servers,
-            topic=settings.ingest_trigger_topic,
-            handler=orchestrator.process_document,
-        )
+        consumer = build_consumer(settings, orchestrator.process_document)
         consumer_thread = threading.Thread(
             target=consumer.run_forever,
-            name="kafka-trigger-consumer",
+            name="trigger-consumer",
             daemon=True,
         )
         consumer_thread.start()
-        logger.info("started Kafka trigger consumer on topic %r", settings.ingest_trigger_topic)
+        logger.info("started the %s trigger consumer", settings.trigger_backend)
     else:
         logger.info("publish-only: ingest is consumed by graph-rag-worker processes")
 

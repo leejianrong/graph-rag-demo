@@ -1,7 +1,7 @@
 # The stack for a hosted deployment (GRA-138, docs/THREAT-MODEL.md). Unlike docker-compose.yml, which is
 # the open local loop:
 #
-#   * no store publishes a port to the host; Elasticsearch, MinIO, Kafka and Neo4j sit on an
+#   * no store publishes a port to the host; Elasticsearch, MinIO, Valkey and Neo4j sit on an
 #     internal network that only `app` also joins, so they cannot be reached from outside;
 #   * every credential is required: compose stops with a message if one is unset, and `app`
 #     refuses to start with auth on if one is still a local-dev default (minioadmin, devpassword);
@@ -10,15 +10,18 @@
 #
 # Put the values in a .env that is not committed:
 #   ELASTICSEARCH_PASSWORD=...  MINIO_ACCESS_KEY=...  MINIO_SECRET_KEY=...  NEO4J_PASSWORD=...
-#   OPENAI_API_KEY=...
+#   VALKEY_PASSWORD=...  OPENAI_API_KEY=...
 # then:
 #   docker compose -f docker-compose.hosted.yml up -d --build --wait
 #   docker compose -f docker-compose.hosted.yml exec app uv run --no-sync graph-rag-keys create acme
 #
 # The API publishes on 127.0.0.1:8000 by default: put a TLS-terminating reverse proxy in front of it
-# (API_BIND=0.0.0.0 only if something else already guards the port). Kafka carries triggers with no
-# authentication of its own; that is acceptable only because `app` and its `worker`s are the only clients on its network
-# (THREAT-MODEL.md, section 2). Do not point another client at it.
+# (API_BIND=0.0.0.0 only if something else already guards the port). Valkey carries the ingest
+# triggers and needs VALKEY_PASSWORD; it is also reachable only from `app` and its `worker`s.
+# Kafka is the alternative backend (`--profile kafka` with TRIGGER_BACKEND=kafka): it has no
+# authentication of its own, so that is acceptable only because those are the only clients on
+# its network (THREAT-MODEL.md, section 2). Do not point another client at it. VALKEY_PASSWORD is
+# still required, since the Valkey service is in the default set.
 
 services:
   elasticsearch:
@@ -65,8 +68,29 @@ services:
       retries: 12
       start_period: 10s
 
+  valkey:
+    image: valkey/valkey:8.1.10
+    # The password is read from the environment inside the container, so it is in no file here.
+    command:
+      - sh
+      - -c
+      - exec valkey-server --appendonly yes --appendfsync everysec --maxmemory-policy noeviction --requirepass "$$VALKEY_PASSWORD"
+    environment:
+      VALKEY_PASSWORD: ${VALKEY_PASSWORD:?set VALKEY_PASSWORD}
+      REDISCLI_AUTH: ${VALKEY_PASSWORD:?set VALKEY_PASSWORD}    # valkey-cli reads it: no password on a command line
+    volumes:
+      - valkey-data:/data
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # Only with `--profile kafka` (and TRIGGER_BACKEND=kafka).
   kafka:
     image: apache/kafka:3.7.0
+    profiles: [kafka]
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -120,6 +144,9 @@ services:
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:?set NEO4J_PASSWORD}
       MINIO_ENDPOINT: minio:9000
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      TRIGGER_BACKEND: ${TRIGGER_BACKEND:-redis}
+      REDIS_URL: redis://valkey:6379/0
+      REDIS_PASSWORD: ${VALKEY_PASSWORD:?set VALKEY_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       NEO4J_URI: bolt://neo4j:7687
       NEO4J_USER: neo4j
@@ -151,8 +178,12 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      valkey:
+        condition: service_healthy
+      # Not started unless the `kafka` profile is on; required: false lets compose skip it then.
       kafka:
         condition: service_healthy
+        required: false
       neo4j:
         condition: service_healthy
 
@@ -185,8 +216,11 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      valkey:
+        condition: service_healthy
       kafka:
         condition: service_healthy
+        required: false
       neo4j:
         condition: service_healthy
 
@@ -201,5 +235,6 @@ volumes:
   es-data:
   minio-data:
   neo4j-data:
+  valkey-data:
   api-keys:
   shared-state:

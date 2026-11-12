@@ -5,8 +5,8 @@ This is the single canonical agent brief; `CLAUDE.md` imports it. Keep it short 
 
 ## What and why
 
-A **Graph RAG** pipeline: documents → knowledge graph → multi-hop `/query`. Ingestion is Kafka-triggered
-(`POST /ingest` → MinIO + trigger → consumer runs `read → NER → coref → entity linking →
+A **Graph RAG** pipeline: documents → knowledge graph → multi-hop `/query`. Ingestion is queue-triggered
+(`POST /ingest` → MinIO + trigger on a Valkey stream by default, Kafka via `TRIGGER_BACKEND=kafka`, ADR-0016 → consumer runs `read → NER → coref → entity linking →
 KG-build`); querying is a synchronous REST `/query` with a **$0, deterministic, no-LLM default path**.
 Python 3.12, `uv`, type hints + docstrings, everything constructor-injected at the port seam.
 

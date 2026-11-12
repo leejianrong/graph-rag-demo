@@ -1,8 +1,8 @@
 # One-command local dev loop (ARCHITECTURE §8, dev-playbook #16).
 #
-# Brings up the stack — Kafka, MinIO, a single-node Elasticsearch, Neo4j, and the
+# Brings up the stack — Valkey (the ingest trigger queue), MinIO, a single-node Elasticsearch, Neo4j, and the
 # pipeline/API `app` service — with healthchecks so `app` waits for its deps.
-# Service hostnames (minio / elasticsearch / kafka / neo4j) match the Settings
+# Service hostnames (minio / elasticsearch / valkey / neo4j) match the Settings
 # defaults and .env.example. Neo4j (V5, the knowledge-graph store) exposes the
 # browser on 7474 and bolt on 7687; auth is neo4j/devpassword (a LOCAL-DEV default,
 # overridable via NEO4J_PASSWORD to match Settings).
@@ -11,6 +11,10 @@
 #   curl -F file=@a.md http://localhost:8000/ingest
 #
 # All settings come from .env (copy .env.example -> .env).
+#
+# Triggers go through Valkey by default (TRIGGER_BACKEND=redis). To use Kafka instead:
+#   TRIGGER_BACKEND=kafka docker compose --profile kafka up
+# (Valkey still starts; it is small and nothing uses it then.) INGEST_PARTITIONS applies to Kafka only.
 
 services:
   elasticsearch:
@@ -55,8 +59,24 @@ services:
       retries: 12
       start_period: 10s
 
+  # The ingest trigger queue (Redis Streams; Valkey is the BSD fork of Redis, same protocol).
+  # Appendonly keeps queued triggers across a restart; noeviction makes it refuse writes rather
+  # than drop a queued trigger when full. Open here (local dev); the hosted file sets a password.
+  valkey:
+    image: valkey/valkey:8.1.10
+    command: ["valkey-server", "--appendonly", "yes", "--appendfsync", "everysec", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - valkey-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "valkey-cli ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  # Only with `--profile kafka` (and TRIGGER_BACKEND=kafka).
   kafka:
     image: apache/kafka:3.7.0
+    profiles: [kafka]
     ports:
       - "9092:9092"
     environment:
@@ -115,6 +135,8 @@ services:
       # works regardless of what .env carries for local (host-side) runs.
       MINIO_ENDPOINT: minio:9000
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      TRIGGER_BACKEND: ${TRIGGER_BACKEND:-redis}
+      REDIS_URL: redis://valkey:6379/0
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       NEO4J_URI: bolt://neo4j:7687
       NEO4J_USER: neo4j
@@ -150,14 +172,18 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      valkey:
+        condition: service_healthy
+      # Not started unless the `kafka` profile is on; required: false lets compose skip it then.
       kafka:
         condition: service_healthy
+        required: false
       neo4j:
         condition: service_healthy
 
-  # Ingest workers: same image, consume the trigger topic and run the pipeline. Scale with
+  # Ingest workers: same image, consume the triggers and run the pipeline. Scale with
   #   docker compose up -d --scale worker=3
-  # up to INGEST_PARTITIONS (default 4) workers do work; more sit idle. Each loads the NER model
+  # With Valkey any number share the queue; with Kafka, up to INGEST_PARTITIONS (default 4) do work. Each loads the NER model
   # and the embedder, so budget memory per worker.
   worker:
     image: graph-rag-demo:local
@@ -184,12 +210,16 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      valkey:
+        condition: service_healthy
       kafka:
         condition: service_healthy
+        required: false
       neo4j:
         condition: service_healthy
 
 volumes:
   minio-data:
   neo4j-data:
+  valkey-data:
   shared-state:

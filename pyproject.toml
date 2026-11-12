@@ -37,6 +37,7 @@ dependencies = [
     # extra), and prometheus-client is small and pure Python, so neither weighs on the base install.
     "opentelemetry-api",
     "prometheus-client",
+    "redis>=8.1.0",
 ]
 
 [project.optional-dependencies]
@@ -55,6 +56,7 @@ dev = [
     "mcp>=2.3,<3",
     "mypy>=2.4.1",
     "types-pyyaml>=6.0.12.20261103",
+    "fakeredis>=2.40.0",
 ]
 # Transformer NER runtime (ADR-0002). Only the real stack / a trf-backed run
 # needs these; the fast suite uses `en_core_web_sm` under plain spaCy.

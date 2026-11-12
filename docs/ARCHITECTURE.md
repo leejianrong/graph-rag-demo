@@ -13,7 +13,7 @@
 ## 1. Overview
 
 A locally-run **Graph RAG** pipeline, brought up entirely on one machine via a
-single **Docker Compose**. Ingestion is **Kafka-triggered**: an operator uploads
+single **Docker Compose**. Ingestion is **queue-triggered** (Valkey by default, or Kafka): an operator uploads
 a text/Markdown **document**, it lands in object storage, and a **trigger
 message** (`{bucket, objectKey}`) drives a single in-process **pipeline** that
 runs `read → NER → coreference → entity linking → knowledge-graph build`. **NER**
@@ -35,8 +35,8 @@ Two deliberately different entry points into shared stores (ADR-0001, ADR-0007):
 
 | Entry point | Driver | Nature | Path |
 |-------------|--------|--------|------|
-| **Ingestion** | **Kafka** | Asynchronous pipeline | `POST /ingest` → MinIO + publish trigger → **single in-process consumer** runs all 5 stages for the document |
-| **Query** | **REST** | Synchronous, read-only, interactive (no Kafka) | `POST /query` → retrieval runs directly against the stores |
+| **Ingestion** | **Valkey stream** (or Kafka) | Asynchronous pipeline | `POST /ingest` → MinIO + publish trigger → **single in-process consumer** runs all 5 stages for the document |
+| **Query** | **REST** | Synchronous, read-only, interactive (no queue) | `POST /query` → retrieval runs directly against the stores |
 
 - The **pipeline** is a **single in-process consumer**, not microservices — one
   service consumes the trigger topic and runs every **stage** in-process, handing
@@ -46,17 +46,19 @@ Two deliberately different entry points into shared stores (ADR-0001, ADR-0007):
   `INGEST_MODE=publish` (what both compose files set, GRA-31) the API only publishes and
   separate `graph-rag-worker` processes (the compose `worker` service, same image) consume,
   so ingest load does not starve queries. Job status then lives in Elasticsearch
-  (`JOBS_INDEX`, `EsJobStore`) so the API reads, and streams, what the workers write. Workers
-  share one consumer group; the trigger topic has `INGEST_PARTITIONS` partitions (default 4)
-  and the publisher keys a trigger by its source, so one document stays in order on one worker
-  while different documents spread. Scale with `docker compose up -d --scale worker=N`, useful
-  up to the partition count. The files the API and workers both write (`USAGE_PATH`, `TENANT_LLM_KEYS_PATH`) sit on a `shared-state` volume mounted by both; the usage file is safe for several processes (a file lock around each read-modify-write). Documents and queries are counted in the API and LLM tokens in the worker, into the same file. A worker serves `GET /healthz` on `WORKER_HEALTH_PORT` (8001),
+  (`JOBS_INDEX`, `EsJobStore`) so the API reads, and streams, what the workers write. workers
+  share one consumer group. The trigger queue is chosen by `TRIGGER_BACKEND` (ADR-0016): `redis` (default; a Redis
+  Stream on Valkey) or `kafka`. With Redis a worker acknowledges a trigger only after the document is done, a trigger a
+  dead worker held is reclaimed after `REDIS_RECLAIM_IDLE_SECONDS` (900), and a per-document lock keeps two workers off
+  one document; any number of workers help. With Kafka the topic has `INGEST_PARTITIONS` partitions (default 4) and the
+  publisher keys a trigger by its source, so one document stays in order on one worker; workers help up to the
+  partition count. Scale with `docker compose up -d --scale worker=N`. The files the API and workers both write (`USAGE_PATH`, `TENANT_LLM_KEYS_PATH`) sit on a `shared-state` volume mounted by both; the usage file is safe for several processes (a file lock around each read-modify-write). Documents and queries are counted in the API and LLM tokens in the worker, into the same file. A worker serves `GET /healthz` on `WORKER_HEALTH_PORT` (8001),
   200 while its consume loop runs, and on SIGTERM finishes the document in hand, commits and exits.
-- The **Kafka consumer loop is a thin driver**: it resolves one trigger to a
+- The **trigger consumer loop is a thin driver**: it resolves one trigger to a
   `process_document({bucket, objectKey})` call, so the orchestrator is decoupled
-  from Kafka and can be driven directly in tests (ADR-0001, ADR-0010).
+  from the queue and can be driven directly in tests (ADR-0001, ADR-0010).
 - The **query service** is a synchronous FastAPI endpoint that runs retrieval
-  read-only; queries are interactive, not a pipeline, so they never touch Kafka
+  read-only; queries are interactive, not a pipeline, so they never touch the queue
   (ADR-0007).
 - One FastAPI service exposes both `/ingest` and `/query`.
 
@@ -241,7 +243,7 @@ endpoint (incl. DeepSeek) is swappable via `.env`.
 
 ## 8. Deployment / tech stack
 
-- **One Docker Compose** brings up: **Kafka**, **MinIO**, **one Elasticsearch
+- **One Docker Compose** brings up: **Valkey** (the trigger queue; Kafka under `--profile kafka`), **MinIO**, **one Elasticsearch
   cluster** (holding the two indices `ES-Documents` + `ES-Entities`), **Neo4j**,
   and the **pipeline/API service** — a single command to run everything locally
   (ADR-0005, PRD).

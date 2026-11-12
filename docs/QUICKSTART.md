@@ -72,7 +72,7 @@ Pass `--env GRAPH_RAG_API_KEY=grk_...` to `claude mcp add` for the agent.
 
 ## Going further
 
-For real extraction over Elasticsearch, Neo4j, MinIO and Kafka, run `docker compose up --build` (README, "Running
+For real extraction over Elasticsearch, Neo4j, MinIO and Valkey, run `docker compose up --build` (README, "Running
 it locally") and use the same commands against it.
 
 ## What is tested
