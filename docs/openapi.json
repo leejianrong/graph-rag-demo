@@ -1,0 +1,1473 @@
+{
+  "components": {
+    "schemas": {
+      "Body_ingest_ingest_post": {
+        "properties": {
+          "document_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Date"
+          },
+          "file": {
+            "anyOf": [
+              {
+                "contentMediaType": "application/octet-stream",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "File"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          }
+        },
+        "title": "Body_ingest_ingest_post",
+        "type": "object"
+      },
+      "CanonicalEntity": {
+        "description": "One deduplicated corpus-wide entity — an ``ES-Entities`` record (ADR-0005).\n\nThe corpus-local source of truth entity linking blocks/scores against\n(ADR-0004). ``canonical_id`` is the **merge key and graph node identity**:\nupsert is idempotent by it, and the same real-world entity mentioned across\ndocuments resolves to one ``CanonicalEntity``. ``name`` is the seed surface\nform (the first mention that created it); merged surface forms accumulate in\n``aliases``. ``vector`` is the entity ``dense_vector`` (``bge-small-en-v1.5``,\n384-dim, B1) that the store's kNN search ranks over — ``None`` only for an\nentity created before its embedding is attached.",
+        "properties": {
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "canonical_id": {
+            "title": "Canonical Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "PERSON",
+              "ORG",
+              "LOCATION",
+              "LAW",
+              "DATE",
+              "EVENT",
+              "NORP",
+              "PRODUCT"
+            ],
+            "title": "Type",
+            "type": "string"
+          },
+          "vector": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vector"
+          }
+        },
+        "required": [
+          "canonical_id",
+          "name",
+          "type"
+        ],
+        "title": "CanonicalEntity",
+        "type": "object"
+      },
+      "DeletedDocument": {
+        "description": "What deleting a document removed (``Orchestrator.delete_document``).",
+        "properties": {
+          "bucket": {
+            "title": "Bucket",
+            "type": "string"
+          },
+          "document_id": {
+            "title": "Document Id",
+            "type": "string"
+          },
+          "entities_kept": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Entities Kept",
+            "type": "array"
+          },
+          "entities_removed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Entities Removed",
+            "type": "array"
+          },
+          "object_key": {
+            "title": "Object Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "bucket",
+          "object_key"
+        ],
+        "title": "DeletedDocument",
+        "type": "object"
+      },
+      "EdgeProvenance": {
+        "description": "Per-edge provenance for one knowledge-graph triple (ADR-0006, §5c).\n\nLoad-bearing for traceable answers: every edge records which document,\nsentence and exact span it came from, plus the model's original phrasing and\nconfidence. The KG-build LLM cites only ``sentence_index`` per triple; the\n``char_start``/``char_end`` offsets are resolved from **our own spaCy\nsentence segmentation** (ADR-0002), not by the LLM. ``raw_predicate`` is set\nonly when the relation fell back to :attr:`~graph_rag.predicates.Predicate.RELATED_TO`\n(it preserves the original phrase; ``None`` on a clean predicate map).",
+        "properties": {
+          "char_end": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Char End"
+          },
+          "char_start": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Char Start"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
+          },
+          "raw_predicate": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Predicate"
+          },
+          "sentence_index": {
+            "title": "Sentence Index",
+            "type": "integer"
+          },
+          "source_doc_id": {
+            "title": "Source Doc Id",
+            "type": "string"
+          },
+          "source_sentence": {
+            "title": "Source Sentence",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_doc_id",
+          "sentence_index",
+          "source_sentence"
+        ],
+        "title": "EdgeProvenance",
+        "type": "object"
+      },
+      "EntityDetail": {
+        "description": "An entity with its neighbours.",
+        "properties": {
+          "aliases": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "canonical_id": {
+            "title": "Canonical Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "neighbours": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Neighbour"
+            },
+            "title": "Neighbours",
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "PERSON",
+              "ORG",
+              "LOCATION",
+              "LAW",
+              "DATE",
+              "EVENT",
+              "NORP",
+              "PRODUCT"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "canonical_id",
+          "name",
+          "type"
+        ],
+        "title": "EntityDetail",
+        "type": "object"
+      },
+      "EntityRef": {
+        "description": "An entity as an API reader sees it: no vector.",
+        "properties": {
+          "aliases": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "canonical_id": {
+            "title": "Canonical Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "PERSON",
+              "ORG",
+              "LOCATION",
+              "LAW",
+              "DATE",
+              "EVENT",
+              "NORP",
+              "PRODUCT"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "canonical_id",
+          "name",
+          "type"
+        ],
+        "title": "EntityRef",
+        "type": "object"
+      },
+      "ForgetRequest": {
+        "properties": {
+          "document_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Id"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          }
+        },
+        "title": "ForgetRequest",
+        "type": "object"
+      },
+      "ForgetResponse": {
+        "properties": {
+          "document_id": {
+            "title": "Document Id",
+            "type": "string"
+          },
+          "entities_kept": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Entities Kept",
+            "type": "array"
+          },
+          "entities_removed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Entities Removed",
+            "type": "array"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "source_id",
+          "entities_removed",
+          "entities_kept"
+        ],
+        "title": "ForgetResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "Job": {
+        "description": "One document's progress.",
+        "properties": {
+          "document_id": {
+            "title": "Document Id",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "object_key": {
+            "title": "Object Key",
+            "type": "string"
+          },
+          "queued_at": {
+            "title": "Queued At",
+            "type": "string"
+          },
+          "stages": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Stages",
+            "type": "array"
+          },
+          "state": {
+            "enum": [
+              "queued",
+              "running",
+              "done",
+              "failed"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "object_key",
+          "state",
+          "queued_at",
+          "updated_at"
+        ],
+        "title": "Job",
+        "type": "object"
+      },
+      "LookupRequest": {
+        "properties": {
+          "entity_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Id"
+          },
+          "limit": {
+            "default": 20,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          }
+        },
+        "title": "LookupRequest",
+        "type": "object"
+      },
+      "LookupResponse": {
+        "properties": {
+          "entities": {
+            "items": {
+              "$ref": "#/components/schemas/EntityDetail"
+            },
+            "title": "Entities",
+            "type": "array"
+          }
+        },
+        "required": [
+          "entities"
+        ],
+        "title": "LookupResponse",
+        "type": "object"
+      },
+      "Neighbour": {
+        "description": "One fact the entity takes part in, with the entity on its other side.",
+        "properties": {
+          "direction": {
+            "title": "Direction",
+            "type": "string"
+          },
+          "entity": {
+            "$ref": "#/components/schemas/EntityRef"
+          },
+          "predicate": {
+            "title": "Predicate",
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/EdgeProvenance"
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid From"
+          },
+          "valid_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid To"
+          }
+        },
+        "required": [
+          "entity",
+          "predicate",
+          "direction",
+          "provenance"
+        ],
+        "title": "Neighbour",
+        "type": "object"
+      },
+      "QueryRequest": {
+        "description": "The ``POST /query`` request body (U3, ADR-0007).\n\nCarries the natural-language ``question`` and the ``synthesize`` flag. The\nflag is the V7 gated-prose-synthesis switch; the field exists now so the\nrequest schema is stable, but V6 retrieval **ignores** it (the default,\ndeterministic, ``$0`` retrieval path always runs).",
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          },
+          "synthesize": {
+            "default": false,
+            "title": "Synthesize",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "question"
+        ],
+        "title": "QueryRequest",
+        "type": "object"
+      },
+      "QueryResponse": {
+        "description": "The ``POST /query`` response body (U3, ADR-0007).\n\nThe deterministic retrieval result: the predicted ``answer`` (the top-ranked\nentity's name, or ``None`` when no entity was retrieved) and the same node as\n``answer_entity``; the connected ``subgraph`` (nodes + provenance-carrying\n:class:`Triple` edges) the answer was read from; every candidate node in\n``ranked_nodes`` (score-descending); and the ``supporting_sentences`` evidence\nwith per-sentence provenance. Reusing :class:`Subgraph` means per-edge\nprovenance rides along for traceable answers.\n\n``prose`` is the OPTIONAL V7 gated LLM synthesis (ADR-0009): ``None`` on the\ndefault deterministic path (``synthesize=false``, no LLM call), and set to the\ngrounded prose answer only when ``POST /query`` was called with\n``synthesize=true`` and a synthesizer is wired. Defaulting it to ``None`` keeps\nthe V6 response shape byte-for-byte unchanged when synthesis is off.",
+        "properties": {
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "answer_entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankedNode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prose"
+          },
+          "ranked_nodes": {
+            "items": {
+              "$ref": "#/components/schemas/RankedNode"
+            },
+            "title": "Ranked Nodes",
+            "type": "array"
+          },
+          "subgraph": {
+            "$ref": "#/components/schemas/Subgraph"
+          },
+          "supporting_sentences": {
+            "items": {
+              "$ref": "#/components/schemas/SupportingSentence"
+            },
+            "title": "Supporting Sentences",
+            "type": "array"
+          }
+        },
+        "required": [
+          "answer",
+          "answer_entity",
+          "subgraph"
+        ],
+        "title": "QueryResponse",
+        "type": "object"
+      },
+      "RankedNode": {
+        "description": "One scored knowledge-graph node in the ranked query result (U3, B4).\n\nA candidate answer entity: its ``canonical_id`` (graph node identity),\n``name``, curated ``type`` and the ranking ``score`` assigned by\n:func:`graph_rag.query.ranking.rank_nodes`. The top-ranked node is the\npredicted entity answer for entity-typed questions (ADR-0007).",
+        "properties": {
+          "canonical_id": {
+            "title": "Canonical Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "type": {
+            "enum": [
+              "PERSON",
+              "ORG",
+              "LOCATION",
+              "LAW",
+              "DATE",
+              "EVENT",
+              "NORP",
+              "PRODUCT"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "canonical_id",
+          "name",
+          "type",
+          "score"
+        ],
+        "title": "RankedNode",
+        "type": "object"
+      },
+      "RecallRequest": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "question": {
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "synthesize": {
+            "default": false,
+            "title": "Synthesize",
+            "type": "boolean"
+          },
+          "token_budget": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Budget"
+          }
+        },
+        "required": [
+          "question"
+        ],
+        "title": "RecallRequest",
+        "type": "object"
+      },
+      "RecallResponse": {
+        "description": "``QueryResponse`` plus what the token budget did to the evidence.",
+        "properties": {
+          "answer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Answer"
+          },
+          "answer_entity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RankedNode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "prose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prose"
+          },
+          "ranked_nodes": {
+            "items": {
+              "$ref": "#/components/schemas/RankedNode"
+            },
+            "title": "Ranked Nodes",
+            "type": "array"
+          },
+          "subgraph": {
+            "$ref": "#/components/schemas/Subgraph"
+          },
+          "supporting_sentences": {
+            "items": {
+              "$ref": "#/components/schemas/SupportingSentence"
+            },
+            "title": "Supporting Sentences",
+            "type": "array"
+          },
+          "tokens_used": {
+            "default": 0,
+            "title": "Tokens Used",
+            "type": "integer"
+          },
+          "truncated": {
+            "default": false,
+            "title": "Truncated",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "answer",
+          "answer_entity",
+          "subgraph"
+        ],
+        "title": "RecallResponse",
+        "type": "object"
+      },
+      "RememberRequest": {
+        "properties": {
+          "document_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Document Date"
+          },
+          "force": {
+            "default": false,
+            "title": "Force",
+            "type": "boolean"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          },
+          "text": {
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "RememberRequest",
+        "type": "object"
+      },
+      "RememberResponse": {
+        "properties": {
+          "document_id": {
+            "title": "Document Id",
+            "type": "string"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "source_id",
+          "status"
+        ],
+        "title": "RememberResponse",
+        "type": "object"
+      },
+      "Subgraph": {
+        "description": "A connected slice of the knowledge graph — the k-hop traversal result.\n\nReturned by :meth:`graph_rag.ports.GraphStore.khop`: the nodes reachable\nwithin ``hops`` of the seed IDs and every edge whose endpoints are both in\nthat node set. V6 retrieval ranks over this (nodes + supporting-sentence\nprovenance on the edges).",
+        "properties": {
+          "edges": {
+            "items": {
+              "$ref": "#/components/schemas/Triple"
+            },
+            "title": "Edges",
+            "type": "array"
+          },
+          "nodes": {
+            "items": {
+              "$ref": "#/components/schemas/CanonicalEntity"
+            },
+            "title": "Nodes",
+            "type": "array"
+          }
+        },
+        "title": "Subgraph",
+        "type": "object"
+      },
+      "SupportingSentence": {
+        "description": "One retrieved supporting sentence with its provenance (U3, ADR-0007).\n\nThe passage/sentence-anchored evidence for an answer: the sentence ``text``\nwith its half-open ``[char_start, char_end)`` offsets into the source\ndocument's raw text, the document it came from, its zero-based\n``sentence_index`` and the cosine ``score`` of its vector against the query\nvector. Returned by :meth:`graph_rag.ports.DocumentStore.search_sentences`.",
+        "properties": {
+          "char_end": {
+            "title": "Char End",
+            "type": "integer"
+          },
+          "char_start": {
+            "title": "Char Start",
+            "type": "integer"
+          },
+          "document_id": {
+            "title": "Document Id",
+            "type": "string"
+          },
+          "score": {
+            "title": "Score",
+            "type": "number"
+          },
+          "sentence_index": {
+            "title": "Sentence Index",
+            "type": "integer"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "text",
+          "char_start",
+          "char_end",
+          "sentence_index",
+          "score"
+        ],
+        "title": "SupportingSentence",
+        "type": "object"
+      },
+      "Triple": {
+        "description": "One knowledge-graph edge: ``(subject_id, predicate, object_id)`` (ADR-0006).\n\n``subject_id`` and ``object_id`` are **canonical entity IDs**\n(:attr:`CanonicalEntity.canonical_id`), NOT raw surface strings — grounding\nthe graph in the EL store so the same entity across documents is one node and\nmulti-hop traversal is reliable. ``predicate`` is a member of the closed set\n(:class:`graph_rag.predicates.Predicate`); when no primary relation fit it is\n``\"RELATED_TO\"`` and ``provenance.raw_predicate`` holds the original phrase.\n``date`` is the DATE **edge qualifier** (an ISO-ish date string) — dates are\nmodeled as an attribute on the edge, never as standalone nodes.\n\n``valid_from`` and ``valid_to`` are when the fact held (GRA-42), ``valid_from`` inclusive and\n``valid_to`` exclusive, as ``YYYY-MM-DD``. ``None`` means unknown, not \"always\" or \"still\":\nnothing assumes a date it was not given. Today ``valid_from`` is set from the document's date\nwhen the caller gave one. ``valid_to`` is set when a newer document states a replacing fact\n(:mod:`graph_rag.supersession`, GRA-43); ``superseded_by`` is that document's id, so deleting\nor re-ingesting it can reopen this edge.",
+        "properties": {
+          "date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "object_id": {
+            "title": "Object Id",
+            "type": "string"
+          },
+          "predicate": {
+            "title": "Predicate",
+            "type": "string"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/EdgeProvenance"
+          },
+          "subject_id": {
+            "title": "Subject Id",
+            "type": "string"
+          },
+          "superseded_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Superseded By"
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid From"
+          },
+          "valid_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid To"
+          }
+        },
+        "required": [
+          "subject_id",
+          "predicate",
+          "object_id",
+          "provenance"
+        ],
+        "title": "Triple",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "Graph RAG Demo — Ingest + Query API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/documents/{doc_id}": {
+      "delete": {
+        "description": "Forget a document: its edges, its record, its raw bytes, and entities only it used.\n\nRuns in this process, not through Kafka, so the answer says what was removed. A\ndocument that is not stored is a 404. Entities that another document still\nmentions are kept.",
+        "operationId": "delete_document_documents__doc_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "doc_id",
+            "required": true,
+            "schema": {
+              "title": "Doc Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletedDocument"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Document"
+      }
+    },
+    "/health": {
+      "get": {
+        "description": "Liveness probe (dev-playbook observability floor).",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Health Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/ingest": {
+      "post": {
+        "description": "Store an uploaded document and publish its ingest trigger.\n\nThe source is keyed by ``source_url`` when given, else by the uploaded filename;\nthe bucket comes from settings. Returns the deterministic ``document_id``, the\nresolved location and a ``status``: ``accepted`` when the bytes were stored and a\ntrigger published, or ``unchanged`` when this source already holds exactly these\nbytes, in which case nothing is stored or published, so the pipeline (and any LLM\nbehind it) does not run again. ``force=true`` ingests it anyway, for a source whose\nfirst attempt failed. Does NOT run the pipeline — that happens downstream.\n\nSend a ``file`` or a ``url`` (GRA-34). A ``url`` is fetched here, from public addresses\nonly, and is the source's identity. A PDF or an HTML page, uploaded or fetched, is\nstored as its text; one that yields no text is a 422, not an empty document.",
+        "operationId": "ingest_ingest_post",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "force",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Force",
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_ingest_ingest_post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Ingest Ingest Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ingest"
+      }
+    },
+    "/jobs/{doc_id}": {
+      "get": {
+        "description": "Where a document is in the pipeline: queued, running, done or failed.\n\nThe id is the ``document_id`` that ``/ingest`` and ``/v1/remember`` returned. A failed\njob says which stage failed. An id this tenant never queued is a 404, whoever else\nhas queued it, and a process restart forgets jobs (they are held in memory).",
+        "operationId": "job_jobs__doc_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "doc_id",
+            "required": true,
+            "schema": {
+              "title": "Doc Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Job"
+      }
+    },
+    "/jobs/{doc_id}/events": {
+      "get": {
+        "description": "Stream a job's progress as server-sent events until it is done or failed (GRA-33).\n\nOne ``stage`` event per pipeline stage entered (``data`` is ``{\"stage\": ...}``), then a\nfinal ``done`` or ``failed`` event carrying the job. A job already finished replays its\nstages and closes. An id this tenant never queued is a 404, as for ``/jobs/{id}``.",
+        "operationId": "job_events_jobs__doc_id__events_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "doc_id",
+            "required": true,
+            "schema": {
+              "title": "Doc Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Job Events"
+      }
+    },
+    "/query": {
+      "post": {
+        "description": "Answer a question via the deterministic, ``$0`` retrieval path (V6, ADR-0007).\n\nSynchronous read path: hands the parsed :class:`~graph_rag.models.QueryRequest`\nto the injected retriever and returns its\n:class:`~graph_rag.models.QueryResponse` (connected subgraph + ranked nodes\n+ predicted entity answer + supporting sentences with provenance). No Kafka,\nno LLM. Responds ``503`` when no retriever is wired.",
+        "operationId": "query_query_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Query"
+      }
+    },
+    "/v1/forget": {
+      "post": {
+        "description": "Forget a source, named by its source id or its document id.",
+        "operationId": "forget_v1_forget_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForgetResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Forget"
+      }
+    },
+    "/v1/lookup": {
+      "post": {
+        "description": "Find entities by name or id, with their aliases and neighbours.",
+        "operationId": "lookup_entity_v1_lookup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LookupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LookupResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lookup Entity"
+      }
+    },
+    "/v1/recall": {
+      "post": {
+        "description": "Answer a question and return the evidence behind the answer.",
+        "operationId": "recall_v1_recall_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecallRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecallResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Recall"
+      }
+    },
+    "/v1/remember": {
+      "post": {
+        "description": "Store text under a source id and queue it for the pipeline.",
+        "operationId": "remember_v1_remember_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RememberRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RememberResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Remember"
+      }
+    }
+  }
+}

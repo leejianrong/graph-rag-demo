@@ -1,7 +1,7 @@
 # One-command dev loop (dev-playbook #17). See docs/ARCHITECTURE.md §8.
 # Bare `make` prints this help; it never starts anything.
 .DEFAULT_GOAL := help
-.PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint types fmt check ui world fixtures extract linking order sweep compare gate nightly longmemeval
+.PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint types fmt check ui ui-install ui-dev ui-build openapi world fixtures extract linking order sweep compare gate nightly longmemeval
 
 # The generator UI uses a local indah checkout when one exists (its Graph component is not on PyPI
 # until indah 0.12), else PyPI indah. Override: INDAH=/path/to/indah-python-ui, or INDAH= for PyPI.
@@ -110,6 +110,19 @@ check: ## Lint + format check + types + fast suite (run before pushing).
 ui: ## Start the synthetic-data web UI (kggen ui). PORT=... to pin a port.
 	@echo "kggen ui with $(if $(INDAH),local indah at $(INDAH),PyPI indah: no graph view until indah 0.12)"
 	uv run $(if $(INDAH),--with-editable $(INDAH),--with indah) kggen ui $(if $(PORT),--port $(PORT),)
+
+# The product web UI (ui/, Vite + Svelte). Needs Node 22+; the API client is generated from docs/openapi.json.
+ui-install: ## Install the web UI's npm dependencies (ui/).
+	cd ui && npm ci
+
+ui-dev: ## Web UI dev server; proxies the API at http://localhost:8000 (API_URL=... to change).
+	cd ui && npm run dev
+
+ui-build: ## Type-check and build the web UI into ui/dist.
+	cd ui && npm run check && npm run build
+
+openapi: ## Regenerate docs/openapi.json from the app (the UI client is generated from it).
+	uv run python scripts/gen_openapi.py
 
 world: ## Generate a world and print its stats vs the spec (PRESET=tiny|small|medium|large|stress).
 	uv run kggen world stats --preset $(PRESET)

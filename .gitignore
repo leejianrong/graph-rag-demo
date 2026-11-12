@@ -44,3 +44,8 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# UI (GRA-46)
+ui/node_modules/
+ui/dist/
+ui/src/api/schema.d.ts
