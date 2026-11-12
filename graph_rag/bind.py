@@ -63,7 +63,7 @@ def _local_dev(field: str) -> object:
 
 
 def default_credentials(settings: Settings) -> list[str]:
-    """Names of store credentials still at their local-dev value (Elasticsearch's: unset)."""
+    """Names of store credentials still at their local-dev value (unset, for ES and Valkey)."""
     found = []
     if settings.minio_access_key == _local_dev("minio_access_key"):
         found.append("MINIO_ACCESS_KEY")
@@ -71,6 +71,8 @@ def default_credentials(settings: Settings) -> list[str]:
         found.append("MINIO_SECRET_KEY")
     if settings.neo4j_password == _local_dev("neo4j_password"):
         found.append("NEO4J_PASSWORD")
+    if settings.trigger_backend == "redis" and not settings.redis_password:
+        found.append("REDIS_PASSWORD (VALKEY_PASSWORD in the hosted compose file)")
     if not settings.elasticsearch_password:
         found.append("ELASTICSEARCH_PASSWORD")
     return found

@@ -70,7 +70,22 @@ class Settings(BaseSettings):
     documents_index: str = "documents"
     entities_index: str = "entities"
 
-    # --- Kafka / messaging seam ---------------------------------------------
+    # --- Trigger backend / messaging seam -----------------------------------
+    # ``redis`` (the default; Valkey or Redis, Streams) or ``kafka``. Each has its own settings;
+    # ``INGEST_PARTITIONS`` (compose) applies to kafka only (ADR-0016).
+    trigger_backend: Literal["redis", "kafka"] = "redis"
+    redis_url: str = "redis://valkey:6379/0"
+    # Empty is the open local-dev default; the hosted compose file requires one (GRA-146).
+    redis_password: str = ""
+    redis_stream: str = "ingest-triggers"
+    redis_group: str = "graph-rag-ingest"
+    # A trigger a worker took but never finished (it died) is handed to another after this long.
+    # Generous: one document can take minutes. A running worker renews its claim, so a slow
+    # document is not taken from it.
+    redis_reclaim_idle_seconds: int = 900
+    # The per-document lock; renewed while the handler runs, so it only needs to outlive a dead
+    # worker. Keep it below the reclaim time so a reclaimed trigger finds the lock free.
+    redis_lock_seconds: int = 300
     kafka_bootstrap_servers: str = "kafka:9092"
     ingest_trigger_topic: str = "ingest-triggers"
     # Where the Kafka consumer runs (GRA-31). ``inline``: a thread in the API process (the

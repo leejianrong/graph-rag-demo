@@ -27,7 +27,7 @@ against fakes — no Docker in the fast suite:
 - **Ingestion:** drive `process_document({bucket, objectKey})` end-to-end against
   fakes; assert the written `ES-Documents` record (NER mentions+spans, coref
   cluster map, per-doc EL result), the upserted `ES-Entities` canonical entities,
-  and the Neo4j triples with provenance. The Kafka consumer loop + FastAPI
+  and the Neo4j triples with provenance. The trigger consumer loop + FastAPI
   `/ingest` are thin and exercised *through* this seam.
 - **Query:** drive the retrieval function behind `/query` against pre-seeded fake
   `EntityStore`/`DocumentStore`/`GraphStore`; assert the ranked subgraph,

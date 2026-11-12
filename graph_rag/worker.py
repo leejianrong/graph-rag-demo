@@ -1,15 +1,16 @@
 """The ingest worker: consumes triggers in its own process (GRA-31).
 
 With ``INGEST_MODE=publish`` the API only publishes; ``graph-rag-worker`` runs the pipeline. Run
-as many workers as there are Kafka partitions to use (``docker compose up --scale worker=N``):
-they share the consumer group, so Kafka gives each partition to one worker, and a document's
-triggers all land on one partition (the publisher keys by source), so they stay in order.
+as many workers as you like (``docker compose up --scale worker=N``): they share one consumer
+group. With ``TRIGGER_BACKEND=redis`` (the default) a per-document lock keeps two workers off one
+document and a trigger a dead worker held is reclaimed; with ``kafka`` the partitions bound the
+workers and a document's triggers share a partition (ADR-0016).
 
 Health: a small HTTP server answers ``GET /healthz`` with 200 while the consume loop is running
 and 503 once it has stopped or died. A long document does not fail it; the loop is alive, not
 fast. ``SIGTERM`` and ``SIGINT`` stop the loop after the document in hand, then the consumer is
-closed, which commits what was done. The worker takes one message at a time so nothing fetched
-but unprocessed is committed.
+closed. The worker takes one message at a time so nothing fetched but unprocessed is committed
+(kafka) or taken from the stream (redis).
 """
 
 from __future__ import annotations
@@ -100,7 +101,7 @@ def main() -> None:
     from graph_rag.config import Settings
     from graph_rag.logging import configure_logging
     from graph_rag.main import build_pipeline
-    from graph_rag.messaging.kafka_trigger import KafkaTriggerConsumer
+    from graph_rag.messaging.factory import build_consumer
     from graph_rag.observability import check_metrics_settings, configure_tracing, metrics_response
 
     settings = Settings()
@@ -113,12 +114,8 @@ def main() -> None:
             "The worker needs INGEST_MODE=publish, so job status is shared with the API."
         )
     pipeline = build_pipeline(settings)
-    consumer = KafkaTriggerConsumer(
-        bootstrap_servers=settings.kafka_bootstrap_servers,
-        topic=settings.ingest_trigger_topic,
-        handler=pipeline.orchestrator.process_document,
-    )
-    _logger.info("worker consuming topic %r", settings.ingest_trigger_topic)
+    consumer = build_consumer(settings, pipeline.orchestrator.process_document)
+    _logger.info("worker consuming triggers from %s", settings.trigger_backend)
     run_worker(
         consumer,
         settings.worker_health_port,

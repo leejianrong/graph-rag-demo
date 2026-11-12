@@ -21,6 +21,7 @@ REAL = {
     "minio_secret_key": "s3cret-value",
     "neo4j_password": "n4j-value",
     "elasticsearch_password": "es-value",
+    "redis_password": "valkey-value",
 }
 
 
@@ -40,6 +41,9 @@ def test_with_auth_on_each_local_dev_credential_is_refused() -> None:
             enforce_credentials(hosted(**{field: default}))
     with pytest.raises(SystemExit, match="ELASTICSEARCH_PASSWORD"):
         enforce_credentials(hosted(elasticsearch_password=""))
+    with pytest.raises(SystemExit, match="REDIS_PASSWORD"):
+        enforce_credentials(hosted(redis_password=""))
+    enforce_credentials(hosted(redis_password="", trigger_backend="kafka"))  # Kafka has none
 
 
 def test_the_message_names_every_offender_but_never_a_value() -> None:
@@ -105,7 +109,7 @@ def compose() -> dict:
 
 
 def test_no_store_publishes_a_port_and_none_joins_a_public_network(compose: dict) -> None:
-    for name in ("elasticsearch", "minio", "kafka", "neo4j"):
+    for name in ("elasticsearch", "minio", "valkey", "kafka", "neo4j"):
         service = compose["services"][name]
         assert "ports" not in service and "expose" not in service, name
         assert service["networks"] == ["backend"], name
@@ -120,6 +124,7 @@ def test_every_credential_is_required_and_has_no_default(compose: dict) -> None:
         "MINIO_ACCESS_KEY",
         "MINIO_SECRET_KEY",
         "NEO4J_PASSWORD",
+        "VALKEY_PASSWORD",
     ):
         assert "${" + name + ":?" in text, name
         assert "${" + name + ":-" not in text, name
@@ -132,3 +137,21 @@ def test_the_app_runs_with_auth_on_and_without_the_open_opt_out(compose: dict) -
     assert env["REQUIRE_AUTH"] == "true" and env["ALLOW_OPEN_BIND"] == "false"
     assert compose["services"]["elasticsearch"]["environment"]["xpack.security.enabled"] == "true"
     assert "127.0.0.1" in compose["services"]["app"]["ports"][0]  # loopback unless told otherwise
+
+
+def test_valkey_is_the_default_trigger_store_and_kafka_is_a_profile(compose: dict) -> None:
+    services = compose["services"]
+    assert "profiles" not in services["valkey"] and services["kafka"]["profiles"] == ["kafka"]
+    for name in ("app", "worker"):
+        needs = services[name]["depends_on"]
+        # kafka is a profile: not started by default, so the dependency must be optional
+        assert needs["kafka"]["required"] is False, name
+        assert needs["valkey"]["condition"] == "service_healthy", name
+    # The password reaches the server and the clients by environment, never a literal.
+    valkey = services["valkey"]
+    assert valkey["environment"]["VALKEY_PASSWORD"].startswith("${VALKEY_PASSWORD:?")
+    assert "REDISCLI_AUTH" in valkey["environment"]  # valkey-cli's healthcheck reads it
+    command = json.dumps(valkey["command"])
+    assert "--requirepass" in command and "${" not in command
+    assert "noeviction" in command and "valkey-data:/data" in valkey["volumes"]
+    assert services["app"]["environment"]["REDIS_PASSWORD"].startswith("${VALKEY_PASSWORD:?")

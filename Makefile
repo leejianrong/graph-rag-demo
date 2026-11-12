@@ -12,8 +12,8 @@ help: ## Show this help.
 	@echo "Targets (override variables like PRESET=small or PORT=8765):"
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  %-16s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-# Bring up the whole local stack (Kafka/MinIO/ES/app), building the app image.
-up: ## Bring up the whole stack (Kafka, MinIO, ES, Neo4j, app).
+# Bring up the whole local stack (Valkey/MinIO/ES/app), building the app image.
+up: ## Bring up the whole stack (Valkey, MinIO, ES, Neo4j, app).
 	docker compose up --build
 
 # Tear the stack down.
