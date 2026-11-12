@@ -43,6 +43,39 @@ export function makeClient(baseUrl = "", fetchImpl?: typeof fetch, auth?: AuthHo
   return client;
 }
 
+/** A call's outcome: the data, or the HTTP status (0 for a network failure) and the API's own message. */
+export type Outcome<T> = { ok: true; data: T } | { ok: false; status: number; message?: string };
+
+type Client = ReturnType<typeof makeClient>;
+
+async function settle<T>(
+  call: () => Promise<{ data?: T; error?: unknown; response: Response }>,
+): Promise<Outcome<T>> {
+  try {
+    const { data, error, response } = await call();
+    if (data !== undefined && response.ok) return { ok: true, data };
+    const body = error as { error?: { message?: string } } | undefined;
+    return { ok: false, status: response.status, message: body?.error?.message };
+  } catch {
+    return { ok: false, status: 0 };
+  }
+}
+
+type SearchQuery = NonNullable<paths["/v1/entities"]["get"]["parameters"]["query"]>;
+type DetailQuery = NonNullable<paths["/v1/entities/{entity_id}"]["get"]["parameters"]["query"]>;
+
+/** `GET /v1/entities`: entities whose name or alias contains `q`, newest first, one page at a time. */
+export function searchEntities(client: Client, query: SearchQuery) {
+  return settle(() => client.GET("/v1/entities", { params: { query } }));
+}
+
+/** `GET /v1/entities/{id}`: one entity with its neighbours, aliases and source documents. */
+export function entityDetail(client: Client, entityId: string, query: DetailQuery = {}) {
+  return settle(() =>
+    client.GET("/v1/entities/{entity_id}", { params: { path: { entity_id: entityId }, query } }),
+  );
+}
+
 /** For calls that need no key, such as `/health`. Signed-in views use `api` from `lib/auth.svelte`. */
 export const publicApi = makeClient();
 
