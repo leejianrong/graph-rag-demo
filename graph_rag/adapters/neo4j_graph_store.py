@@ -294,6 +294,49 @@ class Neo4jGraphStore:
         self.write_triples(scope, rewire(touching, keep_id, drop, present))
         self.delete_nodes(scope, sorted(drop))
 
+    def split_nodes(
+        self, scope: Scope, entities: list[CanonicalEntity], remove: list[Triple], add: list[Triple]
+    ) -> None:
+        """Restore nodes, write the ``add`` edges not yet stored, then delete the ``remove`` ones.
+
+        An edge is identified by its endpoints, predicate, source document and sentence index
+        (:func:`~graph_rag.merging.edge_key`). Writing before deleting means a call that stops
+        part-way leaves an edge twice rather than lost; repeating it finishes the job.
+        """
+        self.upsert_entities(scope, entities)
+        fresh = [edge for edge in add if not self._has_edge(scope, edge)]
+        self.write_triples(scope, fresh)
+        for edge in remove:
+            if edge.predicate not in CLOSED_PREDICATES:
+                raise ValueError(f"predicate {edge.predicate!r} is not in the closed predicate set")
+            self._run(
+                f"MATCH (a:Entity {{canonical_id: $s}})-[r:{edge.predicate}]->"
+                f"(b:Entity {{canonical_id: $o}}) "
+                f"WHERE r.source_doc_id = $doc AND r.sentence_index = $sentence "
+                f"AND {_in('a')} AND {_in('b')} DELETE r",
+                s=edge.subject_id,
+                o=edge.object_id,
+                doc=edge.provenance.source_doc_id,
+                sentence=edge.provenance.sentence_index,
+                scope=scope.key,
+            )
+
+    def _has_edge(self, scope: Scope, edge: Triple) -> bool:
+        if edge.predicate not in CLOSED_PREDICATES:
+            raise ValueError(f"predicate {edge.predicate!r} is not in the closed predicate set")
+        records = self._run(
+            f"MATCH (a:Entity {{canonical_id: $s}})-[r:{edge.predicate}]->"
+            f"(b:Entity {{canonical_id: $o}}) "
+            f"WHERE r.source_doc_id = $doc AND r.sentence_index = $sentence "
+            f"AND {_in('a')} AND {_in('b')} RETURN count(r) AS c",
+            s=edge.subject_id,
+            o=edge.object_id,
+            doc=edge.provenance.source_doc_id,
+            sentence=edge.provenance.sentence_index,
+            scope=scope.key,
+        )
+        return int(records[0]["c"]) > 0
+
     # --- Reads --------------------------------------------------------------
 
     def khop(self, scope: Scope, seed_ids: list[str], hops: int) -> Subgraph:

@@ -1412,6 +1412,91 @@
         "title": "RememberResponse",
         "type": "object"
       },
+      "SplitRequest": {
+        "properties": {
+          "entity_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "maxItems": 10,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Which of the merge's dropped entities to restore; default all still merged.",
+            "title": "Entity Ids"
+          },
+          "merge_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The merge to undo (`merge_id` of a merge response, or of `merged_from`). Omit it when the entity has exactly one merge with entities left to split out.",
+            "title": "Merge Id"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          }
+        },
+        "title": "SplitRequest",
+        "type": "object"
+      },
+      "SplitResponse": {
+        "description": "What a split did. ``entity`` is the survivor as it is now.",
+        "properties": {
+          "already_split": {
+            "description": "Requested ids an earlier call had put back.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Already Split",
+            "type": "array"
+          },
+          "entity": {
+            "$ref": "#/components/schemas/EntitySummary"
+          },
+          "merge_id": {
+            "title": "Merge Id",
+            "type": "string"
+          },
+          "split": {
+            "description": "Entities this call put back.",
+            "items": {
+              "$ref": "#/components/schemas/EntitySummary"
+            },
+            "title": "Split",
+            "type": "array"
+          }
+        },
+        "required": [
+          "merge_id",
+          "split",
+          "already_split",
+          "entity"
+        ],
+        "title": "SplitResponse",
+        "type": "object"
+      },
       "Subgraph": {
         "description": "A connected slice of the knowledge graph — the k-hop traversal result.\n\nReturned by :meth:`graph_rag.ports.GraphStore.khop`: the nodes reachable\nwithin ``hops`` of the seed IDs and every edge whose endpoints are both in\nthat node set. V6 retrieval ranks over this (nodes + supporting-sentence\nprovenance on the edges).",
         "properties": {
@@ -2080,6 +2165,56 @@
           }
         },
         "summary": "Merge Entities"
+      }
+    },
+    "/v1/entities/{keep_id}/split": {
+      "post": {
+        "description": "Undo a recorded merge: put the entities it folded into this one back.",
+        "operationId": "split_entity_v1_entities__keep_id__split_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "keep_id",
+            "required": true,
+            "schema": {
+              "title": "Keep Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SplitRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SplitResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Split Entity"
       }
     },
     "/v1/forget": {

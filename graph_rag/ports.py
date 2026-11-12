@@ -168,8 +168,14 @@ class EntityStore(Protocol):
     suite injects :class:`~graph_rag.fakes.InMemoryEntityStore`.
     """
 
-    def upsert(self, scope: Scope, entity: CanonicalEntity) -> None:
-        """Insert or overwrite a canonical entity, keyed by ``entity.canonical_id``."""
+    def upsert(
+        self, scope: Scope, entity: CanonicalEntity, *, first_seen: str | None = None
+    ) -> None:
+        """Insert or overwrite a canonical entity, keyed by ``entity.canonical_id``.
+
+        ``first_seen`` (UTC ISO-8601) sets the stored first-seen time instead of stamping now; a
+        split passes the one it recorded when it puts a merged entity back (GRA-145).
+        """
         ...
 
     def delete(self, scope: Scope, canonical_id: str) -> None:
@@ -322,6 +328,18 @@ class GraphStore(Protocol):
         become a loop and is dropped; an edge ``keep_id`` already has is not repeated. The
         ``keep_id`` node's own properties are untouched (upsert it for new aliases). Ids with no
         node are ignored, and repeating a call changes nothing.
+        """
+        ...
+
+    def split_nodes(
+        self, scope: Scope, entities: list[CanonicalEntity], remove: list[Triple], add: list[Triple]
+    ) -> None:
+        """Put ``entities`` back as nodes, write ``add`` and take ``remove`` out (GRA-145).
+
+        The reverse of :meth:`merge_nodes`. Nodes are upserted first, then each edge of ``add``
+        that is not already stored (same :func:`~graph_rag.merging.edge_key`) is written, and
+        last every stored edge whose key matches one in ``remove`` is deleted, so a call that
+        stops part-way leaves an edge twice rather than lost and repeating it finishes the job.
         """
         ...
 
