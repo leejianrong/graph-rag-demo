@@ -48,6 +48,7 @@ test("an API error keeps its status and message", async () => {
     ok: false,
     status: 404,
     message: "no such entity",
+    code: "not_found",
   });
 });
 
