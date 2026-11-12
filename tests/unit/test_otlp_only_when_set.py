@@ -21,6 +21,7 @@ OTEL_ENV = (
     "OTEL_TRACES_EXPORTER",
     "OTEL_METRICS_EXPORTER",
     "OTEL_LOGS_EXPORTER",
+    "OTEL_SDK_DISABLED",
 )
 EXPORT_THREADS = ("OtelBatch", "OtelPeriodic")
 
@@ -46,9 +47,12 @@ def test_with_no_endpoint_no_exporter_starts_and_nothing_is_logged(
     settings = Settings()
     assert observability.configure_tracing(settings, "graph-rag") is False
     assert observability._provider is None
-    # Libraries that read OTEL_* are told to export nothing, so none starts a pipeline of its own.
-    assert os.environ["FASTAPI_OTEL_AUTO_CONFIGURE"] == "false"
-    assert os.environ["OTEL_METRICS_EXPORTER"] == "none"
+    assert (
+        "Noop" in type(observability._tracer()).__name__
+        or "NoOp" in type(observability._tracer()).__name__
+    )
+    # The SDK is off, so no library's provider (transformers builds one) can record or export.
+    assert os.environ["OTEL_SDK_DISABLED"] == "true"
 
     client = app_over(build_offline_components(settings=settings), Queue(), settings)
     with client:
@@ -63,9 +67,9 @@ def test_with_no_endpoint_no_exporter_starts_and_nothing_is_logged(
 def test_the_operator_can_still_choose_their_own_otel_environment(
     clean_otel_env: None, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("OTEL_METRICS_EXPORTER", "otlp")
+    monkeypatch.setenv("OTEL_SDK_DISABLED", "false")
     observability.configure_tracing(Settings(), "graph-rag")
-    assert os.environ["OTEL_METRICS_EXPORTER"] == "otlp"
+    assert os.environ["OTEL_SDK_DISABLED"] == "false"
 
 
 def test_with_an_endpoint_spans_go_to_the_otlp_trace_exporter_and_nothing_else(
@@ -103,7 +107,7 @@ def test_with_an_endpoint_spans_go_to_the_otlp_trace_exporter_and_nothing_else(
         provider.force_flush()
         names = {s.name for s in made[0].get_finished_spans()}
         assert {"ingest.document", "ingest.read"} <= names
-        assert os.environ["OTEL_METRICS_EXPORTER"] == "none"  # still no OTLP metrics
+        assert "OTEL_SDK_DISABLED" not in os.environ  # our spans must export
     finally:
         provider.shutdown()
 

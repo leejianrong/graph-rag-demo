@@ -148,3 +148,13 @@ def retriever(
         document_store=document_store,
         graph_store=graph_store,
     )
+
+
+@pytest.fixture(autouse=True)
+def _restore_otel_sdk_disabled(monkeypatch: pytest.MonkeyPatch) -> None:
+    """``configure_tracing`` sets ``OTEL_SDK_DISABLED`` for the process; no test may leak it."""
+    import os
+
+    monkeypatch.setenv("OTEL_SDK_DISABLED", os.environ.get("OTEL_SDK_DISABLED", "false"))
+    if "OTEL_SDK_DISABLED" not in os.environ or os.environ["OTEL_SDK_DISABLED"] == "false":
+        monkeypatch.delenv("OTEL_SDK_DISABLED")
