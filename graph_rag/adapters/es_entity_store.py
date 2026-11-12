@@ -139,7 +139,9 @@ class EsEntityStore:
         self._client.indices.create(index=self._index, mappings=_entities_mapping(self._dims))
         _logger.info("created entities index %r (dense_vector dims=%d)", self._index, self._dims)
 
-    def upsert(self, scope: Scope, entity: CanonicalEntity) -> None:
+    def upsert(
+        self, scope: Scope, entity: CanonicalEntity, *, first_seen: str | None = None
+    ) -> None:
         """Insert or overwrite a canonical entity, keyed by ``entity.canonical_id``.
 
         Stores the normalized forms of ``name`` and each ``alias`` so blocking
@@ -156,7 +158,9 @@ class EsEntityStore:
             "type": entity.type,
             "aliases": list(entity.aliases),
             "aliases_normalized": [normalize_name(alias) for alias in entity.aliases],
-            "first_seen": self.first_seen(scope, entity.canonical_id) or self._clock(),
+            "first_seen": first_seen
+            or self.first_seen(scope, entity.canonical_id)
+            or self._clock(),
         }
         # Only index a vector when the entity has one — a vector-less entity is then
         # skipped by kNN (dense_vector search only ranks docs that have the field),

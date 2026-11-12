@@ -225,10 +225,15 @@ class InMemoryEntityStore:
         self._first_seen: dict[Scope, dict[str, str]] = defaultdict(dict)
         self._clock = clock or utc_now_iso
 
-    def upsert(self, scope: Scope, entity: CanonicalEntity) -> None:
+    def upsert(
+        self, scope: Scope, entity: CanonicalEntity, *, first_seen: str | None = None
+    ) -> None:
         """Insert or overwrite the entity keyed by ``entity.canonical_id`` (idempotent)."""
         self._entities[scope][entity.canonical_id] = entity
-        self._first_seen[scope].setdefault(entity.canonical_id, self._clock())
+        if first_seen:
+            self._first_seen[scope][entity.canonical_id] = first_seen
+        else:
+            self._first_seen[scope].setdefault(entity.canonical_id, self._clock())
 
     def first_seen(self, scope: Scope, canonical_id: str) -> str | None:
         """When the id was first upserted, kept through later upserts."""
@@ -392,6 +397,20 @@ class InMemoryGraphStore:
         self._edges[scope] = rest + rewire(touching, keep_id, drop, rest)
         for canonical_id in drop:
             self._nodes[scope].pop(canonical_id, None)
+
+    def split_nodes(
+        self, scope: Scope, entities: list[CanonicalEntity], remove: list[Triple], add: list[Triple]
+    ) -> None:
+        """Restore nodes, write the edges not yet stored, then delete the ``remove`` keys."""
+        for entity in entities:
+            self._nodes[scope][entity.canonical_id] = entity
+        stored = {_edge_key(e) for e in self._edges[scope]}
+        for edge in add:
+            if _edge_key(edge) not in stored:
+                stored.add(_edge_key(edge))
+                self._edges[scope].append(edge)
+        gone = {_edge_key(e) for e in remove}
+        self._edges[scope] = [e for e in self._edges[scope] if _edge_key(e) not in gone]
 
     def khop(self, scope: Scope, seed_ids: list[str], hops: int) -> Subgraph:
         """Return the connected subgraph within ``hops`` of ``seed_ids`` (BFS).
