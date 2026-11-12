@@ -344,7 +344,7 @@
         "type": "object"
       },
       "EntityNeighbourhood": {
-        "description": "One entity with both sides of its edges and the documents that mention it.\n\n``neighbours`` lists up to ``neighbours_limit`` outgoing edges (this entity is the subject)\nand as many incoming ones, outgoing first; the totals say how many exist. ``sources`` is\nmost-mentioned first and cut at ``sources_limit``.",
+        "description": "One entity with both sides of its edges and the documents that mention it.\n\n``neighbours`` lists up to ``neighbours_limit`` outgoing edges (this entity is the subject)\nand as many incoming ones, outgoing first; the totals say how many exist. ``sources`` is\nmost-mentioned first and cut at ``sources_limit``. ``merged_from`` lists the entities merged\ninto this one (GRA-144), oldest merge first; empty when none were.",
         "properties": {
           "aliases": {
             "default": [],
@@ -373,6 +373,14 @@
             "default": 0,
             "title": "Incoming Total",
             "type": "integer"
+          },
+          "merged_from": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/MergedFrom"
+            },
+            "title": "Merged From",
+            "type": "array"
           },
           "name": {
             "title": "Name",
@@ -900,6 +908,127 @@
           "tenant"
         ],
         "title": "MeResponse",
+        "type": "object"
+      },
+      "MergeRequest": {
+        "properties": {
+          "merge_ids": {
+            "description": "Entities to fold into the one in the path: 1 to 10, no repeats.",
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "Merge Ids",
+            "type": "array"
+          },
+          "namespace": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Namespace"
+          }
+        },
+        "required": [
+          "merge_ids"
+        ],
+        "title": "MergeRequest",
+        "type": "object"
+      },
+      "MergeResponse": {
+        "description": "What a merge did. ``entity`` is the survivor as it is now.",
+        "properties": {
+          "already_merged": {
+            "description": "Ids an earlier call had folded in already.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Already Merged",
+            "type": "array"
+          },
+          "entity": {
+            "$ref": "#/components/schemas/EntitySummary"
+          },
+          "merge_id": {
+            "description": "The record of this merge; for a repeat, the record of the earlier one.",
+            "title": "Merge Id",
+            "type": "string"
+          },
+          "merged": {
+            "description": "Ids this call folded into the survivor.",
+            "items": {
+              "type": "string"
+            },
+            "title": "Merged",
+            "type": "array"
+          }
+        },
+        "required": [
+          "merge_id",
+          "merged",
+          "already_merged",
+          "entity"
+        ],
+        "title": "MergeResponse",
+        "type": "object"
+      },
+      "MergedFrom": {
+        "description": "An entity folded into this one (GRA-144), as it was when it was merged.",
+        "properties": {
+          "aliases": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "canonical_id": {
+            "title": "Canonical Id",
+            "type": "string"
+          },
+          "merge_id": {
+            "title": "Merge Id",
+            "type": "string"
+          },
+          "merged_at": {
+            "title": "Merged At",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "PERSON",
+              "ORG",
+              "LOCATION",
+              "LAW",
+              "DATE",
+              "EVENT",
+              "NORP",
+              "PRODUCT"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "canonical_id",
+          "name",
+          "type",
+          "merge_id",
+          "merged_at"
+        ],
+        "title": "MergedFrom",
         "type": "object"
       },
       "Neighbour": {
@@ -1901,6 +2030,56 @@
           }
         },
         "summary": "Entity Detail"
+      }
+    },
+    "/v1/entities/{keep_id}/merge": {
+      "post": {
+        "description": "Fold the entities in `merge_ids` into this one, recording what was merged.",
+        "operationId": "merge_entities_v1_entities__keep_id__merge_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "keep_id",
+            "required": true,
+            "schema": {
+              "title": "Keep Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MergeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MergeResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Merge Entities"
       }
     },
     "/v1/forget": {

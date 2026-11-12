@@ -38,7 +38,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 from graph_rag.config import Settings
@@ -51,6 +51,7 @@ from graph_rag.fakes import (
     InMemoryObjectStore,
 )
 from graph_rag.jobs import InMemoryJobStore, JobStore
+from graph_rag.merge_records import InMemoryMergeRecordStore, MergeRecordStore
 from graph_rag.models import CuratedType, EdgeProvenance, Mention, Sentence, Triple
 from graph_rag.orchestrator import Orchestrator
 from graph_rag.ports import DocumentStore, Embedder, EntityStore, GraphStore, ObjectStore
@@ -302,6 +303,7 @@ class BenchmarkComponents:
     llm_calls: Callable[[], int]
     llm_usage: Callable[[], LlmUsage]
     job_store: JobStore | None = None
+    merge_store: MergeRecordStore = field(default_factory=InMemoryMergeRecordStore)
 
 
 def build_offline_components(

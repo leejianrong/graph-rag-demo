@@ -111,6 +111,7 @@ class _Patched:
             entity_store=components.entity_store,  # type: ignore[arg-type]
             graph_store=components.graph_store,  # type: ignore[arg-type]
             job_store=components.job_store,  # type: ignore[arg-type]
+            merge_store=components.merge_store,  # type: ignore[arg-type]
             orchestrator=components.orchestrator,
             retriever=components.retriever,
         )

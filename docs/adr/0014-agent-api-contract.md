@@ -81,7 +81,7 @@ Both take the optional `namespace` query parameter, run in the key's tenant, and
   `neighbours_limit`, 1 to 100, default 25, with `outgoing_total` and `incoming_total`) and `sources` (documents that
   mention it, most mentions first, cut at `sources_limit`, with `sources_total`). A source is `{document_id, name,
   mentions}`: the source id and a count, never document text. An id the scope does not hold, including another
-  tenant's, is `404`. Entities merged later (GRA-144) will add a `merged_from` list; it is not there yet.
+  tenant's, is `404`. `merged_from` lists the entities merged into this one (GRA-144, below); it is `[]` when none were.
 
 `first_seen` is stamped by the entity store on an id's first write and kept through later ones. An entity stored
 before it was kept has `first_seen: null` and sorts last.
@@ -101,6 +101,51 @@ use. Another tenant's key is `404`, the same as an unknown id. With auth off the
 (`details.reason` `auth_disabled`) and never act on the default tenant. There is no `last_used`: it would cost a write
 per request. The `key_id` is random and never derived from the secret; the last four characters of the secret are
 stored with the record (keys made before this have none, so `key_suffix` is `null`).
+
+### Addendum: merging entities (GRA-144)
+
+`POST /v1/entities/{keep_id}/merge` with `{"merge_ids": [...], "namespace"?}` folds entities into `keep_id`
+(`graph_rag/curation_api.py`, in `docs/openapi.json`, not in the hand-written contract). It is a curation route, not an
+agent tool. `merge_ids` holds 1 to 10 distinct ids and never `keep_id` (`400 invalid_request`). It answers `200`:
+`{"merge_id", "merged": [ids folded by this call], "already_merged": [ids an earlier call folded in], "entity": <the
+survivor, EntitySummary>}`.
+
+- **Errors.** An unknown id, the kept id included, or an id of another tenant or namespace is `404 not_found`, and nothing
+  is written. A new error code, `409 conflict` (`details.reason` `type_mismatch`, `details.entity_ids`), refuses entities
+  whose type differs from the kept one: GRA-30's linker only unifies entities of one type (blocking filters on type), so
+  this does the same. A request may mix new ids and ids already merged into `keep_id`; an id already merged into a
+  different entity is `404` with `details.merged_into`.
+- **Idempotent.** Repeating a merge, or sending ids an earlier merge already folded in, is a `200` no-op that returns the
+  earlier `merge_id` with those ids in `already_merged`.
+- **What follows what**, as in GRA-30 (the same `GraphStore.merge_nodes`): the survivor keeps its name, vector and
+  `first_seen` and gains each dropped name and alias (deduplicated through `normalize_name`); the dropped edges move onto
+  it with provenance and validity untouched (a loop is dropped, a repeat is not duplicated); every document's
+  `el_result` link to a dropped id names the survivor; the dropped entities leave the entity store and the graph.
+- **After the merge.** `GET /v1/entities/{dropped_id}` is `404` with `details.merged_into` (a hint, not a redirect: the
+  simpler choice, and one status for "not here"). A later document that names a dropped entity links to the survivor,
+  because the dropped name is now one of its aliases and linking blocks on type and name-or-alias
+  (`tests/unit/test_entity_merge.py`). If a split later removes the alias, that stops being true; that is the split's
+  call. Merging B into C after A into B leaves two records; C lists only B in `merged_from`, B's record lists A.
+- **The record** (`MergeRecordStore`, per scope, in Elasticsearch next to the other stores; the port has `put`, `get`,
+  `for_entity`, `containing`, `all`, `scopes`, `delete`). Shape, `MergeRecord`:
+  `{merge_id, keep_id, status: "pending"|"done"|"split", created_at, completed_at, keep_aliases_before: [str],
+  dropped: [DroppedEntity]}` with `DroppedEntity = {canonical_id, name, type, aliases, first_seen, vector, edges:
+  [Triple as stored], document_links: [{document_id, link: EntityLink as stored}]}`. A split restores from it alone:
+  upsert each dropped entity (vector included) in both stores, write its `edges`, set each `document_links` link back to
+  the dropped id (match on `document_id`, `mention_text` and `canonical_id == keep_id`), take the dropped names out of the
+  survivor's aliases (keeping those in `keep_aliases_before` and any added since), and set `status` to `split`. One gap
+  for GRA-145: `EntityStore.upsert` stamps `first_seen` itself, so restoring the recorded one needs a small port change.
+  `GET /v1/entities/{id}` returns the finished records as `merged_from: [{canonical_id, name, type, aliases, merge_id,
+  merged_at}]` (no vector, no edges). Records go with the tenant in `graph-rag-admin` export and delete.
+- **Consistency.** There is no transaction across the entity store, the graph and the documents, so the record is written
+  first as `pending` and the steps run in an order that is safe to repeat: survivor aliases, graph node and
+  `merge_nodes`, document links, deleting the dropped entities, and last marking the record `done`. A crash in between
+  leaves a `pending` record, some steps applied, and (until the delete step) the dropped entity still visible in
+  entity search with its edges already on the survivor. The next merge request that names the survivor or any of the
+  dropped ids finishes every `pending` record it finds before doing anything else, so repeating the same request heals
+  it; the response then lists the ids under `already_merged`. Nothing heals it by itself, and a merge that is never
+  retried stays half-done. Merges are serialised by a lock in the API process only; two API processes merging the same
+  entity at once is not guarded.
 
 Today's endpoints keep working. The `/v1` facade is a thin layer that renames and reshapes; it adds no pipeline
 logic. Errors at the facade are converted from the existing ones (`404` and `503` already carry the meaning).

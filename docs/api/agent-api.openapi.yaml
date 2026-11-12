@@ -271,6 +271,7 @@ components:
                 - invalid_request
                 - unauthorized
                 - not_found
+                - conflict
                 - payload_too_large
                 - rate_limited
                 - unavailable
@@ -523,6 +524,19 @@ components:
               type: array
               items: { $ref: "#/components/schemas/EntitySource" }
             sources_total: { type: integer }
+            merged_from:
+              type: array
+              description: Entities merged into this one (GRA-144), oldest merge first; empty when none.
+              items:
+                type: object
+                required: [canonical_id, name, type, merge_id, merged_at]
+                properties:
+                  canonical_id: { type: string }
+                  name: { type: string }
+                  type: { type: string }
+                  aliases: { type: array, items: { type: string } }
+                  merge_id: { type: string }
+                  merged_at: { type: string }
     Neighbour:
       type: object
       required: [entity, predicate, direction, provenance]

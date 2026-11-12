@@ -24,12 +24,14 @@ from graph_rag.lookup import EntityRef, Neighbour
 from graph_rag.models import CanonicalEntity, CuratedType, EntitySource, Triple
 
 if TYPE_CHECKING:
+    from graph_rag.merge_records import MergeRecordStore
     from graph_rag.ports import DocumentStore, EntityStore, GraphStore
     from graph_rag.scope import Scope
 
 __all__ = [
     "EntityExplorer",
     "EntityNeighbourhood",
+    "MergedFrom",
     "EntitySearchResponse",
     "EntitySummary",
     "add_entity_routes",
@@ -51,12 +53,24 @@ class EntitySearchResponse(BaseModel):
     )
 
 
+class MergedFrom(BaseModel):
+    """An entity folded into this one (GRA-144), as it was when it was merged."""
+
+    canonical_id: str
+    name: str
+    type: CuratedType
+    aliases: list[str] = []
+    merge_id: str
+    merged_at: str  # UTC ISO-8601, when the merge finished
+
+
 class EntityNeighbourhood(EntitySummary):
     """One entity with both sides of its edges and the documents that mention it.
 
     ``neighbours`` lists up to ``neighbours_limit`` outgoing edges (this entity is the subject)
     and as many incoming ones, outgoing first; the totals say how many exist. ``sources`` is
-    most-mentioned first and cut at ``sources_limit``.
+    most-mentioned first and cut at ``sources_limit``. ``merged_from`` lists the entities merged
+    into this one (GRA-144), oldest merge first; empty when none were.
     """
 
     neighbours: list[Neighbour] = []
@@ -64,6 +78,7 @@ class EntityNeighbourhood(EntitySummary):
     incoming_total: int = 0
     sources: list[EntitySource] = []
     sources_total: int = 0
+    merged_from: list[MergedFrom] = []
 
 
 def _encode(first_seen: str, canonical_id: str) -> str:
@@ -88,11 +103,16 @@ class EntityExplorer:
     """Searches entities and describes one with its neighbours and sources."""
 
     def __init__(
-        self, entity_store: EntityStore, graph_store: GraphStore, document_store: DocumentStore
+        self,
+        entity_store: EntityStore,
+        graph_store: GraphStore,
+        document_store: DocumentStore,
+        merges: MergeRecordStore | None = None,
     ) -> None:
         self._entities = entity_store
         self._graph = graph_store
         self._documents = document_store
+        self._merges = merges
 
     def search(
         self,
@@ -148,7 +168,32 @@ class EntityExplorer:
             incoming_total=len(incoming),
             sources=sources[:sources_limit],
             sources_total=len(sources),
+            merged_from=self._merged_from(scope, entity_id),
         )
+
+    def merged_into(self, scope: Scope, entity_id: str) -> str | None:
+        """The id that finished a merge dropping ``entity_id``, or ``None`` if none did."""
+        if self._merges is None:
+            return None
+        done = [r for r in self._merges.containing(scope, entity_id) if r.status == "done"]
+        return done[-1].keep_id if done else None
+
+    def _merged_from(self, scope: Scope, entity_id: str) -> list[MergedFrom]:
+        if self._merges is None:
+            return []
+        return [
+            MergedFrom(
+                canonical_id=d.canonical_id,
+                name=d.name,
+                type=d.type,
+                aliases=d.aliases,
+                merge_id=r.merge_id,
+                merged_at=r.completed_at or r.created_at,
+            )
+            for r in self._merges.for_entity(scope, entity_id)
+            if r.status == "done"
+            for d in r.dropped
+        ]
 
     def _neighbours(
         self, scope: Scope, entity_id: str, edges: list[Triple], direction: str
@@ -211,12 +256,13 @@ def add_entity_routes(
         tenant: str = Depends(tenant_of),
     ) -> EntityNeighbourhood:
         """One entity with its aliases, neighbours (both directions) and source documents."""
+        scope = _scope(tenant, namespace)
         found = ready().detail(
-            _scope(tenant, namespace),
-            entity_id,
-            neighbours_limit=neighbours_limit,
-            sources_limit=sources_limit,
+            scope, entity_id, neighbours_limit=neighbours_limit, sources_limit=sources_limit
         )
         if found is None:
-            raise AgentError("not_found", f"No entity {entity_id}.")
+            into = ready().merged_into(scope, entity_id)  # a merged-away id says where it went
+            raise AgentError(
+                "not_found", f"No entity {entity_id}.", {"merged_into": into} if into else None
+            )
         return found
