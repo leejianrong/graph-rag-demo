@@ -11,6 +11,7 @@
   --accent: #0b6e6e;
   --on-accent: #ffffff;
   --soft: #ddf0ee;
+  --mark: #ffe7a3;
   --bad: #b3261e;
   --ok: #1f7a4d;
 
@@ -33,6 +34,7 @@
     --accent: #4fb8b4;
     --on-accent: #08201f;
     --soft: #1b3a38;
+    --mark: #5a4a14;
     --bad: #ff8a80;
     --ok: #6fcf9a;
     color-scheme: dark;
