@@ -32,6 +32,7 @@ from pydantic import TypeAdapter
 from graph_rag.agent_api import add_agent_routes
 from graph_rag.auth import ApiKeys, AuthError, JsonFileKeyStore
 from graph_rag.config import Settings, get_settings
+from graph_rag.entities_api import EntityExplorer
 from graph_rag.ids import document_id
 from graph_rag.jobs import Job, JobStore
 from graph_rag.logging import get_logger
@@ -79,6 +80,7 @@ def create_app(
     eraser: Callable[[str, Scope], DeletedDocument | None] | None = None,
     keys: ApiKeys | None = None,
     lookup: EntityLookup | None = None,
+    explorer: EntityExplorer | None = None,
     jobs: JobStore | None = None,
     fetcher: Fetcher | None = None,
     llm_keys: TenantLlmKeys | None = None,
@@ -101,6 +103,8 @@ def create_app(
             responds ``503``. Share the instance with the orchestrator.
         fetcher: Gets the bytes for an ingest ``url``. Defaults to a :class:`SafeFetcher`.
         lookup: Backs ``POST /v1/lookup``. **Optional**: when ``None`` it responds ``unavailable``.
+        explorer: Backs ``GET /v1/entities`` (GRA-142). **Optional**: when ``None`` it responds
+            ``unavailable``.
         keys: Verifies API keys. **Optional**: when ``None`` and ``settings.require_auth`` is on,
             keys are read from ``settings.api_keys_path``. With ``require_auth`` off, no key is
             checked and every request runs in the default tenant.
@@ -369,6 +373,7 @@ def create_app(
         max_text_bytes=resolved_settings.max_remember_bytes,
         tenant_of=tenant_of,
         lookup=lookup,
+        explorer=explorer,
     )
     add_api_observability(app, resolved_settings)  # last, so it is the outermost middleware
     return app

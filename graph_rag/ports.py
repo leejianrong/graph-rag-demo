@@ -28,6 +28,7 @@ from graph_rag.models import (
     CanonicalEntity,
     CuratedType,
     DocumentRecord,
+    EntitySource,
     IngestTrigger,
     Subgraph,
     SupportingSentence,
@@ -124,6 +125,14 @@ class DocumentStore(Protocol):
         """
         ...
 
+    def entity_sources(self, scope: Scope, canonical_id: str) -> list[EntitySource]:
+        """The documents of ``scope`` that link to ``canonical_id``, most mentions first (GRA-142).
+
+        ``mentions`` counts the record's ``el_result`` links to the entity and ``name`` is the
+        record's ``object_key``. Ties order by ``document_id``. At most 1000 documents.
+        """
+        ...
+
     def search_sentences(
         self, scope: Scope, *, vector: list[float], top_k: int
     ) -> list[SupportingSentence]:
@@ -200,6 +209,35 @@ class EntityStore(Protocol):
         ``[-1, 1]``. Optionally restrict the search to a single ``entity_type``.
         Entities with no ``vector`` are skipped. Used both to confirm a blocked EL
         match and for query-side entity seeding (V6, B5).
+        """
+        ...
+
+    def search(
+        self,
+        scope: Scope,
+        *,
+        query: str | None = None,
+        entity_type: CuratedType | None = None,
+        limit: int,
+        after: tuple[str, str] | None = None,
+    ) -> list[tuple[CanonicalEntity, str]]:
+        """Page through entities whose name or alias contains ``query``, newest first (GRA-142).
+
+        ``query`` is compared through :func:`graph_rag.normalize.normalize_name` (so it ignores
+        case and punctuation) as a substring of the normalized name or of any normalized alias;
+        ``None`` or a query that normalizes to nothing matches every entity. ``entity_type``
+        restricts to one type. Each result is ``(entity, first_seen)``. Order is ``first_seen``
+        descending, then ``canonical_id`` ascending. ``after`` is the ``(first_seen,
+        canonical_id)`` of the last row of the previous page and returns the rows that follow
+        it. At most ``limit`` rows.
+        """
+        ...
+
+    def first_seen(self, scope: Scope, canonical_id: str) -> str | None:
+        """When the entity was first stored (UTC ISO-8601), or ``None`` if absent or unrecorded.
+
+        The store stamps it on the first :meth:`upsert` of an id and keeps it through later
+        upserts, so merging aliases into an entity does not make it new.
         """
         ...
 

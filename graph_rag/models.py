@@ -269,6 +269,14 @@ class CanonicalEntity(BaseModel):
     vector: list[float] | None = None
 
 
+class EntitySource(BaseModel):
+    """One document that mentions an entity: its id, its source name and how often (GRA-142)."""
+
+    document_id: str
+    name: str  # the document's source id (its object key), never its text
+    mentions: int
+
+
 class EntityLink(BaseModel):
     """One per-document entity-linking result (ADR-0004/0005).
 

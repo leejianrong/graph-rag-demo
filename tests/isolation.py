@@ -73,7 +73,9 @@ def check_document_store(store: DocumentStore, dims: int) -> None:
     assert store.get(a, record.document_id) is not None
     assert len(store.search_sentences(a, vector=vector, top_k=5)) == 1
     assert store.entities_in_use(a, {"e-shared"}) == {"e-shared"}
+    assert [s.name for s in store.entity_sources(a, "e-shared")] == [key]
     for other in (b, a_notes, DEFAULT_SCOPE):
+        assert store.entity_sources(other, "e-shared") == []
         assert store.get(other, record.document_id) is None
         hits = store.search_sentences(other, vector=vector, top_k=50)
         assert record.document_id not in {h.document_id for h in hits}
@@ -103,7 +105,14 @@ def check_entity_store(store: EntityStore, dims: int) -> None:
     assert [e.canonical_id for e in store.block_candidates(a, **ask)] == [in_a.canonical_id]  # type: ignore[arg-type]
     assert len(store.knn(a, vector=vector, top_k=5)) == 1
     assert (store.count(a), len(store.all(a))) == (1, 1)
+    assert [e.canonical_id for e, _ in store.search(a, query="acme", limit=5)] == [
+        in_a.canonical_id
+    ]
+    assert store.first_seen(a, in_a.canonical_id) is not None
     for other in (b, a_notes, DEFAULT_SCOPE):
+        seen = store.search(other, query="acme", limit=100)
+        assert in_a.canonical_id not in {e.canonical_id for e, _ in seen}
+        assert store.first_seen(other, in_a.canonical_id) is None
         assert store.block_candidates(other, **ask) == []  # type: ignore[arg-type]
         assert store.knn(other, vector=vector, top_k=5) == []
         assert store.get(other, in_a.canonical_id) is None
