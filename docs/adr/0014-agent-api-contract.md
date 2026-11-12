@@ -26,7 +26,7 @@ only the source id is not stuck. `remember` without a `source_id` derives one fr
 stored once.
 
 **Writes are safe to repeat.** `remember` with the same source and the same text does nothing and says
-`status: unchanged`; with new text it replaces the source (until updates are built it ingests alongside). `forget` of
+`status: unchanged` (unless its last job failed: then it is queued again and says `accepted`); with new text it replaces the source (until updates are built it ingests alongside). `forget` of
 a source that is gone is `not_found`, which a caller can treat as done.
 
 **Writes are asynchronous, reads are not.** `remember` returns `202` once the text is stored and queued. The

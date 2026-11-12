@@ -191,20 +191,30 @@ def create_app(
         scope: Scope = DEFAULT_SCOPE,
         document_date: str | None = None,
     ) -> dict[str, str]:
-        """Store ``data`` under ``object_key`` and queue it, unless the source already holds it."""
+        """Store ``data`` under ``object_key`` and queue it, unless the source already holds it.
+
+        A source that holds exactly ``data`` is queued again only when its job ``failed`` (a
+        retry, GRA-152): it is not stored again and not metered again, since it was counted when
+        first accepted. ``queued``, ``running`` and ``done`` documents stay ``unchanged``.
+        """
         doc_id = document_id(bucket, object_key, scope)
+        retry = False
         if not force and _holds(object_store, scope, bucket, object_key, data):
-            _logger.info("unchanged document_id=%s", doc_id)
-            return {
-                "document_id": doc_id,
-                "bucket": bucket,
-                "object_key": object_key,
-                "status": "unchanged",
-            }
+            last = jobs.get(scope, doc_id) if jobs is not None else None
+            if last is None or last.state != "failed":
+                _logger.info("unchanged document_id=%s", doc_id)
+                return {
+                    "document_id": doc_id,
+                    "bucket": bucket,
+                    "object_key": object_key,
+                    "status": "unchanged",
+                }
+            retry = True
 
         if resolved_settings.require_tenant_llm_key and llm_keys is not None:
             llm_keys.require(scope.tenant)  # LlmKeyRequired -> 400, before anything is stored
-        object_store.put(scope, bucket, object_key, data)
+        if not retry:
+            object_store.put(scope, bucket, object_key, data)
         if jobs is not None:  # before publishing, so a fast worker's "done" is not overwritten
             jobs.queued(scope, doc_id, object_key)
         publisher.publish(
@@ -218,12 +228,13 @@ def create_app(
             )
         )
 
-        if meter is not None:
+        if meter is not None and not retry:
             meter.document(scope.tenant)
         _logger.info(
-            "ingested document_id=%s bytes=%d",
+            "ingested document_id=%s bytes=%d retry=%s",
             doc_id,
             len(data),
+            retry,
         )
         return {
             "document_id": doc_id,
@@ -248,8 +259,9 @@ def create_app(
         resolved location and a ``status``: ``accepted`` when the bytes were stored and a
         trigger published, or ``unchanged`` when this source already holds exactly these
         bytes, in which case nothing is stored or published, so the pipeline (and any LLM
-        behind it) does not run again. ``force=true`` ingests it anyway, for a source whose
-        first attempt failed. Does NOT run the pipeline — that happens downstream.
+        behind it) does not run again. A source whose last job ``failed`` is
+        queued again and answers ``accepted`` (a retry, not metered twice). ``force=true`` ingests
+        identical bytes anyway. Does NOT run the pipeline — that happens downstream.
 
         Send a ``file`` or a ``url`` (GRA-34). A ``url`` is fetched here, from public addresses
         only, and is the source's identity. A PDF or an HTML page, uploaded or fetched, is
