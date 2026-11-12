@@ -7,6 +7,21 @@ export interface AuthHooks {
   onUnauthorized: () => void;
 }
 
+/**
+ * A `fetch` that acts as the signed-in user: it attaches the key and signs out on a 401. For calls
+ * `openapi-fetch` cannot express, such as a multipart upload or a streamed response body.
+ */
+export function authedFetch(auth: AuthHooks, fetchImpl: typeof fetch = (...a) => fetch(...a)): typeof fetch {
+  return async (input, init) => {
+    const headers = new Headers(init?.headers);
+    const key = auth.key();
+    if (key && !headers.has("authorization")) headers.set("Authorization", `Bearer ${key}`);
+    const response = await fetchImpl(input, { ...init, headers });
+    if (response.status === 401) auth.onUnauthorized();
+    return response;
+  };
+}
+
 /** The typed API client. `schema.d.ts` is generated from docs/openapi.json by `npm run gen:api`. */
 export function makeClient(baseUrl = "", fetchImpl?: typeof fetch, auth?: AuthHooks) {
   const client = createClient<paths>({ baseUrl, fetch: fetchImpl });
