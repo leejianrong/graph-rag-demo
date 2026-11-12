@@ -2,7 +2,7 @@
 
 A local Graph RAG pipeline that turns a pile of text and Markdown files into a
 knowledge graph you can ask multi-hop questions against. Drop a document into
-object storage, and a Kafka-triggered pipeline reads it, pulls out the people,
+object storage, and a queue-triggered pipeline reads it, pulls out the people,
 organisations, places and events, works out which mentions refer to the same
 thing, links those to a corpus-wide identity, and writes the relationships into
 Neo4j. Then you query the graph.
@@ -53,7 +53,7 @@ captures and a bag of text chunks throws away.
 
 ```mermaid
 flowchart LR
-  F[document] --> M[MinIO + Kafka trigger] --> R[read] --> N[NER] --> C[coref] --> L[entity linking] --> K[KG build] --> G[(Neo4j graph)]
+  F[document] --> M[MinIO + queue trigger] --> R[read] --> N[NER] --> C[coref] --> L[entity linking] --> K[KG build] --> G[(Neo4j graph)]
   Q[/query/] --> V[vector seeds] --> T[graph hops] --> G
 ```
 
@@ -61,11 +61,11 @@ Ingestion is one in-process consumer that runs five stages for each document,
 in order. Keeping it in a single process was a deliberate choice: for a
 local demo, being able to trace one document through the whole flow in one
 stack trace beats the independent scaling you'd get from wiring five services
-together with intermediate Kafka topics. Each stage is still a separate,
+together with intermediate queues. Each stage is still a separate,
 swappable module, so the microservices version stays possible later without a
 rewrite.
 
-1. **Read.** A Kafka message carries a bucket and object key, nothing more. The
+1. **Read.** A queue message carries a bucket and object key, nothing more. The
    stage fetches that file from MinIO. The raw text is stored in Elasticsearch
    up front, keyed by a deterministic document ID, before any processing runs.
 2. **NER.** spaCy extracts typed mentions locally: people, organisations,
@@ -127,7 +127,7 @@ docker compose up --build     # or: make up (bare `make` lists every command)
 
 The first build is large and slow. The image installs PyTorch and downloads
 spaCy's transformer model and the bge embedding model, which runs to a few
-gigabytes; after that it's cached. Compose brings up Kafka, MinIO, Elasticsearch,
+gigabytes; after that it's cached. Compose brings up Valkey (the ingest queue), MinIO, Elasticsearch,
 Neo4j, and the FastAPI service on port 8000. The MinIO console is on 9001 and the
 Neo4j browser on 7474 if you want to poke at the stores directly.
 
@@ -142,7 +142,7 @@ curl -F "file=@some-report.md" http://localhost:8000/ingest
 
 An upload over `MAX_UPLOAD_BYTES` (default 10 MB) is refused with 413 and nothing is stored. With `REQUIRE_AUTH` on, each key may make `RATE_LIMIT_PER_MINUTE` requests a minute (default 600) and each address `FAILED_KEY_LIMIT_PER_MINUTE` failed ones (default 20); past either the answer is 429 with `Retry-After` (`rate_limited` on `/v1`), and one key's traffic never counts against another's. Ingestion is asynchronous. `/ingest` writes the file to MinIO, publishes a Kafka
 trigger, and returns straight away; the consumer then runs the five stages. Follow
-it with `make logs` (which is `docker compose logs -f app worker`). In compose the API only publishes and the `worker` service consumes: `docker compose up -d --scale worker=3` adds workers (up to `INGEST_PARTITIONS`, default 4; each loads the NER model and embedder, so budget memory). With `METER_USAGE` on, the API and the workers write one usage file on a shared volume. Outside compose the API runs the consumer itself unless `INGEST_MODE=publish`, which then needs `graph-rag-worker` running.
+it with `make logs` (which is `docker compose logs -f app worker`). In compose the API only publishes and the `worker` service consumes: `docker compose up -d --scale worker=3` adds workers (any number with the default Valkey queue; each loads the NER model and embedder, so budget memory). With `METER_USAGE` on, the API and the workers write one usage file on a shared volume. The queue is Valkey by default (`TRIGGER_BACKEND=redis`). Kafka stays available: `TRIGGER_BACKEND=kafka docker compose --profile kafka up`, where workers help up to `INGEST_PARTITIONS` (default 4) (ADR-0016). Outside compose the API runs the consumer itself unless `INGEST_MODE=publish`, which then needs `graph-rag-worker` running.
 
 A source is keyed by its filename, or by `-F source_url=https://...` when you give one. Posting the
 same source with the same bytes again returns `"status": "unchanged"` and does nothing: no write, no

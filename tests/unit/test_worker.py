@@ -127,13 +127,11 @@ class _Patched:
         monkeypatch.setattr(main_module, "enforce_bind", lambda *a, **k: None)
         monkeypatch.setattr(main_module, "enforce_credentials", lambda *a, **k: None)
         monkeypatch.setattr(main_module, "configure_logging", lambda *a, **k: None)
-        monkeypatch.setattr(
-            main_module.KafkaTriggerPublisher, "from_settings", classmethod(lambda c, s: Queue())
-        )
+        monkeypatch.setattr(main_module, "build_publisher", lambda s: Queue())
         monkeypatch.setattr(
             main_module,
-            "KafkaTriggerConsumer",
-            lambda **kw: outer.consumers.append(kw) or FakeConsumer(),
+            "build_consumer",
+            lambda s, handler: outer.consumers.append({"handler": handler}) or FakeConsumer(),
         )
         monkeypatch.setattr(main_module.threading, "Thread", FakeThread)
         monkeypatch.setattr(main_module.uvicorn, "run", lambda app, **kw: None)
@@ -144,7 +142,7 @@ def test_inline_is_the_default_and_the_api_starts_a_consumer(monkeypatch) -> Non
     patched = _Patched(monkeypatch)
     monkeypatch.delenv("INGEST_MODE", raising=False)
     main_module.main()
-    assert len(patched.consumers) == 1 and patched.threads == ["kafka-trigger-consumer"]
+    assert len(patched.consumers) == 1 and patched.threads == ["trigger-consumer"]
 
 
 def test_publish_mode_starts_no_consumer_in_the_api(monkeypatch) -> None:
@@ -171,11 +169,11 @@ def test_the_worker_entrypoint_runs_the_orchestrator_as_the_handler(monkeypatch)
         worker, "run_worker", lambda consumer, port, **kw: ran.append((consumer, port))
     )
     monkeypatch.setattr(
-        kafka_trigger, "KafkaTriggerConsumer", lambda **kw: patched.consumers.append(kw) or "c"
+        "graph_rag.messaging.factory.build_consumer",
+        lambda s, handler: patched.consumers.append({"handler": handler}) or "c",
     )
     worker.main()
     assert ran == [("c", Settings().worker_health_port)]
-    assert patched.consumers[0]["topic"] == Settings().ingest_trigger_topic
     assert callable(patched.consumers[0]["handler"])
 
 
@@ -265,3 +263,21 @@ def test_the_worker_pipeline_meters_llm_tokens_into_the_shared_usage_file(tmp_pa
     # build_pipeline makes its coref and KG-build clients this way
     assert LiteLLMClient.from_settings(settings)._meter is not None  # noqa: SLF001
     assert LiteLLMClient.from_settings(Settings())._meter is None  # noqa: SLF001
+
+
+def test_the_factory_picks_the_backend_from_the_setting(monkeypatch) -> None:
+    import fakeredis
+
+    from graph_rag.messaging import factory, redis_trigger
+
+    monkeypatch.setattr(
+        redis_trigger, "_client", lambda s: fakeredis.FakeRedis(decode_responses=True)
+    )
+    monkeypatch.setattr(kafka_trigger, "KafkaProducer", lambda **kw: object())
+    monkeypatch.setattr(kafka_trigger, "KafkaConsumer", lambda *a, **kw: object())
+    assert Settings().trigger_backend == "redis"
+    assert isinstance(factory.build_publisher(Settings()), redis_trigger.RedisTriggerPublisher)
+    assert isinstance(factory.build_consumer(Settings(), print), redis_trigger.RedisTriggerConsumer)
+    kafka = Settings(trigger_backend="kafka")
+    assert isinstance(factory.build_publisher(kafka), kafka_trigger.KafkaTriggerPublisher)
+    assert isinstance(factory.build_consumer(kafka, print), kafka_trigger.KafkaTriggerConsumer)

@@ -86,6 +86,8 @@ Both take the optional `namespace` query parameter, run in the key's tenant, and
 `first_seen` is stamped by the entity store on an id's first write and kept through later ones. An entity stored
 before it was kept has `first_seen: null` and sorts last.
 
+`GET /v1/me` is not a verb. It answers who the key is: the tenant, the `namespace` the request names, and the key's last four characters (never the key), so a UI can sign in with a key and show the tenant (GRA-47). A bad or missing key is `401`.
+
 Today's endpoints keep working. The `/v1` facade is a thin layer that renames and reshapes; it adds no pipeline
 logic. Errors at the facade are converted from the existing ones (`404` and `503` already carry the meaning).
 

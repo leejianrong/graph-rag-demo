@@ -193,7 +193,7 @@ jobs:
   # --- Expensive gate: contract suite via testcontainers (Docker runner) ----
   # Separate from the required fast gate (dev-playbook: layer by cost, gate by
   # layer). ubuntu-latest ships a Docker daemon, so testcontainers self-provisions
-  # MinIO/Kafka/ES; no manual service containers needed.
+  # MinIO/Valkey/Kafka/ES; no manual service containers needed.
   contract:
     runs-on: ubuntu-latest
     steps:
