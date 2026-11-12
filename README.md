@@ -113,10 +113,26 @@ by default.
 
 ## Running it locally
 
-In a hurry? [docs/QUICKSTART.md](docs/QUICKSTART.md) runs the service in one process with no Docker or LLM key and connects Claude Code to it. What follows is the full stack.
+In a hurry? [docs/QUICKSTART.md](docs/QUICKSTART.md) runs the service in one process with no Docker or LLM key (heuristic extraction) and connects Claude Code to it. What follows is the full stack.
 
-You'll need Docker with Compose. For the LLM-backed stages you'll also need a key
-for any OpenAI-compatible provider; the query path itself runs without one.
+You'll need Docker with Compose, and an LLM for ingest (see below).
+
+**What needs an LLM.** Ingest does: coreference and fact extraction call one, so `POST /ingest` and
+`POST /v1/remember` need a provider key or an endpoint. With neither configured they answer `503`
+(`unavailable`, `details.reason` `llm_not_configured`) and store nothing. Reading does not: `/query`,
+`/v1/recall`, `/v1/lookup`, `/v1/forget`, deleting a document and the offline server (`graph-rag-offline`,
+`make demo-offline`, heuristic stages) all work with no LLM. Give ingest one of three ways:
+
+- **A provider key**: set `OPENAI_API_KEY` in `.env` (the default models are `gpt-4o-mini`; other
+  LiteLLM model names via `COREF_MODEL` and `KG_BUILD_MODEL`, with that provider's key variable).
+- **Any OpenAI-compatible endpoint**: set `OPENAI_API_BASE` (a hosted provider, or a local server such as
+  Ollama or vLLM; a dummy `OPENAI_API_KEY` is fine if the server ignores it).
+- **semula**: a recording OpenAI-compatible server whose prompts are answered by an agent. It is for the
+  bench and for agent-driven sessions, not an unattended local model.
+
+On a small hosted model ingest costs roughly $0.2 to $0.3 per 1,000 small documents, uncached (an
+estimate, not a measurement); a repeated document is served from the response cache at no cost.
+If a provider rejects the key or the endpoint is unreachable, the job fails with that reason (`GET /jobs/{id}`).
 
 ```bash
 git clone https://github.com/leejianrong/graph-rag-demo
@@ -314,7 +330,8 @@ Python deps and every edge is a generic `RELATED_TO`.
 `make demo-live` is the self-sufficient real-stack path: it runs `docker compose up
 -d --build --wait`, blocking until every service — including the app's own
 healthcheck — is ready, then ingests and queries. You need Docker and an
-`OPENAI_API_KEY` in `.env` (coreference and graph-building call an LLM). It leaves
+`OPENAI_API_KEY` (or `OPENAI_API_BASE`) in `.env`: coreference and graph-building call an LLM, and
+ingest is refused without one. It leaves
 the stack **up** afterwards, so you can browse Neo4j at `localhost:7474`, re-run the
 query cheaply with `make demo`, or stop everything with `make down`.
 

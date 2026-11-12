@@ -37,6 +37,7 @@ from graph_rag.config import Settings
 from graph_rag.curation_api import EntityCurator
 from graph_rag.entities_api import EntityExplorer
 from graph_rag.jobs import InMemoryJobStore, JobStore
+from graph_rag.llm_config import llm_not_configured
 from graph_rag.logging import configure_logging, get_logger
 from graph_rag.lookup import EntityLookup
 from graph_rag.messaging.factory import build_consumer, build_publisher
@@ -201,6 +202,7 @@ def main() -> None:
             entity_store, graph_store, pipeline.document_store, pipeline.merge_store
         ),
         jobs=job_store,
+        llm_ready=lambda: llm_not_configured(settings),
     )
 
     if mount_ui(app, settings):  # after every API route, so none is shadowed

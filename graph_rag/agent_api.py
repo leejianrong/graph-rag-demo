@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field
 
 from graph_rag.auth import AuthError
 from graph_rag.ids import document_id
+from graph_rag.llm_config import LlmNotConfigured
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityDetail
 from graph_rag.models import DeletedDocument, IsoDate, QueryRequest, QueryResponse
@@ -301,6 +302,12 @@ def add_agent_routes(
         if on_v1(request):
             return _body(AgentError("invalid_request", str(error), {"field": "llm_key"}))
         return JSONResponse({"detail": str(error)}, status_code=400)
+
+    @app.exception_handler(LlmNotConfigured)
+    def llm_not_configured(request: Request, error: LlmNotConfigured) -> Response:
+        if on_v1(request):
+            return _body(AgentError("unavailable", str(error), {"reason": "llm_not_configured"}))
+        return JSONResponse({"detail": str(error)}, status_code=503)
 
     @app.exception_handler(RateLimited)
     def rate_limited(request: Request, error: RateLimited) -> Response:

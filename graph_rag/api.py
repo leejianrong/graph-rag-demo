@@ -37,6 +37,7 @@ from graph_rag.entities_api import EntityExplorer
 from graph_rag.ids import document_id
 from graph_rag.jobs import Job, JobStore
 from graph_rag.keys_api import add_key_routes
+from graph_rag.llm_config import LlmNotConfigured
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityLookup
 from graph_rag.models import DeletedDocument, IngestTrigger, IsoDate, QueryRequest, QueryResponse
@@ -88,6 +89,7 @@ def create_app(
     fetcher: Fetcher | None = None,
     llm_keys: TenantLlmKeys | None = None,
     meter: UsageMeter | None = None,
+    llm_ready: Callable[[], str | None] | None = None,
 ) -> FastAPI:
     """Build the FastAPI app with its ports injected.
 
@@ -119,6 +121,9 @@ def create_app(
             with no key is refused (400); off, nothing is checked.
         meter: Counts documents and queries per tenant (GRA-58). **Optional**: when ``None`` and
             ``settings.meter_usage`` is on, totals go to ``settings.usage_path``.
+        llm_ready: Says why ingest cannot run (a message) or ``None`` when it can (GRA-154).
+            **Optional**: when ``None`` nothing is checked (fakes, the offline server, whose
+            stages need no LLM). ``/ingest`` and ``/v1/remember`` answer 503 on a message.
 
     Returns:
         A configured :class:`fastapi.FastAPI` app exposing ``POST /ingest``,
@@ -136,6 +141,12 @@ def create_app(
         add_query_metering(app, meter)
     if llm_keys is None:
         llm_keys = TenantLlmKeys.from_settings(resolved_settings)  # None while the flag is off
+
+    def check_llm() -> None:
+        """Refuse ingest while ``llm_ready`` reports no LLM; ``None`` means nothing is checked."""
+        if llm_ready is not None and (problem := llm_ready()) is not None:
+            raise LlmNotConfigured(problem)
+
     max_upload = resolved_settings.max_upload_bytes
     url_fetcher: Fetcher = fetcher or SafeFetcher()
 
@@ -211,6 +222,7 @@ def create_app(
                 }
             retry = True
 
+        check_llm()  # LlmNotConfigured -> 503, before anything is stored
         if resolved_settings.require_tenant_llm_key and llm_keys is not None:
             llm_keys.require(scope.tenant)  # LlmKeyRequired -> 400, before anything is stored
         if not retry:
@@ -278,6 +290,7 @@ def create_app(
         else:
             assert url is not None  # noqa: S101 — narrowed by the check above
             object_key = url
+            check_llm()  # refuse before fetching anything when no LLM is configured
             if resolved_settings.require_tenant_llm_key and llm_keys is not None:
                 llm_keys.require(tenant)  # refuse before fetching anything for a keyless tenant
             try:
