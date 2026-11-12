@@ -343,6 +343,90 @@
         "title": "EntityDetail",
         "type": "object"
       },
+      "EntityNeighbourhood": {
+        "description": "One entity with both sides of its edges and the documents that mention it.\n\n``neighbours`` lists up to ``neighbours_limit`` outgoing edges (this entity is the subject)\nand as many incoming ones, outgoing first; the totals say how many exist. ``sources`` is\nmost-mentioned first and cut at ``sources_limit``.",
+        "properties": {
+          "aliases": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "canonical_id": {
+            "title": "Canonical Id",
+            "type": "string"
+          },
+          "first_seen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Seen"
+          },
+          "incoming_total": {
+            "default": 0,
+            "title": "Incoming Total",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "neighbours": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Neighbour"
+            },
+            "title": "Neighbours",
+            "type": "array"
+          },
+          "outgoing_total": {
+            "default": 0,
+            "title": "Outgoing Total",
+            "type": "integer"
+          },
+          "sources": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/EntitySource"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "sources_total": {
+            "default": 0,
+            "title": "Sources Total",
+            "type": "integer"
+          },
+          "type": {
+            "enum": [
+              "PERSON",
+              "ORG",
+              "LOCATION",
+              "LAW",
+              "DATE",
+              "EVENT",
+              "NORP",
+              "PRODUCT"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "canonical_id",
+          "name",
+          "type"
+        ],
+        "title": "EntityNeighbourhood",
+        "type": "object"
+      },
       "EntityRef": {
         "description": "An entity as an API reader sees it: no vector.",
         "properties": {
@@ -383,6 +467,110 @@
           "type"
         ],
         "title": "EntityRef",
+        "type": "object"
+      },
+      "EntitySearchResponse": {
+        "properties": {
+          "entities": {
+            "items": {
+              "$ref": "#/components/schemas/EntitySummary"
+            },
+            "title": "Entities",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "entities"
+        ],
+        "title": "EntitySearchResponse",
+        "type": "object"
+      },
+      "EntitySource": {
+        "description": "One document that mentions an entity: its id, its source name and how often (GRA-142).",
+        "properties": {
+          "document_id": {
+            "title": "Document Id",
+            "type": "string"
+          },
+          "mentions": {
+            "title": "Mentions",
+            "type": "integer"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "name",
+          "mentions"
+        ],
+        "title": "EntitySource",
+        "type": "object"
+      },
+      "EntitySummary": {
+        "description": "An entity as a search result: its id, name, type, aliases and when it first appeared.",
+        "properties": {
+          "aliases": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "canonical_id": {
+            "title": "Canonical Id",
+            "type": "string"
+          },
+          "first_seen": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Seen"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "PERSON",
+              "ORG",
+              "LOCATION",
+              "LAW",
+              "DATE",
+              "EVENT",
+              "NORP",
+              "PRODUCT"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "canonical_id",
+          "name",
+          "type"
+        ],
+        "title": "EntitySummary",
         "type": "object"
       },
       "ForgetRequest": {
@@ -1507,6 +1695,212 @@
           }
         },
         "summary": "Query"
+      }
+    },
+    "/v1/entities": {
+      "get": {
+        "description": "Search entities by name or alias, newest first, one page at a time.",
+        "operationId": "search_entities_v1_entities_get",
+        "parameters": [
+          {
+            "description": "A name or alias.",
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 200,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "A name or alias.",
+              "title": "Q"
+            }
+          },
+          {
+            "description": "Only entities of this type.",
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "PERSON",
+                    "ORG",
+                    "LOCATION",
+                    "LAW",
+                    "DATE",
+                    "EVENT",
+                    "NORP",
+                    "PRODUCT"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only entities of this type.",
+              "title": "Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "`next_cursor` of the last page.",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`next_cursor` of the last page.",
+              "title": "Cursor"
+            }
+          },
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntitySearchResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Search Entities"
+      }
+    },
+    "/v1/entities/{entity_id}": {
+      "get": {
+        "description": "One entity with its aliases, neighbours (both directions) and source documents.",
+        "operationId": "entity_detail_v1_entities__entity_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "entity_id",
+            "required": true,
+            "schema": {
+              "title": "Entity Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "neighbours_limit",
+            "required": false,
+            "schema": {
+              "default": 25,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Neighbours Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sources_limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Sources Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "namespace",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Namespace"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EntityNeighbourhood"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Entity Detail"
       }
     },
     "/v1/forget": {

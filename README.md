@@ -168,6 +168,11 @@ Add `"namespace": "my-project"` to any of the three calls to keep memory apart (
 remembered in one namespace is never recalled or forgotten from another, and leaving it out is the default
 namespace. `lookup` is served too, and `recall` takes `token_budget` and `as_of`.
 
+To browse the graph (the explorer UI does), `GET /v1/entities?q=acme&type=ORG&limit=20` pages through entities by
+name or alias, newest first (pass `next_cursor` back as `cursor`), and `GET /v1/entities/<canonical_id>` returns one
+entity with its aliases, its outgoing and incoming facts (`neighbours_limit`, `sources_limit`) and the documents that
+mention it, by id, name and mention count. Both take `namespace` and only ever see the caller's own tenant.
+
 To ask what was true on a past day, give `remember` a `document_date` and `recall` an `as_of` (both `YYYY-MM-DD`; `graphrag remember --document-date`, `graphrag recall --as-of`). `recall` then drops the facts that had not begun or had ended by that day, and the entities and sentences that rest only on them. A fact with no known dates is never dropped, since the service only knows a date it was given. A newer dated document also ends an older fact for the predicates that hold one object at a time (`WORKS_FOR`, `LOCATED_IN`, `HAS_ROLE`, `GOVERNED_BY`): the older edge gets a `valid_to` and stays as history. `recall` without `as_of` leaves ended facts out; with `as_of` it finds them. Both need `document_date` on the documents, since only dated documents can be ordered.
 
 ### Command line

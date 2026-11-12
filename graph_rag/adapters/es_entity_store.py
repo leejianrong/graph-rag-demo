@@ -32,8 +32,11 @@ from graph_rag.adapters.scoping import es_in_scope, es_scope_filter, scope_field
 from graph_rag.logging import get_logger
 from graph_rag.models import CanonicalEntity
 from graph_rag.normalize import normalize_name
+from graph_rag.timeutil import utc_now_iso
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from graph_rag.config import Settings
     from graph_rag.models import CuratedType
     from graph_rag.scope import Scope
@@ -66,6 +69,7 @@ def _entities_mapping(dims: int) -> dict[str, Any]:
             "type": {"type": "keyword"},
             "aliases": {"type": "keyword"},
             "aliases_normalized": {"type": "keyword"},
+            "first_seen": {"type": "keyword"},
             "vector": {
                 "type": "dense_vector",
                 "dims": dims,
@@ -84,14 +88,22 @@ class EsEntityStore:
     immediately visible, which the contract tests rely on.
     """
 
-    def __init__(self, client: Elasticsearch, index: str, dims: int) -> None:
+    def __init__(
+        self,
+        client: Elasticsearch,
+        index: str,
+        dims: int,
+        clock: Callable[[], str] | None = None,
+    ) -> None:
         """Build the store over an existing client, target index and vector dims.
 
         Args:
             client: A configured ``elasticsearch`` v8 client.
             index: The ``ES-Entities`` index name.
             dims: The embedder's output dimension (pins the ``dense_vector`` mapping).
+            clock: Returns the time a new entity is stamped with (UTC ISO-8601); tests inject one.
         """
+        self._clock = clock or utc_now_iso
         self._client = client
         self._index = index
         self._dims = dims
@@ -116,7 +128,11 @@ class EsEntityStore:
             # simply lack them and read as the default scope.
             self._client.indices.put_mapping(
                 index=self._index,
-                properties={"tenant": {"type": "keyword"}, "scope": {"type": "keyword"}},
+                properties={
+                    "tenant": {"type": "keyword"},
+                    "scope": {"type": "keyword"},
+                    "first_seen": {"type": "keyword"},
+                },
             )
             _logger.debug("entities index %r already exists", self._index)
             return
@@ -140,6 +156,7 @@ class EsEntityStore:
             "type": entity.type,
             "aliases": list(entity.aliases),
             "aliases_normalized": [normalize_name(alias) for alias in entity.aliases],
+            "first_seen": self.first_seen(scope, entity.canonical_id) or self._clock(),
         }
         # Only index a vector when the entity has one — a vector-less entity is then
         # skipped by kNN (dense_vector search only ranks docs that have the field),
@@ -173,6 +190,65 @@ class EsEntityStore:
         if not es_in_scope(response["_source"], scope):
             return None
         return self._to_entity(response["_source"])
+
+    def first_seen(self, scope: Scope, canonical_id: str) -> str | None:
+        """When the entity was first stored; ``None`` if absent or stored before this was kept."""
+        try:
+            response = self._client.get(index=self._index, id=canonical_id)
+        except NotFoundError:
+            return None
+        if not es_in_scope(response["_source"], scope):
+            return None
+        return response["_source"].get("first_seen")
+
+    def search(
+        self,
+        scope: Scope,
+        *,
+        query: str | None = None,
+        entity_type: CuratedType | None = None,
+        limit: int,
+        after: tuple[str, str] | None = None,
+    ) -> list[tuple[CanonicalEntity, str]]:
+        """Entities whose normalized name or alias contains the query, newest first.
+
+        A wildcard on the stored normalized forms, which hold only word characters and spaces,
+        so the query (normalized the same way) carries no wildcard of its own. Paged with
+        ``search_after`` on ``(first_seen desc, canonical_id asc)``; an entity stored before
+        ``first_seen`` was kept sorts last, as ``""``.
+        """
+        filters: list[dict[str, Any]] = [es_scope_filter(scope)]
+        if entity_type is not None:
+            filters.append({"term": {"type": entity_type}})
+        bool_query: dict[str, Any] = {"filter": filters}
+        key = normalize_name(query or "")
+        if key:
+            pattern = f"*{key}*"
+            bool_query["should"] = [
+                {"wildcard": {"normalized_name": {"value": pattern}}},
+                {"wildcard": {"aliases_normalized": {"value": pattern}}},
+            ]
+            bool_query["minimum_should_match"] = 1
+        extra: dict[str, Any] = {}
+        if after is not None:
+            extra["search_after"] = list(after)
+        try:
+            response = self._client.search(
+                index=self._index,
+                query={"bool": bool_query},
+                sort=[
+                    {"first_seen": {"order": "desc", "missing": "", "unmapped_type": "keyword"}},
+                    {"canonical_id": {"order": "asc"}},
+                ],
+                size=limit,
+                **extra,
+            )
+        except NotFoundError:
+            return []
+        return [
+            (self._to_entity(hit["_source"]), hit["_source"].get("first_seen", ""))
+            for hit in response["hits"]["hits"]
+        ]
 
     def block_candidates(
         self, scope: Scope, *, entity_type: CuratedType, normalized_name: str

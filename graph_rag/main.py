@@ -33,6 +33,7 @@ from graph_rag.adapters.neo4j_graph_store import Neo4jGraphStore
 from graph_rag.api import create_app
 from graph_rag.bind import enforce_bind, enforce_credentials
 from graph_rag.config import Settings
+from graph_rag.entities_api import EntityExplorer
 from graph_rag.jobs import InMemoryJobStore, JobStore
 from graph_rag.logging import configure_logging, get_logger
 from graph_rag.lookup import EntityLookup
@@ -54,6 +55,7 @@ class Pipeline:
     """The real stores and stages, built once and shared by the API and the worker."""
 
     object_store: MinioObjectStore
+    document_store: EsDocumentStore
     entity_store: EsEntityStore
     graph_store: Neo4jGraphStore
     job_store: JobStore
@@ -135,6 +137,7 @@ def build_pipeline(settings: Settings) -> Pipeline:
 
     return Pipeline(
         object_store=object_store,
+        document_store=document_store,
         entity_store=entity_store,
         graph_store=graph_store,
         job_store=job_store,
@@ -184,6 +187,7 @@ def main() -> None:
         retriever=retriever,
         eraser=orchestrator.delete_document,
         lookup=EntityLookup(entity_store, graph_store),
+        explorer=EntityExplorer(entity_store, graph_store, pipeline.document_store),
         jobs=job_store,
     )
 
