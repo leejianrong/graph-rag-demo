@@ -69,6 +69,20 @@ them first fixes their names before three clients each invent one.
 
 `GET /v1/me` is not a verb. It answers who the key is: the tenant, the `namespace` the request names, and the key's last four characters (never the key), so a UI can sign in with a key and show the tenant (GRA-47). A bad or missing key is `401`.
 
+### Addendum: key management (GRA-143)
+
+`GET /v1/keys`, `POST /v1/keys` and `DELETE /v1/keys/{key_id}` (`graph_rag/keys_api.py`, in `docs/openapi.json`, not in
+the hand-written contract, like `/v1/me`) list, create and revoke the calling tenant's API keys. Shapes:
+`{"keys": [{key_id, label, created_at, key_suffix, status: "active"|"revoked", revoked_at, current}]}`;
+create takes `{"label"}` (at most 64 characters, whitespace collapsed, no control characters) and answers `201` with
+that shape plus `secret`, with `Cache-Control: no-store`; revoke answers `200` with the key, and revoking twice is
+harmless. Choices: any live key of the tenant may manage keys (no admin flag; per-key scopes are out of scope), bounded
+by a cap on active keys, a create rate limit and a refusal (`400`, `details.reason` `own_key`) to revoke the key in
+use. Another tenant's key is `404`, the same as an unknown id. With auth off the routes answer `400`
+(`details.reason` `auth_disabled`) and never act on the default tenant. There is no `last_used`: it would cost a write
+per request. The `key_id` is random and never derived from the secret; the last four characters of the secret are
+stored with the record (keys made before this have none, so `key_suffix` is `null`).
+
 Today's endpoints keep working. The `/v1` facade is a thin layer that renames and reshapes; it adds no pipeline
 logic. Errors at the facade are converted from the existing ones (`404` and `503` already carry the meaning).
 

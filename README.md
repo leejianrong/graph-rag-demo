@@ -205,6 +205,12 @@ uv run graph-rag-keys list
 uv run graph-rag-keys revoke <key_id>
 ```
 
+A tenant can also manage its own keys over the API, with any of its live keys (GRA-143): `GET /v1/keys` lists
+them (label, `key_id`, last four characters, status; never a secret), `POST /v1/keys` with `{"label": "..."}`
+makes one and returns the secret once, and `DELETE /v1/keys/{key_id}` revokes one, which then gets `401` on its
+next request. A tenant holds at most `MAX_KEYS_PER_TENANT` (10) active keys, may create `KEY_CREATE_LIMIT_PER_MINUTE`
+(5) a minute, and cannot revoke the key a request used. With `REQUIRE_AUTH` off these answer `400`.
+
 The MCP server sends `GRAPH_RAG_API_KEY` when it is set. `/docs` and `/openapi.json` stay open.
 
 ### Exporting and deleting a tenant

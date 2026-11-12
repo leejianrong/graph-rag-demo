@@ -107,6 +107,86 @@
         "title": "CanonicalEntity",
         "type": "object"
       },
+      "CreateKeyRequest": {
+        "properties": {
+          "label": {
+            "default": "",
+            "description": "A name, up to 64 characters.",
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "title": "CreateKeyRequest",
+        "type": "object"
+      },
+      "CreatedKey": {
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "current": {
+            "description": "True for the key that made this request.",
+            "title": "Current",
+            "type": "boolean"
+          },
+          "key_id": {
+            "title": "Key Id",
+            "type": "string"
+          },
+          "key_suffix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The last four characters of the secret.",
+            "title": "Key Suffix"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          },
+          "secret": {
+            "description": "The whole key. Shown here once and never again.",
+            "title": "Secret",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "revoked"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key_id",
+          "label",
+          "created_at",
+          "key_suffix",
+          "status",
+          "current",
+          "secret"
+        ],
+        "title": "CreatedKey",
+        "type": "object"
+      },
       "DeletedDocument": {
         "description": "What deleting a document removed (``Orchestrator.delete_document``).",
         "properties": {
@@ -451,6 +531,85 @@
           "updated_at"
         ],
         "title": "Job",
+        "type": "object"
+      },
+      "KeyInfo": {
+        "description": "A key as listed: never the secret, only its last four characters.",
+        "properties": {
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "current": {
+            "description": "True for the key that made this request.",
+            "title": "Current",
+            "type": "boolean"
+          },
+          "key_id": {
+            "title": "Key Id",
+            "type": "string"
+          },
+          "key_suffix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The last four characters of the secret.",
+            "title": "Key Suffix"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "revoked_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revoked At"
+          },
+          "status": {
+            "enum": [
+              "active",
+              "revoked"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key_id",
+          "label",
+          "created_at",
+          "key_suffix",
+          "status",
+          "current"
+        ],
+        "title": "KeyInfo",
+        "type": "object"
+      },
+      "KeyList": {
+        "properties": {
+          "keys": {
+            "items": {
+              "$ref": "#/components/schemas/KeyInfo"
+            },
+            "title": "Keys",
+            "type": "array"
+          }
+        },
+        "required": [
+          "keys"
+        ],
+        "title": "KeyList",
         "type": "object"
       },
       "LookupRequest": {
@@ -1387,6 +1546,102 @@
           }
         },
         "summary": "Forget"
+      }
+    },
+    "/v1/keys": {
+      "get": {
+        "description": "The calling tenant's keys, oldest first, revoked ones included.",
+        "operationId": "list_keys_v1_keys_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeyList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Keys"
+      },
+      "post": {
+        "description": "Make a key for the calling tenant. The secret is in this response only.",
+        "operationId": "create_key_v1_keys_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateKeyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatedKey"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Key"
+      }
+    },
+    "/v1/keys/{key_id}": {
+      "delete": {
+        "description": "Revoke one of the calling tenant's keys; it gets 401 from its next request.",
+        "operationId": "revoke_key_v1_keys__key_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key_id",
+            "required": true,
+            "schema": {
+              "title": "Key Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeyInfo"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Revoke Key"
       }
     },
     "/v1/lookup": {

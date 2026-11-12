@@ -60,6 +60,10 @@ class Settings(BaseSettings):
     # staging run use them anyway.
     allow_default_credentials: bool = False
     api_keys_path: str = ".data/api-keys.json"
+    # Key management over /v1/keys (GRA-143): active keys one tenant may hold, and keys it may
+    # create a minute (0 turns that limit off).
+    max_keys_per_tenant: int = 10
+    key_create_limit_per_minute: int = 5
 
     # --- Elasticsearch / DocumentStore + EntityStore ------------------------
     elasticsearch_url: str = "http://elasticsearch:9200"

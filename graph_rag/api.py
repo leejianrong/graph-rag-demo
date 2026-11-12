@@ -34,6 +34,7 @@ from graph_rag.auth import ApiKeys, AuthError, JsonFileKeyStore
 from graph_rag.config import Settings, get_settings
 from graph_rag.ids import document_id
 from graph_rag.jobs import Job, JobStore
+from graph_rag.keys_api import add_key_routes
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityLookup
 from graph_rag.models import DeletedDocument, IngestTrigger, IsoDate, QueryRequest, QueryResponse
@@ -167,6 +168,7 @@ def create_app(
         if (wait := per_key.spend(record.key_id)) is not None:
             raise RateLimited("This API key is over its request limit.", wait)
         request.state.tenant = record.tenant  # read by the query meter
+        request.state.key_id = record.key_id  # read by /v1/keys, to refuse a self-revoke
         return record.tenant
 
     @app.get("/health")
@@ -370,5 +372,6 @@ def create_app(
         tenant_of=tenant_of,
         lookup=lookup,
     )
+    add_key_routes(app, verifier, tenant_of, resolved_settings)
     add_api_observability(app, resolved_settings)  # last, so it is the outermost middleware
     return app
