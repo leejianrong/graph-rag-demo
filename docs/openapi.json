@@ -1653,7 +1653,7 @@
         "type": "object"
       },
       "Triple": {
-        "description": "One knowledge-graph edge: ``(subject_id, predicate, object_id)`` (ADR-0006).\n\n``subject_id`` and ``object_id`` are **canonical entity IDs**\n(:attr:`CanonicalEntity.canonical_id`), NOT raw surface strings — grounding\nthe graph in the EL store so the same entity across documents is one node and\nmulti-hop traversal is reliable. ``predicate`` is a member of the closed set\n(:class:`graph_rag.predicates.Predicate`); when no primary relation fit it is\n``\"RELATED_TO\"`` and ``provenance.raw_predicate`` holds the original phrase.\n``date`` is the DATE **edge qualifier** (an ISO-ish date string) — dates are\nmodeled as an attribute on the edge, never as standalone nodes.\n\n``valid_from`` and ``valid_to`` are when the fact held (GRA-42), ``valid_from`` inclusive and\n``valid_to`` exclusive, as ``YYYY-MM-DD``. ``None`` means unknown, not \"always\" or \"still\":\nnothing assumes a date it was not given. Today ``valid_from`` is set from the document's date\nwhen the caller gave one. ``valid_to`` is set when a newer document states a replacing fact\n(:mod:`graph_rag.supersession`, GRA-43); ``superseded_by`` is that document's id, so deleting\nor re-ingesting it can reopen this edge.",
+        "description": "One knowledge-graph edge: ``(subject_id, predicate, object_id)`` (ADR-0006).\n\n``subject_id`` and ``object_id`` are **canonical entity IDs**\n(:attr:`CanonicalEntity.canonical_id`), NOT raw surface strings — grounding\nthe graph in the EL store so the same entity across documents is one node and\nmulti-hop traversal is reliable. ``predicate`` is a member of the closed set\n(:class:`graph_rag.predicates.Predicate`); when no primary relation fit it is\n``\"RELATED_TO\"`` and ``provenance.raw_predicate`` holds the original phrase.\n``date`` is the DATE **edge qualifier** (an ISO-ish date string) — dates are\nmodeled as an attribute on the edge, never as standalone nodes. ``role`` is the title on a\n``HAS_ROLE`` edge from a person to the organisation: the title is a property, not a node.\n\n``valid_from`` and ``valid_to`` are when the fact held (GRA-42), ``valid_from`` inclusive and\n``valid_to`` exclusive, as ``YYYY-MM-DD``. ``None`` means unknown, not \"always\" or \"still\":\nnothing assumes a date it was not given. Today ``valid_from`` is set from the document's date\nwhen the caller gave one. ``valid_to`` is set when a newer document states a replacing fact\n(:mod:`graph_rag.supersession`, GRA-43); ``superseded_by`` is that document's id, so deleting\nor re-ingesting it can reopen this edge.",
         "properties": {
           "date": {
             "anyOf": [
@@ -1676,6 +1676,17 @@
           },
           "provenance": {
             "$ref": "#/components/schemas/EdgeProvenance"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
           },
           "subject_id": {
             "title": "Subject Id",

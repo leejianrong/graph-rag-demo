@@ -387,7 +387,8 @@ class Triple(BaseModel):
     (:class:`graph_rag.predicates.Predicate`); when no primary relation fit it is
     ``"RELATED_TO"`` and ``provenance.raw_predicate`` holds the original phrase.
     ``date`` is the DATE **edge qualifier** (an ISO-ish date string) — dates are
-    modeled as an attribute on the edge, never as standalone nodes.
+    modeled as an attribute on the edge, never as standalone nodes. ``role`` is the title on a
+    ``HAS_ROLE`` edge from a person to the organisation: the title is a property, not a node.
 
     ``valid_from`` and ``valid_to`` are when the fact held (GRA-42), ``valid_from`` inclusive and
     ``valid_to`` exclusive, as ``YYYY-MM-DD``. ``None`` means unknown, not "always" or "still":
@@ -402,6 +403,7 @@ class Triple(BaseModel):
     object_id: str
     provenance: EdgeProvenance
     date: str | None = None  # DATE qualifier on the edge (not a node)
+    role: str | None = None  # the title on a HAS_ROLE edge ("CEO"); an edge property (ADR-0006)
     valid_from: IsoDate | None = None
     valid_to: IsoDate | None = None
     superseded_by: str | None = None

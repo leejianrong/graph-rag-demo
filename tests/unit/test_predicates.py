@@ -11,8 +11,8 @@ from __future__ import annotations
 from graph_rag.predicates import CLOSED_PREDICATES, Predicate, map_predicate
 
 
-def test_closed_set_is_the_expected_thirteen() -> None:
-    """The closed set is the ADR-0006 starter set plus GOVERNED_BY (GRA-94)."""
+def test_closed_set_is_the_expected_fourteen() -> None:
+    """The closed set is the ADR-0006 starter set plus GOVERNED_BY (GRA-94), ACQUIRED (GRA-162)."""
     assert CLOSED_PREDICATES == {
         "LOCATED_IN",
         "PART_OF",
@@ -21,6 +21,7 @@ def test_closed_set_is_the_expected_thirteen() -> None:
         "HAS_ROLE",
         "FOUNDED",
         "OWNS",
+        "ACQUIRED",
         "PRODUCES",
         "PARTICIPATED_IN",
         "OCCURRED_ON",
@@ -42,7 +43,8 @@ def test_synonym_maps_to_primary_member() -> None:
     """Common phrasings resolve to the intended primary predicate, dropping raw."""
     assert map_predicate("employed by") == ("WORKS_FOR", None)
     assert map_predicate("headquartered in") == ("LOCATED_IN", None)
-    assert map_predicate("acquired") == ("OWNS", None)
+    assert map_predicate("acquired") == ("ACQUIRED", None)
+    assert map_predicate("took over") == ("ACQUIRED", None)
     assert map_predicate("subsidiary of") == ("PART_OF", None)
     assert map_predicate("took part in") == ("PARTICIPATED_IN", None)
 

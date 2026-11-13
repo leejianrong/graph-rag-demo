@@ -74,3 +74,33 @@ exact sentence they came from, with trustworthy offsets.
   with the EL store and enables reliable multi-hop traversal.
 - Multi-label nodes give both uniform and per-type queries.
 - Edge-level provenance is load-bearing for trustworthy, traceable answers.
+
+## Addendum (GRA-162): roles, acquisitions and the place of an event
+
+A real-stack run showed three misreadings the closed set invited. Changes, all in the closed-predicate
+approach:
+
+- **A role is an edge property, not an entity and not a new predicate.** `HAS_ROLE` stays a
+  person-to-organisation edge and carries the title in `Triple.role` (`"CEO"`; stored as the edge
+  property `role`, shown to the answerer as `role=CEO`). The alternatives lose: a role entity would make
+  every "CEO" a node that has to be linked and merged, and a literal object breaks the rule that an edge
+  joins two canonical ids. The title is kept only on `HAS_ROLE`. "Its CEO Klaus Weber" now has somewhere
+  to land, so "who is its CEO" is answerable. `HAS_ROLE` stays single-valued per subject for
+  supersession (`graph_rag/supersession.py`); a second role at the same organisation does not end the
+  first.
+- **`ACQUIRED` is added** (a takeover or purchase, buyer to target, with the date qualifier). "acquired",
+  "bought", "purchased", "took over" and "merged with" map to it instead of `OWNS`; `OWNS` is standing
+  ownership. No contract predicate is added: the bench corpus has no gold for one (`partner`/`agreement`
+  text is gold `AFFILIATED_WITH`), so a new predicate could only cost strict F1 there.
+- **The place of an event is the event's.** The prompt says `LOCATED_IN` goes from the EVENT to the place,
+  the person gets `PARTICIPATED_IN`, and a person's own `LOCATED_IN` needs text that says they live or are
+  based there.
+
+The prompt lists the vocabulary, so this change alters every KG-build prompt and invalidates the recorded
+answers; the KG-build answers in `bench/kgbench/data/llm-cache-hard-tiny` and `llm-cache-hard-small` (and the
+stale entries from older prompts) were replaced by new ones from Haiku subagents answering the new prompts
+(coref answers are unchanged). Measured on `hard-small` with Haiku as builder and spaCy NER
+(`kgbench hard ... --pipelines llm+spacy`, one world): strict triple F1 0.798 to 0.789, entity-pair F1 0.807 to
+0.796, linking, mention and entity F1 unchanged. The corpus has no role or acquisition gold (zero
+"acquired" in its text), so the bench cannot show the gain; the small dip is within the noise of a different
+set of Haiku answers on one world. The offline extraction scores and every gate floor are unchanged.

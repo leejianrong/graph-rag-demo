@@ -75,6 +75,7 @@ def build_synthesis_prompt(question: str, response: QueryResponse) -> str:
         subject = names.get(edge.subject_id, edge.subject_id)
         obj = names.get(edge.object_id, edge.object_id)
         date = f", date={edge.date}" if edge.date else ""
+        date += f", role={edge.role}" if edge.role else ""
         edge_lines.append(
             f"- {subject} --{edge.predicate}--> {obj}{date} "
             f"(source: {edge.provenance.source_doc_id}, "

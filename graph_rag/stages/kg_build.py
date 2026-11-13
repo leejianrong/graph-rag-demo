@@ -19,8 +19,9 @@ Four rules turn a raw LLM triple into a :class:`~graph_rag.models.Triple`:
    are resolved from **our own spaCy sentence segmentation** (the ``sentences``
    from N6, ADR-0002) — the LLM cannot count characters reliably. An out-of-range
    index is logged and the triple skipped.
-3. **DATE is an edge qualifier.** A dated fact sets :attr:`~graph_rag.models.Triple.date`
-   (an attribute on the edge), never a standalone DATE node.
+3. **DATE and role are edge properties.** A dated fact sets :attr:`~graph_rag.models.Triple.date`
+   (an attribute on the edge), never a standalone DATE node; a ``HAS_ROLE`` triple's title
+   goes in :attr:`~graph_rag.models.Triple.role` (ADR-0006 addendum, GRA-162).
 4. **Canonical-ID validation.** A triple whose subject or object is not one of this
    document's canonical IDs is logged and dropped — the graph never grows a
    dangling edge to an unknown node.
@@ -67,7 +68,8 @@ class LLMTriple(BaseModel):
     (mapped to the closed set by :func:`~graph_rag.predicates.map_predicate`).
     ``sentence_index`` cites the source sentence in OUR segmentation — the stage,
     not the LLM, resolves char offsets from it. ``date`` is the optional DATE edge
-    qualifier; ``confidence`` the optional model confidence.
+    qualifier; ``role`` the title on a HAS_ROLE triple ("CEO"); ``confidence`` the optional
+    model confidence.
     """
 
     subject_id: str
@@ -75,6 +77,7 @@ class LLMTriple(BaseModel):
     object_id: str
     sentence_index: int
     date: str | None = None
+    role: str | None = None
     confidence: float | None = None
 
 
@@ -130,7 +133,20 @@ def build_kg_prompt(text: str, canonical_entities: list[CanonicalEntity]) -> str
         "For each triple cite the zero-based sentence_index of the sentence it came "
         "from. If a relation is dated, put the date on the triple's `date` field (do "
         "NOT emit a date as an entity). Only emit relations actually stated in the "
-        "document.\n\n"
+        "document.\n"
+        "Rules for three cases the set is easy to get wrong:\n"
+        "- A role or title ('its CEO Klaus Weber', 'chief engineer at X'): emit "
+        "HAS_ROLE from the person to the ORGANISATION, with the title as the `role` "
+        "field (for example role='CEO'). The title is never an entity. Also emit "
+        "WORKS_FOR when the text says the person works there.\n"
+        "- An acquisition or takeover ('A acquired B'): ACQUIRED, subject the buyer, "
+        "object the target, with the date if given. Use OWNS only for standing "
+        "ownership with no purchase described.\n"
+        "- The place of an event ('Maria presented the prototype in Hamburg'): that is "
+        "where the EVENT or action happened, not where the person is. Emit LOCATED_IN "
+        "from the EVENT to the place, and PARTICIPATED_IN from the person to the event; "
+        "emit PERSON LOCATED_IN place only when the text says the person lives or is "
+        "based there. If no event entity is listed, do not emit the place edge.\n\n"
         f"Document text:\n{text}\n\n"
         f"Canonical entities (id: name (type)):\n{listed}"
     )
@@ -260,6 +276,8 @@ class KgBuildStage:
                     predicate=predicate,
                     object_id=raw.object_id,
                     date=raw.date,  # DATE is an edge qualifier, never a node.
+                    # A title is only meaningful on a HAS_ROLE edge; drop it elsewhere.
+                    role=(raw.role or None) if predicate == Predicate.HAS_ROLE else None,
                     provenance=EdgeProvenance(
                         source_doc_id=document_id,
                         sentence_index=raw.sentence_index,
