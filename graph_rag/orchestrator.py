@@ -330,7 +330,14 @@ class Orchestrator:
                 len(el_result),
                 len(triples),
             )
-            self._job(scope, doc_id, "done")
+            built = self._kg_build_stage is not None and self._graph_store is not None
+            self._job(
+                scope,
+                doc_id,
+                "done",
+                entities=len(self._doc_canonical_entities(el_result)) if built else None,
+                edges=len(triples) if built else None,
+            )
             # 9. Return the in-memory carry so callers/tests can assert on it.
             return PipelineResult(
                 record=record,
@@ -401,13 +408,15 @@ class Orchestrator:
         state: JobState,
         error: str | None = None,
         stage: str | None = None,
+        entities: int | None = None,
+        edges: int | None = None,
     ) -> None:
         if state == "running" and stage:
             enter_stage(stage)
         elif state in ("done", "failed"):
             finish_ingest(state)
         if self._job_store is not None:
-            self._job_store.update(scope, doc_id, state, error, stage)
+            self._job_store.update(scope, doc_id, state, error, stage, entities, edges)
 
     @staticmethod
     def _doc_canonical_entities(links: list[EntityLink]) -> list[CanonicalEntity]:

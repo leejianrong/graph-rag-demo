@@ -7,7 +7,7 @@
     textSource,
   } from "../lib/ingest";
   import { ingest, jobs, pauseStreams, recheck, resumeStreams, retry } from "../lib/jobs.svelte";
-  import { segments, statusText, type Source, type TrackedJob } from "../lib/jobs";
+  import { countsText, segments, statusText, type Source, type TrackedJob } from "../lib/jobs";
 
   type Mode = "text" | "url" | "file";
   const modes: { id: Mode; label: string }[] = [
@@ -224,6 +224,9 @@
               </li>
             {/each}
           </ol>
+        {/if}
+        {#if countsText(job)}
+          <p class="counts mono">{countsText(job)} added</p>
         {/if}
         {#if job.state === "failed"}
           <p class="reason">
@@ -509,6 +512,11 @@
     line-height: 1.5;
   }
   .note {
+    color: var(--muted);
+  }
+  .counts {
+    margin: 0;
+    font-size: 13px;
     color: var(--muted);
   }
   .link {

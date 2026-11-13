@@ -28,6 +28,9 @@ export interface TrackedJob {
   state: JobState;
   stages: string[];
   error: string | null;
+  /** What a finished job added to the graph; null until it is done, and for older servers. */
+  entities: number | null;
+  edges: number | null;
   /** "polling" once the live stream dropped and the job is read by polling instead. */
   link: "stream" | "polling" | "idle";
 }
@@ -48,6 +51,8 @@ export function newJob(id: number, name: string, source: Source): TrackedJob {
     state: "submitting",
     stages: [],
     error: null,
+    entities: null,
+    edges: null,
     link: "idle",
   };
 }
@@ -80,6 +85,8 @@ export function reduceJob(job: TrackedJob, event: JobEvent): TrackedJob {
         state: event.job.state,
         stages: seen.length >= job.stages.length ? seen : job.stages,
         error: event.job.state === "failed" ? (event.job.error ?? "The job failed.") : null,
+        entities: event.job.entities ?? null,
+        edges: event.job.edges ?? null,
       };
     }
   }
@@ -120,4 +127,11 @@ export function statusText(job: TrackedJob): string {
     case "unchanged":
       return "Unchanged · nothing to do";
   }
+}
+
+/** "12 entities · 9 edges" for a finished job that reports counts, else null. */
+export function countsText(job: TrackedJob): string | null {
+  if (job.state !== "done" || job.entities === null || job.edges === null) return null;
+  const entities = job.entities === 1 ? "1 entity" : `${job.entities} entities`;
+  return `${entities} · ${job.edges} ${job.edges === 1 ? "edge" : "edges"}`;
 }

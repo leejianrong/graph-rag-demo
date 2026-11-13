@@ -52,6 +52,11 @@ def check_job_store(writer: JobStore, reader: JobStore) -> None:
     writer.update(DEFAULT_SCOPE, "unknown", "done")  # a trigger that skipped the API
     unknown = reader.get(DEFAULT_SCOPE, "unknown")
     assert unknown is not None and unknown.state == "done" and unknown.object_key == ""
+    assert job.entities is None and job.edges is None  # only a done job reports counts
+    writer.update(scope, "d2", "running", stage="read")
+    writer.update(scope, "d2", "done", entities=4, edges=0)
+    done = reader.get(scope, "d2")
+    assert done is not None and done.entities == 4 and done.edges == 0
     writer.queued(scope, "d1", "a.txt")  # resubmitted: starts over
     again = reader.get(scope, "d1")
     assert again is not None and again.state == "queued" and again.stages == []

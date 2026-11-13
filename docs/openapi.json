@@ -710,6 +710,28 @@
             "title": "Document Id",
             "type": "string"
           },
+          "edges": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Edges"
+          },
+          "entities": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entities"
+          },
           "error": {
             "anyOf": [
               {
