@@ -95,8 +95,7 @@ constructor-injected with `Embedder` + `EntityStore` + `DocumentStore` +
 `DocumentStore.search_sentences` (passage seeds, already scored) → expand
 `GraphStore.khop(seed_ids, khop_depth)` → compute `hop_distance` by **BFS over the
 returned subgraph's undirected edges** (seeds = 0; unreachable omitted → the ranker
-reads them as inf → 0 proximity) → `rank_nodes` → `select_answer` (top node, no type
-filter in V6). Returns a `QueryResponse` (answer + `answer_entity` + connected
+reads them as inf → 0 proximity) → `rank_nodes` → `select_answer_for_question` (GRA-161: the best node the question does not already name; see ADR-0014 "How the answer is chosen"; `ranked_nodes` stays in B4 order). Returns a `QueryResponse` (answer + `answer_entity` + connected
 `Subgraph` + `ranked_nodes` + `matched_entity_ids` (the seeds, best first; GRA-148) + `supporting_sentences` with provenance). The
 `synthesize` flag (V7) is ignored, never errors — no LLM on this path.
 `api.create_app` gains an optional keyword-only `retriever=`; `POST /query` parses a

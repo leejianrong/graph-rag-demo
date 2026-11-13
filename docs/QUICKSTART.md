@@ -97,6 +97,21 @@ and its job fails with, for example, `coreference failed: InternalServerError. T
 llm.internal is unreachable (check OPENAI_API_BASE).` Only the host is shown, never the URL or a key.
 Post the document again once the endpoint is up.
 
+The client keeps a response cache on disk, `.cache/llm/` (the `LLM_CACHE_DIR` setting), one directory per
+tenant (`.cache/llm/tenants/<tenant>/`; the default tenant uses the root). A repeat ingest is answered from it
+before semula or any provider is called, so re-ingesting a document to replay it against semula proves
+nothing while the cache holds its prompts: semula sees no traffic. To replay for real, clear the cache first:
+
+```bash
+rm -rf .cache/llm                        # every tenant
+rm -rf .cache/llm/tenants/<tenant>       # one tenant
+find .cache/llm -maxdepth 1 -name '*.json' -delete   # the default tenant only
+```
+
+The cache only hits when the NER model is the same as on the first run, because the coreference prompt embeds
+the mentions NER found; a different `NER_MODEL` (or spaCy version) gives different prompts, so the entries
+miss and the LLM is called anyway.
+
 Cost on a small hosted model is roughly $0.2 to $0.3 per 1,000 small documents, uncached (an estimate).
 
 ## What is tested

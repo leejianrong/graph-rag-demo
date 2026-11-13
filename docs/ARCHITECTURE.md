@@ -203,8 +203,8 @@ Two modes; default to the non-LLM one (ADR-0007).
 3. **Expand k hops** from the seed entities in Neo4j to gather the connected
    subgraph.
 4. Return a **ranked subgraph + supporting sentences with provenance**. For
-   entity-typed questions, the **predicted answer is the top-ranked candidate
-   entity node**.
+   entity-typed questions, the **predicted answer is the best-ranked candidate
+   entity node the question does not already name** (see ADR-0007).
 
 **Answer-synthesis mode (optional, gated LLM, off by default):** feed the
 retrieved subgraph + supporting sentences to the LLM (`/query` with

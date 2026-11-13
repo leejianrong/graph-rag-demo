@@ -38,6 +38,12 @@ against fakes — no Docker in the fast suite:
 `sha256(model+prompt+params)` response cache doubles as the fixture store, so
 coref/KG-build/synthesis are deterministic and free. NER is local + deterministic.
 
+**The client cache hides replays.** The real `LLMClient` adapter caches responses on disk under
+`.cache/llm/` (per tenant: `.cache/llm/tenants/<tenant>/`), so a repeat ingest never reaches semula or a
+provider while the cache has its prompts. A "replay" check against a real endpoint must clear it first
+(`rm -rf .cache/llm`). Hits also depend on the NER model: the coreference prompt embeds the NER mentions, so
+a run with a different NER model misses and calls the LLM. See the semula path in `docs/QUICKSTART.md`.
+
 ## 3. Test tiers
 
 | Tier | Runs against | Scope | In pre-push loop? |

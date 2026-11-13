@@ -145,3 +145,18 @@ test("an abort stops the stream without polling or events", async () => {
   controller.abort();
   expect(await pending).toEqual([{ type: "link", link: "stream" }]);
 });
+
+test("the stream is read to its end after the final event, not cancelled while open", async () => {
+  const cancelled = vi.fn();
+  const enc = new TextEncoder();
+  const body = new ReadableStream<Uint8Array>({
+    start(c) {
+      c.enqueue(enc.encode(`event: done\ndata: ${JSON.stringify(final)}\n\n`));
+      setTimeout(() => c.close(), 20);
+    },
+    cancel: cancelled,
+  });
+  const events = await watch((async () => new Response(body)) as unknown as typeof fetch);
+  expect(events.map((e) => e.type)).toEqual(["link", "snapshot"]);
+  expect(cancelled).not.toHaveBeenCalled();
+});

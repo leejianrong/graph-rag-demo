@@ -2,8 +2,8 @@
  "subset": "small",
  "tolerance": 0.02,
  "baseline": {
-  "exact_match": 0.2,
-  "token_f1": 0.2,
+  "exact_match": 1.0,
+  "token_f1": 1.0,
   "supporting_fact_f1": 0.3714
  }
 }

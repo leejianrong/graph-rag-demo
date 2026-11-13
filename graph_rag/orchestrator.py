@@ -353,7 +353,11 @@ class Orchestrator:
             why = explain_llm_error(error)  # a provider auth/connection failure, in words
             suffix = f". {why}" if why else ""
             self._job(scope, doc_id, "failed", f"{stage} failed: {type(error).__name__}{suffix}")
-            _logger.exception("dropping document %s after processing error", doc_id)
+            if why:  # one WARNING line for a provider failure; the traceback only at DEBUG
+                _logger.warning("dropping document %s: %s failed: %s", doc_id, stage, why)
+                _logger.debug("traceback for document %s", doc_id, exc_info=True)
+            else:
+                _logger.exception("dropping document %s after processing error", doc_id)
             return None
 
     def _apply_merges(self, scope: Scope, merged: dict[str, str], doc_id: str) -> None:
