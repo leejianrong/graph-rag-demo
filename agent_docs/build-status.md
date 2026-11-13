@@ -41,7 +41,8 @@ ports; per doc-level entity (derived from coref clusters, else lone mentions) it
 cosine → merges** above `Settings.el_threshold` (B2 = 0.82) **or create-news**
 (an **exact type+normalized-name block match is decisive** — it unifies regardless
 of cosine, since mention-in-context embeddings of one entity drift across docs and
-would otherwise split it into duplicate nodes)
+would otherwise split it into duplicate nodes; a kNN/cosine merge also needs a name
+guard, a shared distinctive token or an acronym, GRA-157)
 (the always-on path). `canonical_id` is deterministic + stable
 (`e-sha256("el:{type}:{normalized_name}")`), so a re-ingest of the same corpus
 merges rather than duplicates; linking is **order-sensitive** (first doc seeds the
