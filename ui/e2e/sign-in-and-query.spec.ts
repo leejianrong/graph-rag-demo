@@ -6,9 +6,17 @@ test("sign in, ingest a text, ask a question, sign out", async ({ page }) => {
   const baseUrl = process.env.E2E_BASE_URL!;
   const key = process.env.E2E_KEY!;
 
-  // No external network: the page asks Google for fonts, so refuse everything but the service.
-  await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, (route) => route.abort());
+  // No external network: refuse everything but the service, and fail on any attempt or failed request.
   const violations: string[] = [];
+  await page.route(/^https?:\/\/(?!127\.0\.0\.1)/, (route) => {
+    violations.push(`blocked external request: ${route.request().url()}`);
+    return route.abort();
+  });
+  const fonts: string[] = [];
+  page.on("response", (r) => {
+    if (/\.woff2?$/.test(r.url()) && r.ok()) fonts.push(r.url());
+  });
+  page.on("requestfailed", (r) => violations.push(`request failed: ${r.url()}`));
   page.on("console", (m) => {
     if (/content security policy/i.test(m.text())) violations.push(m.text());
   });
@@ -46,5 +54,7 @@ test("sign in, ingest a text, ask a question, sign out", async ({ page }) => {
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
 
+  // The bundled IBM Plex files were served, not fetched from a font host.
+  expect(fonts.length).toBeGreaterThan(0);
   expect(violations).toEqual([]);
 });

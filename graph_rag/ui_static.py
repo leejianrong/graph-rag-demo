@@ -19,12 +19,12 @@ from graph_rag.config import Settings
 
 __all__ = ["UI_HEADERS", "mount_ui", "resolve_ui_dir"]
 
-# The app's own files, plus the IBM Plex stylesheet and fonts it loads from Google (app.css). Svelte
+# The app's own files only: IBM Plex is bundled with the build (@fontsource, ui/src/main.ts). Svelte
 # compiles component styles to a stylesheet, so no inline style or script is needed.
 UI_HEADERS = {
     "Content-Security-Policy": (
-        "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; "
-        "font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; "
+        "default-src 'self'; script-src 'self'; style-src 'self'; "
+        "font-src 'self'; img-src 'self' data:; connect-src 'self'; "
         "object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
     ),
     "X-Content-Type-Options": "nosniff",
