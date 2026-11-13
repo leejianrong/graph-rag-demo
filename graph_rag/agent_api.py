@@ -25,7 +25,13 @@ from graph_rag.ids import document_id
 from graph_rag.llm_config import LlmNotConfigured
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityDetail
-from graph_rag.models import DeletedDocument, IsoDate, QueryRequest, QueryResponse
+from graph_rag.models import (
+    DeletedDocument,
+    IngestAccepted,
+    IsoDate,
+    QueryRequest,
+    QueryResponse,
+)
 from graph_rag.query.budget import evidence_tokens, pack
 from graph_rag.ratelimit import RateLimited
 from graph_rag.scope import RESERVED_KEY_PREFIX, Scope
@@ -149,7 +155,7 @@ def _derived_source_id(text: str) -> str:
 def add_agent_routes(
     app: FastAPI,
     *,
-    accept: Callable[..., dict[str, str]],
+    accept: Callable[..., IngestAccepted],
     retriever: QueryRetriever | None,
     eraser: Callable[[str, Scope], DeletedDocument | None] | None,
     bucket: str,
@@ -201,7 +207,7 @@ def add_agent_routes(
             request.document_date,
         )
         return RememberResponse(
-            document_id=stored["document_id"], source_id=source_id, status=stored["status"]
+            document_id=stored.document_id, source_id=source_id, status=stored.status
         )
 
     @router.post("/recall")

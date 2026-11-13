@@ -35,12 +35,19 @@ from graph_rag.config import Settings, get_settings
 from graph_rag.curation_api import EntityCurator
 from graph_rag.entities_api import EntityExplorer
 from graph_rag.ids import document_id
-from graph_rag.jobs import Job, JobStore
+from graph_rag.jobs import Job, JobStore, JobStreamEvent
 from graph_rag.keys_api import add_key_routes
 from graph_rag.llm_config import LlmNotConfigured
 from graph_rag.logging import get_logger
 from graph_rag.lookup import EntityLookup
-from graph_rag.models import DeletedDocument, IngestTrigger, IsoDate, QueryRequest, QueryResponse
+from graph_rag.models import (
+    DeletedDocument,
+    IngestAccepted,
+    IngestTrigger,
+    IsoDate,
+    QueryRequest,
+    QueryResponse,
+)
 from graph_rag.observability import add_api_observability, current_traceparent
 from graph_rag.ports import ObjectStore, TriggerPublisher
 from graph_rag.ratelimit import RateLimited, RateLimiter
@@ -72,6 +79,12 @@ _MULTIPART_SLACK = 64 * 1024
 
 def _too_large(limit: int) -> HTTPException:
     return HTTPException(status_code=413, detail=f"The upload is over the {limit}-byte limit.")
+
+
+class EventStreamResponse(StreamingResponse):
+    """A server-sent event stream; the class only gives the OpenAPI file its media type."""
+
+    media_type = "text/event-stream"
 
 
 def create_app(
@@ -201,7 +214,7 @@ def create_app(
         force: bool,
         scope: Scope = DEFAULT_SCOPE,
         document_date: str | None = None,
-    ) -> dict[str, str]:
+    ) -> IngestAccepted:
         """Store ``data`` under ``object_key`` and queue it, unless the source already holds it.
 
         A source that holds exactly ``data`` is queued again only when its job ``failed`` (a
@@ -214,12 +227,9 @@ def create_app(
             last = jobs.get(scope, doc_id) if jobs is not None else None
             if last is None or last.state != "failed":
                 _logger.info("unchanged document_id=%s", doc_id)
-                return {
-                    "document_id": doc_id,
-                    "bucket": bucket,
-                    "object_key": object_key,
-                    "status": "unchanged",
-                }
+                return IngestAccepted(
+                    document_id=doc_id, bucket=bucket, object_key=object_key, status="unchanged"
+                )
             retry = True
 
         check_llm()  # LlmNotConfigured -> 503, before anything is stored
@@ -248,12 +258,9 @@ def create_app(
             len(data),
             retry,
         )
-        return {
-            "document_id": doc_id,
-            "bucket": bucket,
-            "object_key": object_key,
-            "status": "accepted",
-        }
+        return IngestAccepted(
+            document_id=doc_id, bucket=bucket, object_key=object_key, status="accepted"
+        )
 
     @app.post("/ingest")
     async def ingest(
@@ -263,7 +270,7 @@ def create_app(
         force: bool = False,
         document_date: Annotated[str | None, Form()] = None,
         tenant: str = Depends(tenant_of),
-    ) -> dict[str, str]:
+    ) -> IngestAccepted:
         """Store an uploaded document and publish its ingest trigger.
 
         The source is keyed by ``source_url`` when given, else by the uploaded filename;
@@ -331,7 +338,11 @@ def create_app(
             raise HTTPException(status_code=404, detail=f"No job {doc_id}.")
         return found
 
-    @app.get("/jobs/{doc_id}/events")
+    @app.get(
+        "/jobs/{doc_id}/events",
+        response_class=EventStreamResponse,
+        responses={200: {"model": JobStreamEvent}},
+    )
     async def job_events(doc_id: str, tenant: str = Depends(tenant_of)) -> StreamingResponse:
         """Stream a job's progress as server-sent events until it is done or failed (GRA-33).
 
@@ -359,7 +370,7 @@ def create_app(
                     return
                 await asyncio.sleep(0.05)
 
-        return StreamingResponse(events(), media_type="text/event-stream")
+        return EventStreamResponse(events())
 
     @app.delete("/documents/{doc_id}")
     def delete_document(doc_id: str, tenant: str = Depends(tenant_of)) -> DeletedDocument:

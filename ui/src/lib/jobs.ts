@@ -1,3 +1,5 @@
+import type { components } from "../api/schema";
+
 /** The pipeline's stages in order, as the job's `stages` list names them (graph_rag/orchestrator.py). */
 export const STAGES = [
   "read",
@@ -7,14 +9,8 @@ export const STAGES = [
   "knowledge graph",
 ] as const;
 
-/** The job JSON from `GET /jobs/{id}` and the final `done`/`failed` event (graph_rag/jobs.py). */
-export interface JobJson {
-  document_id: string;
-  object_key: string;
-  state: "queued" | "running" | "done" | "failed";
-  error?: string | null;
-  stages?: string[];
-}
+/** The job from `GET /jobs/{id}` and the final `done`/`failed` event, as the API schema has it. */
+export type JobJson = components["schemas"]["Job"];
 
 export type JobState = "submitting" | "queued" | "running" | "done" | "failed" | "unchanged";
 

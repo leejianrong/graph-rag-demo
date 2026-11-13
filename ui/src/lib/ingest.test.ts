@@ -100,7 +100,7 @@ const watch = async (fetchImpl: typeof fetch, signal = new AbortController().sig
   return events;
 };
 
-const final = { document_id: "d1", object_key: "k", state: "done", stages: ["read"] };
+const final = { document_id: "d1", object_key: "k", state: "done", stages: ["read"], queued_at: "t0", updated_at: "t1" };
 
 test("the stream's stages and final event come through, in order", async () => {
   const events = await watch((async () =>

@@ -28,7 +28,7 @@ test("a replayed stage is not added twice", () => {
 test("done fills every segment", () => {
   const job = run(accepted, { type: "stage", stage: "read" }, {
     type: "snapshot",
-    job: { document_id: "d1", object_key: "k", state: "done", stages: ["read"] },
+    job: { document_id: "d1", object_key: "k", state: "done", stages: ["read"], queued_at: "t0", updated_at: "t1" },
   });
   expect(states(job)).toEqual(Array(5).fill("done"));
   expect(statusText(job)).toBe("Done");
@@ -43,6 +43,8 @@ test("failed marks the last stage and keeps the reason", () => {
       state: "failed",
       error: "coreference failed: TimeoutError",
       stages: ["read", "entity recognition", "coreference"],
+      queued_at: "t0",
+      updated_at: "t1",
     },
   });
   expect(states(job)).toEqual(["done", "done", "failed", "pending", "pending"]);
@@ -53,7 +55,7 @@ test("failed marks the last stage and keeps the reason", () => {
 test("a finished job ignores late events", () => {
   const done = run(accepted, {
     type: "snapshot",
-    job: { document_id: "d1", object_key: "k", state: "done", stages: [] },
+    job: { document_id: "d1", object_key: "k", state: "done", stages: [], queued_at: "t0", updated_at: "t1" },
   });
   expect(reduceJob(done, { type: "stage", stage: "read" })).toBe(done);
   expect(reduceJob(done, { type: "link", link: "polling" })).toBe(done);
@@ -62,7 +64,7 @@ test("a finished job ignores late events", () => {
 test("a snapshot with fewer stages than already seen keeps the seen ones", () => {
   const job = run(accepted, { type: "stage", stage: "read" }, { type: "stage", stage: "coreference" }, {
     type: "snapshot",
-    job: { document_id: "d1", object_key: "k", state: "running", stages: ["read"] },
+    job: { document_id: "d1", object_key: "k", state: "running", stages: ["read"], queued_at: "t0", updated_at: "t1" },
   });
   expect(job.stages).toEqual(["read", "coreference"]);
 });
