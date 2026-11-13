@@ -50,6 +50,10 @@ def test_index_is_served_with_security_headers(ui_dir: Path) -> None:
     assert "frame-ancestors 'none'" in response.headers["content-security-policy"]
 
 
+def test_csp_names_no_outside_host() -> None:
+    assert "http" not in UI_HEADERS["Content-Security-Policy"]
+
+
 def test_hashed_asset_is_immutable_and_missing_asset_is_404(ui_dir: Path) -> None:
     client = make_client(Settings(ui_dir=str(ui_dir)))
     asset = client.get("/assets/index-abc123.js")
