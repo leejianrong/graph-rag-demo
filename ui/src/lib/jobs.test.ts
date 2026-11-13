@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { newJob, reduceJob, segments, statusText, type JobEvent } from "./jobs";
+import { countsText, newJob, reduceJob, segments, statusText, type JobEvent } from "./jobs";
 
 const start = () => newJob(1, "a.txt", { kind: "url", url: "https://x.test/a" });
 const run = (...events: JobEvent[]) => events.reduce(reduceJob, start());
@@ -73,4 +73,14 @@ test("failing to start shows the reason", () => {
   const job = run({ type: "failed-to-start", error: "gone" });
   expect(job.state).toBe("failed");
   expect(job.error).toBe("gone");
+});
+
+test("a done job with counts shows them, and one without shows none", () => {
+  const snap = (extra: object): JobEvent => ({
+    type: "snapshot",
+    job: { document_id: "d1", object_key: "k", state: "done", stages: ["read"], queued_at: "t0", updated_at: "t1", ...extra },
+  });
+  expect(countsText(run(accepted, snap({ entities: 5, edges: 1 })))).toBe("5 entities · 1 edge");
+  expect(countsText(run(accepted, snap({ entities: 1, edges: 0 })))).toBe("1 entity · 0 edges");
+  expect(countsText(run(accepted, snap({})))).toBeNull();
 });

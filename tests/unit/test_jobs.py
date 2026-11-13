@@ -47,6 +47,9 @@ def test_a_document_moves_from_queued_to_done(stack) -> None:
     done = client.get(f"/jobs/{stored['document_id']}").json()
     assert done["state"] == "done" and done["error"] is None
     assert done["queued_at"] <= done["updated_at"]
+    assert done["entities"] == components.graph_store.node_count(DEFAULT_SCOPE)
+    assert done["edges"] == components.graph_store.edge_count(DEFAULT_SCOPE)
+    assert job["entities"] is None and job["edges"] is None  # not before it is done
 
 
 def test_the_job_is_running_while_a_stage_works() -> None:

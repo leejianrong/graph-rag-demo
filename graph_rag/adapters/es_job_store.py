@@ -68,6 +68,8 @@ class EsJobStore:
         state: JobState,
         error: str | None = None,
         stage: str | None = None,
+        entities: int | None = None,
+        edges: int | None = None,
     ) -> None:
         job = self.get(scope, document_id)
         if job is None:  # a trigger that did not come through the API
@@ -87,6 +89,8 @@ class EsJobStore:
                     "updated_at": _now(),
                     "error": error,
                     "stages": [*job.stages, stage] if stage else job.stages,
+                    "entities": entities,
+                    "edges": edges,
                 }
             ),
         )

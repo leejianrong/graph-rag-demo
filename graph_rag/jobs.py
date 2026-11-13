@@ -33,6 +33,8 @@ class Job(BaseModel):
     updated_at: str
     error: str | None = None  # set when state is "failed": which stage, and the error type
     stages: list[str] = []  # the pipeline stages entered so far, in order (GRA-33)
+    entities: int | None = None  # graph nodes the document produced; set once it is done (GRA-150)
+    edges: int | None = None  # graph edges the document produced; set once it is done
 
 
 class StageEvent(BaseModel):
@@ -60,8 +62,13 @@ class JobStore(Protocol):
         state: JobState,
         error: str | None = None,
         stage: str | None = None,
+        entities: int | None = None,
+        edges: int | None = None,
     ) -> None:
         """Move a document to ``state``, noting the ``stage`` just entered, if any.
+
+        ``entities`` and ``edges`` are what a finished document added to the graph; ``None``
+        leaves the job reporting none.
 
         Unknown documents are recorded too.
         """
@@ -101,6 +108,8 @@ class InMemoryJobStore:
         state: JobState,
         error: str | None = None,
         stage: str | None = None,
+        entities: int | None = None,
+        edges: int | None = None,
     ) -> None:
         with self._lock:
             job = self._jobs.get((scope, document_id))
@@ -118,6 +127,8 @@ class InMemoryJobStore:
                     "updated_at": _now(),
                     "error": error,
                     "stages": [*job.stages, stage] if stage else job.stages,
+                    "entities": entities,
+                    "edges": edges,
                 }
             )
 
