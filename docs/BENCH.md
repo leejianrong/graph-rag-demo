@@ -85,9 +85,9 @@ The nightly workflow ([`.github/workflows/nightly-benchmark.yml`](../.github/wor
 
 **The fuller stack on `hard-small`** (`kgbench hard --dir datagen/examples/hard-small --texts hard --pipelines offline spacy llm+spacy`; [docs/results/hard-small-pipelines.md](results/hard-small-pipelines.md), with charts). 145 Haiku-written documents, 300 questions (75 per hop count), bge embeddings; Haiku as the coref and graph-build model through semula (288 recorded answers, committed, replayable offline) and spaCy `en_core_web_sm` as NER. One world.
 
-- **Extraction improves down the stack.** Mention F1 0.756 (heuristic NER) to 0.856 (spaCy); entity-pair F1 0.690 to 0.712 (spaCy, offline builder) to 0.806 (Haiku builder). With the Haiku builder, strict triple F1 is 0.796, where the offline builder cannot score. Linking F1 is flat (0.83 to 0.84).
+- **Extraction improves down the stack.** Mention F1 0.756 (heuristic NER) to 0.856 (spaCy); entity-pair F1 0.690 to 0.712 (spaCy, offline builder) to 0.796 (Haiku builder). With the Haiku builder, strict triple F1 is 0.789, where the offline builder cannot score. Linking F1 is 0.81 to 0.86.
 - **On the smaller `hard-tiny` world the same stack scored 0.70 triple F1.** The two worlds disagree by nine points, so treat either as one sample, not a stable figure.
-- **Retrieval: graph-rag does not win.** Whole-path@5 over all 300 questions: BM25 0.24, dense 0.24, graph-rag (passages) 0.24, graph-rag (graph view) 0.21 with the full stack. At 1 hop BM25 and dense (0.89) beat the graph view (0.75). At 2 hops the graph view has the highest score (0.09, 7 of 75; 95% interval 4.6% to 18.0%) but dense has 0.07 (5 of 75) and BM25 0.03 (2 of 75): the intervals overlap heavily, so that is not a lead.
+- **Retrieval: graph-rag does not win.** Whole-path@5 over all 300 questions: BM25 0.24, dense 0.24, graph-rag (passages) 0.24, graph-rag (graph view) 0.20 with the full stack. At 1 hop BM25 and dense (0.89) beat the graph view (0.71). At 2 hops the graph view has the highest score (0.09, 7 of 75; 95% interval 4.6% to 18.0%) but dense has 0.07 (5 of 75) and BM25 0.03 (2 of 75): the intervals overlap heavily, so that is not a lead.
 - **No hop count above 2 is solved** by any system (at most 0.03).
 - **Not covered:** the transformer NER model, a second world or seed, the template text at this scale with these pipelines (not run, to save about 290 prompts), and the real stores.
 
@@ -154,7 +154,7 @@ The nightly workflow ([`.github/workflows/nightly-benchmark.yml`](../.github/wor
 
 - **Graph-rag does not beat dense on real text either.** Dense, passages and graph are within each other's intervals; there is no lift, as on `hard-small`.
 - **Four-paragraph questions are unsolved by every system** (0–2%, 40 questions), as the 3- and 4-hop questions are on `hard-small`.
-- **The ranking is not the same, though.** On `hard-small` BM25, dense and graph-rag passages tie at 0.24 and the graph view is lowest at 0.21. Here BM25 is last (16% against 26% for dense; the intervals only just overlap at about 20–21%). A guess, not tested: the generator's invented names are rare tokens, which suits keyword matching, and real Wikipedia questions lean more on paraphrase.
+- **The ranking is not the same, though.** On `hard-small` BM25, dense and graph-rag passages tie at 0.24 and the graph view is lowest at 0.20. Here BM25 is last (16% against 26% for dense; the intervals only just overlap at about 20–21%). A guess, not tested: the generator's invented names are rare tokens, which suits keyword matching, and real Wikipedia questions lean more on paraphrase.
 - **So `hard-small` agrees with 2Wiki on "no graph advantage" and "long chains unsolved", and disagrees on how good BM25 is.** Its scores are not a proxy for real-text rankings between the baselines.
 - **Caveats:** 200 questions from the start of the validation split (not a random sample; the type mix is 90 compositional, 48 comparison, 40 bridge-comparison, 22 inference), one embedder, sentence-level scoring, and graph-rag without its LLM stages or real NER, which is how it would be weakest on real text.
 
