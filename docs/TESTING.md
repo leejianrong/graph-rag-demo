@@ -44,6 +44,27 @@ provider while the cache has its prompts. A "replay" check against a real endpoi
 (`rm -rf .cache/llm`). Hits also depend on the NER model: the coreference prompt embeds the NER mentions, so
 a run with a different NER model misses and calls the LLM. See the semula path in `docs/QUICKSTART.md`.
 
+**The recorded end-to-end fixture (GRA-163).** `tests/model/test_e2e_four_docs.py` ingests four short documents
+(`tests/model/four_docs/docs/`: Helix Robotics, Pieter de Vries, the Acme/Northwind acquisition, the Hamburg
+prototype) through the real coref and KG-build stages over in-memory stores, with `en_core_web_trf` NER, and asks the three
+questions in `questions.json`. The LLM answers are Claude Haiku's, recorded through semula and committed in the
+client's own cache format (`tests/model/four_docs/llm-cache/`, 8 files), so it runs offline with no key and the
+test asserts zero provider calls. It asserts one entity each for Helix, Northwind and Acme, the key edges (`ACQUIRED`
+runs buyer to target; Northwind `LOCATED_IN` Hamburg; Pieter `WORKS_FOR` Helix) and that each question's answer is
+the other end, never the entity it names. Deleting the GRA-157 name guard or the GRA-161 answer selection fails it. It
+is `model`-marked because it needs `en_core_web_trf` (`make models-trf`, `uv sync --frozen --extra dev --extra trf`),
+which the CI `model` job does not install, so there it skips; run it locally with
+`uv run --frozen --extra dev --extra trf pytest tests/model/test_e2e_four_docs.py`.
+
+To re-record (a change to a kg-build or coref prompt, to the predicate list, or a new NER model changes the prompts, so
+the entries miss and the test fails with "dropped: a prompt missed the recorded cache"): start a semula container in record
+mode (`docker run -d --name grsmoke5-semula -p 127.0.0.1:18083:8080 -e SEMULA_MODE=record -e SEMULA_RECORD_TIMEOUT=900
+-v grsmoke5-semula-data:/data ghcr.io/leejianrong/semula`), have an agent answer its parked prompts (`semula pending
+--wait 60 --json`, `semula answer`), empty `tests/model/four_docs/llm-cache/`, and run the test with
+`OPENAI_API_BASE=http://127.0.0.1:18083/v1`. Every miss goes to semula and is cached; run it again without the variable to
+prove the replay, read the new answers (they are a model's, so check the edges above are still right), and commit the
+files. Remove the container and volume afterwards.
+
 ## 3. Test tiers
 
 | Tier | Runs against | Scope | In pre-push loop? |
