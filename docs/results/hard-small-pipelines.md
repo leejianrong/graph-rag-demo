@@ -6,10 +6,10 @@
 |---|---|---|---|
 | words per document | 43 | 43 | 43 |
 | mention F1 | 0.756 | 0.856 | 0.856 |
-| entity F1 | 0.573 | 0.692 | 0.717 |
-| entity-pair F1 | 0.690 | 0.712 | 0.806 |
-| triple F1 (strict)* | n/a | n/a | 0.796 |
-| linking F1 | 0.833 | 0.810 | 0.843 |
+| entity F1 | 0.573 | 0.692 | 0.728 |
+| entity-pair F1 | 0.690 | 0.712 | 0.796 |
+| triple F1 (strict)* | n/a | n/a | 0.789 |
+| linking F1 | 0.833 | 0.810 | 0.859 |
 
 \* `n/a`: that pipeline's graph builder emits only the `RELATED_TO` fallback, so strict triple F1 is 0 by construction (drawn as 0 in the charts).
 
@@ -46,9 +46,9 @@ path@5 / recall@5, mean over seeds [0]
 ```
 path@5 / recall@5, mean over seeds [0]
   hops  n     BM25                Dense               graph-rag passages  graph-rag graph   
-  all   300   0.24 / 0.50         0.24 / 0.47         0.24 / 0.47         0.21 / 0.43       
-  1     75    0.89 / 0.89         0.89 / 0.89         0.89 / 0.89         0.75 / 0.75       
-  2     75    0.03 / 0.49         0.07 / 0.49         0.07 / 0.49         0.09 / 0.45       
+  all   300   0.24 / 0.50         0.24 / 0.47         0.24 / 0.47         0.20 / 0.40       
+  1     75    0.89 / 0.89         0.89 / 0.89         0.89 / 0.89         0.71 / 0.71       
+  2     75    0.03 / 0.49         0.07 / 0.49         0.07 / 0.49         0.09 / 0.43       
   3     75    0.03 / 0.36         0.00 / 0.30         0.00 / 0.30         0.01 / 0.31       
-  4     75    0.00 / 0.25         0.00 / 0.22         0.00 / 0.22         0.00 / 0.20       
+  4     75    0.00 / 0.25         0.00 / 0.22         0.00 / 0.22         0.00 / 0.18       
 ```
