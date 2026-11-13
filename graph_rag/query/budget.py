@@ -4,8 +4,8 @@ The budget covers the evidence: ``supporting_sentences``, ``ranked_nodes`` and t
 nodes and edges. ``answer``, ``answer_entity``, ``answer_entities`` and ``prose`` are never cut.
 An item costs the length of its JSON, and tokens are estimated at three characters each, so the
 count is conservative for English (about four characters a token in practice) but not any
-model's exact tokenizer. The envelope around the items (braces, field names of the response itself) is not
-counted.
+model's exact tokenizer. The envelope around the items (braces, field names of the response
+itself) is not counted.
 
 Each list is cut to its best-ranked prefix, so what stays is always the top of the ranking. The
 budget is spent on sentences first (at most 60% of it), then ranked nodes (at most 25% of it,
