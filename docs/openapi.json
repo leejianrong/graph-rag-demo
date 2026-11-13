@@ -1134,6 +1134,13 @@
               }
             ]
           },
+          "matched_entity_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Matched Entity Ids",
+            "type": "array"
+          },
           "prose": {
             "anyOf": [
               {
@@ -1287,6 +1294,13 @@
                 "type": "null"
               }
             ]
+          },
+          "matched_entity_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Matched Entity Ids",
+            "type": "array"
           },
           "prose": {
             "anyOf": [

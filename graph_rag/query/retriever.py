@@ -202,6 +202,11 @@ class QueryRetriever:
             w_prox=self._rank_weight_proximity,
         )
         answer_entity = select_answer(ranked_nodes)
+        in_graph = {node.canonical_id for node in subgraph.nodes}
+        matched = sorted(
+            (cid for cid in seed_scores if cid in in_graph),
+            key=lambda cid: (-seed_scores[cid], cid),
+        )
         answer = answer_entity.name if answer_entity is not None else None
 
         _logger.info(
@@ -221,6 +226,7 @@ class QueryRetriever:
             answer_entity=answer_entity,
             subgraph=subgraph,
             ranked_nodes=ranked_nodes,
+            matched_entity_ids=matched,
             supporting_sentences=supporting_sentences,
         )
 

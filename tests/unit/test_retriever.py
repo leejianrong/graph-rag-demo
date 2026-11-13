@@ -202,6 +202,45 @@ def test_empty_stores_return_no_answer() -> None:
 
     assert response.answer is None
     assert response.answer_entity is None
+    assert response.matched_entity_ids == []
     assert response.subgraph.nodes == []
     assert response.ranked_nodes == []
     assert response.supporting_sentences == []
+
+
+def _seeded(names: list[str], question: str) -> QueryRetriever:
+    """A retriever over entities ``names`` (vector = embedding of the name), all linked to a hub."""
+    embedder = FakeEmbedder()
+    entity_store = InMemoryEntityStore()
+    graph_store = InMemoryGraphStore()
+    for name in names:
+        entity_store.upsert(
+            DEFAULT_SCOPE,
+            CanonicalEntity(
+                canonical_id=name, name=name, type="PERSON", vector=embedder.embed([name])[0]
+            ),
+        )
+    graph_store.upsert_entities(DEFAULT_SCOPE, [_node(n, n) for n in [*names, "hub"]])
+    graph_store.write_triples(DEFAULT_SCOPE, [_edge(n, "hub") for n in names])
+    return _retriever(embedder, entity_store, InMemoryDocumentStore(), graph_store)
+
+
+def test_matched_entities_one_match() -> None:
+    """A question matching one entity lists exactly that id, not the hub it links to."""
+    response = _seeded(["alpha"], "alpha").retrieve(QueryRequest(question="alpha"))
+    assert response.matched_entity_ids == ["alpha"]
+    assert "hub" in {n.canonical_id for n in response.ranked_nodes}
+
+
+def test_matched_entities_several_best_first() -> None:
+    """Several matches come back best first, and the exact match leads."""
+    response = _seeded(["beta", "alpha", "gamma"], "alpha").retrieve(QueryRequest(question="alpha"))
+    assert response.matched_entity_ids[0] == "alpha"
+    assert set(response.matched_entity_ids) == {"alpha", "beta", "gamma"}
+    assert "hub" not in response.matched_entity_ids
+
+
+def test_matched_entities_none() -> None:
+    """A question that matches nothing lists no ids."""
+    response = _seeded([], "alpha").retrieve(QueryRequest(question="alpha"))
+    assert response.matched_entity_ids == []

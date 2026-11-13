@@ -33,7 +33,7 @@ a source that is gone is `not_found`, which a caller can treat as done.
 pipeline runs afterwards, so a `recall` immediately after may not see it. This is stated in the contract; a job-status
 call (GRA-32) is the way to wait.
 
-**Recall returns its evidence.** The answer comes with the subgraph, the ranked entities and the supporting
+**Recall returns its evidence.** The answer comes with the subgraph, the ranked entities, the ids of the entities the question matched (`matched_entity_ids`), and the supporting
 sentences, each with its source document and character offsets, so an agent can cite and a person can check. The
 default path makes no LLM call (`synthesize: false`).
 
