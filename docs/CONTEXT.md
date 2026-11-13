@@ -140,7 +140,7 @@ These I've taken as sensible defaults to keep moving; flag any to revisit:
   as the document corpus (standard setup).
 - **LLM abstraction:** use **LiteLLM** as the provider-agnostic client.
 - **Closed predicate set (starter):** `LOCATED_IN, PART_OF, MEMBER_OF,
-  WORKS_FOR, HAS_ROLE, FOUNDED, OWNS, PRODUCES, PARTICIPATED_IN, OCCURRED_ON,
+  WORKS_FOR, HAS_ROLE, FOUNDED, OWNS, ACQUIRED, PRODUCES, PARTICIPATED_IN, OCCURRED_ON,
   AFFILIATED_WITH, GOVERNED_BY, RELATED_TO` (fallback). Extensible.
 
 ---

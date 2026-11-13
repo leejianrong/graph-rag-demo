@@ -192,3 +192,61 @@ def test_no_canonical_entities_skips_the_llm() -> None:
     triples = stage.build(DOC_ID, TEXT, SENTENCES, ELResult(links=[], sentence_vectors=[]), [])
     assert triples == []
     assert llm.calls == 0  # short-circuited before the provider call
+
+
+def test_ceo_role_and_event_place_scripted_answers() -> None:
+    """A CEO title lands on a HAS_ROLE edge and an event's place stays off the person (GRA-162).
+
+    The scripted answer is what the model returns under the prompt's role and event rules; the
+    stage keeps the title as an edge property (not an entity), an acquisition as ACQUIRED, and
+    drops a stray ``role`` from a non-role edge.
+    """
+    sents = [
+        "Acme acquired Northwind in 2020.",
+        "Its CEO Klaus Weber works there.",
+        "Maria Santos presented the prototype at the Hamburg Summit in Hamburg.",
+    ]
+    text = " ".join(sents)
+    sentences, start = [], 0
+    for i, s in enumerate(sents):
+        sentences.append(Sentence(text=s, char_start=start, char_end=start + len(s), index=i))
+        start += len(s) + 1
+    ents = [
+        CanonicalEntity(canonical_id="acme", name="Acme", type="ORG"),
+        CanonicalEntity(canonical_id="nw", name="Northwind", type="ORG"),
+        CanonicalEntity(canonical_id="klaus", name="Klaus Weber", type="PERSON"),
+        CanonicalEntity(canonical_id="maria", name="Maria Santos", type="PERSON"),
+        CanonicalEntity(canonical_id="summit", name="Hamburg Summit", type="EVENT"),
+        CanonicalEntity(canonical_id="hh", name="Hamburg", type="LOCATION"),
+    ]
+    prompt = build_kg_prompt(text, ents)
+    assert "HAS_ROLE" in prompt and "`role`" in prompt
+    assert "not where the person is" in prompt and "ACQUIRED" in prompt
+
+    stage = _stage(
+        LLMTriple(
+            subject_id="acme", predicate="acquired", object_id="nw", sentence_index=0, date="2020"
+        ),
+        LLMTriple(
+            subject_id="klaus", predicate="HAS_ROLE", object_id="acme", sentence_index=1, role="CEO"
+        ),
+        LLMTriple(
+            subject_id="klaus",
+            predicate="WORKS_FOR",
+            object_id="acme",
+            sentence_index=1,
+            role="CEO",
+        ),
+        LLMTriple(
+            subject_id="maria", predicate="PARTICIPATED_IN", object_id="summit", sentence_index=2
+        ),
+        LLMTriple(subject_id="summit", predicate="LOCATED_IN", object_id="hh", sentence_index=2),
+    )
+    triples = stage.build(DOC_ID, text, sentences, ELResult(links=[], sentence_vectors=[]), ents)
+    edges = {(t.subject_id, t.predicate, t.object_id): t for t in triples}
+
+    assert edges[("acme", "ACQUIRED", "nw")].date == "2020"
+    assert edges[("klaus", "HAS_ROLE", "acme")].role == "CEO"
+    assert edges[("klaus", "WORKS_FOR", "acme")].role is None
+    assert ("summit", "LOCATED_IN", "hh") in edges
+    assert ("maria", "LOCATED_IN", "hh") not in edges

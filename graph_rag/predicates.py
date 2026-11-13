@@ -31,7 +31,7 @@ __all__ = ["Predicate", "CLOSED_PREDICATES", "map_predicate"]
 class Predicate(StrEnum):
     """The closed knowledge-graph predicate set (ADR-0006 / ARCHITECTURE §5c).
 
-    Twelve curated primary relations plus :attr:`RELATED_TO`, the open fallback
+    Thirteen curated primary relations plus :attr:`RELATED_TO`, the open fallback
     used when a raw predicate maps to none of the primaries. Members are plain
     strings (``StrEnum``), so ``Predicate.WORKS_FOR == "WORKS_FOR"`` and a member
     slots straight into :attr:`~graph_rag.models.Triple.predicate`.
@@ -44,6 +44,7 @@ class Predicate(StrEnum):
     HAS_ROLE = "HAS_ROLE"
     FOUNDED = "FOUNDED"
     OWNS = "OWNS"
+    ACQUIRED = "ACQUIRED"
     PRODUCES = "PRODUCES"
     PARTICIPATED_IN = "PARTICIPATED_IN"
     OCCURRED_ON = "OCCURRED_ON"
@@ -103,6 +104,8 @@ _SYNONYMS: dict[str, Predicate] = {
     "has title": Predicate.HAS_ROLE,
     "serves as": Predicate.HAS_ROLE,
     "position": Predicate.HAS_ROLE,
+    "holds the role of": Predicate.HAS_ROLE,
+    "title": Predicate.HAS_ROLE,
     # FOUNDED
     "founder of": Predicate.FOUNDED,
     "co founded": Predicate.FOUNDED,
@@ -110,8 +113,13 @@ _SYNONYMS: dict[str, Predicate] = {
     "created": Predicate.FOUNDED,
     # OWNS
     "owner of": Predicate.OWNS,
-    "acquired": Predicate.OWNS,
     "controls": Predicate.OWNS,
+    # ACQUIRED: a takeover or purchase event (ORG buys ORG); standing ownership stays OWNS
+    "bought": Predicate.ACQUIRED,
+    "purchased": Predicate.ACQUIRED,
+    "took over": Predicate.ACQUIRED,
+    "takes over": Predicate.ACQUIRED,
+    "merged with": Predicate.ACQUIRED,
     # PRODUCES
     "makes": Predicate.PRODUCES,
     "manufactures": Predicate.PRODUCES,
