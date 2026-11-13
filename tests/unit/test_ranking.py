@@ -10,8 +10,20 @@ documented formula:
 
 from __future__ import annotations
 
-from graph_rag.models import CanonicalEntity, RankedNode, Subgraph, SupportingSentence
-from graph_rag.query.ranking import rank_nodes, rank_sentences, select_answer
+from graph_rag.models import (
+    CanonicalEntity,
+    EdgeProvenance,
+    RankedNode,
+    Subgraph,
+    SupportingSentence,
+    Triple,
+)
+from graph_rag.query.ranking import (
+    rank_nodes,
+    rank_sentences,
+    select_answer,
+    select_answer_for_question,
+)
 
 
 def _entity(canonical_id: str, name: str, type_: str = "PERSON") -> CanonicalEntity:
@@ -161,3 +173,61 @@ def test_rank_sentences_tie_broken_by_doc_and_index() -> None:
         ("d1", 9),
         ("d2", 5),
     ]
+
+
+# --- select_answer_for_question (GRA-161) -----------------------------------
+
+
+def _scene() -> tuple[Subgraph, list[RankedNode]]:
+    nodes = [
+        CanonicalEntity(canonical_id="a", name="Acme", type="ORG", aliases=["Acme Corp"]),
+        CanonicalEntity(canonical_id="p", name="Pat", type="PERSON"),
+        CanonicalEntity(canonical_id="l", name="Oslo", type="LOCATION"),
+    ]
+    edge = Triple(
+        subject_id="p",
+        predicate="WORKS_FOR",
+        object_id="a",
+        provenance=EdgeProvenance(source_doc_id="d", sentence_index=0, source_sentence="s"),
+    )
+    ranked = [
+        RankedNode(canonical_id="a", name="Acme", type="ORG", score=0.9),
+        RankedNode(canonical_id="l", name="Oslo", type="LOCATION", score=0.5),
+        RankedNode(canonical_id="p", name="Pat", type="PERSON", score=0.4),
+    ]
+    return Subgraph(nodes=nodes, edges=[edge]), ranked
+
+
+def test_answer_for_question_skips_a_named_entity_by_alias() -> None:
+    """A seed named in the question (here by alias) is not the answer; the next best is."""
+    subgraph, ranked = _scene()
+    answer = select_answer_for_question("Tell me about acme corp", ranked, subgraph, ["a"])
+    assert answer is not None
+    assert answer.canonical_id == "p"  # joined to the named entity beats a higher-scored stranger
+
+
+def test_answer_for_question_follows_the_asked_type() -> None:
+    """'where' asks for a LOCATION even when a PERSON is joined to the named entity."""
+    subgraph, ranked = _scene()
+    answer = select_answer_for_question("Where is Acme?", ranked, subgraph, ["a"])
+    assert answer is not None
+    assert answer.canonical_id == "l"
+
+
+def test_answer_for_question_with_only_the_named_entity_returns_it() -> None:
+    """When nothing else is a candidate the named entity is still returned."""
+    subgraph, ranked = _scene()
+    only = ranked[:1]
+    answer = select_answer_for_question("Acme?", only, subgraph, ["a"])
+    assert answer is not None
+    assert answer.canonical_id == "a"
+    assert select_answer_for_question("Acme?", [], subgraph, ["a"]) is None
+
+
+def test_answer_for_question_definition_question_answers_the_named_entity() -> None:
+    """'Who was Acme?' asks about the entity, so it stays the answer."""
+    subgraph, ranked = _scene()
+    for question in ("Who was Acme?", "what is acme corp"):
+        answer = select_answer_for_question(question, ranked, subgraph, ["a"])
+        assert answer is not None
+        assert answer.canonical_id == "a"

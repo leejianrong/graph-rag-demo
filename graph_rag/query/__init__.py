@@ -10,7 +10,18 @@ seed → expand → rank → answer flow the FastAPI ``/query`` endpoint serves.
 
 from __future__ import annotations
 
-from graph_rag.query.ranking import rank_nodes, rank_sentences, select_answer
+from graph_rag.query.ranking import (
+    rank_nodes,
+    rank_sentences,
+    select_answer,
+    select_answer_for_question,
+)
 from graph_rag.query.retriever import QueryRetriever
 
-__all__ = ["rank_nodes", "select_answer", "rank_sentences", "QueryRetriever"]
+__all__ = [
+    "rank_nodes",
+    "select_answer",
+    "select_answer_for_question",
+    "rank_sentences",
+    "QueryRetriever",
+]
