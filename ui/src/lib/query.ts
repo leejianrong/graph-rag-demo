@@ -129,8 +129,8 @@ export interface QueryView {
 }
 
 /**
- * Turn a `/query` response into what the view shows. The response does not say which entities the
- * question matched, so the starts of the paths are assumed to be the other ranked nodes, best first.
+ * Turn a `/query` response into what the view shows. Paths start from the entities the question
+ * matched (`matched_entity_ids`, best match first) and end at the answer.
  */
 export function toView(response: QueryResponse, maxPaths = 3): QueryView {
   const ranked: RankedNode[] = response.ranked_nodes ?? [];
@@ -143,7 +143,9 @@ export function toView(response: QueryResponse, maxPaths = 3): QueryView {
   const answerNode = answerSource ? (refs.get(answerSource.canonical_id) ?? null) : null;
   const edges = response.subgraph.edges ?? [];
 
-  const starts = ranked.filter((n) => n.canonical_id !== answerNode?.id).map((n) => refs.get(n.canonical_id)!);
+  const starts = (response.matched_entity_ids ?? [])
+    .filter((id) => id !== answerNode?.id && refs.has(id))
+    .map((id) => refs.get(id)!);
   const paths = answerNode ? findPaths(edges, starts, answerNode, refs, maxPaths) : [];
 
   const onPath = new Set<string>(answerNode ? [answerNode.id] : []);
