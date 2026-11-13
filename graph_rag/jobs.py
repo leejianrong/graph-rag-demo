@@ -14,11 +14,11 @@ import threading
 from datetime import UTC, datetime
 from typing import Literal, Protocol
 
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 
 from graph_rag.scope import Scope
 
-__all__ = ["InMemoryJobStore", "Job", "JobState", "JobStore"]
+__all__ = ["InMemoryJobStore", "Job", "JobState", "JobStore", "JobStreamEvent", "StageEvent"]
 
 JobState = Literal["queued", "running", "done", "failed"]
 
@@ -33,6 +33,17 @@ class Job(BaseModel):
     updated_at: str
     error: str | None = None  # set when state is "failed": which stage, and the error type
     stages: list[str] = []  # the pipeline stages entered so far, in order (GRA-33)
+
+
+class StageEvent(BaseModel):
+    """The ``data`` of a ``stage`` event on ``GET /jobs/{id}/events``."""
+
+    stage: str
+
+
+class JobStreamEvent(RootModel[StageEvent | Job]):
+    """The ``data`` of one server-sent event: a :class:`StageEvent` for ``stage``, a :class:`Job`
+    for the final ``done`` or ``failed``. Only documents the stream in the OpenAPI file."""
 
 
 class JobStore(Protocol):

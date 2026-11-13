@@ -294,6 +294,15 @@ class EntityLink(BaseModel):
     is_new: bool
 
 
+class IngestAccepted(BaseModel):
+    """What ``POST /ingest`` answers: where the source went and whether anything was queued."""
+
+    document_id: str
+    bucket: str
+    object_key: str
+    status: Literal["accepted", "unchanged"]
+
+
 class DeletedDocument(BaseModel):
     """What deleting a document removed (``Orchestrator.delete_document``)."""
 

@@ -670,6 +670,39 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "IngestAccepted": {
+        "description": "What ``POST /ingest`` answers: where the source went and whether anything was queued.",
+        "properties": {
+          "bucket": {
+            "title": "Bucket",
+            "type": "string"
+          },
+          "document_id": {
+            "title": "Document Id",
+            "type": "string"
+          },
+          "object_key": {
+            "title": "Object Key",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "accepted",
+              "unchanged"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "bucket",
+          "object_key",
+          "status"
+        ],
+        "title": "IngestAccepted",
+        "type": "object"
+      },
       "Job": {
         "description": "One document's progress.",
         "properties": {
@@ -728,6 +761,18 @@
         ],
         "title": "Job",
         "type": "object"
+      },
+      "JobStreamEvent": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/StageEvent"
+          },
+          {
+            "$ref": "#/components/schemas/Job"
+          }
+        ],
+        "description": "The ``data`` of one server-sent event: a :class:`StageEvent` for ``stage``, a :class:`Job`\nfor the final ``done`` or ``failed``. Only documents the stream in the OpenAPI file.",
+        "title": "JobStreamEvent"
       },
       "KeyInfo": {
         "description": "A key as listed: never the secret, only its last four characters.",
@@ -1511,6 +1556,20 @@
         "title": "SplitResponse",
         "type": "object"
       },
+      "StageEvent": {
+        "description": "The ``data`` of a ``stage`` event on ``GET /jobs/{id}/events``.",
+        "properties": {
+          "stage": {
+            "title": "Stage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stage"
+        ],
+        "title": "StageEvent",
+        "type": "object"
+      },
       "Subgraph": {
         "description": "A connected slice of the knowledge graph — the k-hop traversal result.\n\nReturned by :meth:`graph_rag.ports.GraphStore.khop`: the nodes reachable\nwithin ``hops`` of the seed IDs and every edge whose endpoints are both in\nthat node set. V6 retrieval ranks over this (nodes + supporting-sentence\nprovenance on the edges).",
         "properties": {
@@ -1784,11 +1843,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "title": "Response Ingest Ingest Post",
-                  "type": "object"
+                  "$ref": "#/components/schemas/IngestAccepted"
                 }
               }
             },
@@ -1866,8 +1921,11 @@
         "responses": {
           "200": {
             "content": {
-              "application/json": {
-                "schema": {}
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobStreamEvent",
+                  "type": "string"
+                }
               }
             },
             "description": "Successful Response"

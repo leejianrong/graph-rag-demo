@@ -28,6 +28,17 @@ def test_spec_is_deterministic_and_has_health() -> None:
     assert "/health" in json.loads(gen.render())["paths"]
 
 
+def test_ingest_and_job_routes_declare_response_schemas() -> None:
+    gen = _load()
+    paths = json.loads(gen.render())["paths"]
+    ok = paths["/ingest"]["post"]["responses"]["200"]["content"]["application/json"]["schema"]
+    assert ok == {"$ref": "#/components/schemas/IngestAccepted"}
+    job = paths["/jobs/{doc_id}"]["get"]["responses"]["200"]["content"]["application/json"]
+    assert job["schema"] == {"$ref": "#/components/schemas/Job"}
+    events = paths["/jobs/{doc_id}/events"]["get"]["responses"]["200"]["content"]
+    assert events["text/event-stream"]["schema"]["$ref"] == "#/components/schemas/JobStreamEvent"
+
+
 def test_spec_ignores_the_environment(monkeypatch) -> None:  # type: ignore[no-untyped-def]
     gen = _load()
     baseline = gen.render()

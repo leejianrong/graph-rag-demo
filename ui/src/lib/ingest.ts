@@ -1,3 +1,4 @@
+import type { components } from "../api/schema";
 import type { JobEvent, JobJson, Source } from "./jobs";
 import { readEvents } from "./sse";
 
@@ -83,7 +84,7 @@ export async function submitSource(
   if (!response.ok) {
     return { ok: false, status: response.status, message: await describeRefusal(response) };
   }
-  const data = (await response.json()) as { document_id: string; status: string };
+  const data = (await response.json()) as components["schemas"]["IngestAccepted"];
   return {
     ok: true,
     documentId: data.document_id,
@@ -132,7 +133,7 @@ async function stream(documentId: string, { fetchImpl, signal, onEvent }: WatchO
     if (!response.ok || !response.body) return false;
     for await (const { event, data } of readEvents(response.body)) {
       if (event === "stage") {
-        onEvent({ type: "stage", stage: (JSON.parse(data) as { stage: string }).stage });
+        onEvent({ type: "stage", stage: (JSON.parse(data) as components["schemas"]["StageEvent"]).stage });
       } else if (event === "done" || event === "failed") {
         onEvent({ type: "snapshot", job: JSON.parse(data) as JobJson });
         return true;
