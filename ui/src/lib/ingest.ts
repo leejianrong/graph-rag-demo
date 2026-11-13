@@ -123,8 +123,13 @@ export async function watchJob(documentId: string, options: WatchOptions): Promi
   await poll(documentId, options);
 }
 
-/** True when the stream reached a terminal event, or the job is gone. */
+/**
+ * True when the stream reached a terminal event, or the job is gone. After the terminal event the
+ * body is read to its end instead of cancelled: the server closes it right away, and cancelling a
+ * body still open makes the browser report the request as failed (GRA-156).
+ */
 async function stream(documentId: string, { fetchImpl, signal, onEvent }: WatchOptions): Promise<boolean> {
+  let terminal = false;
   try {
     const response = await fetchImpl(path(documentId, "/events"), {
       headers: { Accept: "text/event-stream" },
@@ -132,17 +137,18 @@ async function stream(documentId: string, { fetchImpl, signal, onEvent }: WatchO
     });
     if (!response.ok || !response.body) return false;
     for await (const { event, data } of readEvents(response.body)) {
+      if (terminal) continue;
       if (event === "stage") {
         onEvent({ type: "stage", stage: (JSON.parse(data) as components["schemas"]["StageEvent"]).stage });
       } else if (event === "done" || event === "failed") {
         onEvent({ type: "snapshot", job: JSON.parse(data) as JobJson });
-        return true;
+        terminal = true;
       }
     }
   } catch {
     /* dropped or aborted: the caller checks the signal */
   }
-  return false;
+  return terminal;
 }
 
 async function poll(documentId: string, options: WatchOptions): Promise<void> {

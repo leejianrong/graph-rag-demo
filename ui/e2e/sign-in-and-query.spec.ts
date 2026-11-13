@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const TEXT = "Ada Lovelace works for Acme Corp. Acme Corp is based in London.";
 
-test("sign in, ingest a text, ask a question, sign out", async ({ page }) => {
+test("sign in, ingest a text, ask a question, sign out", async ({ page }, testInfo) => {
   const baseUrl = process.env.E2E_BASE_URL!;
   const key = process.env.E2E_KEY!;
 
@@ -35,11 +35,13 @@ test("sign in, ingest a text, ask a question, sign out", async ({ page }) => {
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByTestId("tenant")).toHaveText("e2e-tenant");
 
+  // The server outlives a retry, and the same name and text would be "unchanged" with no Done to wait
+  // for, so each attempt names its own document.
   // Ingest pasted text and wait for the job to finish.
   await page.getByRole("link", { name: "Ingest" }).click();
   await page.getByRole("tab", { name: /text/i }).click();
   await page.getByLabel("Text to ingest").fill(TEXT);
-  await page.getByLabel("Document name").fill("e2e-note.txt");
+  await page.getByLabel("Document name").fill(`e2e-note-${testInfo.retry}.txt`);
   await page.getByRole("button", { name: "Ingest", exact: true }).click();
   await expect(page.locator(".job .chip", { hasText: "Done" })).toBeVisible({ timeout: 45_000 });
 
