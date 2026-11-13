@@ -25,6 +25,7 @@ from graph_rag.models import (
     DocumentRecord,
     EdgeProvenance,
     QueryRequest,
+    RankedNode,
     Sentence,
     Subgraph,
     Triple,
@@ -376,3 +377,58 @@ def test_question_naming_nothing_keeps_the_top_node() -> None:
     question = "robotics company"
     response = _run5(question, ["helix"], "").retrieve(QueryRequest(question=question))
     assert response.answer == "Helix Robotics"
+
+
+def test_two_asks_each_get_an_answer() -> None:
+    """The second ask of a two-part question is answered too, in the order asked (GRA-165)."""
+    q1 = "Where is Northwind Shipping based and who is its CEO?"
+    r1 = _run5(q1, ["northwind", "acme", "klaus", "hamburg"], _S_BOUGHT).retrieve(
+        QueryRequest(question=q1)
+    )
+    assert [n.name for n in r1.answer_entities] == ["Hamburg", "Klaus Weber"]
+    q2 = "Which company signed a contract with Acme Logistics, and who presented the prototype?"
+    r2 = _run5(q2, ["acme", "northwind", "klaus", "hamburg"], _S_SIGNED).retrieve(
+        QueryRequest(question=q2)
+    )
+    assert [n.name for n in r2.answer_entities] == ["Helix Robotics", "Maria Santos"]
+    assert r2.answer == "Helix Robotics"
+
+
+def test_single_ask_has_no_extra_answers() -> None:
+    """One ask, or an 'and' that asks nothing new, leaves answer_entities empty."""
+    for q, seeds in [
+        ("Who founded Helix Robotics?", ["helix", "delft"]),
+        ("Where is Northwind Shipping based and Helix Robotics?", ["northwind", "helix"]),
+    ]:
+        response = _run5(q, seeds, _S_PIETER).retrieve(QueryRequest(question=q))
+        assert response.answer_entities == []
+
+
+def test_second_ask_uses_the_role_edge() -> None:
+    """A HAS_ROLE edge titled CEO answers 'who is its CEO' over a person with no such role."""
+    from graph_rag.query.ranking import select_second_answer
+
+    ceo = Triple(
+        subject_id="pieter", predicate="HAS_ROLE", object_id="northwind", role="CEO",
+        provenance=EdgeProvenance(source_doc_id="d", sentence_index=0, source_sentence="x."),
+    )  # fmt: skip
+    sub = Subgraph(
+        nodes=[_node(c, n, t) for c, (n, t) in _RUN5_ENTITIES.items()],
+        edges=[
+            ceo,
+            Triple(
+                subject_id="klaus",
+                predicate="WORKS_FOR",
+                object_id="northwind",
+                provenance=EdgeProvenance(
+                    source_doc_id="d", sentence_index=0, source_sentence="y."
+                ),
+            ),
+        ],  # fmt: skip
+    )
+    ranked = [RankedNode(canonical_id=c, name=n, type=t, score=0.5 if c == "klaus" else 0.1)  # type: ignore[arg-type]
+              for c, (n, t) in _RUN5_ENTITIES.items()]  # fmt: skip
+    got = select_second_answer(
+        "Where is Northwind Shipping based and who is its CEO?", None, ranked, sub, ["northwind"]
+    )
+    assert got is not None and got.name == "Pieter de Vries"

@@ -160,3 +160,10 @@ test("runQuery explains errors and signs out on 401", async () => {
     message: "Type a question first.",
   });
 });
+
+test("a two-part question lists the later answers after the first", () => {
+  const r = response();
+  expect(toView(r).moreAnswers).toEqual([]);
+  const two = toView({ ...r, answer_entities: [r.answer_entity!, rank("a", "Priya", 0.5)] as QueryResponse["answer_entities"] });
+  expect(two.moreAnswers.map((n) => n.name)).toEqual(["Priya"]);
+});

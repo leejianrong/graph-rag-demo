@@ -1191,6 +1191,13 @@
             ],
             "title": "Answer"
           },
+          "answer_entities": {
+            "items": {
+              "$ref": "#/components/schemas/RankedNode"
+            },
+            "title": "Answer Entities",
+            "type": "array"
+          },
           "answer_entity": {
             "anyOf": [
               {
@@ -1351,6 +1358,13 @@
               }
             ],
             "title": "Answer"
+          },
+          "answer_entities": {
+            "items": {
+              "$ref": "#/components/schemas/RankedNode"
+            },
+            "title": "Answer Entities",
+            "type": "array"
           },
           "answer_entity": {
             "anyOf": [

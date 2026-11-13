@@ -502,6 +502,9 @@ class QueryResponse(BaseModel):
 
     answer: str | None
     answer_entity: RankedNode | None
+    # One entry per ask, in the order asked, when the question has two ("Where is X based and
+    # who is its CEO?", GRA-165); empty for a single ask. The first entry is ``answer_entity``.
+    answer_entities: list[RankedNode] = Field(default_factory=list)
     subgraph: Subgraph
     ranked_nodes: list[RankedNode] = Field(default_factory=list)
     # Ids of the entities the question matched (the seeds the subgraph grew from that survive
