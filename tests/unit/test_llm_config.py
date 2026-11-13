@@ -288,3 +288,31 @@ def test_the_job_error_keeps_the_stage_and_type_and_adds_the_reason() -> None:
     assert job["error"].startswith("entity recognition failed: AuthenticationError. ")
     assert "rejected the API key" in job["error"]
     assert FAKE_KEY not in job["error"]
+
+
+def test_a_failed_llm_call_logs_one_warning_line_and_the_traceback_only_at_debug(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    components = build_offline_components()
+    queue = Queue()
+    http = TestClient(
+        create_app(components.object_store, queue, Settings(), jobs=components.job_store)
+    )
+    http.post("/v1/remember", json={"text": "Ada met Bob.", "source_id": "n"})
+
+    class Rejecting:
+        def analyze(self, text: str) -> object:
+            raise litellm.AuthenticationError(
+                message=f"bad {FAKE_KEY}", llm_provider="openai", model="m"
+            )
+
+    components.orchestrator._ner_stage = Rejecting()  # type: ignore[assignment]  # noqa: SLF001
+    with caplog.at_level(logging.DEBUG, logger="graph_rag.orchestrator"):
+        components.orchestrator.process_document(queue.triggers[0])
+    loud = [r for r in caplog.records if r.levelno > logging.INFO]
+    assert [r.levelno for r in loud] == [logging.WARNING]
+    line = loud[0].getMessage()
+    assert "entity recognition failed" in line and "rejected the API key" in line
+    assert FAKE_KEY not in line and not loud[0].exc_info
+    debug = [r for r in caplog.records if r.levelno == logging.DEBUG]
+    assert debug and debug[0].exc_info is not None
