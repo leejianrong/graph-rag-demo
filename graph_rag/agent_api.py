@@ -62,9 +62,16 @@ _STATUS = {
 class AgentError(Exception):
     """A failure with one of the contract's error codes."""
 
-    def __init__(self, code: str, message: str, details: dict[str, Any] | None = None) -> None:
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        details: dict[str, Any] | None = None,
+        status: int | None = None,
+    ) -> None:
         super().__init__(message)
         self.code, self.message, self.details = code, message, details
+        self.status = status or _STATUS[code]
 
 
 def _scope(tenant: str, namespace: str | None) -> Scope:
@@ -78,7 +85,7 @@ def _scope(tenant: str, namespace: str | None) -> Scope:
 
 
 class RememberRequest(BaseModel):
-    text: str = Field(min_length=1)
+    text: str  # blank text is a 422 from the route, as at /ingest
     namespace: str | None = Field(default=None, min_length=1)
     source_id: str | None = Field(default=None, min_length=1)
     force: bool = False
@@ -144,7 +151,7 @@ def _body(error: AgentError) -> JSONResponse:
     content: dict[str, Any] = {"code": error.code, "message": error.message}
     if error.details:
         content["details"] = error.details
-    return JSONResponse({"error": content}, status_code=_STATUS[error.code])
+    return JSONResponse({"error": content}, status_code=error.status)
 
 
 def _derived_source_id(text: str) -> str:
@@ -185,6 +192,13 @@ def add_agent_routes(
     @router.post("/remember", status_code=202)
     def remember(request: RememberRequest, tenant: str = Depends(tenant_of)) -> RememberResponse:
         """Store text under a source id and queue it for the pipeline."""
+        if not request.text.strip():
+            raise AgentError(
+                "invalid_request",
+                "text: The text is empty. Send some text to remember.",
+                {"field": "text"},
+                status=422,
+            )
         data = request.text.encode()
         if len(data) > max_text_bytes:
             raise AgentError(

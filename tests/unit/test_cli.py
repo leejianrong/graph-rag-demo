@@ -207,3 +207,9 @@ def test_recall_as_of_uses_the_document_date(stack, capsys) -> None:
     assert json.loads(then)["subgraph"]["edges"] == []  # nothing was known yet
     code, _, err = run(client, capsys, "recall", QUESTION, "--as-of", "last year")
     assert code == 1 and "as_of" in err
+
+
+def test_remember_of_blank_text_shows_the_message(stack, capsys) -> None:
+    client, *_ = stack
+    code, out, err = run(client, capsys, "remember", "   ")
+    assert (code, out) == (1, "") and "The text is empty" in err

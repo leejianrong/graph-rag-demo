@@ -161,3 +161,8 @@ def test_recall_as_of_uses_the_document_date(pipeline) -> None:
     then = call(http, "recall", question | {"as_of": "2017-01-01"})
     assert then.structured_content["subgraph"]["edges"] == []
     assert call(http, "recall", question | {"as_of": "soon"}).is_error
+
+
+def test_a_blank_remember_tells_the_agent_the_text_is_empty(pipeline) -> None:
+    result = call(pipeline[0], "remember", {"text": "  \n"})
+    assert result.is_error and "The text is empty" in result.content[0].text

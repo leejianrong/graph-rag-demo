@@ -90,7 +90,8 @@ def test_forget_takes_either_id_and_a_gone_source_is_not_found(stack) -> None:
 @pytest.mark.parametrize(
     ("path", "body", "code", "status"),
     [
-        ("/v1/remember", {"text": ""}, "invalid_request", 400),
+        ("/v1/remember", {"text": ""}, "invalid_request", 422),
+        ("/v1/remember", {"text": " \n\t"}, "invalid_request", 422),
         ("/v1/remember", {"source_id": "x"}, "invalid_request", 400),
         ("/v1/remember", {"text": "x" * 201}, "payload_too_large", 413),
         ("/v1/recall", {"question": ""}, "invalid_request", 400),
@@ -267,3 +268,12 @@ def test_lookup_stays_inside_its_namespace(known) -> None:
 def test_a_forgotten_source_leaves_no_entity_to_look_up(known) -> None:
     known.post("/v1/forget", json={"source_id": "n"})
     assert known.post("/v1/lookup", json={"name": "Acme Corp"}).status_code == 404
+
+
+@pytest.mark.parametrize("text", ["", "   ", " \n\t "])
+def test_blank_remember_queues_nothing_and_says_why(stack, text) -> None:
+    client, _, queue = stack
+    response = client.post("/v1/remember", json={"text": text, "source_id": "blank"})
+    assert response.status_code == 422
+    assert "empty" in response.json()["error"]["message"]
+    assert queue.triggers == []
