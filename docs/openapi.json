@@ -1473,7 +1473,6 @@
             "title": "Source Id"
           },
           "text": {
-            "minLength": 1,
             "title": "Text",
             "type": "string"
           }

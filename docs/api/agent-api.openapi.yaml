@@ -48,6 +48,7 @@ paths:
         "400": { $ref: "#/components/responses/InvalidRequest" }
         "401": { $ref: "#/components/responses/Unauthorized" }
         "413": { $ref: "#/components/responses/TooLarge" }
+        "422": { $ref: "#/components/responses/EmptyText" }
         "429": { $ref: "#/components/responses/RateLimited" }
         "503": { $ref: "#/components/responses/Unavailable" }
   /v1/recall:
@@ -229,6 +230,11 @@ components:
           schema: { $ref: "#/components/schemas/Error" }
     NotFound:
       description: Nothing matches.
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    EmptyText:
+      description: The text is empty or only whitespace; nothing is stored, queued or sent to an LLM.
       content:
         application/json:
           schema: { $ref: "#/components/schemas/Error" }

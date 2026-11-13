@@ -43,7 +43,7 @@ default path makes no LLM call (`synthesize: false`).
 
 | `code` | HTTP | When |
 |---|---|---|
-| `invalid_request` | 400 | Malformed body, a missing or conflicting field, a value out of range (a token budget of 0) |
+| `invalid_request` | 400 | Malformed body, a missing or conflicting field, a value out of range (a token budget of 0). `remember` with empty or whitespace-only `text` is the one `422` (GRA-167), as `POST /ingest` answers a blank document; no job is queued and no LLM is called |
 | `unauthorized` | 401 | The API key is missing or wrong |
 | `not_found` | 404 | No source or entity matches |
 | `payload_too_large` | 413 | The text is over the size limit |
