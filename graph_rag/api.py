@@ -284,7 +284,9 @@ def create_app(
 
         Send a ``file`` or a ``url`` (GRA-34). A ``url`` is fetched here, from public addresses
         only, and is the source's identity. A PDF or an HTML page, uploaded or fetched, is
-        stored as its text; one that yields no text is a 422, not an empty document.
+        stored as its text; one that yields no text is a 422, not an empty document. A
+        zero-byte or whitespace-only document is a 422 too (``The document is empty.``), so no
+        job is queued and no LLM call is made.
         """
         if (file is None) == (url is None):
             raise HTTPException(status_code=400, detail="Send either a file or a url.")
@@ -313,6 +315,8 @@ def create_app(
             data = extract_text(data, content_type=kind, name=object_key)
         except SourceError as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
+        if not data.strip():
+            raise HTTPException(status_code=422, detail="The document is empty.")
         try:
             dated = (
                 None

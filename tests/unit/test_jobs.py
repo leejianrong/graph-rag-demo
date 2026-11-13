@@ -364,3 +364,12 @@ def test_another_tenants_copy_of_a_failed_document_is_independent() -> None:
     assert client.post("/ingest", headers=hb, **_file()).json()["status"] == "unchanged"
     assert client.post("/ingest", headers=ha, **_file()).json()["status"] == "accepted"
     assert len(queue.triggers) == 1 and queue.triggers[0].tenant == "tenant-a"
+
+
+@pytest.mark.parametrize("content", [b"", b"  \n\t\n"])
+def test_an_empty_upload_is_refused_and_queues_nothing(stack, content: bytes) -> None:
+    client, _components, queue = stack
+    response = client.post("/ingest", files={"file": ("empty.txt", content, "text/plain")})
+    assert response.status_code == 422
+    assert response.json()["detail"] == "The document is empty."
+    assert queue.triggers == []
