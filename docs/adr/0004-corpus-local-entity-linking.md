@@ -31,6 +31,12 @@ linking is entity resolution against the `ES-Entities` index:
 3. **Merge** into the existing canonical entity above a confidence threshold;
    otherwise **create a new canonical entity** — this create-new path is the
    normal, always-on behavior (every genuinely new entity is created).
+   A merge by similarity alone also needs related names (GRA-157): a shared
+   distinctive token (not `inc`, `ltd`, `the`, ...) or an acronym ("IBM" and
+   "International Business Machines"). Context vectors carry the whole sentence, so
+   two organisations named together otherwise score ~0.95 and fuse. Exact-name
+   block matches are unaffected; a differently-worded alias with no shared token
+   (e.g. a rebrand) no longer merges by similarity and needs the aliases/merge API.
 4. **Optional, gated LLM tie-breaker** for borderline matches — **off by
    default** to conserve credits.
 

@@ -23,8 +23,10 @@ algorithm, per doc-level entity, is **block → score → decide**:
    growing its ``aliases``) regardless of the context-cosine — so the same entity
    named identically across documents stays ONE node even when its per-document
    mention-in-context embeddings drift below the threshold. With no block match, the
-   fuzzy kNN candidates are scored by cosine and merge only if the best is at or
-   above the fixed ``el_threshold`` (B2); otherwise a **new** canonical entity is
+   fuzzy kNN candidates that pass the name guard (:func:`_names_compatible`: a shared
+   distinctive token or an acronym, so two organisations named in one sentence are never
+   merged on shared context alone, GRA-157) are scored by cosine and merge only if the
+   best is at or above the fixed ``el_threshold`` (B2); otherwise a **new** canonical entity is
    minted and upserted (the normal always-on path). Genuine same-type/same-name
    homonyms are the province of the gated LLM tie-breaker. Linking is
    **order-sensitive**: the first document to mention an entity seeds its canonical
@@ -261,7 +263,11 @@ class EntityLinkingStage:
                 # only at/above the threshold (this is how a differently-phrased
                 # surface of one entity still merges). The gated tie-breaker
                 # arbitrates near-threshold decisions here.
-                candidates = self._knn_candidates(scope, entity.entity_type, vector)
+                candidates = [
+                    candidate
+                    for candidate in self._knn_candidates(scope, entity.entity_type, vector)
+                    if _names_compatible(entity, candidate)
+                ]
                 best_entity, best_score = self._best_candidate(vector, candidates)
                 merge = best_entity is not None and best_score >= self._threshold
                 merge = self._maybe_tiebreak(
@@ -568,6 +574,47 @@ class EntityLinkingStage:
         if not self._nil_enabled:
             return False
         return score < self._nil_floor
+
+
+# Tokens that name a kind of organisation or glue words, not the entity: they never count as the
+# shared token that licenses a similarity merge ("Acme Inc" and "Globex Inc" are not the same).
+_GENERIC_TOKENS = frozenset(
+    "the of and inc incorporated corp corporation co company ltd limited llc plc gmbh ag sa".split()
+)
+
+
+def _distinctive(name: str) -> list[str]:
+    """The tokens of ``name`` (normalised) that are not generic."""
+    return [t for t in normalize_name(name).split() if t not in _GENERIC_TOKENS]
+
+
+def _is_acronym(short: str, long_tokens: list[str]) -> bool:
+    """True if ``short`` is one token spelling the initials of ``long_tokens`` (IBM)."""
+    return " " not in short and len(long_tokens) > 1 and short == "".join(t[0] for t in long_tokens)
+
+
+def _names_compatible(entity: _DocEntity, candidate: CanonicalEntity) -> bool:
+    """May ``entity`` merge into ``candidate`` on embedding similarity alone?
+
+    Mention-in-context vectors carry the whole sentence, so two different names in one
+    sentence ("Acme Logistics acquired Northwind Shipping") score near 1.0. A similarity
+    merge therefore also needs the names to relate: some surface of each shares a
+    distinctive (non-generic) token, or one is the initials of the other ("IBM" and
+    "International Business Machines"). Exact/normalised-name matches never reach this.
+    """
+    ours = [entity.surface, *entity.also_known_as]
+    theirs = [candidate.name, *candidate.aliases]
+    for a in ours:
+        tokens_a = _distinctive(a)
+        for b in theirs:
+            tokens_b = _distinctive(b)
+            if set(tokens_a) & set(tokens_b):
+                return True
+            if len(tokens_a) == 1 and _is_acronym(tokens_a[0], tokens_b):
+                return True
+            if len(tokens_b) == 1 and _is_acronym(tokens_b[0], tokens_a):
+                return True
+    return False
 
 
 def _survivor(merged: dict[str, str], canonical_id: str) -> str:
