@@ -96,7 +96,7 @@ constructor-injected with `Embedder` + `EntityStore` + `DocumentStore` +
 returned subgraph's undirected edges** (seeds = 0; unreachable omitted → the ranker
 reads them as inf → 0 proximity) → `rank_nodes` → `select_answer` (top node, no type
 filter in V6). Returns a `QueryResponse` (answer + `answer_entity` + connected
-`Subgraph` + `ranked_nodes` + `supporting_sentences` with provenance). The
+`Subgraph` + `ranked_nodes` + `matched_entity_ids` (the seeds, best first; GRA-148) + `supporting_sentences` with provenance). The
 `synthesize` flag (V7) is ignored, never errors — no LLM on this path.
 `api.create_app` gains an optional keyword-only `retriever=`; `POST /query` parses a
 `QueryRequest`, returns `retriever.retrieve(...)` as JSON, and **503s when no

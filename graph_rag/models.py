@@ -502,6 +502,9 @@ class QueryResponse(BaseModel):
     answer_entity: RankedNode | None
     subgraph: Subgraph
     ranked_nodes: list[RankedNode] = Field(default_factory=list)
+    # Ids of the entities the question matched (the seeds the subgraph grew from that survive
+    # the date filter), best match first. Empty when nothing matched.
+    matched_entity_ids: list[str] = Field(default_factory=list)
     supporting_sentences: list[SupportingSentence] = Field(default_factory=list)
     # V7 gated synthesis: None unless ``synthesize=true`` produced grounded prose.
     prose: str | None = None

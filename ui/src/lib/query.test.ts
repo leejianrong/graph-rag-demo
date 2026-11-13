@@ -73,6 +73,7 @@ const response = (): QueryResponse =>
     answer_entity: rank("c", "Tallinn", 0.9, "GPE"),
     prose: null,
     ranked_nodes: [rank("c", "Tallinn", 0.9, "GPE"), rank("a", "Priya", 0.5)],
+    matched_entity_ids: ["a"],
     subgraph: {
       nodes: [node("a", "Priya"), node("b", "Halden", "ORG"), node("c", "Tallinn", "GPE"), node("z", "Tartu", "GPE")],
       edges: [edge("a", "WORKS_AT", "b", "d1", 2), edge("b", "HEADQUARTERED_IN", "c", "d2", 0)],
@@ -93,6 +94,13 @@ test("the mapper builds the path, off-path nodes and sentence support", () => {
   expect(hopOf(view.sentences[0], view.paths[0])).toBe(1);
   expect(hopOf(view.sentences[1], view.paths[0])).toBeNull();
   expect(view.prose).toBeNull();
+});
+
+test("paths start from the matched entities, not from other ranked nodes", () => {
+  const r = response();
+  expect(toView({ ...r, matched_entity_ids: [] }).paths).toEqual([]);
+  expect(toView({ ...r, matched_entity_ids: ["z", "a"] }).paths.map((p) => p.start.id)).toEqual(["a"]);
+  expect(toView({ ...r, matched_entity_ids: undefined }).paths).toEqual([]);
 });
 
 test("an empty response is explained as no match; an answer with no path as no path", () => {
