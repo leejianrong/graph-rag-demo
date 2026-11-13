@@ -1,0 +1,1 @@
+{"triples": [{"subject_id": "e-fda00391bdcc3f5c", "predicate": "MEMBER_OF", "object_id": "e-9e00ba7bcb0c4f79", "sentence_index": 1}, {"subject_id": "e-fda00391bdcc3f5c", "predicate": "PART_OF", "object_id": "e-0c60275081b7cb8d", "sentence_index": 2}, {"subject_id": "e-9e00ba7bcb0c4f79", "predicate": "PRODUCES", "object_id": "e-3397517c3c1c65e1", "sentence_index": 3}]}
