@@ -118,6 +118,8 @@ export type Emptiness = "no-match" | "no-path" | null;
 export interface QueryView {
   answer: string | null;
   answerNode: NodeRef | null;
+  /** The answers to the later asks of a two-part question, in the order asked. */
+  moreAnswers: NodeRef[];
   prose: string | null;
   paths: Path[];
   /** Subgraph nodes that no shown path passes through, other than the answer. */
@@ -141,6 +143,9 @@ export function toView(response: QueryResponse, maxPaths = 3): QueryView {
 
   const answerSource = response.answer_entity ?? ranked[0] ?? null;
   const answerNode = answerSource ? (refs.get(answerSource.canonical_id) ?? null) : null;
+  const moreAnswers = (response.answer_entities ?? [])
+    .filter((n) => n.canonical_id !== answerNode?.id)
+    .map((n) => refs.get(n.canonical_id) ?? { id: n.canonical_id, name: n.name, type: n.type });
   const edges = response.subgraph.edges ?? [];
 
   const starts = (response.matched_entity_ids ?? [])
@@ -175,6 +180,7 @@ export function toView(response: QueryResponse, maxPaths = 3): QueryView {
   return {
     answer: response.answer ?? answerNode?.name ?? null,
     answerNode,
+    moreAnswers,
     prose: response.prose ?? null,
     paths,
     offPath,

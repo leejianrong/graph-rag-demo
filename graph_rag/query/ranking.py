@@ -37,7 +37,13 @@ if TYPE_CHECKING:
 
     from graph_rag.models import CuratedType, Subgraph
 
-__all__ = ["rank_nodes", "select_answer", "select_answer_for_question", "rank_sentences"]
+__all__ = [
+    "rank_nodes",
+    "select_answer",
+    "select_answer_for_question",
+    "select_second_answer",
+    "rank_sentences",
+]
 
 # The type a question word asks for (GRA-161). Matched as whole words; the earliest one in the
 # question wins, so "Where is X based and who is its CEO?" asks for a LOCATION first.
@@ -49,6 +55,17 @@ _ASKED_TYPE = re.compile(
 # "Who was Ada Lovelace?": the question asks about the entity, so it is the answer.
 _DEFINITION = re.compile(
     r"^\s*(?:who|what)\s+(?:is|was|are|were)\s+(?:the\s+)?(.+?)\s*[?.!]*\s*$", re.I
+)
+# A second ask joined to the first: "..., and who is its CEO?" (GRA-165). The clause starts at the
+# question word; only one split is made, so a third ask stays in the second clause.
+_SECOND_ASK = re.compile(
+    r"[,;]?\s+and\s+(?=(?:who|whom|whose|where|when|which\s+(?:company|companies|organi[sz]ations?"
+    r"|firms?))\b)",
+    re.IGNORECASE,
+)
+_STOPWORDS = frozenset(
+    "a an the is are was were be been of in on at to for by with and or its it his her their"
+    " who whom whose where when which what did does do has have had that this as from".split()
 )
 _ASKED_TYPE_BY_GROUP: dict[int, CuratedType] = {1: "PERSON", 2: "LOCATION", 3: "DATE"}
 
@@ -203,6 +220,70 @@ def select_answer_for_question(
         )
 
     return max(others, key=preference)  # max keeps the first of equals: ranked order breaks ties
+
+
+def _words(text: str) -> set[str]:
+    """The lower-cased content words of ``text``."""
+    return {w for w in re.findall(r"\w+", text.casefold()) if w not in _STOPWORDS}
+
+
+def select_second_answer(
+    question: str,
+    first: RankedNode | None,
+    ranked_nodes: list[RankedNode],
+    subgraph: Subgraph,
+    seed_ids: Iterable[str],
+) -> RankedNode | None:
+    """Answer the second ask of a two-part question, or ``None`` for a single ask (GRA-165).
+
+    The question is split once at ", and who/where/when/which company". The second clause is
+    answered with the rules of :func:`select_answer_for_question`, over the nodes that are
+    neither named in the question nor the first answer: the type its question word asks for,
+    then the most words it shares with the sentence behind an edge at the candidate (and that
+    edge's ``role``: "who is its CEO" finds the HAS_ROLE edge titled CEO, "who presented the
+    prototype" the sentence that says so), then a direct edge to a named entity, then the B4
+    score. A clause that asks for no type, or leaves no candidate, gives ``None``. No LLM.
+
+    Args:
+        question: The natural-language question.
+        first: The first ask's answer, which the second never repeats.
+        ranked_nodes: The output of :func:`rank_nodes` (score descending).
+        subgraph: The retrieved subgraph.
+        seed_ids: The ids of the entities the question seeded.
+
+    Returns:
+        The second answer node, or ``None``.
+    """
+    parts = _SECOND_ASK.split(question, maxsplit=1)
+    if len(parts) != 2:
+        return None
+    clause = parts[1]
+    asked = _asked_type(clause)
+    if asked is None:
+        return None
+    names = {n.canonical_id: [n.name, *n.aliases] for n in subgraph.nodes}
+    mentioned = {cid for cid in seed_ids if _mentions(question, names.get(cid, []))}
+    skip = mentioned | ({first.canonical_id} if first is not None else set())
+    candidates = [n for n in ranked_nodes if n.canonical_id not in skip and n.type == asked]
+    if not candidates:
+        return None
+    wanted = _words(clause)
+    overlap: dict[str, int] = {}
+    neighbours: set[str] = set()
+    for edge in subgraph.edges:
+        text = f"{edge.provenance.source_sentence} {edge.role or ''}"
+        shared = len(wanted & _words(text))
+        for cid in (edge.subject_id, edge.object_id):
+            overlap[cid] = max(overlap.get(cid, 0), shared)
+        if edge.subject_id in mentioned:
+            neighbours.add(edge.object_id)
+        if edge.object_id in mentioned:
+            neighbours.add(edge.subject_id)
+
+    def preference(node: RankedNode) -> tuple[int, bool, float]:
+        return (overlap.get(node.canonical_id, 0), node.canonical_id in neighbours, node.score)
+
+    return max(candidates, key=preference)
 
 
 def rank_sentences(

@@ -108,7 +108,7 @@
     <p class="empty">Ask a question about what you have ingested. The answer, the path through the graph and the sentences behind it show here.</p>
   {:else}
     <div role="status" class="sr-only">
-      {view.answer ? `Answer: ${view.answer}` : "No answer found"}
+      {view.answer ? `Answer: ${[view.answer, ...view.moreAnswers.map((m) => m.name)].join(", ")}` : "No answer found"}
     </div>
 
     <section class="card answer" aria-labelledby="answer-title">
@@ -116,6 +116,11 @@
         <h2 id="answer-title" class="label">Answer</h2>
         {#if view.answer}
           <span class="big">{view.answer}</span>
+          {#if view.moreAnswers.length}
+            <span class="also">
+              And: {#each view.moreAnswers as more, i (more.id)}{i ? ", " : ""}<strong>{more.name}</strong>{/each}
+            </span>
+          {/if}
           <span class="muted">
             {#if path}
               Found by following {path.hops.length} {path.hops.length === 1 ? "edge" : "edges"} from {path.start.name},
@@ -419,6 +424,14 @@
     line-height: 1.1;
     color: var(--accent);
     overflow-wrap: anywhere;
+  }
+  .also {
+    font-size: 20px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .also strong {
+    color: var(--accent);
   }
   .big.none {
     color: var(--muted);

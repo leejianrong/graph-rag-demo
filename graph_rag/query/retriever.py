@@ -32,7 +32,7 @@ from typing import TYPE_CHECKING
 
 from graph_rag.logging import get_logger
 from graph_rag.models import QueryResponse
-from graph_rag.query.ranking import rank_nodes, select_answer_for_question
+from graph_rag.query.ranking import rank_nodes, select_answer_for_question, select_second_answer
 from graph_rag.query.temporal import drop_sentences, subgraph_as_of, subgraph_current
 from graph_rag.scope import DEFAULT_SCOPE, Scope, acting_for
 
@@ -209,6 +209,9 @@ class QueryRetriever:
             seed_scores,
             supporting_sentences[0].text if supporting_sentences else None,
         )
+        second = select_second_answer(
+            request.question, answer_entity, ranked_nodes, subgraph, seed_scores
+        )
         in_graph = {node.canonical_id for node in subgraph.nodes}
         matched = sorted(
             (cid for cid in seed_scores if cid in in_graph),
@@ -231,6 +234,7 @@ class QueryRetriever:
         response = QueryResponse(
             answer=answer,
             answer_entity=answer_entity,
+            answer_entities=[answer_entity, second] if answer_entity and second else [],
             subgraph=subgraph,
             ranked_nodes=ranked_nodes,
             matched_entity_ids=matched,
