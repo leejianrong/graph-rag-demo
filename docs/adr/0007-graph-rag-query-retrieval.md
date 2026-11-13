@@ -29,8 +29,8 @@ Build two modes; default to the non-LLM one.
 3. **Expand** k hops from the seed entities in Neo4j to gather the connected
    subgraph.
 4. Return a **ranked subgraph + supporting sentences with provenance**. For
-   entity-answer questions, the **predicted answer is the top-ranked candidate
-   entity node**.
+   entity-answer questions, the **predicted answer is the best-ranked candidate
+   entity node the question does not already name** (GRA-161, below).
 
 **Answer-synthesis mode (optional, gated LLM, off by default):** feed the
 retrieved subgraph + sentences to the LLM to produce prose. Kept separate so the

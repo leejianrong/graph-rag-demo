@@ -17,7 +17,8 @@ The flow is **seed → expand → rank → answer** (ADR-0007 retrieval mode):
 3. **Expand**: k-hop BFS from the seed entities in the graph store → the connected
    :class:`~graph_rag.models.Subgraph`.
 4. **Rank**: score every node with the B4 formula (``w_seed`` seed cosine +
-   ``w_prox`` graph proximity); the top node is the predicted entity answer.
+   ``w_prox`` graph proximity). The answer is the best node the question does not already
+   name (:func:`~graph_rag.query.ranking.select_answer_for_question`, GRA-161).
 
 Every collaborator is constructor-injected (ADR-0010) so the fast suite drives the
 retriever over in-memory fakes with no Docker, no model download and no LLM.
@@ -31,7 +32,7 @@ from typing import TYPE_CHECKING
 
 from graph_rag.logging import get_logger
 from graph_rag.models import QueryResponse
-from graph_rag.query.ranking import rank_nodes, select_answer
+from graph_rag.query.ranking import rank_nodes, select_answer_for_question
 from graph_rag.query.temporal import drop_sentences, subgraph_as_of, subgraph_current
 from graph_rag.scope import DEFAULT_SCOPE, Scope, acting_for
 
@@ -193,7 +194,7 @@ class QueryRetriever:
         #    inf -> 0.0 proximity).
         hop_distance = self._hop_distances(subgraph, seed_scores)
 
-        # 5. Rank (B4) + pick the top node as the entity answer (no type filter, V6).
+        # 5. Rank (B4), then pick the answer: the best node the question does not already name.
         ranked_nodes = rank_nodes(
             subgraph,
             seed_scores,
@@ -201,7 +202,13 @@ class QueryRetriever:
             w_seed=self._rank_weight_seed,
             w_prox=self._rank_weight_proximity,
         )
-        answer_entity = select_answer(ranked_nodes)
+        answer_entity = select_answer_for_question(
+            request.question,
+            ranked_nodes,
+            subgraph,
+            seed_scores,
+            supporting_sentences[0].text if supporting_sentences else None,
+        )
         in_graph = {node.canonical_id for node in subgraph.nodes}
         matched = sorted(
             (cid for cid in seed_scores if cid in in_graph),

@@ -161,8 +161,8 @@ def test_seed_merge_combines_entity_and_sentence_seeds() -> None:
     assert response.supporting_sentences[0].char_start == 0
 
 
-def test_top_node_is_the_answer() -> None:
-    """The predicted answer is the top-ranked node (no type filter in V6)."""
+def test_answer_is_not_the_entity_the_question_names() -> None:
+    """The question's own entity ranks first; the answer is the other end of the edge (GRA-161)."""
     embedder = FakeEmbedder()
     entity_store = InMemoryEntityStore()
     document_store = InMemoryDocumentStore()
@@ -187,10 +187,10 @@ def test_top_node_is_the_answer() -> None:
         QueryRequest(question=question)
     )
 
-    assert response.answer_entity is not None
-    assert response.answer_entity.canonical_id == "gh"
-    assert response.answer == "Grace Hopper"
     assert response.ranked_nodes[0].canonical_id == "gh"
+    assert response.answer_entity is not None
+    assert response.answer_entity.canonical_id == "navy"
+    assert response.answer == "US Navy"
 
 
 def test_empty_stores_return_no_answer() -> None:
@@ -244,3 +244,135 @@ def test_matched_entities_none() -> None:
     """A question that matches nothing lists no ids."""
     response = _seeded([], "alpha").retrieve(QueryRequest(question="alpha"))
     assert response.matched_entity_ids == []
+
+
+# --- the answer is not the question's own entity (GRA-161) -------------------
+#
+# The run5 graph: 11 entities and 12 edges as a real stack built them from four documents.
+
+_RUN5_ENTITIES = {
+    "klaus": ("Klaus Weber", "PERSON"),
+    "hamburg": ("Hamburg", "LOCATION"),
+    "y2021": ("2021", "DATE"),
+    "northwind": ("Northwind Shipping", "ORG"),
+    "acme": ("Acme Logistics", "ORG"),
+    "delft": ("Delft University", "ORG"),
+    "pieter": ("Pieter de Vries", "PERSON"),
+    "y2015": ("2015", "DATE"),
+    "rotterdam": ("Rotterdam", "LOCATION"),
+    "helix": ("Helix Robotics", "ORG"),
+    "maria": ("Maria Santos", "PERSON"),
+}
+_S_MARIA = "Maria Santos is the chief engineer at Helix Robotics, a company based in Rotterdam."
+_S_PROTO = "Maria Santos presented the prototype in Hamburg."
+_S_NORTH = "Northwind Shipping operates out of Hamburg, and its CEO Klaus Weber moved to Acme Logistics after the deal."  # noqa: E501
+_S_PIETER = "Pieter de Vries studied at Delft University and later joined Helix Robotics."
+_S_FOUND = "She founded the company in 2015 with Pieter de Vries."
+_S_SIGNED = "Helix Robotics signed a contract with Acme Logistics to build warehouse robots."
+_S_BOUGHT = "Acme Logistics acquired Northwind Shipping in 2021."
+_RUN5_EDGES = [
+    ("helix", "LOCATED_IN", "rotterdam", _S_MARIA),
+    ("maria", "LOCATED_IN", "hamburg", _S_PROTO),
+    ("northwind", "LOCATED_IN", "hamburg", _S_NORTH),
+    ("pieter", "WORKS_FOR", "helix", _S_PIETER),
+    ("pieter", "FOUNDED", "helix", _S_FOUND),
+    ("maria", "FOUNDED", "helix", _S_FOUND),
+    ("maria", "WORKS_FOR", "helix", _S_MARIA),
+    ("pieter", "AFFILIATED_WITH", "delft", _S_PIETER),
+    ("helix", "AFFILIATED_WITH", "acme", _S_SIGNED),
+    ("klaus", "WORKS_FOR", "acme", _S_NORTH),
+    ("klaus", "WORKS_FOR", "northwind", _S_NORTH),
+    ("acme", "OWNS", "northwind", _S_BOUGHT),
+]  # fmt: skip
+
+
+def _run5(question: str, seeds: list[str], best_sentence: str) -> QueryRetriever:
+    """The run5 graph; ``seeds`` sit nearest the question, ``best_sentence`` is the top evidence."""
+    embedder = FakeEmbedder()
+    question_vector = embedder.embed([question])[0]
+    entity_store = InMemoryEntityStore()
+    graph_store = InMemoryGraphStore()
+    document_store = InMemoryDocumentStore()
+    for cid, (name, type_) in _RUN5_ENTITIES.items():
+        vector = question_vector if cid in seeds else embedder.embed([f"unrelated {name}"])[0]
+        entity_store.upsert(
+            DEFAULT_SCOPE,
+            CanonicalEntity(canonical_id=cid, name=name, type=type_, vector=vector),  # type: ignore[arg-type]
+        )
+    graph_store.upsert_entities(
+        DEFAULT_SCOPE,
+        [_node(cid, name, type_) for cid, (name, type_) in _RUN5_ENTITIES.items()],
+    )
+    graph_store.write_triples(
+        DEFAULT_SCOPE,
+        [
+            Triple(
+                subject_id=s_,
+                predicate=p_,
+                object_id=o_,
+                provenance=EdgeProvenance(source_doc_id="d", sentence_index=0, source_sentence=t_),
+            )
+            for s_, p_, o_, t_ in _RUN5_EDGES
+        ],
+    )
+    sentences = sorted({t for *_, t in _RUN5_EDGES})
+    document_store.upsert(
+        DEFAULT_SCOPE,
+        DocumentRecord(
+            document_id="d",
+            bucket="documents",
+            object_key="d.md",
+            text=" ".join(sentences),
+            sentences=[
+                Sentence(text=t, char_start=0, char_end=len(t), index=i)
+                for i, t in enumerate(sentences)
+            ],
+            sentence_vectors=[
+                question_vector if t == best_sentence else embedder.embed([t])[0] for t in sentences
+            ],
+        ),
+    )
+    return _retriever(embedder, entity_store, document_store, graph_store)
+
+
+def test_who_founded_answers_a_founder_not_the_company() -> None:
+    """'Who founded Helix Robotics?' answers a founder; the company the question names is not it."""
+    question = "Who founded Helix Robotics?"
+    response = _run5(
+        question,
+        ["helix", "delft"],
+        _S_PIETER,
+    ).retrieve(QueryRequest(question=question))
+    assert response.matched_entity_ids and "helix" in response.matched_entity_ids
+    assert response.answer in {"Maria Santos", "Pieter de Vries"}
+
+
+def test_where_and_who_answers_the_place_not_the_company() -> None:
+    """'Where is Northwind Shipping based and who is its CEO?' answers Hamburg (the first ask)."""
+    question = "Where is Northwind Shipping based and who is its CEO?"
+    response = _run5(
+        question,
+        ["northwind", "acme", "klaus", "hamburg"],
+        _S_BOUGHT,
+    ).retrieve(QueryRequest(question=question))
+    assert response.answer == "Hamburg"
+
+
+def test_which_company_answers_the_other_party_to_the_contract() -> None:
+    """'Which company signed a contract with Acme ...' answers Helix, not Acme or its subsidiary."""
+    question = (
+        "Which company signed a contract with Acme Logistics, and who presented the prototype?"
+    )
+    response = _run5(
+        question,
+        ["acme", "northwind", "klaus", "hamburg"],
+        _S_SIGNED,
+    ).retrieve(QueryRequest(question=question))
+    assert response.answer == "Helix Robotics"
+
+
+def test_question_naming_nothing_keeps_the_top_node() -> None:
+    """With no entity named in the question the answer is still the top-ranked node."""
+    question = "robotics company"
+    response = _run5(question, ["helix"], "").retrieve(QueryRequest(question=question))
+    assert response.answer == "Helix Robotics"

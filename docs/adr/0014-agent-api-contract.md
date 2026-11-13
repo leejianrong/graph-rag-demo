@@ -37,6 +37,8 @@ call (GRA-32) is the way to wait.
 sentences, each with its source document and character offsets, so an agent can cite and a person can check. The
 default path makes no LLM call (`synthesize: false`).
 
+**How the answer is chosen (GRA-161).** `answer` and `answer_entity` are the best node the question does not already name, not the top of `ranked_nodes`: a seed whose name or alias occurs in the question has the highest cosine, and "Who founded Helix Robotics?" answered "Helix Robotics". The named entities are set aside unless nothing else is left, and the rest are ordered by (1) the type the first question word asks for (who: PERSON, where: LOCATION, when: DATE, which company: ORG), (2) a direct edge to a named entity, (3) being named in the best supporting sentence, (4) the B4 score. A definition question ("Who was Ada Lovelace?") and a question that names no entity keep the top-ranked node. `ranked_nodes` keeps the B4 order, so retrieval scores are unaffected, and a question with two asks answers the first ("Where is X based and who is its CEO?" answers the place); the other answer is still in the ranked entities and the subgraph. No LLM call (`graph_rag/query/ranking.py`, `select_answer_for_question`).
+
 **One error shape.** Every failure is `{"error": {"code", "message", "details?"}}`.
 
 | `code` | HTTP | When |
