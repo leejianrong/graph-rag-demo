@@ -488,7 +488,8 @@ The thinking is all written down, and it's worth reading before any code:
 - **[docs/SLICES.md](docs/SLICES.md)** — the eight vertical slices the build
   followed, each with its own test plan.
 - **[docs/research/](docs/research/)** — market and benchmark research: [question types](docs/research/question-types.md) and the
-  [comparison with Zep, Mem0, Cognee and LightRAG](docs/research/memory-layer-comparison.md).
+  [comparison with Zep, Mem0, Cognee and LightRAG](docs/research/memory-layer-comparison.md) and
+  [positioning and a pricing hypothesis](docs/research/positioning-and-pricing.md).
 - **[docs/CONTEXT.md](docs/CONTEXT.md)** — the glossary and decision register.
   Start here if a term is unfamiliar.
 
