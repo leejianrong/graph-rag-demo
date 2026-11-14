@@ -97,42 +97,65 @@ Generator and bench (no Docker or key): `make ui` (generator UI), `make world PR
 
 ## CPU and GPU
 
-Nothing here needs a GPU, and no code in `graph_rag/` mentions one. What could use one:
+Nothing here needs a GPU, and no code in `graph_rag/` mentions one. Verified 2026-11-14 (GRA-177) on WSL2 with an RTX 3080 Ti
+Laptop GPU (16 GB), driver 595.95 (CUDA 13.2). What can use one:
 
-- **The bge embedder** (`graph_rag/adapters/embedder.py`) calls `SentenceTransformer(name)` and `model.encode(...)` with no device
-  argument, so sentence-transformers picks CUDA when torch can see one. Inferred from the code, not tested.
-- **The transformer NER** (`graph_rag/stages/ner.py`) calls `spacy.load(name)` and never `spacy.prefer_gpu()` or
-  `require_gpu()`, so `en_core_web_trf` runs on CPU even on a GPU machine. Using the GPU would need a code change and
-  spaCy's CUDA support (cupy), which is not in the dependencies. Not tested.
+- **The bge embedder** (`graph_rag/adapters/embedder.py`) passes no device, and sentence-transformers picks CUDA when torch can
+  see one. Confirmed: the repo's `SentenceTransformerEmbedder` loads on `cuda:0` with no change.
+- **The transformer NER** (`graph_rag/stages/ner.py`) calls `spacy.load(name)` and never `spacy.prefer_gpu()` or `require_gpu()`,
+  so `en_core_web_trf` still runs on CPU on a GPU machine. Confirmed: `prefer_gpu()` returns False without cupy. With cupy it
+  works (below), but using it in the product still needs a code change; none is made yet.
 - Everything else (the rule-based stages, Elasticsearch, Neo4j, the ranking, the LLM calls) is CPU or remote.
 
-CUDA torch with uv, not tested here (this machine has no GPU and no `nvidia-smi`). `uv.lock` pins torch 2.15.0 from PyPI with
-the `nvidia-*` CUDA 13 libraries as dependencies (nvidia-cuda-runtime 13.2.86, cudnn-cu13 9.26), so `uv sync --extra embed` on
-Linux x86_64 should already give a CUDA 13 build if the driver supports it. Check it first:
+**The locked torch does not work on this machine.** `uv.lock` pins torch 2.15.0+cu132. Here `torch.cuda.is_available()` segfaults
+(exit 139) even though `nvidia-smi` and a direct `cuInit` call work. `thinc` calls it when it is imported, so `import spacy`
+crashes too, which breaks `make models` and the whole NER path on any machine with a visible GPU. `CUDA_VISIBLE_DEVICES=` avoids
+the crash by hiding the GPU. torch 2.11.0+cu128 from PyTorch's index works on the same machine. Cause not isolated: I did not test
+2.15.0 on another CUDA build or driver, so I do not know if it is the 2.15 build, CUDA 13.2 or this WSL2 driver.
+
+Check it first:
 
 ```bash
 uv sync --frozen --extra dev --extra embed
-uv run python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+uv run python -c "import torch; print(torch.__version__, torch.cuda.is_available())"   # exit 139 or False: use the fix below
 ```
 
-If that prints `False` on a machine with a working driver, or the driver is too old for CUDA 13, point torch at PyTorch's index for
-your CUDA version, using uv's documented pattern (add to `pyproject.toml`, re-lock, then sync; pick the index that matches
-your driver, `cu126` is only an example):
+The fix used here, one machine only. Do not add it to `pyproject.toml` or commit a changed `uv.lock`. `uv run` re-syncs to the
+lock and undoes it, so export `UV_NO_SYNC=1` (or pass `--no-sync`) for every command after it:
 
-```toml
-[[tool.uv.index]]
-name = "pytorch-cu126"
-url = "https://download.pytorch.org/whl/cu126"
-explicit = true
-
-[tool.uv.sources]
-torch = { index = "pytorch-cu126" }
+```bash
+uv pip install --index-strategy unsafe-best-match "torch==2.11.0+cu128" \
+  --index-url https://download.pytorch.org/whl/cu128 --extra-index-url https://pypi.org/simple
+export UV_NO_SYNC=1       # without it the next `uv run` or `make` puts 2.15.0 back
 ```
 
-Do not commit a changed `uv.lock` for one machine's GPU. Card GRA-177 is the job of verifying all this on the new machine and
-recording per-document time next to the CPU figure; correct this section when it is done. CPU figures to compare against
-(`docs/results/ingest-cost.md`): 0.56 s per document wall time, 2.29 s CPU time, with spaCy `en_core_web_sm`, bge, Elasticsearch
-and Neo4j and the LLM answers replayed (so no provider latency), on a WSL2 machine with no GPU. `make compare` took about 8
+A plain `uv pip install torch --index-url ...` does nothing, because the locked 2.15.0 already satisfies it. If you prefer a
+lock-level change, uv's documented pattern is a `[[tool.uv.index]]` for the PyTorch index with `explicit = true` plus
+`[tool.uv.sources] torch = { index = "..." }`, then re-lock; I did not try it.
+
+To run `en_core_web_trf` on the GPU (benchmarks only; the product does not do this yet):
+
+```bash
+uv pip install cupy-cuda12x
+export LD_LIBRARY_PATH="$(ls -d $PWD/.venv/lib/python3.12/site-packages/nvidia/*/lib | tr '\n' ':')$LD_LIBRARY_PATH"
+# then spacy.require_gpu() before spacy.load(...)
+```
+
+Without the `LD_LIBRARY_PATH` line, cupy fails with `libcublas.so.12: cannot open shared object file`, and thinc then reports
+"CuPy is not installed". The `nvidia/*/lib` directories come with the cu128 torch wheel.
+
+Per-document time on the 145 `hard-small` documents (43 words each), one document at a time, same machine, load average about 2
+(full table and caveats in `docs/results/ingest-cost.md`):
+
+| component | CPU | GPU |
+|---|---|---|
+| bge-small embedding | 21.8 ms | 9.4 ms |
+| `en_core_web_trf` NER | 49.0 ms | 14.0 ms |
+| `en_core_web_sm` NER (the CPU baseline's model) | 7.0 ms | not run |
+
+These are components, not an end-to-end ingest. The CPU baseline below was the full stack (spaCy `en_core_web_sm`, bge,
+Elasticsearch, Neo4j, LLM answers replayed), 0.56 s per document wall time and 2.29 s CPU time, on a different WSL2 machine
+with no GPU. The stack was not run here, so there is no like-for-like end-to-end GPU figure yet. `make compare` took about 8
 minutes on a 4 vCPU cloud machine; the default `make sweep` takes over an hour; `kgbench split` took 28 minutes.
 
 ## The roadmap: pandan board 9

@@ -46,6 +46,26 @@ Elasticsearch is merged to one segment per index and flushed before each reading
 | 145 | 38 KB | 4.99 MB | 2.16 MB | 210 | 263 |
 | per 1,000 (slope) | 0.26 MB | 34.05 MB | 12.83 MB |  |  |
 
+## GPU versus CPU, per component (GRA-177, 2026-11-14)
+
+Not the stack run above. Each component timed alone on the 145 `hard-small` documents, one document at a time, after a 5-document
+warm-up, on a WSL2 machine with an RTX 3080 Ti Laptop GPU (16 GB), torch 2.11.0+cu128, spaCy 3.8.18, load average about 2. The
+locked torch 2.15.0+cu132 crashes on this machine, so these numbers are from the cu128 build; see `docs/HANDOFF.md`. The CPU
+rows are this machine's CPU, not the machine behind the 0.56 s figure.
+
+| component | CPU mean (median, p95) | GPU mean (median, p95) | speed-up |
+|---|---|---|---|
+| bge-small-en-v1.5, one document per call | 21.8 ms (17.3, 33.3) | 9.4 ms (8.7, 12.8) | 2.3x |
+| bge-small-en-v1.5, 32 documents per call | 11.3 ms | 1.0 ms | 11x |
+| `en_core_web_trf` | 49.0 ms (45.6, 69.3) | 14.0 ms (12.9, 16.2) | 3.5x |
+| `en_core_web_sm` (the model behind the stack figure) | 7.0 ms (7.0, 9.4) | not run | |
+
+Read it as follows. The pipeline embeds one document at a time, so the one-document row is the one that applies; batching is a
+possible change, not what runs today. The GPU runs of `en_core_web_trf` used cupy through `spacy.require_gpu()`, which the product
+code does not call, so the product is still CPU for NER. The stack's 0.56 s per document is mostly not these components (spaCy
+`sm` plus bge is about 29 ms of CPU here), so a GPU would not move that figure much; it matters for `en_core_web_trf`, the
+product default, and for large batches. No end-to-end GPU ingest was run, and the LLM time is not in any of this.
+
 ## What is measured and what is computed
 
 | figure | status |
