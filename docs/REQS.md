@@ -1,5 +1,9 @@
 # REQS — Graph RAG Demo
 
+> **Historical (2026-11).** Written before the code, during planning. The build has since moved on (a Valkey stream
+> instead of Kafka by default, tenancy, the `/v1` API, a web UI, an evaluation bench). For what is true now read the code,
+> [`docs/adr/`](./adr/README.md) and [`docs/HANDOFF.md`](./HANDOFF.md).
+
 ## The idea
 
 I would like to make a graph RAG pipeline. I want the pipeline to ingest text (like markdown files, txt files) and do named entity recognition, coreference resolution, and entity linking. At the end, I want the result to be a knowledge graph.

@@ -73,7 +73,9 @@ files. Remove the container and volume afterwards.
 | Tier | Runs against | Scope | In pre-push loop? |
 |------|-------------|-------|:-----------------:|
 | **Fast suite** | in-memory fakes | all pipeline + query logic, both entry points, unit seams | ✅ yes ($0, no Docker) |
-| **Integration / contract** | real adapters via docker-compose / testcontainers | prove each real adapter behaves like its fake (one contract test per port) | ❌ no (slower; gates adapters, not logic) |
+| **Integration / contract** | real adapters via testcontainers (MinIO, Elasticsearch, Neo4j, Valkey, Kafka; `pytest -m contract`) | prove each real adapter behaves like its fake (one contract test per port) | ❌ no (slower; gates adapters, not logic); CI job `contract` is required |
+| **Model** | real spaCy models and the bge embedder, no Docker (`make models`, `make models-trf`, `pytest -m model`) | real NER, the embedder, the EL name guard with real vectors, and the four-document replay (needs `en_core_web_trf`) | ❌ no; CI job `model` runs it, not required |
+| **LLM** | a real provider (`pytest -m llm`) | skips without a key | ❌ no; CI job `llm`, not required |
 | **Browser (e2e job)** | `graph-rag-offline` + built UI, real chromium | sign in, ingest, query, sign out through the UI (`ui/e2e/`, Playwright; `make ui-e2e`, CI job `e2e`). Not the pytest `e2e` marker | ❌ no (needs a browser) |
 | **Benchmark smoke** | small fixture corpus | end-to-end scores are stable + reproducible | ❌ no (separate target) |
 
@@ -93,6 +95,12 @@ their fakes. It gates the real adapters, not pipeline logic.
   `{bucket}/{objectKey}`; reprocessing overwrites, not duplicates.
 - **Cache-key stability** (ADR-0008): same `model+prompt+params` → same key;
   changing any → new key.
+
+> **Status (2026-11).** Sections 5 and 6 are the audit as written before the build. Their gaps have since closed:
+> `tests/model/test_spacy_ner.py` is the model-availability smoke test, `tests/e2e/test_kg_build.py`
+> (`test_reingest_replaces_edges_no_duplication`) is the graph re-ingest test, and the ranking function (B4) is pinned and
+> unit-tested in `tests/unit/test_ranking.py`. Gap 4 (EL tie-breaker and NIL, gated off) is still open by design. The fast
+> suite is about 1,200 tests (1203 passed, 1 skipped on 2026-11-14, about 80 seconds); the count moves, so run it rather than quote it.
 
 ## 5. Per-slice test-plan audit
 

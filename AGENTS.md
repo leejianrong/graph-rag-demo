@@ -11,16 +11,15 @@ KG-build`); querying is a synchronous REST `/query` with a **$0, deterministic, 
 Python 3.12, `uv`, type hints + docstrings, everything constructor-injected at the port seam.
 
 Direction (2026-11): turning the demo into a product — a memory/knowledge store for agents and developers
-(API, MCP, CLI, then a Vite + Svelte UI), with a standalone synthetic data generator (`datagen/`, ADR-0012) and an in-repo evaluation bench. The roadmap lives on
-**pandan board 9 (`GRA-*`)**, not in the docs; use the `pandan` skill, refer to cards by ref (`GRA-85`).
+(API, MCP, CLI, Vite + Svelte UI). The roadmap lives on **pandan board 9 (`GRA-*`)**, not in the docs; use the `pandan` skill, refer to cards by ref (`GRA-85`).
 
 **Build status:** V1–V8 are done and the pipeline is feature-complete ([`agent_docs/build-status.md`](agent_docs/build-status.md)).
-The generator (`datagen/`, `kggen`) and its indah UI (`kggen ui`, extra `kggen[ui]`) are done; the UI's graph view needs
-indah 0.12, unreleased, so it runs against the local indah checkout (`make ui` picks it up). The bench (`bench/`, ADR-0011) scores
-extraction, linking, retrieval (BM25, dense and graph-rag as `Retriever`s), ingest order, complexity sweeps, typed answers and an
-optional LLM judge, and `kgbench ingest-cost` (tokens, computed dollars, time, storage per 1,000 documents; `docs/results/ingest-cost.md`); method and results are in [`docs/BENCH.md`](docs/BENCH.md). A quality gate (`kgbench gate`, floors in
-`bench/kgbench/gate.json`, run by the fast suite; `--update` after an intended change) fails a drop in graph-rag's scores. `build_offline_components(llm_stages=True)` runs the real LLM stages over in-memory stores (point LiteLLM at semula via `OPENAI_API_BASE`). Real-stack
-runs are still to build, and so is the SDK. `graphrag` (`graph_rag/cli.py`, extra `cli`) is the CLI over `/v1`; `graph-rag-admin` (`graph_rag/tenant_admin.py`) exports and deletes a tenant; `graph-rag-offline` (`graph_rag/offline_server.py`) serves the API over in-memory stores for the quickstart (`docs/QUICKSTART.md`). The four store ports take a `Scope` first (`graph_rag/scope.py`, ADR-0015; no default, so a missed call site fails mypy), and a scope sees only its own records; with `REQUIRE_AUTH` on, the API key names the tenant (`graph_rag/auth.py`, `graph-rag-keys`; off by default, then requests run in the default tenant), and `/v1`'s optional `namespace` (GRA-45) is the part of a scope a caller can set. With `REQUIRE_TENANT_LLM_KEY` on (off by default, GRA-25) a named tenant's LLM calls use its own key, stored encrypted by `graph-rag-keys llm-key` (`graph_rag/tenant_keys.py`), and ingest without one is refused. With `METER_USAGE` on (off by default, GRA-58) `graph_rag/usage.py` counts documents, queries and LLM tokens per tenant in a file; `graph-rag-admin usage` reads it. `INGEST_MODE=publish` (set by both compose files) makes the API publish only, with `graph-rag-worker` (`graph_rag/worker.py`) consuming and job status in Elasticsearch (`EsJobStore`); the default `inline` keeps the consumer thread and in-memory jobs. `graph_rag/observability.py` (GRA-56, off by default) serves `/metrics` (`METRICS_ENABLED`; `METRICS_TOKEN` with auth on) and spans (OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set); the trigger carries `traceparent`; no tenant, key or text in a label or span; dashboard in `observability/`. `graph-rag-mcp` (`graph_rag/mcp_server.py`, extra `mcp`) serves `remember`, `recall`, `forget` and `lookup` over stdio. Ingest (`/ingest`, `/v1/remember`) needs an LLM and is refused with 503 `llm_not_configured` when `OPENAI_API_KEY`/`OPENAI_API_BASE` are unset (`graph_rag/llm_config.py`; the offline server and fakes skip the check); reading never needs one. The `/v1` facade serves the same four, plus `GET /v1/me` (the tenant a key opens; the UI signs in with it) (`graph_rag/agent_api.py`, `graph_rag/lookup.py`; contract: ADR-0014). `POST /v1/entities/{id}/merge` (`graph_rag/curation_api.py`, `merge_records.py`) merges entities and records it for a later split (ADR-0014 addendum). The UI (`ui/`) keeps the key in memory only.
+Everything after that is in [`agent_docs/current-state.md`](agent_docs/current-state.md): the `/v1` API (and SSE job events), tenancy and
+auth, the Valkey queue and workers, the CLI, MCP server and Svelte UI, entity merge/split, the generator (`datagen/`), the bench
+(`bench/`, ADR-0011; results in [`docs/BENCH.md`](docs/BENCH.md)) and its quality gate (`kgbench gate`, floors in `bench/kgbench/gate.json`,
+run by the fast suite; `--update` after an intended change). **Open:** the Python SDK, a staging environment, real-stack quality at
+scale, and graph-rag not yet beating BM25 or dense on `hard-small`. A person or agent on a new machine starts at
+**[`docs/HANDOFF.md`](docs/HANDOFF.md)** (setup, state, gaps, and every file that is not in git).
 
 > **Trust the code over the docs.** `docs/` is design intent; where they disagree, the code is the truth and
 > the doc should be fixed in the same PR. Read `graph_rag/ports.py` before coding against a port.
@@ -50,7 +49,7 @@ uv sync --frozen --extra dev                                  # install (frozen;
 uv run pytest -m "not contract and not model and not llm"     # FAST gate: fakes only, no Docker/model/LLM
 uv run ruff check . && uv run ruff format --check . && uv run mypy   # lint + format + types
 uv run pytest -m contract                                     # real adapters via testcontainers (Docker)
-make models && uv run pytest -m model                         # real spaCy NER (not in the fast gate)
+make models && uv run pytest -m model                         # real spaCy NER (not in the fast gate); trf replay needs `make models-trf`
 uv run pytest -m llm                                          # opt-in real provider; skips without a key
 docker compose up                                             # whole stack (or: make up)
 make demo-offline | demo-live | demo | benchmark              # see `make` targets
@@ -84,4 +83,6 @@ behaviour at the seam, never internal call order. See `docs/TESTING.md`. Markers
 - `graph_rag/` — the pipeline; `datagen/kggen/` — the standalone data generator (CLI `kggen`); `bench/kgbench/` — the evaluation bench (CLI `kgbench`).
 - `docs/adr/` — the "why" (ADR-0011 is the bench, ADR-0012 the standalone generator); `docs/ARCHITECTURE.md`, `docs/TESTING.md`.
 - `agent_docs/build-status.md` — how each V1–V8 slice works in detail.
-- Real corpus lives under gitignored `datasets/`; the LLM response cache is `.cache/llm/` (gitignored).
+- `docs/adr/README.md` indexes ADRs 0001–0017; `docs/openapi.json` is generated (`make openapi`).
+- Real corpus lives under gitignored `datasets/`; the LLM response cache is `.cache/llm/` (gitignored). `docs/DATA-PROVENANCE.md`
+  says where every ignored or external file comes from. Caches under `bench/kgbench/data/` need `git add -f` (`data/` is ignored).

@@ -1,5 +1,9 @@
 # PRD — Graph RAG Demo
 
+> **Historical (2026-11).** Written before the code, during planning. The build has since moved on (a Valkey stream
+> instead of Kafka by default, tenancy, the `/v1` API, a web UI, an evaluation bench). For what is true now read the code,
+> [`docs/adr/`](./adr/README.md) and [`docs/HANDOFF.md`](./HANDOFF.md).
+
 > Product requirements for a locally-run Graph RAG pipeline: Kafka-triggered
 > ingestion of text/Markdown → local spaCy **NER** → LLM within-document
 > **coreference** → **corpus-local entity linking** (no external KB) →

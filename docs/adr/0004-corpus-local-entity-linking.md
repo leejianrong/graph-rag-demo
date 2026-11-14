@@ -1,6 +1,6 @@
 # ADR-0004 — Corpus-local entity linking (no external knowledge base)
 
-- **Status:** Accepted
+- **Status:** Accepted. GRA-157 later added a name guard to the cosine merge (a shared distinctive token or an acronym is required).
 - **Date:** 2026-07-14
 - **Deciders:** Jian
 

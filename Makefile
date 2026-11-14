@@ -3,8 +3,8 @@
 .DEFAULT_GOAL := help
 .PHONY: help up down logs demo demo-live demo-offline check-site test benchmark test-benchmark contract model models models-trf embed-model lint types fmt check ui ui-install ui-dev ui-build ui-e2e openapi world fixtures extract linking order sweep compare gate nightly longmemeval
 
-# The generator UI uses a local indah checkout when one exists (its Graph component is not on PyPI
-# until indah 0.12), else PyPI indah. Override: INDAH=/path/to/indah-python-ui, or INDAH= for PyPI.
+# The generator UI uses a local indah checkout when one exists, else PyPI indah (0.12 and later have
+# the Graph component; 0.13.0 is on PyPI). Override: INDAH=/path/to/indah-python-ui, or INDAH= for PyPI.
 INDAH ?= $(wildcard $(HOME)/projects/abang-ai/indah-python-ui)
 PRESET ?= medium
 
@@ -70,11 +70,11 @@ model: ## Model-backed NER suite (run `make models` first).
 	uv run pytest -m model
 
 # Fetch the small spaCy model used by the tests + trf fallback ($0, no extras).
-models: ## Download the small spaCy model.
+models: ## Download en_core_web_sm (the model suite and the bench use it).
 	uv run python -m spacy download en_core_web_sm
 
-# Fetch the transformer model for the real stack (needs the `trf` extra).
-models-trf: ## Download the transformer spaCy model (trf extra).
+# Fetch the transformer model for the real stack and the four-document replay (needs the `trf` extra; about 400 MB).
+models-trf: ## Download en_core_web_trf (trf extra; the four-document replay and the default NER_MODEL).
 	uv run --extra trf python -m spacy download en_core_web_trf
 
 # Fetch the sentence-transformer embedding model (V4, B1; needs the `embed` extra).
@@ -107,8 +107,8 @@ check: ## Lint + format check + types + fast suite (run before pushing).
 
 # Synthetic data generator (datagen/, kggen). No Docker, model or key needed.
 # The UI picks the first free port itself; PORT=8765 pins one.
-ui: ## Start the synthetic-data web UI (kggen ui). PORT=... to pin a port.
-	@echo "kggen ui with $(if $(INDAH),local indah at $(INDAH),PyPI indah: no graph view until indah 0.12)"
+ui: ## Start the synthetic-data generator UI (kggen ui; not the product UI, see ui-dev). PORT=... to pin a port.
+	@echo "kggen ui with $(if $(INDAH),local indah at $(INDAH),PyPI indah (the graph view needs indah 0.12 or later))"
 	uv run $(if $(INDAH),--with-editable $(INDAH),--with indah) kggen ui $(if $(PORT),--port $(PORT),)
 
 # The product web UI (ui/, Vite + Svelte). Needs Node 22+; the API client is generated from docs/openapi.json.

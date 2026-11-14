@@ -14,6 +14,9 @@ query path never calls an LLM at all.
 There's a visual walkthrough of the whole idea at
 **<https://leejianrong.github.io/graph-rag-demo/>**.
 
+**Starting on a new machine, or picking the work up?** Read [docs/HANDOFF.md](docs/HANDOFF.md): setup,
+tests, the stack, the current state and known gaps, and every file that is not in git.
+
 ## Status
 
 The pipeline is built and runs end to end. It came together in eight vertical
@@ -24,10 +27,11 @@ documents, and query the resulting graph; jump to [Running it
 locally](#running-it-locally) for that.
 
 It's now being shaped toward a product: a memory and knowledge store that agents
-and developers can use through an API, an MCP server and a CLI, with a web UI to
-follow. The first piece of that work is an independent evaluation bench, described
-under [Benchmarking](#benchmarking). Today the demo is single-user and local; see
-[Conventions](#conventions) for what's not built yet.
+and developers use through an HTTP API (`/v1`), an MCP server, a CLI and a web UI, all built. Tenancy and API
+keys exist (off by default), there is an independent evaluation bench ([Benchmarking](#benchmarking)),
+and ingest runs through a Valkey stream with separate workers. Still open: a Python SDK, a staging
+deployment, and quality on the real stack at scale. [Conventions](#conventions) has the summary and
+[docs/HANDOFF.md](docs/HANDOFF.md) the details.
 
 The design was written down before the code, and it's worth reading if you want
 the reasoning rather than just the moving parts. The [PRD](docs/PRD.md), the
@@ -130,8 +134,10 @@ You'll need Docker with Compose, and an LLM for ingest (see below).
 - **semula**: a recording OpenAI-compatible server whose prompts are answered by an agent. It is for the
   bench and for agent-driven sessions, not an unattended local model.
 
-On a small hosted model ingest costs roughly $0.2 to $0.3 per 1,000 small documents, uncached (an
-estimate, not a measurement); a repeated document is served from the response cache at no cost.
+Ingest costs about 1.6M prompt and 0.15M answer tokens per 1,000 short documents (about 43 words each), which is
+$2.35 at Claude Haiku 4.5 list prices and $0.23 at the cheaper price row in
+[docs/results/ingest-cost.md](docs/results/ingest-cost.md); those are computed from counted tokens, not billed.
+Longer documents cost more. A repeated document is served from the response cache at no cost.
 If a provider rejects the key or the endpoint is unreachable, the job fails with that reason (`GET /jobs/{id}`).
 
 ```bash
@@ -155,11 +161,11 @@ curl -F "file=@some-report.md" http://localhost:8000/ingest
 # {"document_id": "...", "bucket": "documents", "object_key": "some-report.md", "status": "accepted"}
 ```
 
-`/ingest` takes a text file, a PDF or an HTML page, or `-F url=https://...` instead of a file: the URL is fetched by the service (public addresses only, including after redirects; at most `MAX_UPLOAD_BYTES`, 10 s) and the URL is the source's identity. PDFs and pages are stored as their text; a source with no extractable text, an unreadable PDF or a failed fetch is a 422 and nothing is stored. Crawling is not supported.
+`/ingest` takes a text file, a PDF or an HTML page, or `-F url=https://...` instead of a file: the URL is fetched by the service (public addresses only, including after redirects; at most `MAX_UPLOAD_BYTES`, 10 s) and the URL is the source's identity. PDFs and pages are stored as their text; a source with no extractable text (an empty file or an empty `/v1/remember` text included), an unreadable PDF or a failed fetch is a 422 and nothing is stored. Crawling is not supported.
 
-An upload over `MAX_UPLOAD_BYTES` (default 10 MB) is refused with 413 and nothing is stored. With `REQUIRE_AUTH` on, each key may make `RATE_LIMIT_PER_MINUTE` requests a minute (default 600) and each address `FAILED_KEY_LIMIT_PER_MINUTE` failed ones (default 20); past either the answer is 429 with `Retry-After` (`rate_limited` on `/v1`), and one key's traffic never counts against another's. Ingestion is asynchronous. `/ingest` writes the file to MinIO, publishes a Kafka
-trigger, and returns straight away; the consumer then runs the five stages. Follow
-it with `make logs` (which is `docker compose logs -f app worker`). In compose the API only publishes and the `worker` service consumes: `docker compose up -d --scale worker=3` adds workers (any number with the default Valkey queue; each loads the NER model and embedder, so budget memory). With `METER_USAGE` on, the API and the workers write one usage file on a shared volume. The queue is Valkey by default (`TRIGGER_BACKEND=redis`). Kafka stays available: `TRIGGER_BACKEND=kafka docker compose --profile kafka up`, where workers help up to `INGEST_PARTITIONS` (default 4) (ADR-0016). Outside compose the API runs the consumer itself unless `INGEST_MODE=publish`, which then needs `graph-rag-worker` running.
+An upload over `MAX_UPLOAD_BYTES` (default 10 MB) is refused with 413 and nothing is stored. With `REQUIRE_AUTH` on, each key may make `RATE_LIMIT_PER_MINUTE` requests a minute (default 600) and each address `FAILED_KEY_LIMIT_PER_MINUTE` failed ones (default 20); past either the answer is 429 with `Retry-After` (`rate_limited` on `/v1`), and one key's traffic never counts against another's. Ingestion is asynchronous. `/ingest` writes the file to MinIO, publishes a
+trigger (a Valkey stream entry by default, a Kafka message with `TRIGGER_BACKEND=kafka`), and returns straight away; the consumer then runs the five stages. Follow
+it with `docker compose logs -f worker` (the worker runs the stages in compose); `make logs` tails only the `app` service. In compose the API only publishes and the `worker` service consumes: `docker compose up -d --scale worker=3` adds workers (any number with the default Valkey queue; each loads the NER model and embedder, so budget memory). With `METER_USAGE` on, the API and the workers write one usage file on a shared volume. The queue is Valkey by default (`TRIGGER_BACKEND=redis`). Kafka stays available: `TRIGGER_BACKEND=kafka docker compose --profile kafka up`, where workers help up to `INGEST_PARTITIONS` (default 4) (ADR-0016). Outside compose the API runs the consumer itself unless `INGEST_MODE=publish`, which then needs `graph-rag-worker` running.
 
 A source is keyed by its filename, or by `-F source_url=https://...` when you give one. Posting the
 same source with the same bytes again returns `"status": "unchanged"` and does nothing: no write, no
@@ -181,7 +187,7 @@ curl -X POST localhost:8000/v1/forget -H 'content-type: application/json' -d '{"
 
 `remember` and `/ingest` take an optional `document_date` (`YYYY-MM-DD`): the facts taken from that document start being valid on it, and are returned with `valid_from` and `valid_to` (null when unknown).
 
-`remember` and `/ingest` return a `document_id`, and `GET /jobs/<document_id>` says where that document is: `queued`, `running`, `done` or `failed` (a failure names the stage and the error type; the detail is in the service log). `GET /jobs/<document_id>/events` streams the same progress as server-sent events: one `stage` event per pipeline stage (`read`, `entity recognition`, `coreference`, `entity linking`, `knowledge graph`), then a final `done` or `failed` event carrying the job, after which the stream closes. Jobs are held in the service's memory, so a restart forgets them.
+`remember` and `/ingest` return a `document_id`, and `GET /jobs/<document_id>` says where that document is: `queued`, `running`, `done` or `failed` (a failure names the stage and the error type; the detail is in the service log). `GET /jobs/<document_id>/events` streams the same progress as server-sent events: one `stage` event per pipeline stage (`read`, `entity recognition`, `coreference`, `entity linking`, `knowledge graph`), then a final `done` or `failed` event carrying the job, after which the stream closes. With `INGEST_MODE=inline` (the default outside compose) jobs are held in the service's memory, so a restart forgets them; with `INGEST_MODE=publish` (both compose files) they live in Elasticsearch (`JOBS_INDEX`) and survive one. The counts `entities` and `edges` on a job are `null` until it is `done`.
 
 Add `"namespace": "my-project"` to any of the three calls to keep memory apart (per project, say): what is
 remembered in one namespace is never recalled or forgotten from another, and leaving it out is the default
@@ -227,14 +233,16 @@ Each command takes `--namespace`. Exit status is 0 on success, 1 when the servic
 
 ### API keys
 
-By default the service checks no key and every request runs in the default tenant. Set
+By default the service checks no key and every request runs in the default tenant. The sections below turn
+that on and cover the operator settings around it.
+
 **Observability** (off by default, GRA-56): `METRICS_ENABLED=true` serves Prometheus metrics at `/metrics` (and on the worker's health port): requests by route and status, latency, ingest stage time and failures, LLM calls and tokens by model, with no tenant, key or text in any label. With `REQUIRE_AUTH` on it needs `METRICS_TOKEN` as a bearer token; an API key is refused. Setting `OTEL_EXPORTER_OTLP_ENDPOINT` exports one trace per ingest, from the API request through the worker's stages and LLM calls to the graph write; `LOG_FORMAT=json` puts the trace id on each log line. `docker compose -f docker-compose.yml -f docker-compose.observability.yml up` adds Prometheus, a Grafana dashboard (http://localhost:3000) and Jaeger.
 
 **Hosted:** `docker-compose.hosted.yml` is the stack for a deployment: no store publishes a port, every credential must be set, Elasticsearch has security on, auth is required and the API listens on 127.0.0.1 for a TLS proxy (header of the file has the steps). The service itself also refuses, with auth on, to start on a store credential that is still the local-dev value (`ALLOW_DEFAULT_CREDENTIALS=true` for staging).
 
 With `REQUIRE_TENANT_LLM_KEY=true` (off by default) a named tenant's LLM calls use a key it brought: `graph-rag-keys llm-key set TENANT` reads it from stdin or a prompt and stores it encrypted under `TENANT_LLM_KEY_SECRET` (a Fernet key; `llm-key remove` and `list` too), and ingest for a tenant with none is refused with 400. The default tenant is unchanged.
 
-With auth off, the service starts only on a loopback address; on any other it exits unless `ALLOW_OPEN_BIND=true` (the local compose stack sets it). `REQUIRE_AUTH=true` and every endpoint except `/health` needs `Authorization: Bearer <key>`; the key names the
+With auth off, the service starts only on a loopback address; on any other it exits unless `ALLOW_OPEN_BIND=true` (the local compose stack sets it). Set `REQUIRE_AUTH=true` and every endpoint except `/health` needs `Authorization: Bearer <key>`; the key names the
 tenant, and a key reaches only that tenant's memory. Keys live in the file `API_KEYS_PATH` (default
 `.data/api-keys.json`; one service instance only):
 
@@ -375,7 +383,9 @@ Needs Node 22+. With the API on port 8000 (for example `graph-rag-offline`):
     make ui-e2e     # browser test: sign in, ingest, query (needs `npx playwright install chromium`)
 
 The API process serves `ui/dist` at `/` when `UI_DIR` points at it (the image sets this up; for
-`graph-rag-offline` run `UI_DIR=ui/dist graph-rag-offline` after a build).
+`graph-rag-offline` run `UI_DIR=ui/dist graph-rag-offline` after a build), with a Content-Security-Policy that
+allows only the app's own files (the IBM Plex fonts are bundled, nothing loads from a CDN). `ui/` has its own
+[README](ui/README.md).
 
 ## Synthetic data generator
 
@@ -396,10 +406,10 @@ make                       # lists every command
 ```
 
 `make ui` uses a local [indah](https://github.com/leejianrong/indah) checkout at
-`~/projects/abang-ai/indah-python-ui` when one exists, because the graph view needs indah 0.12,
-which is not released yet. Everything else works on the PyPI release (`make ui INDAH=`, or
-`uv run --with indah kggen ui`), only without the graph. It picks a free port itself; `PORT=8765`
-pins one. Documents are template text by default. An opt-in switch writes them with an LLM through
+`~/projects/abang-ai/indah-python-ui` when one exists (override with `INDAH=/path`). Without one, or with
+`make ui INDAH=`, it runs against indah from PyPI; the graph view needs indah 0.12 or later, and
+0.13.0 is on PyPI and has it (checked with `hasattr(indah, "Graph")`), so the checkout is no longer required.
+It picks a free port itself; `PORT=8765` pins one. Documents are template text by default. An opt-in switch writes them with an LLM through
 any OpenAI-compatible endpoint instead; it only runs when you click Render documents.
 
 The command line does the same, and the same spec and seed always give the same output:
@@ -481,12 +491,19 @@ The thinking is all written down, and it's worth reading before any code:
   stories, implementation and testing decisions, scope.
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — topology, the six ports, the
   data model, and the stage/checkpoint flow, consolidated from the ADRs.
-- **[docs/adr/](docs/adr/)** — architecture decision records, one per major
-  choice, each with the alternatives weighed and the reasoning kept.
+- **[docs/adr/](docs/adr/README.md)** — architecture decision records 0001 to 0017, one per major
+  choice, each with the alternatives weighed and the reasoning kept. ADR-0017 (Postgres with pgvector in
+  place of four stores) is a decision and a spike in [`spikes/pg_stores/`](spikes/pg_stores/README.md); nothing is
+  migrated.
 - **[docs/THREAT-MODEL.md](docs/THREAT-MODEL.md)** — what is protected, the threats, what mitigates each and what is still open, with the
   checklist before a hosted deployment.
 - **[docs/SLICES.md](docs/SLICES.md)** — the eight vertical slices the build
-  followed, each with its own test plan.
+  followed, each with its own test plan. PRD, SLICES, SHAPING and the other planning documents are
+  history; the code and the ADRs are current.
+- **[docs/HANDOFF.md](docs/HANDOFF.md)** — setup on a new machine, current state, and
+  [what is not in git](docs/DATA-PROVENANCE.md).
+- **[docs/BENCH.md](docs/BENCH.md)** and **[docs/TESTING.md](docs/TESTING.md)** — the evaluation bench with
+  its results, and the test strategy.
 - **[docs/research/](docs/research/)** — market and benchmark research: [question types](docs/research/question-types.md) and the
   [comparison with Zep, Mem0, Cognee and LightRAG](docs/research/memory-layer-comparison.md) and
   [positioning and a pricing hypothesis](docs/research/positioning-and-pricing.md).
@@ -497,9 +514,10 @@ The thinking is all written down, and it's worth reading before any code:
 
 Python 3.12, dependencies managed with [uv](https://github.com/astral-sh/uv),
 modular layout with type hints and docstrings throughout. English-only corpus.
-No authentication and no multi-tenancy yet: this is built to run on your laptop, not
-to be deployed. Tenancy, API keys, incremental ingest and an MCP interface are the
-next planned work.
+Tenancy and API keys exist but are off by default (`REQUIRE_AUTH`); a hosted compose file and a
+[threat model](docs/THREAT-MODEL.md) cover a deployment, though no staging environment exists yet. Re-ingesting
+changed text replaces what the old text contributed, and the MCP server, CLI and web UI are built. The roadmap is on
+the pandan board (`GRA-*` cards), not in the docs; [docs/HANDOFF.md](docs/HANDOFF.md) says how to read it.
 
 ## Contributing
 

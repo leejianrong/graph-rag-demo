@@ -1,11 +1,15 @@
 # Build status and slice history (V1–V8)
 
+This is the V1 to V8 history only. What was built after (the `/v1` API, tenancy, the Valkey queue, the UI, the bench) is in
+[`current-state.md`](current-state.md). Two details here have changed since: the trigger is a Valkey stream by default, with Kafka optional (ADR-0016),
+and `docs/openapi.json` plus `ui/` now exist.
+
 Moved out of the root agent brief to keep it short. Read this when you need the detail of how a
 slice works. The code on `main` is the truth; where this and the code disagree, fix this.
 
 **V1 (walking skeleton) — DONE.** Foundation contract (ports + fakes + models +
-config + logging + ids), MinIO `ObjectStore`, ES `DocumentStore`, Kafka trigger
-publisher/consumer, FastAPI `POST /ingest` + `GET /health`, orchestrator, `main.py`
+config + logging + ids), MinIO `ObjectStore`, ES `DocumentStore`, trigger
+publisher/consumer (Kafka at the time; a Valkey stream is the default now, ADR-0016), FastAPI `POST /ingest` + `GET /health`, orchestrator, `main.py`
 composition root, `docker-compose.yml`.
 
 **V2 (NER) — LANDED.** First real enrichment: `graph_rag/stages/ner.py` — a
