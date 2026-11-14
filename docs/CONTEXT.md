@@ -18,7 +18,7 @@ links to the ADRs that hold the full rationale).
 processing. Identified by a deterministic **document ID** derived from its
 `{bucket}/{objectKey}`.
 
-**Trigger message** — the Kafka message that kicks off ingestion for one
+**Trigger message** — the queue message (a Valkey stream entry by default, a Kafka message with `TRIGGER_BACKEND=kafka`, ADR-0016) that kicks off ingestion for one
 document. Carries only `{bucket, objectKey}`; all other state is read from /
 written to Elasticsearch.
 
@@ -93,14 +93,21 @@ Status values: **Accepted** · **Proposed** · **Open** (still being grilled).
 | D4 | Corpus-local entity linking (no external KB); local-first, optional gated LLM tie-break; create-new always on | Accepted | [ADR-0004](./adr/0004-corpus-local-entity-linking.md) |
 | D5 | Elasticsearch split into `ES-Documents` + `ES-Entities` (two indices, one cluster) | Accepted | [ADR-0005](./adr/0005-elasticsearch-index-split.md) |
 | D6 | KG builder: schema-guided triples, closed predicate set + open fallback; node identity = canonical entity ID; multi-label Neo4j nodes; edge-level provenance | Accepted | [ADR-0006](./adr/0006-knowledge-graph-builder-and-model.md) |
-| D7 | Graph RAG query: non-LLM vector-anchored + graph-expansion retrieval (default), optional gated LLM synthesis; ES vectors + Neo4j; Kafka=ingestion, REST=query | Accepted | [ADR-0007](./adr/0007-graph-rag-query-retrieval.md) |
+| D7 | Graph RAG query: non-LLM vector-anchored + graph-expansion retrieval (default), optional gated LLM synthesis; ES vectors + Neo4j; queue (Valkey stream by default, Kafka optional)=ingestion, REST=query | Accepted | [ADR-0007](./adr/0007-graph-rag-query-retrieval.md) |
 | D8 | Provider-agnostic LLM client (per-stage model config), prompt-hash response cache, structured output + Pydantic validation | Accepted | [ADR-0008](./adr/0008-llm-abstraction-caching-structured-output.md) |
 | D9 | Benchmarking: dual-track (end-to-end primary + extraction sanity check); 2WikiMultihopQA subset; non-LLM metrics (supporting-fact P/R/F1, answer EM/F1) | Accepted | [ADR-0009](./adr/0009-benchmarking-strategy.md) |
 | D10 | External-dependency port boundary (6 `Protocol` ports) as the single DI/test seam; fakes-first $0 fast suite + thin real-container contract layer | Accepted | [ADR-0010](./adr/0010-external-dependency-port-boundary.md) |
+| D11 | In-repo evaluation bench (`kgbench`) with gold the pipeline never touches | Accepted | [ADR-0011](./adr/0011-in-repo-evaluation-bench.md) |
+| D12 | Standalone synthetic data generator (`kggen`) that never imports the pipeline | Accepted | [ADR-0012](./adr/0012-standalone-data-generator.md) |
+| D13 | Questions carry a typed gold record, not one answer string | Accepted | [ADR-0013](./adr/0013-question-gold-schema.md) |
+| D14 | Agent API: four verbs (`remember`, `recall`, `forget`, `lookup`), one error shape | Accepted | [ADR-0014](./adr/0014-agent-api-contract.md) |
+| D15 | Tenants are a field on every record, scoped by a `Scope` argument on the store ports | Accepted | [ADR-0015](./adr/0015-tenancy-model.md) |
+| D16 | Ingest triggers on a Valkey stream by default; Kafka selectable | Accepted | [ADR-0016](./adr/0016-trigger-backend.md) |
+| D17 | Consolidate the stateful stores on Postgres + pgvector (direction; not migrated) | Accepted | [ADR-0017](./adr/0017-consolidate-stores-on-postgres.md) |
 
 ### Settled details (not warranting their own ADR yet)
 
-- **Trigger payload:** Kafka message carries only `{bucket, objectKey}`.
+- **Trigger payload:** the trigger (Valkey stream entry or Kafka message) carries only `{bucket, objectKey}` plus its scope and trace context.
 - **Error handling:** log-and-drop per document for the local demo (no DLQ).
 - **Idempotency:** deterministic document ID from `{bucket}/{objectKey}`;
   reprocessing **overwrites**.
@@ -117,8 +124,8 @@ Status values: **Accepted** · **Proposed** · **Open** (still being grilled).
   KG-build); fuller model reserved for the optional answer-synthesis mode.
   Provider swappable (incl. DeepSeek) — see D8.
 - **Entry points:** one FastAPI service exposes **ingestion** (upload → MinIO →
-  publish Kafka trigger) and **query** (`/query`, synchronous, read-only, no
-  Kafka). Kafka remains the first stage of the *ingestion* pipeline.
+  publish a trigger) and **query** (`/query`, synchronous, read-only, no
+  queue). The queue (Valkey stream by default, Kafka optional; ADR-0016) remains the first stage of the *ingestion* pipeline.
 - **Provenance:** every graph edge records source doc + sentence/char range +
   source sentence text.
 - **Logging:** basic Python `logging` for the demo, behind a seam so structured

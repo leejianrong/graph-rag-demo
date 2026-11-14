@@ -1,6 +1,6 @@
 # ADR-0007 — Graph RAG query: non-LLM retrieval, optional LLM synthesis
 
-- **Status:** Accepted
+- **Status:** Accepted. Ingest is no longer Kafka-only: ADR-0016 makes a Valkey stream the default trigger and keeps Kafka selectable.
 - **Date:** 2026-07-14
 - **Deciders:** Jian
 

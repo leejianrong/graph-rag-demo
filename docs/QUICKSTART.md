@@ -15,7 +15,7 @@ uv sync --extra cli --extra mcp
 uv run graph-rag-offline          # serves http://127.0.0.1:8000; leave it running
 ```
 
-The web UI is at http://127.0.0.1:8000/ once it has been built (`make ui-build`; the Docker image has it built in, so after `docker compose up` open http://localhost:8000/). Sign in with an API key (step 4 shows how to make one).
+The web UI is served at http://127.0.0.1:8000/ once it has been built and the server is told where it is: run `make ui-install ui-build` (needs Node 22+), then start the service as `UI_DIR=ui/dist uv run graph-rag-offline`. The Docker image has it built in, so after `docker compose up` open http://localhost:8000/. Sign in with an API key (step 4 shows how to make one).
 
 ## 2. Remember something and ask about it
 
@@ -90,7 +90,7 @@ Put one of these in `.env` and restart:
 - `OPENAI_API_BASE=http://host:port/v1` for any OpenAI-compatible endpoint: a hosted provider, or a local
   server such as Ollama or vLLM (set `OPENAI_API_KEY` to any word if the server ignores it).
 - semula, a recording OpenAI-compatible server whose prompts are answered by an agent. It suits the bench and
-  agent-driven sessions; it is not an unattended local model.
+  agent-driven sessions; it is not an unattended local model. The workflow is in `docs/HANDOFF.md`.
 
 If the endpoint is set but nothing answers (a closed port, a wrong host, a timeout), the document is accepted
 and its job fails with, for example, `coreference failed: InternalServerError. The LLM endpoint at
@@ -112,7 +112,7 @@ The cache only hits when the NER model is the same as on the first run, because 
 the mentions NER found; a different `NER_MODEL` (or spaCy version) gives different prompts, so the entries
 miss and the LLM is called anyway.
 
-Cost on a small hosted model is roughly $0.2 to $0.3 per 1,000 small documents, uncached (an estimate).
+Cost is about 1.6M prompt and 0.15M answer tokens per 1,000 short documents: $2.35 at Claude Haiku 4.5 list prices, computed and not billed (`docs/results/ingest-cost.md`). Longer documents cost more.
 
 ## What is tested
 

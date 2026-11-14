@@ -4,6 +4,10 @@ shaping: true
 
 # SHAPING — Graph RAG Demo
 
+> **Historical (2026-11).** Written before the code, during planning. The build has since moved on (a Valkey stream
+> instead of Kafka by default, tenancy, the `/v1` API, a web UI, an evaluation bench). For what is true now read the code,
+> [`docs/adr/`](./adr/README.md) and [`docs/HANDOFF.md`](./HANDOFF.md).
+
 > The working document for Step C. Ground truth for **requirements (R)**,
 > **shapes**, **fit checks**, and (later) the **breadboard**. The "why" lives in
 > [`FRAME.md`](./FRAME.md); settled decisions live in [`PRD.md`](./PRD.md),

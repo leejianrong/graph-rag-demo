@@ -4,6 +4,10 @@ shaping: true
 
 # BREADBOARD — Graph RAG Demo (Detail A)
 
+> **Historical (2026-11).** Written before the code, during planning. The build has since moved on (a Valkey stream
+> instead of Kafka by default, tenancy, the `/v1` API, a web UI, an evaluation bench). For what is true now read the code,
+> [`docs/adr/`](./adr/README.md) and [`docs/HANDOFF.md`](./HANDOFF.md).
+
 > Concrete affordances and wiring for **Shape A** (the ADR-decided architecture
 > in [`SHAPING.md`](./SHAPING.md)). This is a *detailing* of A, not an
 > alternative shape.

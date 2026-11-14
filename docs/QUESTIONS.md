@@ -1,5 +1,9 @@
 # QUESTIONS — Graph RAG Demo (grilling log)
 
+> **Historical (2026-11).** Written before the code, during planning. The build has since moved on (a Valkey stream
+> instead of Kafka by default, tenancy, the `/v1` API, a web UI, an evaluation bench). For what is true now read the code,
+> [`docs/adr/`](./adr/README.md) and [`docs/HANDOFF.md`](./HANDOFF.md).
+
 Working log for the grilling step of `build-plan-product`. Questions are dumped
 up front and added as we go, so you can answer several per turn.
 

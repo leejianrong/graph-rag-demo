@@ -1,6 +1,6 @@
 # ADR-0001 — Single in-process, modular pipeline consumer
 
-- **Status:** Accepted
+- **Status:** Accepted. The trigger transport it assumes (Kafka) is now selectable: ADR-0016 makes a Valkey stream the default.
 - **Date:** 2026-07-14
 - **Deciders:** Jian
 

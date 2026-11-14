@@ -1,12 +1,12 @@
 # The evaluation bench
 
 2WikiMultihopQA only tells you how the pipeline does on someone else's questions.
-To measure retrieval against ground truth we control, the repo is gaining its own
+To measure retrieval against ground truth we control, the repo has its own
 bench in [`bench/`](../bench/) (command `kgbench`, design in
 [ADR-0011](adr/0011-in-repo-evaluation-bench.md)). Instead of grading against
 an extraction of our own, it scores the pipeline on a synthetic world graph made by the
 standalone [generator](#synthetic-data-generator), so the gold answer never depends on the
-pipeline under test. Extraction scoring is built; try it with no Docker or key:
+pipeline under test. Try it with no Docker or key:
 
 ```bash
 make extract PRESET=small        # kgbench extract: P/R/F1 for mentions, entities and triples, per predicate
@@ -55,7 +55,7 @@ with the floors stored in [`bench/kgbench/gate.json`](../bench/kgbench/gate.json
 pre-push hook run it as a test. After a change that is meant to move the numbers, `uv run kgbench gate
 --update` rewrites the floors, so raising or lowering one shows up in the diff.
 
-The nightly workflow ([`.github/workflows/nightly-benchmark.yml`](../.github/workflows/nightly-benchmark.yml), also `workflow_dispatch`; not one of the required `ci.yml` checks) runs `kgbench nightly` (`make nightly`) and then `kgbench gate`. The gate floors cover retrieval, extraction and linking on a generated world; `nightly` covers the answers, which the floors never see: exact match, token F1 and supporting-fact F1 of `kgbench run --subset small` on the bundled 2Wiki mini fixture, against the baseline in [`bench/kgbench/nightly.json`](../bench/kgbench/nightly.json). A metric more than the file's `tolerance` (0.02, absolute) below its baseline fails the job; the table goes to the job summary. The run is offline and deterministic, so it needs no key; a real-provider smoke step runs only when an `OPENAI_API_KEY` secret exists and is otherwise skipped. After a change meant to move the answers, `uv run kgbench nightly --update` rewrites the baseline. The baseline is five questions, so one question moves EM by 0.2: it catches a broken answer path, not a slow drift. Scheduled workflows run only from the default branch.
+The nightly workflow ([`.github/workflows/nightly-benchmark.yml`](../.github/workflows/nightly-benchmark.yml), also `workflow_dispatch`; not one of the required `ci.yml` checks) runs `kgbench nightly` (`make nightly`) and then `kgbench gate`. The gate floors cover retrieval, extraction and linking on a generated world; `nightly` covers the answers, which the floors never see: exact match, token F1 and supporting-fact F1 of `kgbench run --subset small` on the bundled 2Wiki mini fixture, against the baseline in [`bench/kgbench/nightly.json`](../bench/kgbench/nightly.json). A metric more than the file's `tolerance` (0.02, absolute) below its baseline fails the job; the table goes to the job summary. The run is offline and deterministic, so it needs no key; a real-provider smoke step runs only when an `OPENAI_API_KEY` secret exists and is otherwise skipped. After a change meant to move the answers, `uv run kgbench nightly --update` rewrites the baseline. The baseline is five questions, so one question moves EM by 0.2: it catches a broken answer path, not a slow drift. Scheduled workflows run only from the default branch. It has run on schedule twice (2026-11-12 and 2026-11-13, both green); the real-provider step was skipped both times because the repo has no `OPENAI_API_KEY` secret.
 
 `kgbench judge` measures an optional LLM judge for open-ended answers: false positive and negative rates on 69 labelled cases, replayed offline from committed Haiku answers ([docs/results/judge.md](results/judge.md)). It is off unless asked for.
 
