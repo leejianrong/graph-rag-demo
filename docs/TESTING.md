@@ -52,8 +52,11 @@ client's own cache format (`tests/model/four_docs/llm-cache/`, 8 files), so it r
 test asserts zero provider calls. It asserts one entity each for Helix, Northwind and Acme, the key edges (`ACQUIRED`
 runs buyer to target; Northwind `LOCATED_IN` Hamburg; Pieter `WORKS_FOR` Helix) and that each question's answer is
 the other end, never the entity it names. Deleting the GRA-157 name guard or the GRA-161 answer selection fails it. It
-is `model`-marked because it needs `en_core_web_trf` (`make models-trf`, `uv sync --frozen --extra dev --extra trf`),
-which the CI `model` job does not install, so there it skips; run it locally with
+is `model`-marked because the recording used `en_core_web_trf` 3.8.0 (the coreference prompt embeds the NER mentions, so
+only that model replays it). The CI `model` job installs that pinned wheel (cached, keyed on its version) and runs it; it
+no longer skips there. The `linked` fixture also checks each document's entity-linking result before kg-build runs, so
+without the GRA-157 name guard the failure names the merge (two entities on one canonical id) rather than a recorded-cache
+miss. Run it locally with `make models-trf` and
 `uv run --frozen --extra dev --extra trf pytest tests/model/test_e2e_four_docs.py`.
 
 To re-record (a change to a kg-build or coref prompt, to the predicate list, or a new NER model changes the prompts, so
