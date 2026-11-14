@@ -31,12 +31,12 @@ models/
 
 # Docker / local service data
 data/
+.data/
 volumes/
 *.log
 
 # Benchmark artifacts / datasets (keep large corpora out of git)
 datasets/
-benchmarks/results/
 
 # OS / editor
 .DS_Store

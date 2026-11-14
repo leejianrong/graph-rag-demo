@@ -8,7 +8,7 @@ dependencies = ["pydantic>=2", "pyyaml"]
 
 [project.optional-dependencies]
 # The UI is optional: the generator itself needs only pydantic and pyyaml.
-ui = ["indah>=0.11"]
+ui = ["indah>=0.12"]
 
 [project.scripts]
 kggen = "kggen.cli:main"
