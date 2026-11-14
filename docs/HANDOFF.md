@@ -263,10 +263,10 @@ Short version; the full table (with commands, sizes and what was verified) is `d
 
 - `datasets/2wiki-dev-200.json`: rebuilt by `kgbench real --fetch 200` from the Hugging Face mirror `framolfese/2WikiMultihopQA`; a fresh fetch was
   byte-identical to the author's copy on 2026-11-14.
-- `.env`: copy `.env.example`. `.data/` (API keys, usage, tenant keys) is created at run time and is not gitignored: stage by path.
+- `.env`: copy `.env.example`. `.data/` (API keys, usage, tenant keys) is created at run time and is gitignored.
 - `.cache/llm/`: the response cache; rebuilt by running the pipeline; delete to force real calls.
 - Models: `make models`, `make models-trf`, `make embed-model`. `.venv/`: `uv sync`. `ui/node_modules`, `ui/dist`: `make ui-install`, `make ui-build`.
-- `.mcp.json`: not needed; `.mcp.json.example` is a stale leftover from another project.
+- `.mcp.json`: not needed; register the server as shown in `docs/QUICKSTART.md`.
 - The indah checkout for `make ui` is optional now (indah 0.13.0 is on PyPI).
 - Docker images and volumes; semula's data volume.
 - Committed but easy to miss: recorded LLM caches under `bench/kgbench/data/` (these need `git add -f`, `data/` is ignored),
