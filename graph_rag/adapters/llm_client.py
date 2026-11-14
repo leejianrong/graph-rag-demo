@@ -123,6 +123,7 @@ class LiteLLMClient:
         completion_fn: CompletionFn | None = None,
         tenant_keys: TenantLlmKeys | None = None,
         meter: UsageMeter | None = None,
+        tap: Callable[[str, str, bool], None] | None = None,
     ) -> None:
         """Wire the client.
 
@@ -140,6 +141,9 @@ class LiteLLMClient:
                 calls use its own key and raise ``LlmKeyRequired`` without one, never falling back
                 to ``api_key``; the default tenant is unchanged. Cache hits need no key.
             meter: Counts the tokens each provider call spends, per acting tenant (GRA-58).
+            tap: Called as ``tap(prompt, response_text, from_cache)`` for every response served,
+                whether it came from the provider or the cache, so a bench can count tokens
+                without a provider. A provider retry that failed validation is tapped too.
         """
         self._model = model
         self._cache_dir = Path(cache_dir)
@@ -148,6 +152,7 @@ class LiteLLMClient:
         self._tenant_keys = tenant_keys
         self._meter = meter
         self._completion_fn: CompletionFn = completion_fn or self._default_completion
+        self._tap = tap
         # Usage since construction, read by the bench to price a run (GRA-87).
         self.calls = 0  # provider calls, retries included; a cache hit is not one
         self.cache_hits = 0
@@ -155,7 +160,12 @@ class LiteLLMClient:
         self.cost_usd = 0.0  # LiteLLM's price estimate; 0 for a model it cannot price
 
     @classmethod
-    def from_settings(cls, settings: Settings, model: str | None = None) -> LiteLLMClient:
+    def from_settings(
+        cls,
+        settings: Settings,
+        model: str | None = None,
+        tap: Callable[[str, str, bool], None] | None = None,
+    ) -> LiteLLMClient:
         """Construct from :class:`~graph_rag.config.Settings`.
 
         Uses ``model`` (default ``settings.coref_model``, the V3 stage model, B6), the shared LLM
@@ -172,6 +182,7 @@ class LiteLLMClient:
             api_key=settings.openai_api_key,
             tenant_keys=TenantLlmKeys.from_settings(settings),
             meter=UsageMeter.from_settings(settings),
+            tap=tap,
         )
 
     # --- Public API (the LLMClient port) ------------------------------------
@@ -186,6 +197,7 @@ class LiteLLMClient:
         if cached is not None:
             _logger.debug("LLM cache hit (complete) %s", key[:12])
             self.cache_hits += 1
+            self._tapped(prompt, cached, True)
             return cached
         text = self._call_provider(prompt, params)
         self._write_cache(key, text)
@@ -210,6 +222,7 @@ class LiteLLMClient:
         if cached is not None:
             _logger.debug("LLM cache hit (structured %s) %s", schema.__name__, key[:12])
             self.cache_hits += 1
+            self._tapped(full_prompt, cached, True)
             return schema.model_validate_json(_extract_json(cached))
 
         last_error: Exception | None = None
@@ -245,10 +258,16 @@ class LiteLLMClient:
         start = time.perf_counter()
         try:
             with llm_call(self._model):  # a span and a count, under the stage that asked
-                return self._completion_fn(model=self._model, prompt=prompt, **params, **extra)
+                text = self._completion_fn(model=self._model, prompt=prompt, **params, **extra)
+            self._tapped(prompt, text, False)
+            return text
         finally:
             self.calls += 1
             self.seconds += time.perf_counter() - start
+
+    def _tapped(self, prompt: str, text: str, from_cache: bool) -> None:
+        if self._tap is not None:
+            self._tap(prompt, text, from_cache)
 
     @staticmethod
     def _render_structured_prompt(prompt: str, schema: type[BaseModel]) -> str:
