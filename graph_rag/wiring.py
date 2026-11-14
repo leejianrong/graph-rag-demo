@@ -306,12 +306,27 @@ class BenchmarkComponents:
     merge_store: MergeRecordStore = field(default_factory=InMemoryMergeRecordStore)
 
 
+LlmTap = Callable[[str, str, str, bool], None]
+
+
+def _stage_clients(settings: Settings, llm_tap: LlmTap | None) -> tuple[Any, Any]:
+    """The coref and graph-build LLM clients, tapped as ``llm_tap(stage, prompt, text, cached)``."""
+    from graph_rag.adapters.llm_client import LiteLLMClient
+
+    def client(model: str, stage: str) -> Any:
+        tap = None if llm_tap is None else lambda p, t, c: llm_tap(stage, p, t, c)
+        return LiteLLMClient.from_settings(settings, model, tap=tap)
+
+    return client(settings.coref_model, "coref"), client(settings.kg_build_model, "kg_build")
+
+
 def build_offline_components(
     *,
     settings: Settings | None = None,
     embedder: Embedder | None = None,
     llm_stages: bool = False,
     spacy_ner: bool = False,
+    llm_tap: LlmTap | None = None,
     stores: tuple[ObjectStore, DocumentStore, EntityStore, GraphStore] | None = None,
 ) -> BenchmarkComponents:
     """Wire the fully offline, deterministic benchmark pipeline (fakes + heuristics).
@@ -334,6 +349,8 @@ def build_offline_components(
         spacy_ner: Use the real spaCy NER stage (``settings.ner_model``, falling back to a
             smaller installed model) instead of the heuristic one. Needs a model from
             ``make models``.
+        llm_tap: With ``llm_stages``, called as ``llm_tap(stage, prompt, text, from_cache)`` for
+            every LLM response ("coref" or "kg_build"), so a bench can count tokens on a replay.
         stores: Object, document, entity and graph stores to use in place of the in-memory
             ones, for running the offline stages over real adapters (the cross-tenant suite).
 
@@ -353,11 +370,9 @@ def build_offline_components(
     usage: Callable[[], LlmUsage] = LlmUsage  # the fake stands in for a provider: nothing is spent
     kg_stage: KgStage = HeuristicKgBuildStage()
     if llm_stages:
-        from graph_rag.adapters.llm_client import LiteLLMClient
         from graph_rag.stages.kg_build import KgBuildStage
 
-        coref_llm = LiteLLMClient.from_settings(settings)
-        kg_llm = LiteLLMClient.from_settings(settings, settings.kg_build_model)
+        coref_llm, kg_llm = _stage_clients(settings, llm_tap)
         llm_client, kg_stage, usage = coref_llm, KgBuildStage(kg_llm), usage_of(coref_llm, kg_llm)
 
     ner_stage: NerStage = HeuristicNerStage()
@@ -403,7 +418,9 @@ def build_offline_components(
     )
 
 
-def build_real_components(settings: Settings | None = None) -> BenchmarkComponents:
+def build_real_components(
+    settings: Settings | None = None, *, llm_tap: LlmTap | None = None
+) -> BenchmarkComponents:
     """Wire the real-stack benchmark pipeline (MinIO + ES + Neo4j + spaCy + LLM).
 
     Mirrors ``graph_rag.main`` — real adapters behind every port, the real
@@ -414,6 +431,7 @@ def build_real_components(settings: Settings | None = None) -> BenchmarkComponen
     Args:
         settings: The runtime settings; defaults to environment-driven
             :class:`~graph_rag.config.Settings`.
+        llm_tap: As in :func:`build_offline_components`.
 
     Returns:
         The wired :class:`BenchmarkComponents` over the real adapters.
@@ -421,15 +439,13 @@ def build_real_components(settings: Settings | None = None) -> BenchmarkComponen
     from graph_rag.adapters.embedder import SentenceTransformerEmbedder
     from graph_rag.adapters.es_document_store import EsDocumentStore
     from graph_rag.adapters.es_entity_store import EsEntityStore
-    from graph_rag.adapters.llm_client import LiteLLMClient
     from graph_rag.adapters.minio_object_store import MinioObjectStore
     from graph_rag.adapters.neo4j_graph_store import Neo4jGraphStore
     from graph_rag.stages.kg_build import KgBuildStage
     from graph_rag.stages.ner import SpacyNerStage
 
     settings = settings or Settings()
-    coref_llm = LiteLLMClient.from_settings(settings)
-    kg_llm = LiteLLMClient.from_settings(settings, settings.kg_build_model)  # kept for usage
+    coref_llm, kg_llm = _stage_clients(settings, llm_tap)  # kept so their usage can be read
     usage = usage_of(coref_llm, kg_llm)
 
     object_store = MinioObjectStore.from_settings(settings)

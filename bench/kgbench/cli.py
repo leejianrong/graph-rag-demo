@@ -198,6 +198,33 @@ def build_parser() -> argparse.ArgumentParser:
         "--pipelines", nargs="+", choices=hards.PIPELINES, help="Pipelines to run (default: all)."
     )
     hd.add_argument("--charts", type=Path, help="Write the extraction and retrieval charts here.")
+    ic = commands.add_parser(
+        "ingest-cost",
+        help="Tokens, dollars, time and storage per 1,000 documents ingested (replays a cache).",
+    )
+    ic.add_argument("--dir", type=Path, default=_HARD_DIR, help="The dataset folder.")
+    ic.add_argument("--llm-cache", type=Path, required=True, help="The recorded LLM answers.")
+    ic.add_argument("--spacy", metavar="MODEL", help="Real spaCy NER, as the cache was recorded.")
+    ic.add_argument(
+        "--embedder", choices=("fake", "bge"), default="fake", help="As the cache was recorded."
+    )
+    ic.add_argument(
+        "--price",
+        nargs="+",
+        default=[],
+        metavar="MODEL=IN,OUT",
+        help="Dollars per million input and output tokens, e.g. gpt-4o-mini=0.15,0.60.",
+    )
+    ic.add_argument(
+        "--stack",
+        nargs="*",
+        type=int,
+        metavar="N",
+        help="Also ingest through the real stack (endpoints from the environment), measuring "
+        "storage after each N documents (the last N is the corpus size).",
+    )
+    ic.add_argument("--note", action="append", default=[], help="A line to add to the report.")
+    ic.add_argument("--out", type=Path, help="Write the markdown report here.")
     jd = commands.add_parser(
         "judge",
         help="Measure an LLM judge's error rates on labelled open-ended cases (opt-in).",
@@ -547,6 +574,74 @@ def _hard(args: argparse.Namespace) -> int:
         (args.charts / f"{stem}-retrieval-hard.svg").write_text(
             hards.retrieval_chart(result, "hard", args.k, f"{name}: whole-path@{args.k}, hard text")
         )
+    if args.out:
+        args.out.write_text(text)
+    return 0
+
+
+def _ingest_cost(args: argparse.Namespace) -> int:
+    from kgbench import ingestcost as ic
+
+    _spec, documents = hards.load(args.dir.resolve())
+    settings = Settings(
+        coref_model="openai/claude-haiku",
+        kg_build_model="openai/claude-haiku",
+        llm_cache_dir=str(args.llm_cache),
+        openai_api_key="unused",
+        **({"ner_model": args.spacy} if args.spacy else {}),
+    )
+    count = ic.count_tokens_o200k()
+    embedder = CachingEmbedder(build_embedder(real=args.embedder == "bge"))
+    totals = ic.measure_tokens(
+        documents, settings, count, spacy=bool(args.spacy), embedder=embedder
+    )
+    seconds: list[float] = []
+    cpu: list[float] = []
+    load = None
+    points: list[ic.Checkpoint] = []
+    if args.stack:
+        stack_settings = Settings(
+            coref_model=settings.coref_model,
+            kg_build_model=settings.kg_build_model,
+            llm_cache_dir=settings.llm_cache_dir,
+            openai_api_key="unused",
+            el_threshold=-1.0,  # as the offline pipeline the cache was recorded with
+            el_knn_top_k=0,
+            **({"ner_model": args.spacy} if args.spacy else {}),
+        )
+        run = ic.measure_stack(documents, stack_settings, args.stack, count)
+        seconds, cpu, points = run.seconds, run.cpu_seconds, run.points
+        load = (run.load_before, run.load_after)
+    prices = {}
+    for item in args.price:
+        name, _, rate = item.partition("=")
+        low, high = (float(x) for x in rate.split(","))
+        prices[name] = ic.Price(low, high)
+    words = sum(len(d.text.split()) for d in documents) / len(documents)
+    rel = args.dir.resolve().relative_to(_REPO)
+    command = (
+        f"uv run --extra embed kgbench ingest-cost --dir {rel} "
+        f"--llm-cache {args.llm_cache.resolve().relative_to(_REPO)}"
+        + (f" --spacy {args.spacy}" if args.spacy else "")
+        + f" --embedder {args.embedder}"
+        + (f" --price {' '.join(args.price)}" if args.price else "")
+        + (f" --stack {' '.join(map(str, args.stack))}" if args.stack else "")
+    )
+    text = ic.to_markdown(
+        command=command,
+        documents=len(documents),
+        words=words,
+        totals=totals,
+        prices=prices,
+        tokenizer="OpenAI's o200k_base tokenizer (an approximation for other models)",
+        seconds=seconds,
+        cpu_seconds=cpu,
+        load=load,
+        points=points,
+        notes=args.note,
+        document_tokens=sum(count(d.text) for d in documents),
+    )
+    print(text)
     if args.out:
         args.out.write_text(text)
     return 0
@@ -989,6 +1084,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _sweep(args)
     if args.command == "hard":
         return _hard(args)
+    if args.command == "ingest-cost":
+        return _ingest_cost(args)
     if args.command == "judge":
         return _judge(args)
     if args.command == "shortcut":
