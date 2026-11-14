@@ -64,4 +64,4 @@ ports is in `spikes/pg_stores/` (outside the product, the type check and the fas
 
 ## Not built
 
-A Python SDK (GRA-40), a staging environment (GRA-57), a real-stack quality run at scale (GRA-15), GPU use (GRA-177).
+A Python SDK (GRA-40), a staging environment (GRA-57), a real-stack quality run at scale (GRA-15), and GPU use in the product code (GRA-177 verified it works and measured it, in `docs/HANDOFF.md`; the NER stage never calls `require_gpu()`).
