@@ -1,0 +1,19 @@
+{
+ "subset": "medium",
+ "questions": 50,
+ "documents": 436,
+ "cost": {
+  "wall_seconds": 7632.612,
+  "llm_calls": 663,
+  "llm_cache_hits": 196,
+  "llm_seconds": 6598.121,
+  "llm_cost_usd": 0.0
+ },
+ "aggregate": {
+  "exact_match": 0.02,
+  "token_f1": 0.02,
+  "supporting_fact_precision": 0.248,
+  "supporting_fact_recall": 0.547,
+  "supporting_fact_f1": 0.3351746031746032
+ }
+}

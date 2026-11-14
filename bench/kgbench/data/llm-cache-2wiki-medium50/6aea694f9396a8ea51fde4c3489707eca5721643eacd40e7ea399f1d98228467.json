@@ -1,0 +1,1 @@
+{"triples": [{"subject_id": "e-f53132a17bccc70f", "predicate": "LOCATED_IN", "object_id": "e-50a310ebeabf16d3", "sentence_index": 0, "confidence": 0.9}, {"subject_id": "e-50a310ebeabf16d3", "predicate": "LOCATED_IN", "object_id": "e-2df4479e375a6637", "sentence_index": 0, "confidence": 0.8}]}

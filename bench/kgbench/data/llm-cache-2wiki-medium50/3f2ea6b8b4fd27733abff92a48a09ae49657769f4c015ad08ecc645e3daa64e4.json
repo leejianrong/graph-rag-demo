@@ -1,0 +1,1 @@
+{"triples": [{"subject_id": "e-74c2dbad9e442f81", "predicate": "HAS_ROLE", "object_id": "e-a18d78fa763d688b", "role": "singer", "sentence_index": 0, "confidence": 0.95}, {"subject_id": "e-74c2dbad9e442f81", "predicate": "WORKS_FOR", "object_id": "e-a18d78fa763d688b", "sentence_index": 0, "confidence": 0.9}]}

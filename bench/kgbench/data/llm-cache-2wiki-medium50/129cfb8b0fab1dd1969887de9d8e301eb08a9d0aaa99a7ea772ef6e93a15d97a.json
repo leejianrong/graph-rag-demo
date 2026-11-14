@@ -1,0 +1,1 @@
+{"triples": [{"subject_id": "e-09233241cdfd7c78", "predicate": "HAS_ROLE", "object_id": "e-ceb85ba76370edb3", "role": "Director", "sentence_index": 0, "confidence": 0.95}, {"subject_id": "e-09233241cdfd7c78", "predicate": "WORKS_FOR", "object_id": "e-ceb85ba76370edb3", "sentence_index": 0, "confidence": 0.95}]}
