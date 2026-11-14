@@ -142,7 +142,9 @@ jobs:
   # Separate from the required fast gate: installs the small spaCy model AND the
   # `embed` extra (sentence-transformers), then runs the `model`-marked suite
   # (real SpacyNerStage + model-availability smoke test + the bge embedder test,
-  # TESTING §5). Uses en_core_web_sm — the heavy trf extra is NOT installed here.
+  # TESTING §5), and the four-document replay (GRA-168), which needs en_core_web_trf:
+  # the coref prompt embeds the NER mentions, so the recording only replays under trf.
+  # The trf wheel (~400 MB) is cached, keyed on its pinned version.
   model:
     runs-on: ubuntu-latest
     steps:
@@ -154,14 +156,29 @@ jobs:
           cache-dependency-glob: uv.lock
       - name: Set up Python
         run: uv python install 3.12
-      - name: Sync (frozen, with the embed extra)
-        run: uv sync --frozen --extra dev --extra embed
+      - name: Sync (frozen, with the embed and trf extras)
+        run: uv sync --frozen --extra dev --extra embed --extra trf
       - name: Download spaCy model (en_core_web_sm)
         run: uv run python -m spacy download en_core_web_sm
+      - name: Cache the trf model wheel
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/spacy-models
+          key: spacy-model-en_core_web_trf-3.8.0
+      - name: Install spaCy model (en_core_web_trf 3.8.0, pinned)
+        env:
+          WHEEL: en_core_web_trf-3.8.0-py3-none-any.whl
+        run: |
+          mkdir -p ~/.cache/spacy-models
+          if [ ! -f ~/.cache/spacy-models/$WHEEL ]; then
+            curl -fsSL --retry 3 -o ~/.cache/spacy-models/$WHEEL \
+              https://github.com/explosion/spacy-models/releases/download/en_core_web_trf-3.8.0/$WHEEL
+          fi
+          uv pip install ~/.cache/spacy-models/$WHEEL
       - name: Model-backed suite (spaCy NER + bge embedder)
         env:
           HF_HUB_DISABLE_XET: "1"  # route around the HF xet endpoint so bge downloads reliably
-        run: uv run pytest -m model -q
+        run: uv run pytest -m model -q -rs
 
   # --- Opt-in gate: real-provider LLM suite (NOT required; no secret) -------
   # Runs the `llm`-marked suite. It is deliberately NOT a required gate: with no
