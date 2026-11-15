@@ -197,7 +197,7 @@ by `make openapi`; the four-document replay with `en_core_web_trf` in the CI `mo
   (`docs/results/hard-small-pipelines.md`); on a 200-question 2Wiki slice dense scores 26%, graph-rag 23 to 24% and BM25 16%
   (`docs/results/real-2wiki-200.md`). `PATH_RETRIEVAL=true` (off by default) lists the best chain of edges first and reaches 0.27
   on `hard-small` (not separable from dense overall; 19% against 7% at two hops) and 0.35 on three held-out small worlds, but
-  loses one-hop questions and does nothing at four hops; it is untested on real text (`docs/results/path-retrieval.md`). The
+  loses one-hop questions and does nothing at four hops; on real text it lifts the plain graph view (18% to 30% on 50 real questions through the real stack) but only ties dense (32%), and with the offline graph on 200 questions it gives no lift (`docs/results/path-retrieval.md`). The
   published `hard-small` pipelines used `en_core_web_sm`, where extraction lost 110 of 239 unsolved questions; with the product-default
   `en_core_web_trf` and a re-recorded Haiku builder it loses none, the graph view ties dense (24%) and the chain search reaches 31%
   (`docs/results/hard-small-trf.md`). GRA-170, GRA-179.

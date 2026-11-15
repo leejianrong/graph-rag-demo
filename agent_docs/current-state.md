@@ -26,8 +26,10 @@ For the open work and known quality gaps, read `docs/HANDOFF.md` and the pandan 
 ## Pipeline behaviour added after V8
 
 - **Path retrieval** (GRA-170, `PATH_RETRIEVAL`, off by default; `graph_rag/query/chains.py`): lists the best chain of connected
-  edges first in `subgraph.edges`, by a beam search scored on the chain's sentences joined. `kgbench trace` names the stage that
-  loses each multi-hop path. Results and limits: `docs/results/path-retrieval.md`.
+  edges first in `subgraph.edges`, by a beam search scored on the chain's sentences joined, with a per-node fan-out cap
+  (`PATH_FANOUT`) so hub entities stay cheap. `kgbench trace` names the stage that loses each multi-hop path. It beats BM25 and
+  dense on the synthetic worlds from two hops up but only ties dense on real text. Results and limits:
+  `docs/results/path-retrieval.md`.
 - **Entity linking name guard** (GRA-157, GRA-172): a cosine merge also needs a shared distinctive token that neither name adds to,
   or an acronym ("Acme" and "Acme Logistics Inc." merge; "Acme Logistics" and "Northwind Logistics" do not). Known hole, not the
   guard: an exact-key block on a bare short form merges different people across documents (GRA-178, `docs/results/real-2wiki-medium-50.md`).

@@ -27,6 +27,14 @@
   "retrieval/graph-rag passages/hops=3/recall@5": 0.1133,
   "retrieval/graph-rag passages/hops=4/recall@5": 0.06,
   "retrieval/graph-rag passages/hops=all/path@5": 0.16,
-  "retrieval/graph-rag passages/hops=all/recall@5": 0.2833
+  "retrieval/graph-rag passages/hops=all/recall@5": 0.2833,
+  "retrieval/graph-rag path/hops=1/path@5": 0.7,
+  "retrieval/graph-rag path/hops=1/recall@5": 0.7,
+  "retrieval/graph-rag path/hops=2/path@5": 0.06,
+  "retrieval/graph-rag path/hops=2/recall@5": 0.28,
+  "retrieval/graph-rag path/hops=3/recall@5": 0.0866,
+  "retrieval/graph-rag path/hops=4/recall@5": 0.05,
+  "retrieval/graph-rag path/hops=all/path@5": 0.18,
+  "retrieval/graph-rag path/hops=all/recall@5": 0.2791
  }
 }

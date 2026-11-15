@@ -36,6 +36,8 @@ def chain_first(
     *,
     beam: int = 8,
     depth: int = 4,
+    fanout: int = 20,
+    sentence_vectors: dict[str, list[float]] | None = None,
 ) -> list[Triple]:
     """Return ``subgraph.edges`` with the edges of the best-scoring chains first.
 
@@ -45,6 +47,10 @@ def chain_first(
     are listed in the order their chain ranks, each once; edges on no chain follow in their
     original order. With no seed in the subgraph the order is unchanged.
 
+    A node with many edges (a country, a common first name) would add a candidate chain, and so
+    an embedding, for each of them. Only the ``fanout`` edges at a node whose own sentence is
+    closest to the question are tried; a node with no more edges than that is unaffected.
+
     Args:
         subgraph: The retrieved subgraph.
         seed_ids: The entity seeds the chains start from.
@@ -52,24 +58,38 @@ def chain_first(
         embed: Embeds a batch of texts to unit-length vectors (the retriever's embedder).
         beam: How many chains to keep per length.
         depth: The longest chain, in edges.
+        fanout: The most edges tried at one node, best sentence first.
+        sentence_vectors: A cache of sentence vectors the caller keeps between questions, so a
+            sentence is embedded once; a fresh one is used when omitted.
     """
     edges = list(subgraph.edges)
+    cache = {} if sentence_vectors is None else sentence_vectors
     adjacent: dict[str, list[tuple[int, str]]] = defaultdict(list)
     for i, edge in enumerate(edges):
         adjacent[edge.subject_id].append((i, edge.object_id))
         adjacent[edge.object_id].append((i, edge.subject_id))
 
+    def sentence(i: int) -> str:
+        return edges[i].provenance.source_sentence.strip()
+
+    def closest(extensions: list[tuple[int, str]]) -> list[tuple[int, str]]:
+        """The ``fanout`` extensions whose own sentence is nearest the question."""
+        if len(extensions) <= fanout:
+            return extensions
+        missing = sorted({sentence(i) for i, _ in extensions if sentence(i) not in cache})
+        if missing:
+            cache.update(zip(missing, embed(missing), strict=True))
+        near = {i: _cosine(question_vector, cache[sentence(i)]) for i, _ in extensions}
+        return sorted(extensions, key=lambda item: (-near[item[0]], item[0]))[:fanout]
+
     level: list[tuple[tuple[int, ...], str]] = [
-        ((i,), far) for seed in set(seed_ids) for i, far in adjacent.get(seed, [])
+        ((i,), far) for seed in sorted(set(seed_ids)) for i, far in closest(adjacent.get(seed, []))
     ]
     ranked: list[tuple[float, tuple[int, ...]]] = []
     for _ in range(depth):
         if not level:
             break
-        texts = [
-            " ".join(edges[i].provenance.source_sentence.strip() for i in chain)
-            for chain, _ in level
-        ]
+        texts = [" ".join(sentence(i) for i in chain) for chain, _ in level]
         vectors = embed(texts)
         scored = sorted(
             (
@@ -82,8 +102,7 @@ def chain_first(
         level = [
             (chain + (i,), far)
             for _, chain, tail in scored
-            for i, far in adjacent.get(tail, [])
-            if i not in chain
+            for i, far in closest([(i, far) for i, far in adjacent.get(tail, []) if i not in chain])
         ]
 
     ranked.sort(key=lambda item: (-item[0], item[1]))

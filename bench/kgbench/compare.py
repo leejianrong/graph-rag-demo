@@ -239,9 +239,12 @@ def run_seed(
     ks: Sequence[int],
     documents: tuple[Document, ...] | None = None,
     pipeline: Callable[[], BenchmarkComponents] | None = None,
+    path_pipeline: Callable[[], BenchmarkComponents] | None = None,
 ) -> SeedRun:
     """Score every system on one world; ``documents`` replaces the template text for it and
-    ``pipeline`` builds graph-rag's components (default: the offline ones)."""
+    ``pipeline`` builds graph-rag's components (default: the offline ones). ``graph-rag path``
+    (GRA-170) is added when ``path_pipeline`` builds components with path retrieval on, or when
+    ``pipeline`` itself has it on (``PATH_RETRIEVAL``)."""
     world = generate(spec)
     documents = documents or render_documents(world)
     questions = generate_questions(world, QuestionSpec(n_questions=n_questions))
@@ -260,10 +263,8 @@ def run_seed(
             lambda: GraphRagRetriever(graph["graph"], documents, mode="graph"),
         ),
     }
-    if graph[
-        "graph"
-    ].retriever.path_retrieval:  # GRA-170: only when the retriever lists chains first
-        path = make()
+    path = path_pipeline() if path_pipeline else make()
+    if path.retriever.path_retrieval:  # GRA-170: only when the retriever lists chains first
         systems["graph-rag path"] = (
             path,
             lambda: GraphRagRetriever(path, documents, mode="path"),
