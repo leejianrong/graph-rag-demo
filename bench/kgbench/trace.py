@@ -27,7 +27,7 @@ from kggen.spec import load_spec
 from kggen.world import generate
 
 from graph_rag.ids import document_id
-from graph_rag.models import QueryRequest
+from graph_rag.models import PipelineResult, QueryRequest
 from graph_rag.ports import Embedder
 from graph_rag.scope import DEFAULT_SCOPE
 from graph_rag.wiring import BenchmarkComponents
@@ -79,13 +79,23 @@ def trace(
         k: The cut-off for the top list.
 
     Returns:
-        ``{"graph": {nodes, edges}, "hops": {hop: counts}, "first_loss": {hop: {stage: n}}}``.
+        ``{"graph": {nodes, edges}, "hops": {hop: counts}, "first_loss": {hop: {stage: n}},
+        "extraction": {cause: n}}``; ``extraction`` counts each distinct path fact once.
     """
     world = generate(load_spec(folder / "spec.yaml"))
     names = {e.id: {_norm(e.name), *(_norm(a) for a in e.aliases)} for e in world.entities}
     gold = {e.id: e for e in world.edges}
 
     components = build()
+    results: dict[str, PipelineResult | None] = {}  # each document's result, by document id
+    process = components.orchestrator.process_document
+
+    def capture(trigger):  # type: ignore[no-untyped-def]
+        result = process(trigger)
+        results[trigger.object_key.removesuffix(".txt")] = result
+        return result
+
+    components.orchestrator.process_document = capture  # type: ignore[method-assign]
     graph = GraphRagRetriever(components, documents, mode="graph")
     # The bench only runs on offline components, whose graph store keeps edges in memory.
     store = components.graph_store
@@ -125,6 +135,48 @@ def trace(
     def edge_key(edge) -> tuple:
         p = edge.provenance
         return (edge.subject_id, edge.predicate, edge.object_id, p.source_doc_id, p.source_sentence)
+
+    extraction: Counter = Counter()
+    path_facts = {f for q in questions for f in q["supporting_facts"]}
+    for doc in documents:
+        result = results.get(doc.id)
+        for index, sentence in enumerate(doc.sentences):
+            for fact in sentence.fact_ids:
+                if fact not in path_facts:
+                    continue
+                if result is None:
+                    extraction["document dropped"] += 1
+                    continue
+                want = gold[fact]
+                triples = [t for t in result.triples if t.provenance.sentence_index == index]
+                between = [
+                    t
+                    for t in result.triples
+                    if (
+                        is_entity(t.subject_id, want.subject)
+                        and is_entity(t.object_id, want.object)
+                    )
+                    or (
+                        is_entity(t.subject_id, want.object)
+                        and is_entity(t.object_id, want.subject)
+                    )
+                ]
+                spans = {m.entity_id: m for m in sentence.mentions}
+                found = [
+                    (m := spans.get(e)) is not None
+                    and any(p.char_start < m.end and m.start < p.char_end for p in result.mentions)
+                    for e in (want.subject, want.object)
+                ]
+                if any(t in between for t in triples):
+                    extraction["right edge"] += 1
+                elif triples:
+                    extraction["edges from the sentence, none between the two"] += 1
+                elif not all(found):
+                    extraction["no edge: the NER missed an endpoint"] += 1
+                elif between:
+                    extraction["no edge: right entities joined, another sentence cited"] += 1
+                else:
+                    extraction["no edge: both found, the builder emitted nothing"] += 1
 
     dense = DenseRetriever(documents, embedder)
     bm25 = BM25Retriever(documents)
@@ -175,6 +227,7 @@ def trace(
         "graph": {"nodes": len(nodes), "edges": len(edges)},
         "hops": {h: dict(c) for h, c in sorted(hops.items())},
         "first_loss": {h: dict(c) for h, c in sorted(first_loss.items())},
+        "extraction": dict(extraction),
     }
 
 
@@ -224,4 +277,19 @@ def format_markdown(result: dict, *, command: str, k: int) -> str:
     for stage in STAGES:
         row = [result["first_loss"].get(h, {}).get(stage, 0) for h in hops]
         lines.append(f"| {_STAGE_TEXT[stage]} | " + " | ".join(map(str, row)) + f" | {sum(row)} |")
+    extraction = result.get("extraction", {})
+    if extraction:
+        facts = sum(extraction.values())
+        lines += [
+            "",
+            "## Why a path fact has no edge",
+            "",
+            f"Each of the {facts} distinct facts on a gold path, counted once.",
+            "",
+            "| what happened to the fact | facts |",
+            "|---|---|",
+        ]
+        lines += [
+            f"| {cause} | {n} |" for cause, n in sorted(extraction.items(), key=lambda x: -x[1])
+        ]
     return "\n".join(lines) + "\n"
