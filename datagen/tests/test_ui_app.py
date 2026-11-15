@@ -8,14 +8,98 @@ import pytest
 
 pytest.importorskip("indah")  # the UI is an optional extra; the fast gate runs without it
 
+from kggen import namebank  # noqa: E402
 from kggen_ui import model  # noqa: E402
-from kggen_ui.app import build_session, build_ui  # noqa: E402
+from kggen_ui.app import build_session  # noqa: E402
+from kggen_ui.app import build_ui as build_default_ui  # noqa: E402
 
 
-def test_the_form_starts_filled_from_the_default_preset() -> None:
-    ui = build_ui()
-    assert ui.current_values() == model.preset_values(model.DEFAULT_PRESET)
+def build_ui():  # type: ignore[no-untyped-def]
+    """A UI on the clean presets, which is what these tests were written against.
+
+    The UI itself starts on ``model.DEFAULT_DIFFICULTY``; that has its own test below.
+    """
+    ui = build_default_ui()
+    ui.difficulty.set("clean")
+    ui.phrasing.set("plain")
+    ui.name_style.set("invented")
+    return ui
+
+
+def stating_a_fact(document):  # type: ignore[no-untyped-def]
+    """The first sentence of a document that expresses a fact (the opening one is filler)."""
+    return next(s for s in document.sentences if s.fact_ids)
+
+
+def test_the_form_starts_filled_from_the_default_preset_and_difficulty() -> None:
+    ui = build_default_ui()
+    assert ui.difficulty.value == model.DEFAULT_DIFFICULTY == "hard"
+    assert ui.current_values() == model.preset_values(model.DEFAULT_PRESET, "hard")
+    assert ui.current_values()["homonym_rate"] > 0  # a world that is not clean
     assert ui.entities.value == "-"
+
+
+def test_the_wording_starts_varied_and_changes_only_the_words_of_the_questions() -> None:
+    ui = build_default_ui()
+    assert ui.phrasing.value == model.DEFAULT_PHRASING == "varied"
+    ui.preset.set("small")
+    ui.generate()
+    varied = ui.questions.value
+    ui.phrasing.set("plain")
+    ui.derive()
+    plain = ui.questions.value
+    assert [(q.id, q.answer, q.supporting_facts) for q in varied] == [
+        (q.id, q.answer, q.supporting_facts) for q in plain
+    ]
+    assert [q.question for q in varied] != [q.question for q in plain]
+
+
+def test_names_start_from_the_bank_and_a_world_too_big_for_it_says_so() -> None:
+    ui = build_default_ui()
+    assert ui.name_style.value == model.DEFAULT_NAME_STYLE == "bank"
+    ui.preset.set("small")
+    ui.generate()
+    assert ui.entities.value != "-"
+    first_names = set(namebank.FIRST_NAMES_ALL)
+    people = [e.name for e in ui.world.value.entities if e.type == "PERSON" and not e.distractor]
+    # Most people carry a bank name; the rest are the shared names (homonyms) the hard difficulty
+    # adds, which can be another type's name.
+    from_bank = [n for n in people if n.split()[0] in first_names]
+    assert people and len(from_bank) > len(people) / 2
+
+    ui.preset.set("stress")  # 17,500 people against a bank of about 3,800
+    ui.generate()
+    assert "name bank" in ui.status.value and "invented" in ui.status.value
+
+
+def test_an_export_made_with_varied_wording_records_it_and_reproduces() -> None:
+    ui = build_default_ui()
+    ui.preset.set("small")
+    ui.question_values["n_questions"].set(10)
+    ui.generate()
+    ui.prepare_export()
+    files = exported_files(ui)
+    assert QuestionSpec.model_validate_json(files["questions_spec.json"]).phrasing == "varied"
+    assert RenderSpec.model_validate_json(files["render_spec.json"]).phrasing == "varied"
+    again = reproduce(
+        Specs(
+            world=WorldSpec.model_validate_json(files["spec.json"]),
+            questions=QuestionSpec.model_validate_json(files["questions_spec.json"]),
+            render=RenderSpec.model_validate_json(files["render_spec.json"]),
+        )
+    )
+    assert again == files
+
+
+def test_choosing_a_difficulty_refills_the_ambiguity_knobs_and_leaves_the_shape() -> None:
+    ui = build_default_ui()
+    ui.difficulty.set("clean")
+    clean = ui.current_values()
+    ui.difficulty.set("hard")
+    hard = ui.current_values()
+    assert clean["alias_rate"] == clean["homonym_rate"] == clean["distractor_rate"] == 0
+    assert hard["alias_rate"] > 0 and hard["homonym_rate"] > 0 and hard["distractor_rate"] > 0
+    assert clean["n_entities"] == hard["n_entities"]
 
 
 def test_choosing_a_preset_refills_the_knobs() -> None:
@@ -171,7 +255,7 @@ def test_generate_derives_questions_and_fills_the_table() -> None:
     ui.generate()
     assert len(ui.questions.value) == 20
     assert [r["id"] for r in ui.question_rows.value] == [q.id for q in ui.questions.value]
-    assert ui.question_note.value == "20 questions."
+    assert ui.question_note.value.startswith("20 questions")  # then the mix by type
 
 
 def test_the_hop_mix_control_changes_the_derived_questions() -> None:
@@ -181,7 +265,10 @@ def test_the_hop_mix_control_changes_the_derived_questions() -> None:
     for hop in (1, 2, 4):
         ui.question_values[f"hops_{hop}"].set(0)
     ui.derive()  # re-derive from the same world, with the new mix
-    assert {q.hops for q in ui.questions.value} == {3}
+    # The hop mix steers the chain questions; compare, superlative, unanswerable and the like have
+    # a fixed shape of their own.
+    chains = [q for q in ui.questions.value if q.type in {"entity", "count", "set", "path"}]
+    assert chains and {q.hops for q in chains} == {3}
     assert ui.world.value is not None
 
 
@@ -228,7 +315,7 @@ def test_picking_a_question_highlights_its_gold_path_and_centres_on_its_start() 
 
 
 @needs_graph
-def test_an_oversize_world_lists_questions_but_does_not_highlight() -> None:
+def test_an_oversize_world_lists_questions_and_highlights_only_what_is_drawn() -> None:
     ui = build_ui()
     ui.preset.set("tiny")
     # Sparse, so unique-answer questions exist, but past the graph view's 20,000-node limit.
@@ -238,8 +325,13 @@ def test_an_oversize_world_lists_questions_but_does_not_highlight() -> None:
     ui.generate()
     assert ui.graph_note.value and ui.questions.value
     ui.picked.set(ui.questions.value[0].id)
-    assert ui.highlight() is None and ui.focus() is None
-    assert graph_props(ui)["highlight"] == {"nodes": [], "edges": []}
+    drawn_nodes = {n["id"] for n in ui.graph.value[0]}
+    drawn_edges = {e["id"] for e in ui.graph.value[1]}
+    highlight = ui.highlight()
+    assert highlight is not None
+    assert set(highlight["nodes"]) <= drawn_nodes and set(highlight["edges"]) <= drawn_edges
+    assert ui.focus() is None or ui.focus() in drawn_nodes
+    assert graph_props(ui)["highlight"] == highlight
 
 
 # -- documents -----------------------------------------------------------------------------------
@@ -290,7 +382,7 @@ def test_opening_another_document_clears_the_clicked_sentence() -> None:
     ui.generate()
     first, second = ui.documents.value[0], ui.documents.value[1]
     ui.picked_doc.set(first.id)
-    ui.picked_fact.set(first.sentences[0].fact_ids[0])
+    ui.picked_fact.set(stating_a_fact(first).fact_ids[0])
     ui.picked_doc.set(second.id)
     assert ui.picked_fact.value is None
 
@@ -300,7 +392,7 @@ def test_a_question_and_a_sentence_never_highlight_at_once() -> None:
     ui.preset.set("small")
     ui.generate()
     ui.picked_doc.set(ui.documents.value[0].id)
-    fact = ui.documents.value[0].sentences[0].fact_ids[0]
+    fact = stating_a_fact(ui.documents.value[0]).fact_ids[0]
     ui.picked.set(ui.questions.value[0].id)
     ui.picked_fact.set(fact)
     assert ui.picked.value is None and ui.picked_fact.value == fact
@@ -313,7 +405,7 @@ def test_regenerating_clears_the_open_document_and_sentence() -> None:
     ui.preset.set("small")
     ui.generate()
     ui.picked_doc.set(ui.documents.value[0].id)
-    ui.picked_fact.set(ui.documents.value[0].sentences[0].fact_ids[0])
+    ui.picked_fact.set(stating_a_fact(ui.documents.value[0]).fact_ids[0])
     ui.values["seed"].set(ui.values["seed"].value + 1)
     ui.generate()
     assert ui.picked_doc.value is None and ui.picked_fact.value is None
@@ -415,7 +507,9 @@ def test_the_export_records_the_settings_the_questions_on_screen_were_made_with(
     spec = QuestionSpec.model_validate_json(exported_files(ui)["questions_spec.json"])
     assert set(spec.hop_mix) == {3}
     questions = json.loads(exported_files(ui)["questions.json"])
-    assert {q["hops"] for q in questions} == {3}
+    # the hop mix steers the chain questions; compare, superlative and the like have their own shape
+    chains = [q for q in questions if q["type"] in {"entity", "count", "set", "path"}]
+    assert chains and {q["hops"] for q in chains} == {3}
 
 
 def test_changing_the_world_the_questions_or_the_documents_drops_a_stale_export() -> None:

@@ -17,8 +17,9 @@ from __future__ import annotations
 import random
 import re
 from dataclasses import dataclass
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_serializer
 
 from kggen.filler import filler_sentence
 from kggen.spec import VAGUE_PREDICATE
@@ -71,6 +72,56 @@ TEMPLATES: dict[str, tuple[tuple[str, str], ...]] = {
         ("{S} has ties to {O}", "{S} had ties to {O}"),
     ),
 }
+# The wording ``phrasing="varied"`` adds, planned here rather than invented at generation time: more
+# synonyms per relation and, for most, a passive form that names the object first ("{O} was founded
+# by {S}"), which is how a reader tells a relation from its reverse. Each pair is (present, past).
+# Every wording keeps the relation's direction: {S} is still the subject of the fact.
+_EXTRA_TEMPLATES: dict[str, tuple[tuple[str, str], ...]] = {
+    "LOCATED_IN": (
+        ("{S} can be found in {O}", "{S} could be found in {O}"),
+        ("{S} is situated in {O}", "{S} was situated in {O}"),
+    ),
+    "PART_OF": (
+        ("{S} forms part of {O}", "{S} formed part of {O}"),
+        ("{O} includes {S}", "{O} included {S}"),
+    ),
+    "MEMBER_OF": (
+        ("{S} is among the members of {O}", "{S} was among the members of {O}"),
+        ("{O} counts {S} among its members", "{O} counted {S} among its members"),
+    ),
+    "WORKS_FOR": (
+        ("{S} is on the staff of {O}", "{S} was on the staff of {O}"),
+        ("{O} employs {S}", "{O} employed {S}"),
+    ),
+    "FOUNDED": (
+        ("{S} established {O}", "{S} established {O}"),
+        ("{O} was founded by {S}", "{O} was founded by {S}"),
+    ),
+    "OWNS": (
+        ("{S} holds ownership of {O}", "{S} held ownership of {O}"),
+        ("{O} is owned by {S}", "{O} was owned by {S}"),
+    ),
+    "PRODUCES": (
+        ("{S} makes {O}", "{S} made {O}"),
+        ("{O} is produced by {S}", "{O} was produced by {S}"),
+    ),
+    "PARTICIPATED_IN": (
+        ("{S} was involved in {O}", "{S} was involved in {O}"),
+        ("{O} included {S} among its participants", "{O} included {S} among its participants"),
+    ),
+    "AFFILIATED_WITH": (
+        ("{S} maintains an affiliation with {O}", "{S} maintained an affiliation with {O}"),
+        ("{O} is affiliated with {S}", "{O} was affiliated with {S}"),
+    ),
+    "GOVERNED_BY": (
+        ("{S} falls under {O}", "{S} fell under {O}"),
+        ("{O} governs {S}", "{O} governed {S}"),
+    ),
+}
+VARIED_TEMPLATES: dict[str, tuple[tuple[str, str], ...]] = {
+    predicate: (*pairs, *_EXTRA_TEMPLATES.get(predicate, ()))
+    for predicate, pairs in TEMPLATES.items()
+}
 _SLOT = re.compile(r"(\{S\}|\{O\})")
 _SLOT_S = re.compile(r"(\{S\})")
 
@@ -97,6 +148,18 @@ class RenderSpec(BaseModel):
         le=50,
         description="Facts about connected entities added to a long document as context.",
     )
+    phrasing: Literal["plain", "varied"] = Field(
+        default="plain",
+        description="plain: two wordings per relation. varied: more synonyms and passive forms.",
+    )
+
+    @model_serializer(mode="wrap")
+    def _omit_the_default_phrasing(self, handler):  # type: ignore[no-untyped-def]
+        """Leave a plain ``phrasing`` out of a spec file, so existing files keep their bytes."""
+        data = handler(self)
+        if data.get("phrasing") == "plain":
+            data.pop("phrasing")
+        return data
 
 
 @dataclass(frozen=True)
@@ -166,6 +229,9 @@ def render_documents(world: World, spec: RenderSpec | None = None) -> tuple[Docu
     """One or more documents per subject entity, covering every fact exactly once."""
     spec = spec or RenderSpec()
     rng = random.Random(f"{world.spec.seed}:{spec.seed}:render")
+    # Wording has a stream of its own, and the main one still makes the draw a plain run makes, so a
+    # varied run lays out the same facts in the same documents and only the words differ.
+    wording = random.Random(f"{world.spec.seed}:{spec.seed}:wording")
     entities = {e.id: e for e in world.entities}
     start_year = world.spec.start_year
 
@@ -181,6 +247,8 @@ def render_documents(world: World, spec: RenderSpec | None = None) -> tuple[Docu
 
     def sentence(edge: Edge, offset: int) -> Sentence:
         present, past = rng.choice(TEMPLATES[edge.predicate])
+        if spec.phrasing == "varied":
+            present, past = wording.choice(VARIED_TEMPLATES[edge.predicate])
         ended = edge.valid_to is not None
         template, suffix = (past, f" until {edge.valid_to}") if ended else (present, "")
         if edge.valid_from > start_year:

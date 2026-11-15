@@ -19,9 +19,11 @@ from __future__ import annotations
 import random
 from collections import Counter
 from dataclasses import dataclass
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
+from kggen.ambiguity import NameReader
 from kggen.spec import VAGUE_PREDICATE
 from kggen.world import Edge, World, WorldGenerationError, apportion
 
@@ -97,6 +99,25 @@ class QuestionSpec(BaseModel):
         default_factory=lambda: {"entity": 1.0},
         description=f"Relative weight of each question type: {', '.join(QUESTION_TYPES)}.",
     )
+    ambiguity: Literal["ignore", "mark", "drop"] = Field(
+        default="ignore",
+        description="mark: record whether names alone give a second answer. drop: avoid those.",
+    )
+    phrasing: Literal["plain", "varied"] = Field(
+        default="plain",
+        description="plain: one wording per type. varied: a seeded choice from a fixed bank.",
+    )
+
+    @model_serializer(mode="wrap")
+    def _omit_the_defaults(self, handler):  # type: ignore[no-untyped-def]
+        """Leave the default ``phrasing`` and ``ambiguity`` out of a spec file, so old files keep
+        their bytes."""
+        data = handler(self)
+        if data.get("phrasing") == "plain":
+            data.pop("phrasing")
+        if data.get("ambiguity") == "ignore":
+            data.pop("ambiguity")
+        return data
 
     @model_validator(mode="after")
     def _check(self) -> QuestionSpec:
@@ -142,10 +163,18 @@ class Question:
     # A fact on the path involves an entity whose name or alias another entity also carries, so
     # the text alone cannot tell the two apart (the generator's homonym case).
     shared_name: bool = False
+    # Names alone give a second answer along a chain question's path (``kggen.ambiguity``); None
+    # when it was not assessed, which keeps it out of the file.
+    ambiguous_under_names: bool | None = None
 
     def to_dict(self) -> dict:
+        record = {
+            key: value
+            for key, value in vars(self).items()
+            if value is not None or key != "ambiguous_under_names"
+        }
         return {
-            **vars(self),
+            **record,
             "accepted_answers": list(self.accepted_answers),
             "supporting_facts": list(self.supporting_facts),
             "answers": list(self.answers),
@@ -155,6 +184,81 @@ class Question:
             "required_facts": list(self.required_facts),
             "forbidden_claims": list(self.forbidden_claims),
         }
+
+
+# The wordings ``phrasing="varied"`` chooses from, planned here rather than invented at generation
+# time. ``{np}`` is a noun phrase that starts with "the"; ``{label}`` and ``{plural}`` are a type's
+# noun, ``{tail}`` the relative clause, ``{a}``, ``{b}`` and ``{what}`` as in the plain wording.
+# The first of each is the plain wording. The gold record never depends on the wording.
+_NAME_STEMS = (
+    "Name {np}.",
+    "Identify {np}.",
+    "Give the name of {np}.",
+    "What is the name of {np}?",
+    "Which entity is {np}?",
+)
+_SET_STEMS = (
+    "List every {label} that {tail}.",
+    "Name all the {plural} that {tail}.",
+    "Give every {label} that {tail}.",
+)
+_COUNT_STEMS = (
+    "Count the {plural} that {tail}.",
+    "What is the number of {plural} that {tail}?",
+    "Give the number of {plural} that {tail}.",
+)
+_COMPARE_STEMS = (
+    "Which of {a} and {b} has more {what}?",
+    "Of {a} and {b}, which has more {what}?",
+    "Between {a} and {b}, which has more {what}?",
+)
+_CLAIM_STEMS = (
+    "{claim} Name {np}.",
+    "{claim} Identify {np}.",
+    "{claim} What is the name of {np}?",
+)
+_NAME_THE_STEMS = (
+    "Name the {label} that {tail}.",
+    "Identify the {label} that {tail}.",
+    "What is the {label} that {tail}?",
+    "Give the name of the {label} that {tail}.",
+)
+
+
+class _Phrasing:
+    """Chooses question wording. Plain always uses the first; varied draws from its own stream.
+
+    The draws come from a stream apart from the one that picks the questions, so plain and varied
+    produce the same questions, ids, answers and gold, and only the words differ.
+    """
+
+    def __init__(self, varied: bool, rng: random.Random) -> None:
+        self._varied, self._rng = varied, rng
+
+    def _pick(self, stems: tuple[str, ...]) -> str:
+        return self._rng.choice(stems) if self._varied else stems[0]
+
+    def relative(self, label: str) -> str:
+        """The word that opens a relative clause after a type's noun."""
+        if not self._varied:
+            return "that"
+        return self._rng.choice(("that", "who" if label == "person" else "which"))
+
+    def name(self, np: str) -> str:
+        return self._pick(_NAME_STEMS).format(np=np)
+
+    def name_the(self, label: str, tail: str) -> str:
+        return self._pick(_NAME_THE_STEMS).format(label=label, tail=tail)
+
+    def members(self, kind: str, label: str, plural: str, tail: str) -> str:
+        stems = _SET_STEMS if kind == "set" else _COUNT_STEMS
+        return self._pick(stems).format(label=label, plural=plural, tail=tail)
+
+    def compare(self, a: str, b: str, what: str) -> str:
+        return self._pick(_COMPARE_STEMS).format(a=a, b=b, what=what)
+
+    def claim(self, claim: str, np: str) -> str:
+        return self._pick(_CLAIM_STEMS).format(claim=claim, np=np)
 
 
 def _plural_verb(verb: str) -> str:
@@ -167,17 +271,23 @@ def _plural_verb(verb: str) -> str:
     return (first.removesuffix("s") + (" " + rest if rest else "")) if first.endswith("s") else verb
 
 
-def _noun_phrase(world_names: dict[str, str], types: dict[str, str], start: str, steps) -> str:
-    """The nested phrase naming the entity reached after ``steps`` from ``start``."""
+def _noun_phrase(
+    world_names: dict[str, str], types: dict[str, str], start: str, steps, relative=None
+) -> str:
+    """The nested phrase naming the entity reached after ``steps`` from ``start``.
+
+    ``relative`` chooses the word that opens each clause from the noun before it (default "that").
+    """
     phrase = world_names[start]
     for edge, forward in steps:
         verb = VERB[edge.predicate]
         target = edge.object if forward else edge.subject
         label = TYPE_LABEL[types[target]]
+        word = relative(label) if relative else "that"
         if forward:
-            phrase = f"the {label} that {phrase} {verb}"
+            phrase = f"the {label} {word} {phrase} {verb}"
         else:
-            phrase = f"the {label} that {verb} {phrase}"
+            phrase = f"the {label} {word} {verb} {phrase}"
     return phrase
 
 
@@ -227,10 +337,15 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
     """Derive ``spec.n_questions`` questions from the world's final state, by ``spec.type_mix``."""
     spec = spec or QuestionSpec()
     rng = random.Random(f"{world.spec.seed}:{spec.seed}:questions")
+    phrasing = _Phrasing(
+        spec.phrasing == "varied", random.Random(f"{world.spec.seed}:{spec.seed}:phrasing")
+    )
     entities = {e.id: e for e in world.entities}
     names = {i: e.name for i, e in entities.items()}
     types = {i: e.type for i, e in entities.items()}
     name_count = Counter(e.name for e in world.entities)
+    reader = NameReader(world) if spec.ambiguity != "ignore" else None
+    avoid_ambiguous = spec.ambiguity == "drop"
 
     # Typed facts between real entities that are still true at the end.
     live = [
@@ -283,12 +398,16 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             facts = tuple(e.id for e, _ in steps)
             if frontier != {at} or ("entity", start, facts) in seen:
                 continue
+            if avoid_ambiguous and reader and reader.ambiguous(start, facts, (at,)):
+                continue  # a reader who sees only names would find a second answer
             seen.add(("entity", start, facts))
             answer = entities[at]
             found.append(
                 Question(
                     id="",
-                    question=f"Name {_noun_phrase(names, types, start, steps)}.",
+                    question=phrasing.name(
+                        _noun_phrase(names, types, start, steps, phrasing.relative)
+                    ),
                     hops=hops,
                     start=start,
                     answer=at,
@@ -334,16 +453,14 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 if e.predicate == last.predicate
             }
             paths = tuple((*lead, edge_of[m]) for m in members)
-            inner = _noun_phrase(names, types, start, prefix)
+            if avoid_ambiguous and reader and reader.ambiguous(start, paths[0], members):
+                continue
+            inner = _noun_phrase(names, types, start, prefix, phrasing.relative)
             label = TYPE_LABEL[types[members[0]]]
             plural = PLURAL[types[members[0]]]
             verb = VERB[last.predicate]
             tail = f"{inner} {verb}" if forward else f"{verb} {inner}"
-            text = (
-                f"List every {label} that {tail}."
-                if kind == "set"
-                else f"Count the {plural} that {tail}."
-            )
+            text = phrasing.members(kind, label, plural, tail)
             found.append(
                 Question(
                     id="",
@@ -407,9 +524,8 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             found.append(
                 Question(
                     id="",
-                    question=(
-                        f"Which of {names[first]} and {names[second]} has more "
-                        f"{phrase_of(predicate, forward, plural)}?"
+                    question=phrasing.compare(
+                        names[first], names[second], phrase_of(predicate, forward, plural)
                     ),
                     hops=1,
                     start=first,
@@ -494,7 +610,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             found.append(
                 Question(
                     id="",
-                    question=f"Name the {label} that {tail}.",
+                    question=phrasing.name_the(label, tail),
                     hops=1,
                     start=start,
                     answer="",
@@ -550,11 +666,11 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 if forward
                 else f"{names[true_end]} {verb} {names[start]}"
             )
-            asked = _noun_phrase(names, types, fake, [(second, second_forward)])
+            asked = _noun_phrase(names, types, fake, [(second, second_forward)], phrasing.relative)
             found.append(
                 Question(
                     id="",
-                    question=f"{claim} Name {asked}.",
+                    question=phrasing.claim(claim, asked),
                     hops=2,
                     start=start,
                     answer="",
@@ -888,6 +1004,11 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
 
     def numbered(i: int, q: Question) -> Question:
         who = tuple((names[a], *entities[a].aliases) for a in q.answers)
+        unclear = (
+            reader.ambiguous(q.start, q.gold_paths[0], q.answers)
+            if reader and q.type in {"entity", "set", "count"} and q.gold_paths
+            else None
+        )
         ends = {
             x for f in q.supporting_facts for x in (edge_by_id[f].subject, edge_by_id[f].object)
         }
@@ -897,6 +1018,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 "id": f"Q{i:0{width}d}",
                 "answer_names": who,
                 "shared_name": bool(ends & clash),
+                "ambiguous_under_names": unclear,
             }
         )
 

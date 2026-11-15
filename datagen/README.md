@@ -11,6 +11,28 @@ uv run kggen export --spec spec.json --out dataset.zip     # world + questions +
 make ui                                                     # the generator UI (indah), see the root README
 ```
 
+## Making a world less clean
+
+A preset sets only the graph's size and density, so on its own every preset world is clean. These options layer realism
+over any preset or spec. Each is opt-in, and the default output of every preset and spec is byte-identical to before
+(a test fails on drift). The generator UI starts with the first three on.
+
+| option | what it does | CLI |
+|---|---|---|
+| difficulty | `aliases` or `hard` sets alias, shared-name and look-alike rates (`hard` is what `hard-small` used) | `--difficulty hard` |
+| names | `bank` draws realistic names from a bank checked so no two entities share an alias word; `invented` is the default | `--names bank` |
+| phrasing | `varied` picks sentence and question wording from a planned bank, on a stream of its own: same facts, questions and gold, different words; some sentences are passive and name the object first | `--phrasing varied` |
+| ambiguity | `mark` records `ambiguous_under_names` on chain questions (a reader who sees only names would find a second answer); `drop` never emits one | `--ambiguity drop` |
+
+```bash
+uv run kggen world stats --preset small --difficulty hard --names bank
+uv run kggen questions generate --preset small --difficulty hard --names bank --phrasing varied --ambiguity mark --n 20
+```
+
+The name bank covers every preset up to `large`; `stress` asks for more than it holds and says so (use `--names invented`).
+Bank and invented worlds from one seed are not the same graph, and the bank does not make NER harder (every bank name is
+still one capitalised word): see [generator-realism.md](../docs/results/generator-realism.md).
+
 `fixtures/` holds committed small and medium datasets (regenerate with `make fixtures`; a test fails on drift) and
 `examples/` holds LLM-written sets with their response caches (`hard-tiny`, `hard-small`, `llm-cache-tiny`), each with its own
 README. The UI is the optional `ui` extra (`kggen[ui]`, indah). The root README has the full tour.

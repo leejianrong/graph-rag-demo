@@ -17,7 +17,7 @@ from kggen.questions import QuestionSpec, generate_questions
 from kggen.render import Document, RenderSpec, render_documents
 from kggen.render_llm import InvalidRendering, render_documents_llm
 from kggen.scenarios import ScenarioSpec, generate_scenario
-from kggen.spec import PRESET_NAMES, load_preset, load_spec
+from kggen.spec import DIFFICULTY_NAMES, PRESET_NAMES, load_preset, load_spec, with_difficulty
 from kggen.stats import report
 from kggen.world import generate
 
@@ -54,6 +54,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="Question type mix, e.g. entity:2,set:1,count:1,compare:1,superlative:1.",
     )
     q_gen.add_argument("--question-seed", type=int, default=0, help="Seed for question choice.")
+    q_gen.add_argument(
+        "--ambiguity",
+        choices=("ignore", "mark", "drop"),
+        default="ignore",
+        help="mark: record whether names alone give a second answer. drop: avoid such questions.",
+    )
+    q_gen.add_argument(
+        "--phrasing",
+        choices=("plain", "varied"),
+        default="plain",
+        help="varied: wording drawn from a fixed bank (same questions and gold, different words).",
+    )
     q_gen.add_argument("--out", type=Path, help="Write here instead of stdout.")
     scenario = commands.add_parser(
         "scenario", help="Update, delete and reorder scenarios with the expected final graph."
@@ -71,6 +83,12 @@ def build_parser() -> argparse.ArgumentParser:
     d_gen = d_commands.add_parser("generate", help="Render template documents as JSON.")
     _add_source(d_gen)
     d_gen.add_argument("--render-seed", type=int, default=0, help="Seed for wording choices.")
+    d_gen.add_argument(
+        "--phrasing",
+        choices=("plain", "varied"),
+        default="plain",
+        help="varied: more synonyms and passive forms (same facts and documents, different words).",
+    )
     d_gen.add_argument("--max-facts", type=int, default=6, help="Most facts in one document.")
     d_gen.add_argument(
         "--alias-rate", type=float, default=0.5, help="Chance a mention is an alias."
@@ -122,11 +140,26 @@ def _add_source(parser: argparse.ArgumentParser) -> None:
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--preset", choices=PRESET_NAMES, help="A named complexity preset.")
     source.add_argument("--spec", type=Path, help="A WorldSpec YAML file.")
+    parser.add_argument(
+        "--difficulty",
+        choices=DIFFICULTY_NAMES,
+        default="clean",
+        help="Aliases, shared names and look-alikes to layer over the source (default: clean).",
+    )
+    parser.add_argument(
+        "--names",
+        choices=("invented", "bank"),
+        default="invented",
+        help="invented: made-up words. bank: realistic names from a fixed bank (small worlds).",
+    )
     parser.add_argument("--seed", type=int, help="Override the spec's seed.")
 
 
 def _world(args: argparse.Namespace):
     spec = load_preset(args.preset) if args.preset else load_spec(args.spec)
+    spec = with_difficulty(spec, args.difficulty)
+    if args.names != spec.name_style:
+        spec = spec.with_overrides(name_style=args.names)
     if args.seed is not None:
         spec = spec.with_overrides(seed=args.seed)
     return generate(spec)
@@ -170,7 +203,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         hop_mix = {int(h): float(w) for h, w in (p.split(":") for p in args.hops.split(","))}
         type_mix = {t: float(w) for t, w in (p.split(":") for p in args.types.split(","))}
         spec = QuestionSpec(
-            seed=args.question_seed, n_questions=args.n, hop_mix=hop_mix, type_mix=type_mix
+            seed=args.question_seed,
+            n_questions=args.n,
+            hop_mix=hop_mix,
+            type_mix=type_mix,
+            phrasing=args.phrasing,
+            ambiguity=args.ambiguity,
         )
         data = [q.to_dict() for q in generate_questions(_world(args), spec)]
         text = json.dumps(data, sort_keys=True, indent=1) + "\n"
@@ -204,6 +242,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             alias_use_rate=args.alias_rate,
             target_words=args.words,
             neighbour_facts=args.context_facts,
+            phrasing=args.phrasing,
         )
         if args.renderer == "llm":
             docs = _render_llm(args, render_spec)

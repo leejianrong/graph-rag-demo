@@ -19,6 +19,9 @@ class UI:
 
     root: indah.Component
     preset: indah.Signal
+    difficulty: indah.Signal
+    phrasing: indah.Signal
+    name_style: indah.Signal
     values: dict[str, indah.Signal]
     status: indah.Signal
     entities: indah.Signal
@@ -81,7 +84,7 @@ class UI:
                     self.llm_model.value,
                 )
                 return rendered.documents, model.llm_note(rendered, self.llm_model.value)
-            documents = model.render_world(world, self.current_doc_values())
+            documents = model.render_world(world, self.current_doc_values(), self.phrasing.value)
         except ValueError as exc:
             return (), str(exc)
         shown = min(len(documents), model.MAX_DOCUMENT_ROWS)
@@ -92,7 +95,9 @@ class UI:
         self._drop_export()
         self.doc_source.set(source)
         try:
-            self.render_spec.set(model.render_spec_from_values(self.current_doc_values()))
+            self.render_spec.set(
+                model.render_spec_from_values(self.current_doc_values(), self.phrasing.value)
+            )
         except ValueError:
             self.render_spec.set(None)
         self.picked_doc.set(None)  # old picks may name documents and sentences that are gone
@@ -105,7 +110,10 @@ class UI:
     def _derive(self, world) -> tuple[tuple, str]:
         """Questions for ``world`` from the current form, or none and the reason."""
         try:
-            return model.derive_questions(world, self.current_question_values()), ""
+            return (
+                model.derive_questions(world, self.current_question_values(), self.phrasing.value),
+                "",
+            )
         except ValueError as exc:
             return (), str(exc)
 
@@ -117,7 +125,9 @@ class UI:
     def _set_questions(self, questions: tuple, note: str) -> None:
         self._drop_export()
         try:
-            self.question_spec.set(model.question_spec_from_values(self.current_question_values()))
+            self.question_spec.set(
+                model.question_spec_from_values(self.current_question_values(), self.phrasing.value)
+            )
         except ValueError:
             self.question_spec.set(None)
         self.picked.set(None)  # an old pick may name a question that is gone
@@ -127,7 +137,7 @@ class UI:
 
     def generate(self) -> None:
         try:
-            world = model.generate_world(self.current_values())
+            world = model.generate_world(self.current_values(), name_style=self.name_style.value)
         except ValueError as exc:
             self.status.set(str(exc))
             return
@@ -220,13 +230,16 @@ class UI:
 
 def build_ui() -> UI:
     """Build one viewer's UI: independent signals, so two tabs never share a world."""
-    start = model.preset_values(model.DEFAULT_PRESET)
+    start = model.preset_values(model.DEFAULT_PRESET, model.DEFAULT_DIFFICULTY)
     preset = indah.Signal(model.DEFAULT_PRESET)
+    difficulty = indah.Signal(model.DEFAULT_DIFFICULTY)
+    phrasing = indah.Signal(model.DEFAULT_PHRASING)
+    name_style = indah.Signal(model.DEFAULT_NAME_STYLE)
     values = {name: indah.Signal(value) for name, value in start.items()}
-    status = indah.Signal("Choose a preset or set the knobs, then generate.")
+    status = indah.Signal("Choose a preset and a difficulty or set the knobs, then generate.")
 
     def apply_preset() -> None:
-        for name, value in model.preset_values(preset.value).items():
+        for name, value in model.preset_values(preset.value, difficulty.value).items():
             values[name].set(value)
 
     indah.effect(apply_preset)  # also runs once now, which fills the form from the first preset
@@ -234,6 +247,9 @@ def build_ui() -> UI:
     ui = UI(
         root=None,  # type: ignore[arg-type]
         preset=preset,
+        difficulty=difficulty,
+        phrasing=phrasing,
+        name_style=name_style,
         values=values,
         status=status,
         entities=indah.Signal("-"),
@@ -301,6 +317,13 @@ def build_ui() -> UI:
                 title="Generate a world",
                 children=[
                     indah.Select(preset, options=list(model.PRESET_NAMES), label="Preset"),
+                    indah.Select(
+                        difficulty, options=list(model.DIFFICULTY_NAMES), label="Difficulty"
+                    ),
+                    indah.Select(name_style, options=["invented", "bank"], label="Names"),
+                    indah.Select(
+                        phrasing, options=["plain", "varied"], label="Wording of text and questions"
+                    ),
                     *[
                         indah.Column([indah.Text(title), indah.Grid(group_inputs(group))])
                         for group, title in model.GROUPS.items()

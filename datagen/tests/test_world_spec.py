@@ -2,8 +2,18 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
-from kggen.spec import PRESET_NAMES, WorldSpec, load_preset, load_spec
+from kggen.spec import (
+    DIFFICULTY,
+    DIFFICULTY_NAMES,
+    PRESET_NAMES,
+    WorldSpec,
+    load_preset,
+    load_spec,
+    with_difficulty,
+)
 from pydantic import ValidationError
 
 
@@ -65,3 +75,34 @@ def test_with_overrides_revalidates() -> None:
     assert make().with_overrides(seed=5).seed == 5
     with pytest.raises(ValidationError):
         make().with_overrides(avg_degree=-1)
+
+
+# --- difficulty (GRA-183) ----------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("name", PRESET_NAMES)
+def test_clean_is_the_default_and_changes_nothing(name: str) -> None:
+    """Every existing preset keeps generating exactly what it did."""
+    assert load_preset(name) == load_preset(name, "clean")
+    assert load_preset(name).model_dump() == load_preset(name, "clean").model_dump()
+    assert load_preset(name).alias_rate == load_preset(name).homonym_rate == 0
+
+
+@pytest.mark.parametrize("name", PRESET_NAMES)
+def test_a_difficulty_changes_only_ambiguity_never_the_shape(name: str) -> None:
+    clean, hard = load_preset(name), load_preset(name, "hard")
+    for field in ("n_entities", "avg_degree", "degree_skew", "n_communities", "seed"):
+        assert getattr(hard, field) == getattr(clean, field)
+    assert hard.alias_rate > 0 and hard.homonym_rate > 0 and hard.distractor_rate > 0
+
+
+def test_hard_is_what_the_hard_small_example_was_made_with() -> None:
+    example = load_spec(Path(__file__).parents[1] / "examples" / "hard-small" / "spec.yaml")
+    for knob in ("alias_rate", "aliases_per_entity", "homonym_rate", "distractor_rate"):
+        assert DIFFICULTY["hard"][knob] == getattr(example, knob)
+
+
+def test_an_unknown_difficulty_is_rejected() -> None:
+    with pytest.raises(ValueError, match="unknown difficulty"):
+        with_difficulty(make(), "impossible")
+    assert set(DIFFICULTY_NAMES) == {"clean", "aliases", "hard"}

@@ -17,7 +17,7 @@ from kggen.questions import (
 )
 from kggen.render import Document, RenderSpec, Sentence, render_documents
 from kggen.render_llm import InvalidRendering, render_documents_llm
-from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
+from kggen.spec import DIFFICULTY_NAMES, PRESET_NAMES, WorldSpec, load_preset
 from kggen.stats import check_against_spec
 from kggen.world import Edge, Entity, World, WorldGenerationError, generate
 from pydantic import ValidationError
@@ -54,6 +54,9 @@ KNOBS: tuple[Knob, ...] = (
 )
 KNOB_NAMES = tuple(k.name for k in KNOBS)
 DEFAULT_PRESET = "small"
+DEFAULT_NAME_STYLE = "bank"  # realistic names, so a name does not give an entity away
+DEFAULT_PHRASING = "varied"  # more wordings, so the text and questions read less like a template
+DEFAULT_DIFFICULTY = "hard"  # a clean world is easy to read; the UI starts with a realistic one
 
 
 # What each form field controls and affects: the text of its info tip.
@@ -175,8 +178,8 @@ def values_from_spec(spec: WorldSpec) -> dict[str, float]:
     return {name: getattr(spec, name) for name in KNOB_NAMES}
 
 
-def preset_values(name: str) -> dict[str, float]:
-    return values_from_spec(load_preset(name))
+def preset_values(name: str, difficulty: str = "clean") -> dict[str, float]:
+    return values_from_spec(load_preset(name, difficulty))
 
 
 def read_knob(knob: Knob, raw: object) -> float:
@@ -192,20 +195,24 @@ def read_knob(knob: Knob, raw: object) -> float:
     return int(round(number)) if knob.integer else number
 
 
-def spec_from_values(values: dict[str, float], base: WorldSpec | None = None) -> WorldSpec:
+def spec_from_values(
+    values: dict[str, float], base: WorldSpec | None = None, name_style: str = "invented"
+) -> WorldSpec:
     """Build a validated spec from form values; a ``ValueError`` explains what is wrong."""
     base = base or load_preset(DEFAULT_PRESET)
     clean = {knob.name: read_knob(knob, values.get(knob.name)) for knob in KNOBS}
     try:
-        return base.with_overrides(**clean)
+        return base.with_overrides(**clean, name_style=name_style)
     except ValidationError as exc:
         raise ValueError(exc.errors()[0]["msg"].removeprefix("Value error, ")) from None
 
 
-def generate_world(values: dict[str, float], base: WorldSpec | None = None) -> World:
+def generate_world(
+    values: dict[str, float], base: WorldSpec | None = None, name_style: str = "invented"
+) -> World:
     """Generate the world the form describes. Same values and seed give the same world."""
     try:
-        return generate(spec_from_values(values, base))
+        return generate(spec_from_values(values, base, name_style))
     except WorldGenerationError as exc:
         raise ValueError(str(exc)) from None
 
@@ -241,7 +248,7 @@ QUESTION_DEFAULTS: dict[str, float] = {
 }
 
 
-def question_spec_from_values(values: dict[str, float]) -> QuestionSpec:
+def question_spec_from_values(values: dict[str, float], phrasing: str = "plain") -> QuestionSpec:
     """Build the question spec from the form; a ``ValueError`` explains what is wrong."""
     read = {k.name: read_knob(k, values.get(k.name)) for k in QUESTION_KNOBS}
     mix = {h: float(read[f"hops_{h}"]) for h in range(1, MAX_HOPS + 1) if read[f"hops_{h}"] > 0}
@@ -250,14 +257,21 @@ def question_spec_from_values(values: dict[str, float]) -> QuestionSpec:
     types = {t: float(read[f"type_{t}"]) for t in QUESTION_TYPES if read[f"type_{t}"] > 0}
     if not types:
         raise ValueError("Give at least one question type a weight above 0")
-    return QuestionSpec(n_questions=int(read["n_questions"]), hop_mix=mix, type_mix=types)
+    return QuestionSpec(
+        n_questions=int(read["n_questions"]),
+        hop_mix=mix,
+        type_mix=types,
+        phrasing=phrasing,  # type: ignore[arg-type]
+    )
 
 
-def derive_questions(world: World, values: dict[str, float]) -> tuple[Question, ...]:
+def derive_questions(
+    world: World, values: dict[str, float], phrasing: str = "plain"
+) -> tuple[Question, ...]:
     """Questions from the world, or a ``ValueError`` saying why it cannot (for example, too few
     chains with a unique answer in a small world)."""
     try:
-        return generate_questions(world, question_spec_from_values(values))
+        return generate_questions(world, question_spec_from_values(values, phrasing))
     except WorldGenerationError as exc:
         raise ValueError(str(exc)) from None
 
@@ -384,19 +398,22 @@ MAX_RENDER_WORDS = 10_000_000  # most words the UI will render at once; the CLI 
 MAX_DOCUMENT_ROWS = 5_000  # the table shows this many; a bigger world still renders them all
 
 
-def render_spec_from_values(values: dict[str, float]) -> RenderSpec:
+def render_spec_from_values(values: dict[str, float], phrasing: str = "plain") -> RenderSpec:
     read = {k.name: read_knob(k, values.get(k.name)) for k in RENDER_KNOBS}
     return RenderSpec(
         alias_use_rate=float(read["alias_use_rate"]),
         max_facts_per_doc=int(read["max_facts_per_doc"]),
         target_words=int(read["target_words"]),
         neighbour_facts=int(read["neighbour_facts"]),
+        phrasing=phrasing,  # type: ignore[arg-type]
     )
 
 
-def render_world(world: World, values: dict[str, float]) -> tuple[Document, ...]:
+def render_world(
+    world: World, values: dict[str, float], phrasing: str = "plain"
+) -> tuple[Document, ...]:
     """The world's facts as template documents: deterministic, offline, no LLM."""
-    spec = render_spec_from_values(values)
+    spec = render_spec_from_values(values, phrasing)
     if len(world.entities) * spec.target_words > MAX_RENDER_WORDS:
         raise ValueError(
             f"{len(world.entities):,} entities at {spec.target_words:,} words each is more than "
@@ -675,6 +692,9 @@ def summarize(world: World) -> Summary:
 __all__ = [
     "HELP",
     "knob_help",
+    "DEFAULT_DIFFICULTY",
+    "DEFAULT_NAME_STYLE",
+    "DEFAULT_PHRASING",
     "DEFAULT_PRESET",
     "GROUPS",
     "KNOBS",
@@ -694,6 +714,7 @@ __all__ = [
     "MAX_GRAPH_EDGES",
     "MAX_GRAPH_NODES",
     "MAX_ENTITIES",
+    "DIFFICULTY_NAMES",
     "PRESET_NAMES",
     "Knob",
     "Summary",
