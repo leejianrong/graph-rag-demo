@@ -32,6 +32,7 @@ from typing import TYPE_CHECKING
 
 from graph_rag.logging import get_logger
 from graph_rag.models import QueryResponse
+from graph_rag.query.chains import chain_first
 from graph_rag.query.ranking import rank_nodes, select_answer_for_question, select_second_answer
 from graph_rag.query.temporal import drop_sentences, subgraph_as_of, subgraph_current
 from graph_rag.scope import DEFAULT_SCOPE, Scope, acting_for
@@ -67,6 +68,9 @@ class QueryRetriever:
         khop_depth: int,
         rank_weight_seed: float,
         rank_weight_proximity: float,
+        path_retrieval: bool = False,
+        path_beam: int = 8,
+        path_depth: int = 4,
         synthesizer: AnswerSynthesizer | None = None,
     ) -> None:
         """Wire the ports and the pinned retrieval knobs.
@@ -81,6 +85,9 @@ class QueryRetriever:
             khop_depth: BFS expansion depth from the entity seeds (B3).
             rank_weight_seed: B4 seed-similarity weight (default ``0.7``).
             rank_weight_proximity: B4 graph-proximity weight (default ``0.3``).
+            path_retrieval: List the best chain of edges first (GRA-170); off by default.
+            path_beam: Chains kept per length when ``path_retrieval`` is on.
+            path_depth: The longest chain, in edges, when ``path_retrieval`` is on.
             synthesizer: OPTIONAL V7 prose synthesizer (N17). ``None`` (the default)
                 keeps the path deterministic and LLM-free; when wired, it runs ONLY
                 if a request sets ``synthesize=true`` (the gate defaults OFF).
@@ -94,7 +101,15 @@ class QueryRetriever:
         self._khop_depth = khop_depth
         self._rank_weight_seed = rank_weight_seed
         self._rank_weight_proximity = rank_weight_proximity
+        self._path_retrieval = path_retrieval
+        self._path_beam = path_beam
+        self._path_depth = path_depth
         self._synthesizer = synthesizer
+
+    @property
+    def path_retrieval(self) -> bool:
+        """Whether the best chain of edges is listed first (GRA-170)."""
+        return self._path_retrieval
 
     @classmethod
     def from_settings(
@@ -126,6 +141,9 @@ class QueryRetriever:
             khop_depth=settings.khop_depth,
             rank_weight_seed=settings.rank_weight_seed,
             rank_weight_proximity=settings.rank_weight_proximity,
+            path_retrieval=settings.path_retrieval,
+            path_beam=settings.path_beam,
+            path_depth=settings.path_depth,
             synthesizer=synthesizer,
         )
 
@@ -218,6 +236,19 @@ class QueryRetriever:
             key=lambda cid: (-seed_scores[cid], cid),
         )
         answer = answer_entity.name if answer_entity is not None else None
+
+        # 5b. Path retrieval (GRA-170, default off): list the best chain's edges first. This runs
+        #     after the answer is chosen, so it only reorders the edges the response carries.
+        if self._path_retrieval and matched:
+            ordered = chain_first(
+                subgraph,
+                matched,
+                question_vector,
+                self._embedder.embed,
+                beam=self._path_beam,
+                depth=self._path_depth,
+            )
+            subgraph = subgraph.model_copy(update={"edges": ordered})
 
         _logger.info(
             "query answered: %d entity seed(s), %d sentence seed(s), "
