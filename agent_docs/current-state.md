@@ -31,8 +31,9 @@ For the open work and known quality gaps, read `docs/HANDOFF.md` and the pandan 
   dense on the synthetic worlds from two hops up but only ties dense on real text. Results and limits:
   `docs/results/path-retrieval.md`.
 - **Entity linking name guard** (GRA-157, GRA-172): a cosine merge also needs a shared distinctive token that neither name adds to,
-  or an acronym ("Acme" and "Acme Logistics Inc." merge; "Acme Logistics" and "Northwind Logistics" do not). Known hole, not the
-  guard: an exact-key block on a bare short form merges different people across documents (GRA-178, `docs/results/real-2wiki-medium-50.md`).
+  or an acronym ("Acme" and "Acme Logistics Inc." merge; "Acme Logistics" and "Northwind Logistics" do not). An exact-key block hit that
+  rests only on a bare short form ("Frederick") must pass the same name check (GRA-178, `docs/results/short-form-block.md`); the
+  Curwen and "Mary" merges on real text still get through other paths.
 - **Answer selection** (GRA-161) and `answer_entities` for a second ask (GRA-165): ADR-0014, "How the answer is chosen".
 - **`ACQUIRED` predicate** and a `role` property on edges (`HAS_ROLE` title), GRA-162 (`graph_rag/predicates.py`).
 - **Time**: `document_date` on ingest, `valid_from`/`valid_to` on facts, `as_of` on recall; a newer document ends an older

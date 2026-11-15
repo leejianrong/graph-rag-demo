@@ -9,8 +9,6 @@ from __future__ import annotations
 
 import math
 
-import pytest
-
 from graph_rag.fakes import FakeEmbedder, InMemoryEntityStore
 from graph_rag.models import CanonicalEntity, CorefCluster, Mention, Sentence
 from graph_rag.scope import DEFAULT_SCOPE
@@ -139,9 +137,6 @@ def test_people_who_share_only_a_given_name_or_surname_do_not_merge() -> None:
     )
 
 
-@pytest.mark.xfail(
-    strict=True, reason="GRA-178: a short form in one document is an identity key in the next"
-)
 def test_a_short_form_in_one_document_does_not_pull_in_another_person() -> None:
     """The merge found on the real 2Wiki run, with no model: two different Fredericks.
 
@@ -173,6 +168,52 @@ def test_a_short_form_in_one_document_does_not_pull_in_another_person() -> None:
     )
 
     assert calvert != prince
+
+
+def _link_cluster(
+    stage: EntityLinkingStage, text: str, full: str, short: str, type_: str = "PERSON"
+) -> str:
+    """Link one document whose coref cluster is ``full`` plus its bare short form ``short``."""
+    forms = [full, short]
+    mentions = [
+        Mention(
+            text=f,
+            type=type_,  # type: ignore[arg-type]
+            char_start=text.index(f),
+            char_end=text.index(f) + len(f),
+        )
+        for f in forms
+    ]
+    clusters = [CorefCluster(canonical=full, members=forms)]
+    return stage.link(text, mentions, [], clusters).links[0].canonical_id
+
+
+def test_a_short_form_still_finds_the_fuller_name_it_belongs_to() -> None:
+    """The alias case must survive: "Saba" in one document, "Saba Industries" in the next."""
+    stage = EntityLinkingStage(InMemoryEntityStore(), FakeEmbedder())
+
+    bare = _link_cluster(stage, "Saba opened a depot.", "Saba", "Saba", "ORG")
+    fuller = _link_cluster(
+        stage, "Saba Industries opened a depot. Saba hired staff.", "Saba Industries", "Saba", "ORG"
+    )
+
+    assert fuller == bare
+
+
+def test_two_people_who_share_a_surname_stay_apart_through_the_short_form() -> None:
+    stage = EntityLinkingStage(InMemoryEntityStore(), FakeEmbedder())
+
+    henry = _link_cluster(
+        stage,
+        "Sir Henry Curwen was a landowner. Curwen died in 1778.",
+        "Sir Henry Curwen",
+        "Curwen",
+    )
+    joan = _link_cluster(
+        stage, "Joan Curwen was his daughter. Curwen married late.", "Joan Curwen", "Curwen"
+    )
+
+    assert henry != joan
 
 
 def test_acronym_still_merges() -> None:
