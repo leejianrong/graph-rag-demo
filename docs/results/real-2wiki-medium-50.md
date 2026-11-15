@@ -48,7 +48,7 @@ I asked the answering agent to report entity IDs that seemed to stand for more t
 
 Three more (`Maria`, `Anna`, `Mary`) are bare given names shared across documents; `Mary` carries the alias "Mary, Queen of Scots", which may be right.
 
-What this does not show: how often it happens. The agent listed collisions it noticed while answering, so this is a set of examples, not a rate. The merges share a token (a given name or a surname), which is the hole GRA-172 describes for "Acme Logistics" and "Northwind Logistics". I have not confirmed that the GRA-157 name guard is what lets these through. This bears on GRA-170: a merged entity creates paths that do not exist and hides the ones that do.
+What this does not show: how often it happens. The agent listed collisions it noticed while answering, so this is a set of examples, not a rate. The cause is not the GRA-157 name guard. Re-linking these 436 documents with the recorded coref answers gives 2,762 entities under the old guard and under the tightened one (GRA-172) alike, and the merges above remain. They go through the exact-key block in `graph_rag/stages/entity_linking.py`: a bare short form such as "Frederick" that one document's coref clustered with a person becomes an identity key for any later same-type mention, and the guard and the cosine are never consulted. A two-document repro gives the same entity id as this run (a strict xfail in `tests/unit/test_el_name_guard.py`; card GRA-178). This bears on GRA-170: a merged entity creates paths that do not exist and hides the ones that do.
 
 ## Quality of the recorded answers
 

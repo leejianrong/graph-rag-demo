@@ -204,10 +204,13 @@ by `make openapi`; the four-document replay with `en_core_web_trf` in the CI `mo
   who share a name token (`docs/results/real-2wiki-medium-50.md`). The other 150 medium questions are not run. GRA-15.
 - Time is only partly modelled: a newer dated document ends an older fact for single-valued predicates, but a job change in undated
   text leaves two employers. GRA-171.
-- "Acme Logistics" and "Northwind Logistics" would still merge: the GRA-157 guard (`_names_compatible` in
-  `graph_rag/stages/entity_linking.py`) lets a cosine merge through when the two names share any distinctive token, and "Logistics"
-  is one. This comes from card GRA-172 and a read of the code; I did not run it. The four-document test uses "Northwind Shipping", so
-  it keeps that pair apart and does not cover this one. GRA-172.
+- Entity linking merges different people on the real text. The 2Wiki run (`docs/results/real-2wiki-medium-50.md`) shows Frederick
+  Calvert merged with a different Frederick, one Curwen with another, and so on. The cause is the exact-key block in
+  `graph_rag/stages/entity_linking.py` (`_block`): a bare short form ("Frederick") that one document's coref clustered with a person
+  becomes a cross-document identity key and skips the guard and the cosine. A two-document repro is a strict xfail in
+  `tests/unit/test_el_name_guard.py`. GRA-178. The GRA-172 change (a shared token licenses a similarity merge only when neither name
+  adds a distinctive token, so "Acme Logistics" and "Northwind Logistics" stay apart) is separate and made no difference to those
+  merges or to any benchmark here.
 - The nightly benchmark has run on schedule twice (2026-11-12 and 2026-11-13, both green), but its real-provider step was
   skipped because the repo has no `OPENAI_API_KEY` secret, and its baseline is five questions. The earlier belief that it had
   never run is wrong; GRA-174 is stale.

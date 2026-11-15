@@ -9,6 +9,8 @@ from __future__ import annotations
 
 import math
 
+import pytest
+
 from graph_rag.fakes import FakeEmbedder, InMemoryEntityStore
 from graph_rag.models import CanonicalEntity, CorefCluster, Mention, Sentence
 from graph_rag.scope import DEFAULT_SCOPE
@@ -114,6 +116,63 @@ def test_shared_legal_suffix_alone_does_not_merge() -> None:
 def test_shared_distinctive_token_still_merges() -> None:
     assert _links_to_seed("Acme", "Acme Logistics")
     assert _links_to_seed("Acme Logistics", "Acme")
+
+
+def test_each_name_with_a_token_the_other_lacks_does_not_merge() -> None:
+    """GRA-172: a shared token is not enough when both names add a distinctive one."""
+    assert not _links_to_seed("Acme Logistics", "Northwind Logistics")
+    assert not _links_to_seed("Northwind Logistics", "Acme Logistics")
+
+
+def test_the_same_name_with_a_fuller_form_still_merges() -> None:
+    assert _links_to_seed("Acme", "Acme Logistics Inc.")
+    assert _links_to_seed("Acme Logistics Inc.", "Acme")
+    assert _links_to_seed("Barack Obama", "President Barack Obama")
+
+
+def test_people_who_share_only_a_given_name_or_surname_do_not_merge() -> None:
+    """Merges found on the real 2Wiki run (docs/results/real-2wiki-medium-50.md)."""
+    assert not _links_to_seed("Sir Henry Curwen", "Joan Curwen")
+    assert not _links_to_seed("Rajaraja Chola I", "Arinjaya Chola")
+    assert not _links_to_seed(
+        "Frederick Calvert, 6th Baron Baltimore", "Frederick, Hereditary Prince of Baden-Durlach"
+    )
+
+
+@pytest.mark.xfail(
+    strict=True, reason="GRA-178: a short form in one document is an identity key in the next"
+)
+def test_a_short_form_in_one_document_does_not_pull_in_another_person() -> None:
+    """The merge found on the real 2Wiki run, with no model: two different Fredericks.
+
+    Each document's coref clustered the bare "Frederick" with its own full name. The first
+    document's "Frederick" then matches the second's exactly, and the exact-key block merges
+    them without asking the guard or the cosine.
+    """
+    store = InMemoryEntityStore()
+    stage = EntityLinkingStage(store, FakeEmbedder())
+
+    def link(text: str, full: str) -> str:
+        forms = [full, "Frederick"]
+        mentions = [
+            Mention(
+                text=f, type="PERSON", char_start=text.index(f), char_end=text.index(f) + len(f)
+            )
+            for f in forms
+        ]
+        clusters = [CorefCluster(canonical=full, members=forms)]
+        return stage.link(text, mentions, [], clusters).links[0].canonical_id
+
+    calvert = link(
+        "Frederick Calvert, 6th Baron Baltimore, was a British peer. Frederick sold the colony.",
+        "Frederick Calvert, 6th Baron Baltimore",
+    )
+    prince = link(
+        "Frederick, Hereditary Prince of Baden-Durlach, was a German noble. Frederick died young.",
+        "Frederick, Hereditary Prince of Baden-Durlach",
+    )
+
+    assert calvert != prince
 
 
 def test_acronym_still_merges() -> None:

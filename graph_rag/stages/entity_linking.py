@@ -24,10 +24,10 @@ algorithm, per doc-level entity, is **block → score → decide**:
    named identically across documents stays ONE node even when its per-document
    mention-in-context embeddings drift below the threshold. With no block match, the
    fuzzy kNN candidates that pass the name guard (:func:`_names_compatible`: a shared
-   distinctive token or an acronym, so two organisations named in one sentence are never
-   merged on shared context alone, GRA-157) are scored by cosine and merge only if the
-   best is at or above the fixed ``el_threshold`` (B2); otherwise a **new** canonical entity is
-   minted and upserted (the normal always-on path). Genuine same-type/same-name
+   distinctive token that neither name adds to, or an acronym, so two organisations named in
+   one sentence are never merged on shared context alone, GRA-157, GRA-172) are scored by cosine
+   and merge only if the best is at or above the fixed ``el_threshold`` (B2); otherwise a **new**
+   canonical entity is minted and upserted (the normal always-on path). Genuine same-type/same-name
    homonyms are the province of the gated LLM tie-breaker. Linking is
    **order-sensitive**: the first document to mention an entity seeds its canonical
    record (name + vector).
@@ -599,8 +599,10 @@ def _names_compatible(entity: _DocEntity, candidate: CanonicalEntity) -> bool:
     Mention-in-context vectors carry the whole sentence, so two different names in one
     sentence ("Acme Logistics acquired Northwind Shipping") score near 1.0. A similarity
     merge therefore also needs the names to relate: some surface of each shares a
-    distinctive (non-generic) token, or one is the initials of the other ("IBM" and
-    "International Business Machines"). Exact/normalised-name matches never reach this.
+    distinctive (non-generic) token and neither carries a distinctive token the other lacks, so
+    "Acme" and "Acme Logistics Inc." relate, but "Acme Logistics" and "Northwind Logistics" do
+    not (GRA-172); or one is the initials of the other ("IBM" and "International Business
+    Machines"). Exact/normalised-name matches never reach this.
     """
     ours = [entity.surface, *entity.also_known_as]
     theirs = [candidate.name, *candidate.aliases]
@@ -608,7 +610,10 @@ def _names_compatible(entity: _DocEntity, candidate: CanonicalEntity) -> bool:
         tokens_a = _distinctive(a)
         for b in theirs:
             tokens_b = _distinctive(b)
-            if set(tokens_a) & set(tokens_b):
+            # One name's distinctive tokens inside the other's: a short form or a fuller form.
+            if set(tokens_a) & set(tokens_b) and (
+                set(tokens_a) <= set(tokens_b) or set(tokens_b) <= set(tokens_a)
+            ):
                 return True
             if len(tokens_a) == 1 and _is_acronym(tokens_a[0], tokens_b):
                 return True
