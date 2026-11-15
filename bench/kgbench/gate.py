@@ -19,13 +19,14 @@ from kggen.render import render_documents
 from kggen.spec import WorldSpec, load_preset
 from kggen.world import generate
 
+from graph_rag.config import Settings
 from graph_rag.wiring import build_embedder, build_offline_components
 from kgbench.compare import CachingEmbedder, run_seed
 from kgbench.extraction import gold_from, run_pipeline, score
 from kgbench.linking import DIFFICULTY, linking_gold, score_linking
 
 DEFAULT_FLOORS = Path(__file__).resolve().parent / "gate.json"
-GATED_SYSTEMS = ("graph-rag passages", "graph-rag graph")
+GATED_SYSTEMS = ("graph-rag passages", "graph-rag graph", "graph-rag path")
 
 
 @dataclass(frozen=True)
@@ -48,11 +49,16 @@ def measure(setup: Setup) -> dict[str, float]:
     spec = load_preset(setup.preset).model_copy(update={"seed": setup.seed})
     metrics: dict[str, float] = {}
 
+    embedder = CachingEmbedder(build_embedder())
     run = run_seed(
         spec,
         n_questions=setup.questions,
-        embedder=CachingEmbedder(build_embedder()),
+        embedder=embedder,
         ks=(setup.k,),
+        # GRA-170: the chain search is opt-in, so the gate asks for it here to guard its floors.
+        path_pipeline=lambda: build_offline_components(
+            embedder=embedder, settings=Settings(path_retrieval=True)
+        ),
     )
     for system in GATED_SYSTEMS:
         report = run.reports[system]

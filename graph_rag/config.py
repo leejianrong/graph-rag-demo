@@ -199,6 +199,7 @@ class Settings(BaseSettings):
     path_retrieval: bool = False
     path_beam: int = 8  # chains kept per length
     path_depth: int = 4  # the longest chain, in edges
+    path_fanout: int = 20  # the most edges tried at one node, best sentence first
 
     # --- Web UI (GRA-53) ------------------------------------------------------
     # Where the built UI is (the image puts it here). The service serves it at ``/`` when the

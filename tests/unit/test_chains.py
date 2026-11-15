@@ -77,6 +77,64 @@ def test_no_seed_in_the_subgraph_leaves_the_order_alone() -> None:
     assert ordered == subgraph().edges
 
 
+# --- hubs --------------------------------------------------------------------------------------
+
+
+def hub_subgraph(fillers: int = 60) -> Subgraph:
+    """The widget is a hub: many irrelevant edges, and the two that answer the question."""
+    noise = [edge("widget", f"n{i}", f"Filler sentence {i}.") for i in range(fillers)]
+    return Subgraph(nodes=[], edges=[*noise, MAKES, OWNS])
+
+
+class Counting:
+    """An embedder that remembers how many texts it was asked for, in each batch."""
+
+    def __init__(self) -> None:
+        self.batches: list[int] = []
+
+    def __call__(self, texts: list[str]) -> list[list[float]]:
+        self.batches.append(len(texts))
+        return embed(texts)
+
+
+def test_a_hub_is_pruned_to_its_closest_edges_and_the_chain_is_still_found() -> None:
+    counted = Counting()
+
+    ordered = chain_first(
+        hub_subgraph(), ["widget"], embed([QUESTION])[0], counted, beam=4, fanout=3
+    )
+
+    assert sentences(ordered)[:2] == [
+        MAKES.provenance.source_sentence,
+        OWNS.provenance.source_sentence,
+    ]
+    assert max(counted.batches[1:]) <= 4 * 3  # chains per level are at most beam x fanout
+
+
+def test_without_a_cap_every_edge_at_a_hub_is_a_candidate() -> None:
+    """Revert proof: with no cap the first level embeds a chain for every edge of the hub."""
+    counted = Counting()
+
+    chain_first(hub_subgraph(), ["widget"], embed([QUESTION])[0], counted, fanout=10_000)
+
+    assert counted.batches[0] == 61  # 60 fillers and the maker edge: all touch the hub
+
+
+def test_a_sentence_is_embedded_once_across_questions() -> None:
+    cache: dict[str, list[float]] = {}
+    first, second = Counting(), Counting()
+
+    chain_first(
+        hub_subgraph(), ["widget"], embed([QUESTION])[0], first, fanout=3, sentence_vectors=cache
+    )
+    chain_first(
+        hub_subgraph(), ["widget"], embed([QUESTION])[0], second, fanout=3, sentence_vectors=cache
+    )
+
+    assert sum(first.batches) > sum(second.batches)  # the second question reuses the 61 sentences
+    assert len(cache) == 61
+
+
 # --- the flag ----------------------------------------------------------------------------------
 
 

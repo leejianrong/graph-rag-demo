@@ -47,6 +47,8 @@ __all__ = ["QueryRetriever"]
 
 _logger = get_logger(__name__)
 
+_SENTENCE_CACHE = 20_000  # sentence vectors kept for path retrieval
+
 
 class QueryRetriever:
     """The non-LLM query retriever (N16) — seed → expand → rank → answer.
@@ -71,6 +73,7 @@ class QueryRetriever:
         path_retrieval: bool = False,
         path_beam: int = 8,
         path_depth: int = 4,
+        path_fanout: int = 20,
         synthesizer: AnswerSynthesizer | None = None,
     ) -> None:
         """Wire the ports and the pinned retrieval knobs.
@@ -88,6 +91,7 @@ class QueryRetriever:
             path_retrieval: List the best chain of edges first (GRA-170); off by default.
             path_beam: Chains kept per length when ``path_retrieval`` is on.
             path_depth: The longest chain, in edges, when ``path_retrieval`` is on.
+            path_fanout: The most edges tried at one node, best sentence first.
             synthesizer: OPTIONAL V7 prose synthesizer (N17). ``None`` (the default)
                 keeps the path deterministic and LLM-free; when wired, it runs ONLY
                 if a request sets ``synthesize=true`` (the gate defaults OFF).
@@ -104,6 +108,8 @@ class QueryRetriever:
         self._path_retrieval = path_retrieval
         self._path_beam = path_beam
         self._path_depth = path_depth
+        self._path_fanout = path_fanout
+        self._sentence_vectors: dict[str, list[float]] = {}  # kept between questions
         self._synthesizer = synthesizer
 
     @property
@@ -144,6 +150,7 @@ class QueryRetriever:
             path_retrieval=settings.path_retrieval,
             path_beam=settings.path_beam,
             path_depth=settings.path_depth,
+            path_fanout=settings.path_fanout,
             synthesizer=synthesizer,
         )
 
@@ -247,7 +254,11 @@ class QueryRetriever:
                 self._embedder.embed,
                 beam=self._path_beam,
                 depth=self._path_depth,
+                fanout=self._path_fanout,
+                sentence_vectors=self._sentence_vectors,
             )
+            if len(self._sentence_vectors) > _SENTENCE_CACHE:  # bounded: start over when full
+                self._sentence_vectors.clear()
             subgraph = subgraph.model_copy(update={"edges": ordered})
 
         _logger.info(

@@ -112,7 +112,7 @@ def questions(examples: Sequence[BenchmarkExample]) -> tuple[Question, ...]:
 def measure(
     examples: Sequence[BenchmarkExample], embedder: Embedder, ks: Sequence[int]
 ) -> dict[str, RetrievalReport]:
-    """All four systems on one corpus."""
+    """All four systems on one corpus, and ``graph-rag path`` when ``PATH_RETRIEVAL`` is on."""
     docs, qs = corpus(examples), questions(examples)
     build: dict[str, Callable[[], Retriever]] = {
         "BM25": lambda: BM25Retriever(docs),
@@ -124,6 +124,9 @@ def measure(
             build_offline_components(embedder=embedder), docs, mode="graph"
         ),
     }
+    path = build_offline_components(embedder=embedder)
+    if path.retriever.path_retrieval:  # GRA-170: only when the retriever lists chains first
+        build["graph-rag path"] = lambda: GraphRagRetriever(path, docs, mode="path")
     return {name: evaluate(make(), qs, ks) for name, make in build.items()}
 
 
