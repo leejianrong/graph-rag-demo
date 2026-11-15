@@ -50,3 +50,18 @@ def test_the_report_names_each_stage_and_the_hop_counts() -> None:
     for stage_text in ("extraction or graph build", "linking", "seeding", "traversal", "ranking"):
         assert stage_text in text
     assert "| all |" in text
+
+
+def test_every_sentence_stating_a_path_fact_is_counted_once_in_the_extraction_breakdown() -> None:
+    _, documents = hard.load(FOLDER)
+    questions = json.loads((FOLDER / "questions.json").read_text())
+    on_path = {f for q in questions for f in q["supporting_facts"]}
+    stated = sum(1 for d in documents for s in d.sentences for f in s.fact_ids if f in on_path)
+
+    extraction = run()["extraction"]
+
+    assert sum(extraction.values()) == stated
+    assert "document dropped" not in extraction
+    assert "## Why a path fact has no edge" in trace.format_markdown(
+        run(), command="kgbench trace", k=5
+    )

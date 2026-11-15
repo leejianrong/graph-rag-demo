@@ -16,7 +16,7 @@ The 239 questions the graph view does not solve, by the first stage that fails t
 | 2 linking: an edge joins the wrong entities | 2 | 1% | 0, 1, 0, 1 |
 | 3 seeding: the start entity is not among the seeds | 3 | 1% | 1, 0, 1, 1 |
 
-- **Extraction is the largest single cause**, and it grows with hop count because a path needs every one of its facts: 189 of 300 questions have an edge for every fact. I did not look into why those facts get no edge, and fixing it means new LLM recordings, which this card puts out of scope. So the numbers below do not touch it.
+- **Extraction is the largest single cause on this recording**, and it grows with hop count because a path needs every one of its facts: 189 of 300 questions have an edge for every fact. Looked into afterwards (GRA-179, [hard-small-trf.md](hard-small-trf.md)): of the 45 path facts with no right edge, 35 are the NER missing an endpoint, because this cache used `en_core_web_sm`. With the product-default `en_core_web_trf` and a re-recorded builder, extraction loses none of the 300 questions, and ranking and traversal are what is left. The numbers below were measured on the `sm` recording.
 - **Together the two retrieval stages lose 124**, as many as extraction. Of the 187 questions whose edges are all right, 123 have the whole path inside the retrieved subgraph and only 61 are solved.
 - **Linking is not the problem here, by this measure.** It counts an edge as right when its endpoints carry the gold entities' names or aliases, so a merge of two same-named entities is invisible to it. It does not contradict the entity merges found on 2Wiki ([real-2wiki-medium-50.md](real-2wiki-medium-50.md)); it does not test for them.
 - **Seeding is fine**: the start entity is among the seeds for 278 of 300.

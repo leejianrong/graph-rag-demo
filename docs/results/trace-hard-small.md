@@ -22,3 +22,15 @@ The built graph has 210 nodes and 263 edges. Counts are questions; a question ne
 | 3 seeding: the start entity is not among the seeds | 1 | 0 | 1 | 1 | 3 |
 | 4 traversal: the correct edges are not in the subgraph | 2 | 7 | 26 | 27 | 62 |
 | 5 ranking: the path is in the subgraph but not in the top k | 6 | 30 | 17 | 9 | 62 |
+
+## Why a path fact has no edge
+
+Each of the 221 distinct facts on a gold path, counted once.
+
+| what happened to the fact | facts |
+|---|---|
+| right edge | 176 |
+| no edge: the NER missed an endpoint | 35 |
+| no edge: both found, the builder emitted nothing | 7 |
+| edges from the sentence, none between the two | 2 |
+| no edge: right entities joined, another sentence cited | 1 |
