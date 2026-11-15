@@ -55,6 +55,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     q_gen.add_argument("--question-seed", type=int, default=0, help="Seed for question choice.")
     q_gen.add_argument(
+        "--ambiguity",
+        choices=("ignore", "mark", "drop"),
+        default="ignore",
+        help="mark: record whether names alone give a second answer. drop: avoid such questions.",
+    )
+    q_gen.add_argument(
         "--phrasing",
         choices=("plain", "varied"),
         default="plain",
@@ -202,6 +208,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             hop_mix=hop_mix,
             type_mix=type_mix,
             phrasing=args.phrasing,
+            ambiguity=args.ambiguity,
         )
         data = [q.to_dict() for q in generate_questions(_world(args), spec)]
         text = json.dumps(data, sort_keys=True, indent=1) + "\n"

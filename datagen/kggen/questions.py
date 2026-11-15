@@ -23,6 +23,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
+from kggen.ambiguity import NameReader
 from kggen.spec import VAGUE_PREDICATE
 from kggen.world import Edge, World, WorldGenerationError, apportion
 
@@ -98,17 +99,24 @@ class QuestionSpec(BaseModel):
         default_factory=lambda: {"entity": 1.0},
         description=f"Relative weight of each question type: {', '.join(QUESTION_TYPES)}.",
     )
+    ambiguity: Literal["ignore", "mark", "drop"] = Field(
+        default="ignore",
+        description="mark: record whether names alone give a second answer. drop: avoid those.",
+    )
     phrasing: Literal["plain", "varied"] = Field(
         default="plain",
         description="plain: one wording per type. varied: a seeded choice from a fixed bank.",
     )
 
     @model_serializer(mode="wrap")
-    def _omit_the_default_phrasing(self, handler):  # type: ignore[no-untyped-def]
-        """Leave a plain ``phrasing`` out of a spec file, so existing files keep their bytes."""
+    def _omit_the_defaults(self, handler):  # type: ignore[no-untyped-def]
+        """Leave the default ``phrasing`` and ``ambiguity`` out of a spec file, so old files keep
+        their bytes."""
         data = handler(self)
         if data.get("phrasing") == "plain":
             data.pop("phrasing")
+        if data.get("ambiguity") == "ignore":
+            data.pop("ambiguity")
         return data
 
     @model_validator(mode="after")
@@ -155,10 +163,18 @@ class Question:
     # A fact on the path involves an entity whose name or alias another entity also carries, so
     # the text alone cannot tell the two apart (the generator's homonym case).
     shared_name: bool = False
+    # Names alone give a second answer along a chain question's path (``kggen.ambiguity``); None
+    # when it was not assessed, which keeps it out of the file.
+    ambiguous_under_names: bool | None = None
 
     def to_dict(self) -> dict:
+        record = {
+            key: value
+            for key, value in vars(self).items()
+            if value is not None or key != "ambiguous_under_names"
+        }
         return {
-            **vars(self),
+            **record,
             "accepted_answers": list(self.accepted_answers),
             "supporting_facts": list(self.supporting_facts),
             "answers": list(self.answers),
@@ -328,6 +344,8 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
     names = {i: e.name for i, e in entities.items()}
     types = {i: e.type for i, e in entities.items()}
     name_count = Counter(e.name for e in world.entities)
+    reader = NameReader(world) if spec.ambiguity != "ignore" else None
+    avoid_ambiguous = spec.ambiguity == "drop"
 
     # Typed facts between real entities that are still true at the end.
     live = [
@@ -380,6 +398,8 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             facts = tuple(e.id for e, _ in steps)
             if frontier != {at} or ("entity", start, facts) in seen:
                 continue
+            if avoid_ambiguous and reader and reader.ambiguous(start, facts, (at,)):
+                continue  # a reader who sees only names would find a second answer
             seen.add(("entity", start, facts))
             answer = entities[at]
             found.append(
@@ -433,6 +453,8 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 if e.predicate == last.predicate
             }
             paths = tuple((*lead, edge_of[m]) for m in members)
+            if avoid_ambiguous and reader and reader.ambiguous(start, paths[0], members):
+                continue
             inner = _noun_phrase(names, types, start, prefix, phrasing.relative)
             label = TYPE_LABEL[types[members[0]]]
             plural = PLURAL[types[members[0]]]
@@ -982,6 +1004,11 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
 
     def numbered(i: int, q: Question) -> Question:
         who = tuple((names[a], *entities[a].aliases) for a in q.answers)
+        unclear = (
+            reader.ambiguous(q.start, q.gold_paths[0], q.answers)
+            if reader and q.type in {"entity", "set", "count"} and q.gold_paths
+            else None
+        )
         ends = {
             x for f in q.supporting_facts for x in (edge_by_id[f].subject, edge_by_id[f].object)
         }
@@ -991,6 +1018,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 "id": f"Q{i:0{width}d}",
                 "answer_names": who,
                 "shared_name": bool(ends & clash),
+                "ambiguous_under_names": unclear,
             }
         )
 
