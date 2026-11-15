@@ -1,0 +1,1 @@
+{"triples": [{"subject_id": "e-0decf33b0e12b50c", "predicate": "HAS_ROLE", "object_id": "e-c59a692f9a090a86", "role": "Representative", "sentence_index": 0, "confidence": 0.6}, {"subject_id": "e-0decf33b0e12b50c", "predicate": "RELATED_TO", "object_id": "e-b8f66a6f3e598612", "sentence_index": 0, "confidence": 0.95}]}

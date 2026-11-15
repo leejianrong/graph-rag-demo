@@ -1,0 +1,1 @@
+{"triples": [{"subject_id": "e-ae805be4cb69155c", "predicate": "HAS_ROLE", "object_id": "e-a9fe103191a6e303", "role": "Emperor", "date": "1332", "sentence_index": 0, "confidence": 0.8}, {"subject_id": "e-ae805be4cb69155c", "predicate": "RELATED_TO", "object_id": "e-f2f77f8edddd23ae", "sentence_index": 1, "confidence": 0.9}]}

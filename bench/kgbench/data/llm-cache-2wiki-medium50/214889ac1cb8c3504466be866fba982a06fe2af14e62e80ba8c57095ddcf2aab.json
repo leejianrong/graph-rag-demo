@@ -1,0 +1,1 @@
+{"triples": [{"subject_id": "e-3e1f093b49ae7942", "predicate": "MEMBER_OF", "object_id": "e-3f4d76da9efccd5d", "sentence_index": 0, "confidence": 0.85}, {"subject_id": "e-3f4d76da9efccd5d", "predicate": "PART_OF", "object_id": "e-5393d42734d53b86", "sentence_index": 0, "confidence": 0.6}]}

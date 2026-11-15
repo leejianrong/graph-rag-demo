@@ -196,8 +196,9 @@ by `make openapi`; the four-document replay with `en_core_web_trf` in the CI `mo
 - Retrieval does not beat BM25 or dense. On `hard-small` whole-path@5 is 0.24 for BM25 and dense and 0.21 for graph-rag
   (`docs/results/hard-small-pipelines.md`); on a 200-question 2Wiki slice dense scores 26%, graph-rag 23 to 24% and BM25 16%
   (`docs/results/real-2wiki-200.md`). At 3 and 4 hops nothing recovers whole paths. GRA-170.
-- Real-LLM quality at scale is unmeasured. The largest run with real coref and graph build is 145 short documents through Haiku;
-  the 2Wiki run uses the offline heuristics. GRA-15.
+- Real-LLM quality at scale is only partly measured. On the first 50 medium 2Wiki questions (436 documents, Haiku coref and graph
+  build through semula) supporting-fact F1 is 0.34 against 0.08 for the offline pipeline, and entity linking merges different people
+  who share a name token (`docs/results/real-2wiki-medium-50.md`). The other 150 medium questions are not run. GRA-15.
 - Time is only partly modelled: a newer dated document ends an older fact for single-valued predicates, but a job change in undated
   text leaves two employers. GRA-171.
 - "Acme Logistics" and "Northwind Logistics" would still merge: the GRA-157 guard (`_names_compatible` in
