@@ -193,9 +193,12 @@ by `make openapi`; the four-document replay with `en_core_web_trf` in the CI `mo
 
 **Known quality gaps.**
 
-- Retrieval does not beat BM25 or dense. On `hard-small` whole-path@5 is 0.24 for BM25 and dense and 0.21 for graph-rag
+- Retrieval does not beat BM25 or dense by default. On `hard-small` whole-path@5 is 0.24 for BM25 and dense and 0.21 for graph-rag
   (`docs/results/hard-small-pipelines.md`); on a 200-question 2Wiki slice dense scores 26%, graph-rag 23 to 24% and BM25 16%
-  (`docs/results/real-2wiki-200.md`). At 3 and 4 hops nothing recovers whole paths. GRA-170.
+  (`docs/results/real-2wiki-200.md`). `PATH_RETRIEVAL=true` (off by default) lists the best chain of edges first and reaches 0.27
+  on `hard-small` (not separable from dense overall; 19% against 7% at two hops) and 0.35 on three held-out small worlds, but
+  loses one-hop questions and does nothing at four hops; it is untested on real text (`docs/results/path-retrieval.md`). The
+  largest single loss on `hard-small` is extraction: 110 of the 239 unsolved questions have a path fact with no edge. GRA-170.
 - Real-LLM quality at scale is only partly measured. On the first 50 medium 2Wiki questions (436 documents, Haiku coref and graph
   build through semula) supporting-fact F1 is 0.34 against 0.08 for the offline pipeline, and entity linking merges different people
   who share a name token (`docs/results/real-2wiki-medium-50.md`). The other 150 medium questions are not run. GRA-15.

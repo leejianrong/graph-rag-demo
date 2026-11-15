@@ -157,6 +157,9 @@ and `graph_rag/llm_config.py`), `HOST` and `PORT` (`graph-rag-offline`, default 
 | `SEED_TOP_K_SENTENCES` | `5` | Sentence seeds per query |
 | `RANK_WEIGHT_SEED` | `0.7` | Ranking weight on seed similarity |
 | `RANK_WEIGHT_PROXIMITY` | `0.3` | Ranking weight on hop proximity |
+| `PATH_RETRIEVAL` | `False` | List the best chain of connected edges first in the subgraph (GRA-170); embeds sentences at query time |
+| `PATH_BEAM` | `8` | Chains kept per length when `PATH_RETRIEVAL` is on |
+| `PATH_DEPTH` | `4` | The longest chain, in edges, when `PATH_RETRIEVAL` is on |
 | `UI_DIR` | `/app/ui-dist` | Built web UI to serve at `/`; empty or no `index.html` means API only |
 | `LOG_LEVEL` | `INFO` | Python log level |
 | `LOG_FORMAT` | `text` | `text` or `json` |

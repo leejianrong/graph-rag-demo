@@ -104,7 +104,7 @@ class Comparison:
         """Questions behind a table row, summed over seeds (``None`` is every hop count)."""
         total = 0
         for run in self.runs:
-            report = run.reports[SYSTEMS[0]]
+            report = run.reports[self.systems[0]]
             score = report.overall if hops is None else report.by_hops.get(hops)
             total += score.questions if score else 0
         return total
@@ -116,15 +116,21 @@ class Comparison:
     def format_table(self, k: int) -> str:
         """Per hop count: ``path@k / recall@k`` (means over seeds) for every system."""
         rows = [("all", None)] + [(str(h), h) for h in self.hop_counts()]
-        width = max(len(s) for s in SYSTEMS)
+        width = max(len(s) for s in self.systems)
         lines = [
             f"path@{k} / recall@{k}, mean over seeds {[r.seed for r in self.runs]}",
-            "  hops  n     " + "  ".join(f"{s:<{width}}" for s in SYSTEMS),
+            "  hops  n     " + "  ".join(f"{s:<{width}}" for s in self.systems),
         ]
         for name, h in rows:
-            cells = "  ".join(self._cell(s, h, k).ljust(width) for s in SYSTEMS)
+            cells = "  ".join(self._cell(s, h, k).ljust(width) for s in self.systems)
             lines.append(f"  {name:<5} {self.questions_at(h):<5} {cells}")
         return "\n".join(lines)
+
+    @property
+    def systems(self) -> tuple[str, ...]:
+        """The fixed systems, then any extra the runs carry (``graph-rag path``)."""
+        extra = [s for s in self.runs[0].reports if s not in SYSTEMS]
+        return (*SYSTEMS, *extra)
 
     def to_dict(self) -> dict:
         return {
@@ -150,7 +156,7 @@ class Comparison:
     def cost_rows(self) -> list[str]:
         """One markdown row per system: mean wall time per seed, and LLM usage summed over seeds."""
         rows = []
-        for system in SYSTEMS:
+        for system in self.systems:
             costs = [r.costs[system] for r in self.runs]
             seconds = sum(c.wall_seconds for c in costs) / len(costs)
             calls = sum(c.llm.calls for c in costs)
@@ -164,9 +170,14 @@ class Comparison:
         rows = [("all", None)] + [(str(h), h) for h in self.hop_counts()]
 
         def table(metric_cells) -> list[str]:
-            out = ["| hops | " + " | ".join(SYSTEMS) + " |", "|---|" + "---|" * len(SYSTEMS)]
+            out = [
+                "| hops | " + " | ".join(self.systems) + " |",
+                "|---|" + "---|" * len(self.systems),
+            ]
             for name, h in rows:
-                out.append(f"| {name} | " + " | ".join(metric_cells(s, h) for s in SYSTEMS) + " |")
+                out.append(
+                    f"| {name} | " + " | ".join(metric_cells(s, h) for s in self.systems) + " |"
+                )
             return out
 
         def mean_cell(s: str, h: int | None) -> str:
@@ -249,6 +260,14 @@ def run_seed(
             lambda: GraphRagRetriever(graph["graph"], documents, mode="graph"),
         ),
     }
+    if graph[
+        "graph"
+    ].retriever.path_retrieval:  # GRA-170: only when the retriever lists chains first
+        path = make()
+        systems["graph-rag path"] = (
+            path,
+            lambda: GraphRagRetriever(path, documents, mode="path"),
+        )
     reports: dict[str, RetrievalReport] = {}
     costs: dict[str, Cost] = {}
     for name, (components, build) in systems.items():

@@ -25,6 +25,9 @@ For the open work and known quality gaps, read `docs/HANDOFF.md` and the pandan 
 
 ## Pipeline behaviour added after V8
 
+- **Path retrieval** (GRA-170, `PATH_RETRIEVAL`, off by default; `graph_rag/query/chains.py`): lists the best chain of connected
+  edges first in `subgraph.edges`, by a beam search scored on the chain's sentences joined. `kgbench trace` names the stage that
+  loses each multi-hop path. Results and limits: `docs/results/path-retrieval.md`.
 - **Entity linking name guard** (GRA-157): a cosine merge also needs a shared distinctive token or an acronym. Known
   hole: Acme Logistics and Northwind Logistics would merge on the shared token "Logistics" (GRA-172, read from the code, not run).
 - **Answer selection** (GRA-161) and `answer_entities` for a second ask (GRA-165): ADR-0014, "How the answer is chosen".

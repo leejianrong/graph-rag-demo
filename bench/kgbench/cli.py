@@ -43,6 +43,7 @@ from kgbench import real as reals
 from kgbench import shortcut as shortcuts
 from kgbench import split as splits
 from kgbench import sweep as sweeps
+from kgbench import trace as traces
 from kgbench.baselines import BM25Retriever, DenseRetriever
 from kgbench.compare import CachingEmbedder, compare
 from kgbench.cost import Meter
@@ -198,6 +199,18 @@ def build_parser() -> argparse.ArgumentParser:
         "--pipelines", nargs="+", choices=hards.PIPELINES, help="Pipelines to run (default: all)."
     )
     hd.add_argument("--charts", type=Path, help="Write the extraction and retrieval charts here.")
+    tr = commands.add_parser(
+        "trace", help="Where does graph-rag lose a multi-hop path? The first stage that fails."
+    )
+    tr.add_argument("--dir", type=Path, default=_HARD_DIR, help="The dataset folder (hard text).")
+    tr.add_argument("--pipeline", choices=hards.PIPELINES, default="offline")
+    tr.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
+    tr.add_argument("--k", type=int, default=5, help="The k for the top list.")
+    tr.add_argument("--llm-cache", type=Path, help="The recorded LLM answers (llm pipelines).")
+    tr.add_argument("--llm-base-url", help="OpenAI-compatible endpoint; omit to replay.")
+    tr.add_argument("--llm-model", default="openai/claude-haiku", help="LiteLLM model string.")
+    tr.add_argument("--spacy", metavar="MODEL", help="Real spaCy NER, e.g. en_core_web_sm.")
+    tr.add_argument("--out", type=Path, help="Write the markdown report here.")
     ic = commands.add_parser(
         "ingest-cost",
         help="Tokens, dollars, time and storage per 1,000 documents ingested (replays a cache).",
@@ -537,6 +550,30 @@ def _llm_settings(args: argparse.Namespace) -> Settings | None:
         llm_cache_dir=str(args.llm_cache),
         openai_api_key=os.environ.get("OPENAI_API_KEY", "semula-local"),
     )
+
+
+def _trace(args: argparse.Namespace) -> int:
+    embedder = CachingEmbedder(build_embedder(real=args.embedder == "bge"))
+    settings = _llm_settings(args)
+    build = hards.pipeline_builders(embedder, settings, args.spacy, [args.pipeline])
+    if not build:
+        raise SystemExit(f"pipeline {args.pipeline!r} needs --llm-cache and/or --spacy")
+    _, documents = hards.load(args.dir)
+    questions = json.loads((args.dir / "questions.json").read_text())
+    result = traces.trace(
+        args.dir, documents, questions, next(iter(build.values())), embedder, k=args.k
+    )
+    command = (
+        f"uv run --extra embed kgbench trace --dir {args.dir.resolve().relative_to(_REPO)} "
+        f"--pipeline {args.pipeline} --embedder {args.embedder} --k {args.k}"
+        + (f" --llm-cache {args.llm_cache.resolve().relative_to(_REPO)}" if args.llm_cache else "")
+        + (f" --spacy {args.spacy}" if args.spacy else "")
+    )
+    text = traces.format_markdown(result, command=command, k=args.k)
+    print(text)
+    if args.out:
+        args.out.write_text(text)
+    return 0
 
 
 def _hard(args: argparse.Namespace) -> int:
@@ -1070,6 +1107,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _run(args)
     if args.command == "nightly":
         return _nightly(args)
+    if args.command == "trace":
+        return _trace(args)
     if args.command == "longmemeval":
         return _longmemeval(args)
     if args.command == "extract":

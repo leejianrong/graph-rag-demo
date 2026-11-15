@@ -7,7 +7,11 @@ that visible instead of hiding it:
 
 * ``passages``: only the supporting sentences, in the order graph-rag returns them;
 * ``graph``: the sentences behind the subgraph's edges first, ordered by how highly graph-rag ranked
-  the edge's endpoints, then the supporting sentences to fill the list.
+  the edge's endpoints, then the supporting sentences to fill the list;
+* ``path`` (GRA-170): the two nearest supporting sentences, then the sentences behind the edges in
+  the order the retriever returned them, then the rest of the supporting sentences. It only means
+  something when the retriever has path retrieval on (``PATH_RETRIEVAL``), which lists the best
+  chain of edges first; the nearest two keep the one-hop questions that plain search already gets.
 
 Evidence is mapped to the generator's sentences by document and sentence text (falling back to the
 sentence index), so each returned sentence carries the facts it truly expresses. Evidence that
@@ -26,7 +30,9 @@ from graph_rag.models import QueryRequest
 from kgbench.extraction import ingest
 from kgbench.retrieval import RetrievedSentence
 
-Mode = Literal["passages", "graph"]
+Mode = Literal["passages", "graph", "path"]
+
+PATH_NEAREST = 2  # supporting sentences listed ahead of the chain in ``path`` mode
 
 
 class GraphRagRetriever:
@@ -74,7 +80,19 @@ class GraphRagRetriever:
                 found = self._locate(p.source_doc_id, p.source_sentence, p.sentence_index)
                 if found is not None:
                     ranked.append(found)
-        for s in response.supporting_sentences:
+        supporting = response.supporting_sentences
+        if self.mode == "path":
+            for s in supporting[:PATH_NEAREST]:
+                found = self._locate(s.document_id, s.text, s.sentence_index)
+                if found is not None:
+                    ranked.append(found)
+            for edge in response.subgraph.edges:
+                p = edge.provenance
+                found = self._locate(p.source_doc_id, p.source_sentence, p.sentence_index)
+                if found is not None:
+                    ranked.append(found)
+            supporting = supporting[PATH_NEAREST:]
+        for s in supporting:
             found = self._locate(s.document_id, s.text, s.sentence_index)
             if found is not None:
                 ranked.append(found)

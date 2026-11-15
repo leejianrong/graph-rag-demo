@@ -193,6 +193,12 @@ class Settings(BaseSettings):
     # via ``RANK_WEIGHT_SEED`` / ``RANK_WEIGHT_PROXIMITY``.
     rank_weight_seed: float = 0.7
     rank_weight_proximity: float = 0.3
+    # GRA-170, off by default: list the subgraph's edges with the best-scoring chain of connected
+    # edges first (graph_rag.query.chains). A long chain no longer sinks among the dozens of edges
+    # of a 2-hop subgraph. It embeds the chains' sentences at query time, so it costs latency.
+    path_retrieval: bool = False
+    path_beam: int = 8  # chains kept per length
+    path_depth: int = 4  # the longest chain, in edges
 
     # --- Web UI (GRA-53) ------------------------------------------------------
     # Where the built UI is (the image puts it here). The service serves it at ``/`` when the
