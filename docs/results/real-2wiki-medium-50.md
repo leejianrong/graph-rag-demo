@@ -48,7 +48,7 @@ I asked the answering agent to report entity IDs that seemed to stand for more t
 
 Three more (`Maria`, `Anna`, `Mary`) are bare given names shared across documents; `Mary` carries the alias "Mary, Queen of Scots", which may be right.
 
-What this does not show: how often it happens. The agent listed collisions it noticed while answering, so this is a set of examples, not a rate. The cause is not the GRA-157 name guard. Re-linking these 436 documents with the recorded coref answers gives 2,762 entities under the old guard and under the tightened one (GRA-172) alike, and the merges above remain. They go through the exact-key block in `graph_rag/stages/entity_linking.py`: a bare short form such as "Frederick" that one document's coref clustered with a person becomes an identity key for any later same-type mention, and the guard and the cosine are never consulted. A two-document repro gives the same entity id as this run (a strict xfail in `tests/unit/test_el_name_guard.py`; card GRA-178). This bears on GRA-170: a merged entity creates paths that do not exist and hides the ones that do.
+What this does not show: how often it happens. The agent listed collisions it noticed while answering, so this is a set of examples, not a rate. The cause is not the GRA-157 name guard. Re-linking these 436 documents with the recorded coref answers gives 2,762 entities under the old guard and under the tightened one (GRA-172) alike, and the merges above remain. They go through the exact-key block in `graph_rag/stages/entity_linking.py`: a bare short form such as "Frederick" that one document's coref clustered with a person becomes an identity key for any later same-type mention, and the guard and the cosine are never consulted. A two-document repro gave the same entity id as this run; GRA-178 fixed four of the six cases ([short-form-block.md](short-form-block.md)). This bears on GRA-170: a merged entity creates paths that do not exist and hides the ones that do.
 
 ## Quality of the recorded answers
 
@@ -68,7 +68,7 @@ Haiku through an agent loop is not the same as Haiku through the API, and the ag
 
 ## Repeat it
 
-The recorded answers are committed in `bench/kgbench/data/llm-cache-2wiki-medium50/` (859 files, 3.5 MB). Replay needs the same NER model, embedder, model string and prompts, and empty stores. These start my own services; use your own project name:
+The recorded answers are committed in `bench/kgbench/data/llm-cache-2wiki-medium50/` (953 files, 3.9 MB: the 859 recorded here plus 94 added by GRA-178, which changed linking; the 859 alone replay only with the code of the day). Replay needs the same NER model, embedder, model string and prompts, and empty stores. These start my own services; use your own project name:
 
 ```bash
 docker compose -p grsmoke --env-file .env.example up -d elasticsearch minio neo4j

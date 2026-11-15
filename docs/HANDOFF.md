@@ -209,8 +209,9 @@ by `make openapi`; the four-document replay with `en_core_web_trf` in the CI `mo
 - Entity linking merges different people on the real text. The 2Wiki run (`docs/results/real-2wiki-medium-50.md`) shows Frederick
   Calvert merged with a different Frederick, one Curwen with another, and so on. The cause is the exact-key block in
   `graph_rag/stages/entity_linking.py` (`_block`): a bare short form ("Frederick") that one document's coref clustered with a person
-  becomes a cross-document identity key and skips the guard and the cosine. A two-document repro is a strict xfail in
-  `tests/unit/test_el_name_guard.py`. GRA-178. The GRA-172 change (a shared token licenses a similarity merge only when neither name
+  became a cross-document identity key and skipped the guard and the cosine. GRA-178 makes such a hit pass the name guard, which
+  fixes four of the six reported cases; Curwen and Mary remain, and the run has 130 more entities that were not checked for wrong
+  splits (`docs/results/short-form-block.md`). The GRA-172 change (a shared token licenses a similarity merge only when neither name
   adds a distinctive token, so "Acme Logistics" and "Northwind Logistics" stay apart) is separate and made no difference to those
   merges or to any benchmark here.
 - The nightly benchmark has run on schedule twice (2026-11-12 and 2026-11-13, both green), but its real-provider step was

@@ -455,15 +455,25 @@ class EntityLinkingStage:
     # --- decision helpers ----------------------------------------------------
 
     def _block(self, scope: Scope, entity: _DocEntity) -> list[CanonicalEntity]:
-        """Entities of this type that already answer to any of the entity's surface forms."""
+        """Entities of this type that already answer to any of the entity's surface forms.
+
+        A hit that rests only on a bare short form of the entity ("Frederick" beside "Frederick,
+        Hereditary Prince of Baden-Durlach") is kept only if the entity's own name relates to the
+        candidate's, as a similarity merge requires (GRA-178). Otherwise one document's short form
+        pulls a different person, who happens to share it, into the entity.
+        """
         found: dict[str, CanonicalEntity] = {}
+        surface_key = normalize_name(entity.surface)
         for surface in [entity.surface, *entity.also_known_as]:
             normalized = normalize_name(surface)
             if not normalized:
                 continue
+            short_form = normalized != surface_key and " " not in normalized
             for candidate in self._entity_store.block_candidates(
                 scope, entity_type=entity.entity_type, normalized_name=normalized
             ):
+                if short_form and not _pair_compatible(entity.surface, candidate.name):
+                    continue
                 found[candidate.canonical_id] = candidate
         return list(found.values())
 
@@ -593,6 +603,19 @@ def _is_acronym(short: str, long_tokens: list[str]) -> bool:
     return " " not in short and len(long_tokens) > 1 and short == "".join(t[0] for t in long_tokens)
 
 
+def _pair_compatible(a: str, b: str) -> bool:
+    """Do two names relate: one's distinctive tokens inside the other's, or an acronym?"""
+    tokens_a, tokens_b = _distinctive(a), _distinctive(b)
+    # One name's distinctive tokens inside the other's: a short form or a fuller form.
+    if set(tokens_a) & set(tokens_b) and (
+        set(tokens_a) <= set(tokens_b) or set(tokens_b) <= set(tokens_a)
+    ):
+        return True
+    if len(tokens_a) == 1 and _is_acronym(tokens_a[0], tokens_b):
+        return True
+    return len(tokens_b) == 1 and _is_acronym(tokens_b[0], tokens_a)
+
+
 def _names_compatible(entity: _DocEntity, candidate: CanonicalEntity) -> bool:
     """May ``entity`` merge into ``candidate`` on embedding similarity alone?
 
@@ -606,20 +629,7 @@ def _names_compatible(entity: _DocEntity, candidate: CanonicalEntity) -> bool:
     """
     ours = [entity.surface, *entity.also_known_as]
     theirs = [candidate.name, *candidate.aliases]
-    for a in ours:
-        tokens_a = _distinctive(a)
-        for b in theirs:
-            tokens_b = _distinctive(b)
-            # One name's distinctive tokens inside the other's: a short form or a fuller form.
-            if set(tokens_a) & set(tokens_b) and (
-                set(tokens_a) <= set(tokens_b) or set(tokens_b) <= set(tokens_a)
-            ):
-                return True
-            if len(tokens_a) == 1 and _is_acronym(tokens_a[0], tokens_b):
-                return True
-            if len(tokens_b) == 1 and _is_acronym(tokens_b[0], tokens_a):
-                return True
-    return False
+    return any(_pair_compatible(a, b) for a in ours for b in theirs)
 
 
 def _survivor(merged: dict[str, str], canonical_id: str) -> str:
