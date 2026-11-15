@@ -19,6 +19,7 @@ class UI:
 
     root: indah.Component
     preset: indah.Signal
+    difficulty: indah.Signal
     values: dict[str, indah.Signal]
     status: indah.Signal
     entities: indah.Signal
@@ -220,13 +221,14 @@ class UI:
 
 def build_ui() -> UI:
     """Build one viewer's UI: independent signals, so two tabs never share a world."""
-    start = model.preset_values(model.DEFAULT_PRESET)
+    start = model.preset_values(model.DEFAULT_PRESET, model.DEFAULT_DIFFICULTY)
     preset = indah.Signal(model.DEFAULT_PRESET)
+    difficulty = indah.Signal(model.DEFAULT_DIFFICULTY)
     values = {name: indah.Signal(value) for name, value in start.items()}
-    status = indah.Signal("Choose a preset or set the knobs, then generate.")
+    status = indah.Signal("Choose a preset and a difficulty or set the knobs, then generate.")
 
     def apply_preset() -> None:
-        for name, value in model.preset_values(preset.value).items():
+        for name, value in model.preset_values(preset.value, difficulty.value).items():
             values[name].set(value)
 
     indah.effect(apply_preset)  # also runs once now, which fills the form from the first preset
@@ -234,6 +236,7 @@ def build_ui() -> UI:
     ui = UI(
         root=None,  # type: ignore[arg-type]
         preset=preset,
+        difficulty=difficulty,
         values=values,
         status=status,
         entities=indah.Signal("-"),
@@ -301,6 +304,9 @@ def build_ui() -> UI:
                 title="Generate a world",
                 children=[
                     indah.Select(preset, options=list(model.PRESET_NAMES), label="Preset"),
+                    indah.Select(
+                        difficulty, options=list(model.DIFFICULTY_NAMES), label="Difficulty"
+                    ),
                     *[
                         indah.Column([indah.Text(title), indah.Grid(group_inputs(group))])
                         for group, title in model.GROUPS.items()

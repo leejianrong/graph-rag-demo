@@ -17,7 +17,7 @@ from kggen.questions import (
 )
 from kggen.render import Document, RenderSpec, Sentence, render_documents
 from kggen.render_llm import InvalidRendering, render_documents_llm
-from kggen.spec import PRESET_NAMES, WorldSpec, load_preset
+from kggen.spec import DIFFICULTY_NAMES, PRESET_NAMES, WorldSpec, load_preset
 from kggen.stats import check_against_spec
 from kggen.world import Edge, Entity, World, WorldGenerationError, generate
 from pydantic import ValidationError
@@ -54,6 +54,7 @@ KNOBS: tuple[Knob, ...] = (
 )
 KNOB_NAMES = tuple(k.name for k in KNOBS)
 DEFAULT_PRESET = "small"
+DEFAULT_DIFFICULTY = "hard"  # a clean world is easy to read; the UI starts with a realistic one
 
 
 # What each form field controls and affects: the text of its info tip.
@@ -175,8 +176,8 @@ def values_from_spec(spec: WorldSpec) -> dict[str, float]:
     return {name: getattr(spec, name) for name in KNOB_NAMES}
 
 
-def preset_values(name: str) -> dict[str, float]:
-    return values_from_spec(load_preset(name))
+def preset_values(name: str, difficulty: str = "clean") -> dict[str, float]:
+    return values_from_spec(load_preset(name, difficulty))
 
 
 def read_knob(knob: Knob, raw: object) -> float:
@@ -675,6 +676,7 @@ def summarize(world: World) -> Summary:
 __all__ = [
     "HELP",
     "knob_help",
+    "DEFAULT_DIFFICULTY",
     "DEFAULT_PRESET",
     "GROUPS",
     "KNOBS",
@@ -694,6 +696,7 @@ __all__ = [
     "MAX_GRAPH_EDGES",
     "MAX_GRAPH_NODES",
     "MAX_ENTITIES",
+    "DIFFICULTY_NAMES",
     "PRESET_NAMES",
     "Knob",
     "Summary",

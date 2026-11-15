@@ -187,9 +187,33 @@ def load_spec(path: str | Path) -> WorldSpec:
     return WorldSpec.model_validate(yaml.safe_load(Path(path).read_text()))
 
 
-def load_preset(name: str) -> WorldSpec:
-    """Load one of the named presets shipped with kggen."""
+# How hard a world is to read, apart from its shape. A preset sets the graph's size and density
+# and nothing else, so on its own every preset world is clean: no aliases, no shared names, no
+# look-alike distractors. A difficulty layers those knobs over any preset or spec. ``hard`` is
+# what the ``hard-small`` example was made with.
+DIFFICULTY: dict[str, dict[str, float | int]] = {
+    "clean": {},
+    "aliases": {"alias_rate": 0.7, "aliases_per_entity": 2},
+    "hard": {
+        "alias_rate": 0.7,
+        "aliases_per_entity": 2,
+        "homonym_rate": 0.15,
+        "distractor_rate": 0.2,
+    },
+}
+DIFFICULTY_NAMES: tuple[str, ...] = tuple(DIFFICULTY)
+
+
+def with_difficulty(spec: WorldSpec, difficulty: str) -> WorldSpec:
+    """``spec`` with a difficulty's knobs set; ``clean`` returns it unchanged."""
+    if difficulty not in DIFFICULTY:
+        raise ValueError(f"unknown difficulty {difficulty!r}; choose from {list(DIFFICULTY)}")
+    return spec.with_overrides(**DIFFICULTY[difficulty]) if DIFFICULTY[difficulty] else spec
+
+
+def load_preset(name: str, difficulty: str = "clean") -> WorldSpec:
+    """Load one of the named presets shipped with kggen, at a difficulty (default: clean)."""
     if name not in PRESET_NAMES:
         raise ValueError(f"unknown preset {name!r}; choose from {list(PRESET_NAMES)}")
     text = (resources.files("kggen") / "presets" / f"{name}.yaml").read_text()
-    return WorldSpec.model_validate(yaml.safe_load(text))
+    return with_difficulty(WorldSpec.model_validate(yaml.safe_load(text)), difficulty)

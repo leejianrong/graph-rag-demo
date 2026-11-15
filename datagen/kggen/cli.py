@@ -17,7 +17,7 @@ from kggen.questions import QuestionSpec, generate_questions
 from kggen.render import Document, RenderSpec, render_documents
 from kggen.render_llm import InvalidRendering, render_documents_llm
 from kggen.scenarios import ScenarioSpec, generate_scenario
-from kggen.spec import PRESET_NAMES, load_preset, load_spec
+from kggen.spec import DIFFICULTY_NAMES, PRESET_NAMES, load_preset, load_spec, with_difficulty
 from kggen.stats import report
 from kggen.world import generate
 
@@ -122,11 +122,18 @@ def _add_source(parser: argparse.ArgumentParser) -> None:
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument("--preset", choices=PRESET_NAMES, help="A named complexity preset.")
     source.add_argument("--spec", type=Path, help="A WorldSpec YAML file.")
+    parser.add_argument(
+        "--difficulty",
+        choices=DIFFICULTY_NAMES,
+        default="clean",
+        help="Aliases, shared names and look-alikes to layer over the source (default: clean).",
+    )
     parser.add_argument("--seed", type=int, help="Override the spec's seed.")
 
 
 def _world(args: argparse.Namespace):
     spec = load_preset(args.preset) if args.preset else load_spec(args.spec)
+    spec = with_difficulty(spec, args.difficulty)
     if args.seed is not None:
         spec = spec.with_overrides(seed=args.seed)
     return generate(spec)

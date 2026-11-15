@@ -28,3 +28,17 @@ def test_module_entry_point_runs() -> None:
     )
     assert result.returncode == 0
     assert "usage: kggen" in result.stdout
+
+
+def test_difficulty_makes_a_preset_world_ambiguous_and_clean_leaves_it_alone(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """GRA-183: the same preset, with and without ``--difficulty hard``."""
+    assert main(["world", "stats", "--preset", "small"]) == 0
+    clean = capsys.readouterr().out
+    assert main(["world", "stats", "--preset", "small", "--difficulty", "hard"]) == 0
+    hard = capsys.readouterr().out
+
+    assert clean != hard
+    assert main(["world", "stats", "--preset", "small", "--difficulty", "clean"]) == 0
+    assert capsys.readouterr().out == clean
