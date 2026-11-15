@@ -54,7 +54,9 @@ For the open work and known quality gaps, read `docs/HANDOFF.md` and the pandan 
 
 ## Bench and generator
 
-- `datagen/` (`kggen`): seeded world, documents, questions, scenarios, `kggen export`; ADR-0012. `datagen/fixtures/` and
+- `datagen/` (`kggen`): seeded world, documents, questions, scenarios, `kggen export`; ADR-0012. Opt-in realism (GRA-183):
+  `--difficulty hard`, `--names bank`, `--phrasing varied`, `--ambiguity mark|drop` (`datagen/README.md`,
+  `docs/results/generator-realism.md`); the UI starts with the first three on. `datagen/fixtures/` and
   `datagen/examples/` are committed outputs (their own READMEs).
 - `bench/` (`kgbench`): extraction, linking, retrieval (BM25, dense, graph-rag), order, sweeps, typed answers, LLM judge,
   `real` (2Wiki slice), `longmemeval`, `ingest-cost` (GRA-55), `gate` (floors in `bench/kgbench/gate.json`, run by the fast

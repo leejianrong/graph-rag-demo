@@ -58,4 +58,7 @@ Rules that keep gold honest:
   ids); without it, the scorer reads the text with offline heuristics and says so in each result's `detail`. Free text
   cannot be scored for a `path` question, so those need cited facts.
 - `questions.json` gains fields; old readers that only use the original fields keep working.
+- `ambiguous_under_names` (GRA-183) is present only when the generator was asked to assess it (`QuestionSpec.ambiguity` of `mark` or
+  `drop`): true when a reader who sees only names would find an answer beyond the gold along a chain question's path. It is a
+  subset of `shared_name`, which only warns that a path touches a shared name. Absent means not assessed.
 - The bench gains scorers per `answer_kind`; they are added with each question family, not up front.

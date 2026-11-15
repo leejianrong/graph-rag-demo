@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import random
 
-from kggen.namebank import FIRST_NAMES_ALL, POOLS
+from kggen.namebank import CURATED, FIRST_NAMES_ALL, POOLS
 
 _CONSONANTS = "bdfgklmnprstvz"
 _VOWELS = "aeiou"
@@ -80,8 +80,11 @@ class NameFactory:
         """The next name of this type from the bank; it never repeats a word."""
         words = self._bank.get(entity_type)
         if words is None:
-            words = list(POOLS[entity_type])
-            self._rng.shuffle(words)
+            pool = list(POOLS[entity_type])
+            curated, built = pool[: CURATED[entity_type]], pool[CURATED[entity_type] :]
+            self._rng.shuffle(curated)
+            self._rng.shuffle(built)
+            words = [*built, *curated]  # the end is handed out first: curated names, then built
             self._bank[entity_type] = words
         rng = self._rng
         while words:

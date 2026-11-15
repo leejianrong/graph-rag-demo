@@ -278,6 +278,17 @@ def _build() -> tuple[dict[str, tuple[str, ...]], tuple[str, ...]]:
 
 POOLS, FIRST_NAMES_ALL = _build()
 
+#: How many of each pool's first words are curated; the rest are built. A world draws the curated
+#: ones first, so a small world reads like real names and only a large one reaches the built ones.
+CURATED: dict[str, int] = {
+    "PERSON": len(SURNAMES),
+    "ORG": len(ORG_HEADS),
+    "LOCATION": len(LOCATION_NAMES),
+    "EVENT": len(EVENT_HEADS),
+    "PRODUCT": len(PRODUCT_HEADS),
+    "NORP": len(NORP_NAMES),
+}
+
 #: How many names of each type a world can draw. A person needs a first name and a surname; the
 #: surname is what must stay unique, so the surnames bound the people.
 CAPACITY: dict[str, int] = {entity_type: len(pool) for entity_type, pool in POOLS.items()}

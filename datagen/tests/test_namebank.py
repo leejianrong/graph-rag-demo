@@ -77,6 +77,28 @@ def test_a_bank_world_has_no_two_entities_sharing_an_alias_word(preset: str) -> 
             assert owner.setdefault(key, e.id) == e.id, f"{form!r} names {owner[key]} and {e.id}"
 
 
+def test_a_small_world_uses_only_curated_names() -> None:
+    """Built names are for worlds too big for the curated ones; a small world never needs them."""
+    world = bank_world()
+    for entity_type, pool in namebank.POOLS.items():
+        curated = set(pool[: namebank.CURATED[entity_type]])
+        words = {
+            (e.name.split()[-1] if entity_type == "PERSON" else e.name.split()[0])
+            for e in world.entities
+            if e.type == entity_type and not e.distractor
+        }
+        assert words
+        # a shared name (homonym) can belong to another type, so only most must be curated
+        assert len(words & curated) >= 0.8 * len(words), entity_type
+
+
+def test_a_big_world_reaches_the_built_names_after_the_curated_ones() -> None:
+    world = bank_world("medium")
+    built = set(namebank.POOLS["PERSON"][namebank.CURATED["PERSON"] :])
+    surnames = {e.name.split()[-1] for e in world.entities if e.type == "PERSON"}
+    assert surnames & built  # medium needs about 350 people against 150 curated surnames
+
+
 def test_a_bank_world_reads_like_real_names() -> None:
     world = bank_world()
     firsts, surnames = set(namebank.FIRST_NAMES_ALL), set(namebank.POOLS["PERSON"])
