@@ -54,6 +54,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Question type mix, e.g. entity:2,set:1,count:1,compare:1,superlative:1.",
     )
     q_gen.add_argument("--question-seed", type=int, default=0, help="Seed for question choice.")
+    q_gen.add_argument(
+        "--phrasing",
+        choices=("plain", "varied"),
+        default="plain",
+        help="varied: wording drawn from a fixed bank (same questions and gold, different words).",
+    )
     q_gen.add_argument("--out", type=Path, help="Write here instead of stdout.")
     scenario = commands.add_parser(
         "scenario", help="Update, delete and reorder scenarios with the expected final graph."
@@ -71,6 +77,12 @@ def build_parser() -> argparse.ArgumentParser:
     d_gen = d_commands.add_parser("generate", help="Render template documents as JSON.")
     _add_source(d_gen)
     d_gen.add_argument("--render-seed", type=int, default=0, help="Seed for wording choices.")
+    d_gen.add_argument(
+        "--phrasing",
+        choices=("plain", "varied"),
+        default="plain",
+        help="varied: more synonyms and passive forms (same facts and documents, different words).",
+    )
     d_gen.add_argument("--max-facts", type=int, default=6, help="Most facts in one document.")
     d_gen.add_argument(
         "--alias-rate", type=float, default=0.5, help="Chance a mention is an alias."
@@ -177,7 +189,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         hop_mix = {int(h): float(w) for h, w in (p.split(":") for p in args.hops.split(","))}
         type_mix = {t: float(w) for t, w in (p.split(":") for p in args.types.split(","))}
         spec = QuestionSpec(
-            seed=args.question_seed, n_questions=args.n, hop_mix=hop_mix, type_mix=type_mix
+            seed=args.question_seed,
+            n_questions=args.n,
+            hop_mix=hop_mix,
+            type_mix=type_mix,
+            phrasing=args.phrasing,
         )
         data = [q.to_dict() for q in generate_questions(_world(args), spec)]
         text = json.dumps(data, sort_keys=True, indent=1) + "\n"
@@ -211,6 +227,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             alias_use_rate=args.alias_rate,
             target_words=args.words,
             neighbour_facts=args.context_facts,
+            phrasing=args.phrasing,
         )
         if args.renderer == "llm":
             docs = _render_llm(args, render_spec)

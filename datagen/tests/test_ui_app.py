@@ -20,6 +20,7 @@ def build_ui():  # type: ignore[no-untyped-def]
     """
     ui = build_default_ui()
     ui.difficulty.set("clean")
+    ui.phrasing.set("plain")
     return ui
 
 
@@ -34,6 +35,40 @@ def test_the_form_starts_filled_from_the_default_preset_and_difficulty() -> None
     assert ui.current_values() == model.preset_values(model.DEFAULT_PRESET, "hard")
     assert ui.current_values()["homonym_rate"] > 0  # a world that is not clean
     assert ui.entities.value == "-"
+
+
+def test_the_wording_starts_varied_and_changes_only_the_words_of_the_questions() -> None:
+    ui = build_default_ui()
+    assert ui.phrasing.value == model.DEFAULT_PHRASING == "varied"
+    ui.preset.set("small")
+    ui.generate()
+    varied = ui.questions.value
+    ui.phrasing.set("plain")
+    ui.derive()
+    plain = ui.questions.value
+    assert [(q.id, q.answer, q.supporting_facts) for q in varied] == [
+        (q.id, q.answer, q.supporting_facts) for q in plain
+    ]
+    assert [q.question for q in varied] != [q.question for q in plain]
+
+
+def test_an_export_made_with_varied_wording_records_it_and_reproduces() -> None:
+    ui = build_default_ui()
+    ui.preset.set("small")
+    ui.question_values["n_questions"].set(10)
+    ui.generate()
+    ui.prepare_export()
+    files = exported_files(ui)
+    assert QuestionSpec.model_validate_json(files["questions_spec.json"]).phrasing == "varied"
+    assert RenderSpec.model_validate_json(files["render_spec.json"]).phrasing == "varied"
+    again = reproduce(
+        Specs(
+            world=WorldSpec.model_validate_json(files["spec.json"]),
+            questions=QuestionSpec.model_validate_json(files["questions_spec.json"]),
+            render=RenderSpec.model_validate_json(files["render_spec.json"]),
+        )
+    )
+    assert again == files
 
 
 def test_choosing_a_difficulty_refills_the_ambiguity_knobs_and_leaves_the_shape() -> None:

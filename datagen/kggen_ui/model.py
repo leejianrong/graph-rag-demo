@@ -54,6 +54,7 @@ KNOBS: tuple[Knob, ...] = (
 )
 KNOB_NAMES = tuple(k.name for k in KNOBS)
 DEFAULT_PRESET = "small"
+DEFAULT_PHRASING = "varied"  # more wordings, so the text and questions read less like a template
 DEFAULT_DIFFICULTY = "hard"  # a clean world is easy to read; the UI starts with a realistic one
 
 
@@ -242,7 +243,7 @@ QUESTION_DEFAULTS: dict[str, float] = {
 }
 
 
-def question_spec_from_values(values: dict[str, float]) -> QuestionSpec:
+def question_spec_from_values(values: dict[str, float], phrasing: str = "plain") -> QuestionSpec:
     """Build the question spec from the form; a ``ValueError`` explains what is wrong."""
     read = {k.name: read_knob(k, values.get(k.name)) for k in QUESTION_KNOBS}
     mix = {h: float(read[f"hops_{h}"]) for h in range(1, MAX_HOPS + 1) if read[f"hops_{h}"] > 0}
@@ -251,14 +252,21 @@ def question_spec_from_values(values: dict[str, float]) -> QuestionSpec:
     types = {t: float(read[f"type_{t}"]) for t in QUESTION_TYPES if read[f"type_{t}"] > 0}
     if not types:
         raise ValueError("Give at least one question type a weight above 0")
-    return QuestionSpec(n_questions=int(read["n_questions"]), hop_mix=mix, type_mix=types)
+    return QuestionSpec(
+        n_questions=int(read["n_questions"]),
+        hop_mix=mix,
+        type_mix=types,
+        phrasing=phrasing,  # type: ignore[arg-type]
+    )
 
 
-def derive_questions(world: World, values: dict[str, float]) -> tuple[Question, ...]:
+def derive_questions(
+    world: World, values: dict[str, float], phrasing: str = "plain"
+) -> tuple[Question, ...]:
     """Questions from the world, or a ``ValueError`` saying why it cannot (for example, too few
     chains with a unique answer in a small world)."""
     try:
-        return generate_questions(world, question_spec_from_values(values))
+        return generate_questions(world, question_spec_from_values(values, phrasing))
     except WorldGenerationError as exc:
         raise ValueError(str(exc)) from None
 
@@ -385,19 +393,22 @@ MAX_RENDER_WORDS = 10_000_000  # most words the UI will render at once; the CLI 
 MAX_DOCUMENT_ROWS = 5_000  # the table shows this many; a bigger world still renders them all
 
 
-def render_spec_from_values(values: dict[str, float]) -> RenderSpec:
+def render_spec_from_values(values: dict[str, float], phrasing: str = "plain") -> RenderSpec:
     read = {k.name: read_knob(k, values.get(k.name)) for k in RENDER_KNOBS}
     return RenderSpec(
         alias_use_rate=float(read["alias_use_rate"]),
         max_facts_per_doc=int(read["max_facts_per_doc"]),
         target_words=int(read["target_words"]),
         neighbour_facts=int(read["neighbour_facts"]),
+        phrasing=phrasing,  # type: ignore[arg-type]
     )
 
 
-def render_world(world: World, values: dict[str, float]) -> tuple[Document, ...]:
+def render_world(
+    world: World, values: dict[str, float], phrasing: str = "plain"
+) -> tuple[Document, ...]:
     """The world's facts as template documents: deterministic, offline, no LLM."""
-    spec = render_spec_from_values(values)
+    spec = render_spec_from_values(values, phrasing)
     if len(world.entities) * spec.target_words > MAX_RENDER_WORDS:
         raise ValueError(
             f"{len(world.entities):,} entities at {spec.target_words:,} words each is more than "
@@ -677,6 +688,7 @@ __all__ = [
     "HELP",
     "knob_help",
     "DEFAULT_DIFFICULTY",
+    "DEFAULT_PHRASING",
     "DEFAULT_PRESET",
     "GROUPS",
     "KNOBS",
