@@ -28,8 +28,9 @@ For the open work and known quality gaps, read `docs/HANDOFF.md` and the pandan 
 - **Path retrieval** (GRA-170, `PATH_RETRIEVAL`, off by default; `graph_rag/query/chains.py`): lists the best chain of connected
   edges first in `subgraph.edges`, by a beam search scored on the chain's sentences joined. `kgbench trace` names the stage that
   loses each multi-hop path. Results and limits: `docs/results/path-retrieval.md`.
-- **Entity linking name guard** (GRA-157): a cosine merge also needs a shared distinctive token or an acronym. Known
-  hole: Acme Logistics and Northwind Logistics would merge on the shared token "Logistics" (GRA-172, read from the code, not run).
+- **Entity linking name guard** (GRA-157, GRA-172): a cosine merge also needs a shared distinctive token that neither name adds to,
+  or an acronym ("Acme" and "Acme Logistics Inc." merge; "Acme Logistics" and "Northwind Logistics" do not). Known hole, not the
+  guard: an exact-key block on a bare short form merges different people across documents (GRA-178, `docs/results/real-2wiki-medium-50.md`).
 - **Answer selection** (GRA-161) and `answer_entities` for a second ask (GRA-165): ADR-0014, "How the answer is chosen".
 - **`ACQUIRED` predicate** and a `role` property on edges (`HAS_ROLE` title), GRA-162 (`graph_rag/predicates.py`).
 - **Time**: `document_date` on ingest, `valid_from`/`valid_to` on facts, `as_of` on recall; a newer document ends an older
