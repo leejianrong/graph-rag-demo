@@ -13,7 +13,7 @@ import random
 from bisect import bisect_right
 from dataclasses import dataclass
 
-from kggen.names import NameFactory, alias_forms
+from kggen.names import NameBankExhausted, NameFactory, alias_forms
 from kggen.spec import VAGUE_PREDICATE, WorldSpec
 
 
@@ -110,10 +110,13 @@ def generate(spec: WorldSpec) -> World:
     community = [i % spec.n_communities for i in range(n)]
     rng.shuffle(community)
 
-    names = NameFactory(rng)
+    names = NameFactory(rng, style=spec.name_style)
     n_distractors = round(spec.distractor_rate * n)
     width = len(str(n + n_distractors - 1))
-    name_of = [names.new(types[i]) for i in range(n)]
+    try:
+        name_of = [names.new(types[i]) for i in range(n)]
+    except NameBankExhausted as exc:
+        raise WorldGenerationError(str(exc)) from None
 
     # Hub-ness: a random ranking turned into Zipf weights (skew 0 gives uniform weights).
     ranking = list(range(n))

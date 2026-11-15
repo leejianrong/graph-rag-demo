@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import random
 
+from kggen.namebank import FIRST_NAMES_ALL, POOLS
+
 _CONSONANTS = "bdfgklmnprstvz"
 _VOWELS = "aeiou"
 _ORG_SUFFIX = ("Holdings", "Group", "Labs", "Industries", "Partners", "Systems", "Works")
@@ -12,12 +14,25 @@ _PLACE_SUFFIX = ("", "", "ia", "ton", "burg", "ford", "mere")
 _DEMONYM_SUFFIX = ("ian", "ese", "ish")
 
 
-class NameFactory:
-    """Hands out names that are unique across the whole world."""
+class NameBankExhausted(RuntimeError):
+    """A world asked the name bank for more names of a type than it holds."""
 
-    def __init__(self, rng: random.Random, used: set[str] | None = None) -> None:
+
+class NameFactory:
+    """Hands out names that are unique across the whole world.
+
+    ``style="invented"`` makes capitalised made-up words. ``style="bank"`` draws realistic names
+    without replacement from ``kggen.namebank``, which is deconflicted so no two entities share an
+    alias word; a type the bank has no pool for falls back to invented names.
+    """
+
+    def __init__(
+        self, rng: random.Random, used: set[str] | None = None, style: str = "invented"
+    ) -> None:
         self._rng = rng
         self._used: set[str] = set(used or ())
+        self._style = style
+        self._bank: dict[str, list[str]] = {}  # entity type -> the words still to hand out
 
     def _word(self, syllables: int) -> str:
         rng = self._rng
@@ -61,8 +76,38 @@ class NameFactory:
                 return candidate
         raise RuntimeError("could not generate a look-alike name")
 
+    def _from_bank(self, entity_type: str) -> str:
+        """The next name of this type from the bank; it never repeats a word."""
+        words = self._bank.get(entity_type)
+        if words is None:
+            words = list(POOLS[entity_type])
+            self._rng.shuffle(words)
+            self._bank[entity_type] = words
+        rng = self._rng
+        while words:
+            head = words.pop()
+            if entity_type == "PERSON":
+                name = f"{rng.choice(FIRST_NAMES_ALL)} {head}"
+            elif entity_type == "ORG":
+                name = f"{head} {rng.choice(_ORG_SUFFIX)}"
+            elif entity_type == "EVENT":
+                name = f"{head} {rng.choice(_EVENT_SUFFIX)}"
+            elif entity_type == "PRODUCT":
+                name = f"{head} {rng.choice('XZQ')}{rng.randint(1, 99)}"
+            else:  # LOCATION, NORP: the word is the name
+                name = head
+            if name not in self._used:
+                self._used.add(name)
+                return name
+        raise NameBankExhausted(
+            f"the name bank holds {len(POOLS[entity_type])} {entity_type} names and this world "
+            "needs more; use name_style 'invented' or a smaller world"
+        )
+
     def new(self, entity_type: str) -> str:
         """A fresh unique name; a collision lengthens the name until it is unique."""
+        if self._style == "bank" and entity_type in POOLS:
+            return self._from_bank(entity_type)
         syllables = 2
         for attempt in range(1, 10_000):
             name = self._candidate(entity_type, syllables)

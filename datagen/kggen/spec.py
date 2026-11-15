@@ -11,10 +11,10 @@ from __future__ import annotations
 
 from importlib import resources
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 # kggen's own vocabulary. It is a plain contract, not an import: whether a pipeline's schema
 # lines up with it is checked on the consumer side (see the bench's alignment test).
@@ -137,6 +137,18 @@ class WorldSpec(BaseModel):
     retraction_rate: float = Field(
         default=0.0, ge=0, le=1, description="Share of edges later retracted with no replacement."
     )
+    name_style: Literal["invented", "bank"] = Field(
+        default="invented",
+        description="invented: made-up words. bank: realistic names from a deconflicted bank.",
+    )
+
+    @model_serializer(mode="wrap")
+    def _omit_the_default_name_style(self, handler):  # type: ignore[no-untyped-def]
+        """Leave a default ``name_style`` out of a spec file, so existing files keep their bytes."""
+        data = handler(self)
+        if data.get("name_style") == "invented":
+            data.pop("name_style")
+        return data
 
     @model_validator(mode="after")
     def _check(self) -> WorldSpec:

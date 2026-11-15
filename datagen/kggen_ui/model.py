@@ -54,6 +54,7 @@ KNOBS: tuple[Knob, ...] = (
 )
 KNOB_NAMES = tuple(k.name for k in KNOBS)
 DEFAULT_PRESET = "small"
+DEFAULT_NAME_STYLE = "bank"  # realistic names, so a name does not give an entity away
 DEFAULT_PHRASING = "varied"  # more wordings, so the text and questions read less like a template
 DEFAULT_DIFFICULTY = "hard"  # a clean world is easy to read; the UI starts with a realistic one
 
@@ -194,20 +195,24 @@ def read_knob(knob: Knob, raw: object) -> float:
     return int(round(number)) if knob.integer else number
 
 
-def spec_from_values(values: dict[str, float], base: WorldSpec | None = None) -> WorldSpec:
+def spec_from_values(
+    values: dict[str, float], base: WorldSpec | None = None, name_style: str = "invented"
+) -> WorldSpec:
     """Build a validated spec from form values; a ``ValueError`` explains what is wrong."""
     base = base or load_preset(DEFAULT_PRESET)
     clean = {knob.name: read_knob(knob, values.get(knob.name)) for knob in KNOBS}
     try:
-        return base.with_overrides(**clean)
+        return base.with_overrides(**clean, name_style=name_style)
     except ValidationError as exc:
         raise ValueError(exc.errors()[0]["msg"].removeprefix("Value error, ")) from None
 
 
-def generate_world(values: dict[str, float], base: WorldSpec | None = None) -> World:
+def generate_world(
+    values: dict[str, float], base: WorldSpec | None = None, name_style: str = "invented"
+) -> World:
     """Generate the world the form describes. Same values and seed give the same world."""
     try:
-        return generate(spec_from_values(values, base))
+        return generate(spec_from_values(values, base, name_style))
     except WorldGenerationError as exc:
         raise ValueError(str(exc)) from None
 
@@ -688,6 +693,7 @@ __all__ = [
     "HELP",
     "knob_help",
     "DEFAULT_DIFFICULTY",
+    "DEFAULT_NAME_STYLE",
     "DEFAULT_PHRASING",
     "DEFAULT_PRESET",
     "GROUPS",

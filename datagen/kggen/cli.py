@@ -140,12 +140,20 @@ def _add_source(parser: argparse.ArgumentParser) -> None:
         default="clean",
         help="Aliases, shared names and look-alikes to layer over the source (default: clean).",
     )
+    parser.add_argument(
+        "--names",
+        choices=("invented", "bank"),
+        default="invented",
+        help="invented: made-up words. bank: realistic names from a fixed bank (small worlds).",
+    )
     parser.add_argument("--seed", type=int, help="Override the spec's seed.")
 
 
 def _world(args: argparse.Namespace):
     spec = load_preset(args.preset) if args.preset else load_spec(args.spec)
     spec = with_difficulty(spec, args.difficulty)
+    if args.names != spec.name_style:
+        spec = spec.with_overrides(name_style=args.names)
     if args.seed is not None:
         spec = spec.with_overrides(seed=args.seed)
     return generate(spec)

@@ -8,6 +8,7 @@ import pytest
 
 pytest.importorskip("indah")  # the UI is an optional extra; the fast gate runs without it
 
+from kggen import namebank  # noqa: E402
 from kggen_ui import model  # noqa: E402
 from kggen_ui.app import build_session  # noqa: E402
 from kggen_ui.app import build_ui as build_default_ui  # noqa: E402
@@ -21,6 +22,7 @@ def build_ui():  # type: ignore[no-untyped-def]
     ui = build_default_ui()
     ui.difficulty.set("clean")
     ui.phrasing.set("plain")
+    ui.name_style.set("invented")
     return ui
 
 
@@ -50,6 +52,24 @@ def test_the_wording_starts_varied_and_changes_only_the_words_of_the_questions()
         (q.id, q.answer, q.supporting_facts) for q in plain
     ]
     assert [q.question for q in varied] != [q.question for q in plain]
+
+
+def test_names_start_from_the_bank_and_a_world_too_big_for_it_says_so() -> None:
+    ui = build_default_ui()
+    assert ui.name_style.value == model.DEFAULT_NAME_STYLE == "bank"
+    ui.preset.set("small")
+    ui.generate()
+    assert ui.entities.value != "-"
+    first_names = set(namebank.FIRST_NAMES_ALL)
+    people = [e.name for e in ui.world.value.entities if e.type == "PERSON" and not e.distractor]
+    # Most people carry a bank name; the rest are the shared names (homonyms) the hard difficulty
+    # adds, which can be another type's name.
+    from_bank = [n for n in people if n.split()[0] in first_names]
+    assert people and len(from_bank) > len(people) / 2
+
+    ui.preset.set("stress")  # 17,500 people against a bank of about 3,800
+    ui.generate()
+    assert "name bank" in ui.status.value and "invented" in ui.status.value
 
 
 def test_an_export_made_with_varied_wording_records_it_and_reproduces() -> None:

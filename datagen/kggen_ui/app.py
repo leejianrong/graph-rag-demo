@@ -21,6 +21,7 @@ class UI:
     preset: indah.Signal
     difficulty: indah.Signal
     phrasing: indah.Signal
+    name_style: indah.Signal
     values: dict[str, indah.Signal]
     status: indah.Signal
     entities: indah.Signal
@@ -136,7 +137,7 @@ class UI:
 
     def generate(self) -> None:
         try:
-            world = model.generate_world(self.current_values())
+            world = model.generate_world(self.current_values(), name_style=self.name_style.value)
         except ValueError as exc:
             self.status.set(str(exc))
             return
@@ -233,6 +234,7 @@ def build_ui() -> UI:
     preset = indah.Signal(model.DEFAULT_PRESET)
     difficulty = indah.Signal(model.DEFAULT_DIFFICULTY)
     phrasing = indah.Signal(model.DEFAULT_PHRASING)
+    name_style = indah.Signal(model.DEFAULT_NAME_STYLE)
     values = {name: indah.Signal(value) for name, value in start.items()}
     status = indah.Signal("Choose a preset and a difficulty or set the knobs, then generate.")
 
@@ -247,6 +249,7 @@ def build_ui() -> UI:
         preset=preset,
         difficulty=difficulty,
         phrasing=phrasing,
+        name_style=name_style,
         values=values,
         status=status,
         entities=indah.Signal("-"),
@@ -317,6 +320,7 @@ def build_ui() -> UI:
                     indah.Select(
                         difficulty, options=list(model.DIFFICULTY_NAMES), label="Difficulty"
                     ),
+                    indah.Select(name_style, options=["invented", "bank"], label="Names"),
                     indah.Select(
                         phrasing, options=["plain", "varied"], label="Wording of text and questions"
                     ),
