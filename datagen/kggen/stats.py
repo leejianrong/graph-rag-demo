@@ -37,7 +37,7 @@ def _base_edges(world: World):
     return [
         e
         for e in world.edges
-        if e.valid_from == world.spec.start_year
+        if e.valid_from == world.spec.axis.start
         and e.subject not in distractors
         and e.object not in distractors
     ]
@@ -95,7 +95,7 @@ def world_stats(world: World) -> dict:
     base = _base_edges(world)
     adj = _adjacency([e.id for e in real], base)
     degree = Counter({i: len(v) for i, v in adj.items()})
-    successors = sum(e.valid_from > world.spec.start_year for e in world.edges)
+    successors = sum(e.valid_from > world.spec.axis.start for e in world.edges)
     ended = sum(e.valid_to is not None for e in world.edges)
     components = _components(adj)
     names = Counter(e.name for e in real)

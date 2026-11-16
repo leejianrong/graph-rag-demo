@@ -273,7 +273,7 @@ def _churn(
 ) -> list[tuple[int, str, int, int, int | None]]:
     """Date every edge; some are replaced by a new object and some retracted."""
     rng = random.Random(f"{spec.seed}:churn")
-    start = spec.start_year
+    start = spec.axis.start
     dated: list[tuple[int, str, int, int, int | None]] = [
         (s, p, o, start, None) for s, p, o in edges
     ]
@@ -289,7 +289,7 @@ def _churn(
         if replaced >= n_replace and retracted >= n_retract:
             break
         s, p, o, _, _ = dated[i]
-        year = rng.randint(start + 1, spec.end_year)
+        year = rng.randint(start + 1, spec.axis.end)
         if replaced < n_replace:
             options = [c for c in by_type[types[o]] if c not in (s, o) and (s, p, c) not in taken]
             if options:
@@ -329,7 +329,7 @@ def _evolve(
     for i, (s, _, o, _, _) in enumerate(dated):
         touching.setdefault(s, []).append(i)
         touching.setdefault(o, []).append(i)
-    start, end = spec.start_year, spec.end_year
+    start, end = spec.axis.start, spec.axis.end
     for x in rng.sample(range(n), round(spec.birth_rate * n)):
         ends = [vt for i in touching.get(x, ()) if (vt := dated[i][4]) is not None]
         latest = min([end, *[e - 1 for e in ends]])
@@ -379,8 +379,8 @@ def _rename(
         former = year = None
         name, aliases = e.name, e.aliases
         if i in picked:
-            low = (b or spec.start_year) + 1
-            high = (c or spec.end_year + 1) - 1
+            low = (b or spec.axis.start) + 1
+            high = (c or spec.axis.end + 1) - 1
             head, _, tail = e.name.rpartition(" ")
             if head and low <= high:
                 options = (
@@ -482,5 +482,5 @@ def _distractor_edges(
             partner = pool[rng.randrange(len(pool))]
         if (d.id, predicate, partner.id) not in seen:
             seen.add((d.id, predicate, partner.id))
-            out.append((d.id, predicate, partner.id, spec.start_year, None))
+            out.append((d.id, predicate, partner.id, spec.axis.start, None))
     return out

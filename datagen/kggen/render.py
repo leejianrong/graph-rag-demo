@@ -257,7 +257,8 @@ def render_documents(world: World, spec: RenderSpec | None = None) -> tuple[Docu
     # varied run lays out the same facts in the same documents and only the words differ.
     wording = random.Random(f"{world.spec.seed}:{spec.seed}:wording")
     entities = {e.id: e for e in world.entities}
-    start_year = world.spec.start_year
+    axis = world.spec.axis
+    start_year = axis.start
 
     by_subject: dict[str, list[Edge]] = {}
     for edge in world.edges:  # already ordered by subject, then fact id order
@@ -273,10 +274,12 @@ def render_documents(world: World, spec: RenderSpec | None = None) -> tuple[Docu
         present, past = rng.choice(TEMPLATES[edge.predicate])
         if spec.phrasing == "varied":
             present, past = wording.choice(VARIED_TEMPLATES[edge.predicate])
-        ended = edge.valid_to is not None
-        template, suffix = (past, f" until {edge.valid_to}") if ended else (present, "")
+        if edge.valid_to is not None:
+            template, suffix = past, f" until {axis.label(edge.valid_to)}"
+        else:
+            template, suffix = present, ""
         if edge.valid_from > start_year:
-            suffix = f" since {edge.valid_from}"
+            suffix = f" since {axis.label(edge.valid_from)}"
         text, mentions = "", []
         for piece in _SLOT.split(template):
             if piece in ("{S}", "{O}"):
@@ -396,7 +399,8 @@ def _timeline_documents(world: World, spec: RenderSpec) -> tuple[Document, ...]:
     """
     rng = random.Random(f"{world.spec.seed}:{spec.seed}:timeline")
     entities = {e.id: e for e in world.entities}
-    start = world.spec.start_year
+    axis = world.spec.axis
+    start = axis.start
 
     def surface(entity_id: str, year: int) -> str:
         e = entities[entity_id]
@@ -425,22 +429,22 @@ def _timeline_documents(world: World, spec: RenderSpec) -> tuple[Document, ...]:
             "O": (edge.object, surface(edge.object, year)),
         }
         if ending:
-            since = f"from {edge.valid_from} " if edge.valid_from > start else ""
-            return compose(past, parts, year, f" {since}until {edge.valid_to}", (edge.id,))
-        suffix = f" since {edge.valid_from}" if edge.valid_from > start else ""
+            since = f"from {axis.label(edge.valid_from)} " if edge.valid_from > start else ""
+            until = axis.label(edge.valid_to) if edge.valid_to is not None else ""
+            return compose(past, parts, year, f" {since}until {until}", (edge.id,))
+        suffix = f" since {axis.label(edge.valid_from)}" if edge.valid_from > start else ""
         return compose(present, parts, year, suffix, (edge.id,))
 
     def lifecycle(e, year: int, kind: str):
+        when = f" in {axis.label(year)}"
         if kind == "born":
-            return compose(
-                "{S} was established", {"S": (e.id, e.name_in(year))}, year, f" in {year}", ()
-            )
+            return compose("{S} was established", {"S": (e.id, e.name_in(year))}, year, when, ())
         if kind == "closed":
             return compose(
-                "{S} ceased operations", {"S": (e.id, e.name_in(year - 1))}, year, f" in {year}", ()
+                "{S} ceased operations", {"S": (e.id, e.name_in(year - 1))}, year, when, ()
             )
         parts = {"S": (e.id, e.former_name), "N": (e.id, e.name)}
-        return compose("{S} was renamed {N}", parts, year, f" in {year}", ())
+        return compose("{S} was renamed {N}", parts, year, when, ())
 
     # (year, subject) -> sentences to write there, in a stable order
     plan: dict[tuple[int, str], list] = {}
@@ -488,7 +492,7 @@ def _timeline_documents(world: World, spec: RenderSpec) -> tuple[Document, ...]:
                     sentences=tuple(written),
                     distractor=entity.distractor,
                     subject=subject,
-                    date=f"{year}-07-01",
+                    date=axis.iso(year),
                 )
             )
     return tuple(documents)
