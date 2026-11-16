@@ -686,6 +686,21 @@ def graph_view(world: World) -> tuple[list[dict], list[dict], str]:
     return shown_nodes, shown_edges, note
 
 
+def settings_summary(saved: dict) -> str:
+    """A saved form in a line: what it asked for, to tell revisions apart."""
+    values = saved.get("values") or {}
+    parts = [
+        f"{saved.get('preset', '?')}",
+        f"{values.get('n_entities', '?'):,} entities"
+        if isinstance(values.get("n_entities"), (int, float))
+        else "",
+        f"{saved.get('difficulty', '?')}",
+        f"change {saved.get('evolution', 'none')}",
+        f"seed {int(values['seed'])}" if "seed" in values else "",
+    ]
+    return ", ".join(p for p in parts if p)
+
+
 # -- the world through the years ---------------------------------------------------------------
 
 # One fixed code for what a year changed, drawn as a node or edge colour.
@@ -975,6 +990,7 @@ __all__ = [
     "export_name",
     "export_summary",
     "document_rows",
+    "settings_summary",
     "TimeGraph",
     "time_graph",
     "MAX_YEAR_STEPS",
