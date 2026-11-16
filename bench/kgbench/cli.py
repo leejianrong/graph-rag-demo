@@ -22,12 +22,20 @@ from pathlib import Path
 from kggen.llm import CachedChat, CacheMiss, OpenAICompatible, ResponseCache
 from kggen.questions import QuestionSpec, generate_questions
 from kggen.render import render_documents
-from kggen.spec import PRESET_NAMES, WorldSpec, load_preset, load_spec
+from kggen.spec import (
+    DIFFICULTY_NAMES,
+    EVOLUTION,
+    PRESET_NAMES,
+    WorldSpec,
+    load_preset,
+    load_spec,
+    with_difficulty,
+)
 from kggen.world import generate
 
 from graph_rag.config import Settings
 from graph_rag.wiring import build_embedder, build_offline_components, build_real_components
-from kgbench import __version__, gate, judge_hard
+from kgbench import __version__, gate, judge_hard, temporal
 from kgbench import ambiguity as ambiguities
 from kgbench import critique as critiques
 from kgbench import difficulty as difficulties
@@ -211,6 +219,18 @@ def build_parser() -> argparse.ArgumentParser:
     tr.add_argument("--llm-model", default="openai/claude-haiku", help="LiteLLM model string.")
     tr.add_argument("--spacy", metavar="MODEL", help="Real spaCy NER, e.g. en_core_web_sm.")
     tr.add_argument("--out", type=Path, help="Write the markdown report here.")
+    tp = commands.add_parser(
+        "temporal",
+        help="Questions about when, on a world that changes, in dated documents (GRA-190).",
+    )
+    tp.add_argument("--preset", default="small", choices=PRESET_NAMES)
+    tp.add_argument("--difficulty", default="clean", choices=DIFFICULTY_NAMES)
+    tp.add_argument("--evolution", default="heavy", choices=tuple(EVOLUTION))
+    tp.add_argument("--seed", type=int, default=0)
+    tp.add_argument("--questions", type=int, default=100)
+    tp.add_argument("--k", type=int, default=5, help="The k for the top list.")
+    tp.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
+    tp.add_argument("--out", type=Path, help="Write the markdown table here.")
     ic = commands.add_parser(
         "ingest-cost",
         help="Tokens, dollars, time and storage per 1,000 documents ingested (replays a cache).",
@@ -570,6 +590,33 @@ def _trace(args: argparse.Namespace) -> int:
         + (f" --spacy {args.spacy}" if args.spacy else "")
     )
     text = traces.format_markdown(result, command=command, k=args.k)
+    print(text)
+    if args.out:
+        args.out.write_text(text)
+    return 0
+
+
+def _temporal(args: argparse.Namespace) -> int:
+    spec = with_difficulty(load_preset(args.preset), args.difficulty).model_copy(
+        update={"seed": args.seed}
+    )
+    embedder = CachingEmbedder(build_embedder(real=args.embedder == "bge"))
+    result = temporal.run(
+        spec,
+        n_questions=args.questions,
+        embedder=embedder,
+        k=args.k,
+        evolution=args.evolution,
+    )
+    text = (
+        f"Whole-path@{args.k} on a `{args.preset}` world ({args.difficulty}, evolution "
+        f"{args.evolution}, seed {args.seed}): {len(result.world.entities)} entities, "
+        f"{len(result.world.edges)} facts, {len(result.documents)} dated documents, "
+        f"{len(result.questions)} questions.\n\n**Whole path in the top {args.k}**\n\n"
+        f"{temporal.format_table(result)}\n\n**The first sentence about the fact states the "
+        f"right version** (not an older or later one)\n\n"
+        f"{temporal.format_table(result, 'first')}\n"
+    )
     print(text)
     if args.out:
         args.out.write_text(text)
@@ -1121,6 +1168,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _order(args)
     if args.command == "sweep":
         return _sweep(args)
+    if args.command == "temporal":
+        return _temporal(args)
     if args.command == "hard":
         return _hard(args)
     if args.command == "ingest-cost":

@@ -119,6 +119,16 @@ def evaluate(
 ) -> RetrievalReport:
     """Run ``retriever`` on every question (asking for the deepest ``k``) and score it."""
     depth = max(ks)
+    dated = getattr(retriever, "supports_as_of", False)  # GRA-190: only some systems can use it
     return score_retrieval(
-        questions, {q.id: list(retriever.retrieve(q.question, depth)) for q in questions}, ks
+        questions,
+        {
+            q.id: list(
+                retriever.retrieve(q.question, depth, as_of=q.as_of)  # type: ignore[call-arg]
+                if dated
+                else retriever.retrieve(q.question, depth)
+            )
+            for q in questions
+        },
+        ks,
     )

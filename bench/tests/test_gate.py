@@ -50,7 +50,7 @@ def tiny_metrics() -> dict[str, float]:
 def test_measure_is_deterministic_and_covers_every_gated_layer(tiny_metrics) -> None:
     assert gate.measure(TINY) == tiny_metrics
     kinds = {m.split("/")[0] for m in tiny_metrics}
-    assert kinds == {"retrieval", "extraction", "linking"}
+    assert kinds == {"retrieval", "extraction", "linking", "temporal"}
     systems = {m.split("/")[1] for m in tiny_metrics if m.startswith("retrieval")}
     assert systems == set(gate.GATED_SYSTEMS)
     assert all(0.0 <= v <= 1.0 for v in tiny_metrics.values())
@@ -62,9 +62,12 @@ def test_a_retrieval_regression_fails_the_gate(tiny_metrics, monkeypatch) -> Non
 
     from kgbench.graph_retriever import GraphRagRetriever
 
-    monkeypatch.setattr(GraphRagRetriever, "retrieve", lambda self, question, k: [])
+    monkeypatch.setattr(GraphRagRetriever, "retrieve", lambda self, question, k, as_of=None: [])
     failures = check(gate.measure(TINY), floors)
-    assert failures and all(f.metric.startswith("retrieval/graph-rag") for f in failures)
+    assert failures and all(
+        f.metric.startswith(("retrieval/graph-rag", "temporal/graph-rag")) for f in failures
+    )
+    assert any(f.metric.startswith("temporal/") for f in failures)
 
 
 def test_an_extraction_regression_fails_the_gate(tiny_metrics, monkeypatch) -> None:
