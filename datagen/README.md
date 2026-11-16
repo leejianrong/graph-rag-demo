@@ -41,3 +41,5 @@ still one capitalised word): see [generator-realism.md](../docs/results/generato
 `fixtures/` holds committed small and medium datasets (regenerate with `make fixtures`; a test fails on drift) and
 `examples/` holds LLM-written sets with their response caches (`hard-tiny`, `hard-small`, `llm-cache-tiny`), each with its own
 README. The UI is the optional `ui` extra (`kggen[ui]`, indah). The root README has the full tour.
+
+In the UI, an evolving world (Change over time `light` or `heavy`) can be stepped through its years: switch on *Step through the years* under the graph, then move the slider or use *Previous/Next year* and *Previous/Next change* (the next year anything changes). The graph keeps one layout for every year and recolours it (green new, purple renamed, rust ending, pale not in that year), rings what the year changed and dims the rest; a table lists the year's changes, and the document list shows only documents dated up to that year. A world that never changes says so. The slider's range is fixed at 50 years after the first (an indah slider cannot change its range).
