@@ -715,8 +715,8 @@ DIFFICULTY_CHOICES = (
     (
         "aliases",
         "Aliases",
-        f"{DIFFICULTY['aliases']['alias_rate']:.0%} of entities also go by short forms and "
-        "nicknames in the text.",
+        f"{DIFFICULTY['aliases']['alias_rate']:.0%} of entities also go by a short form in "
+        "the text.",
     ),
     (
         "hard",

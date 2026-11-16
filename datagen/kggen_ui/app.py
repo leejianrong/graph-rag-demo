@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 import indah
 
-from kggen_ui import model, workspaces
+from kggen_ui import model, theme, workspaces
 
 # The Graph component arrived in indah 0.12; an older indah still gets the form, stats, questions.
 HAS_GRAPH = hasattr(indah, "Graph")
@@ -1130,5 +1130,7 @@ def build_session() -> indah.Session:
 def serve(port: int | None = None, host: str = "127.0.0.1") -> None:
     """Start the app; blocks until stopped."""
     indah.launch(
-        indah.create_app(session_factory=build_session, title="kggen"), port=port, host=host
+        indah.create_app(session_factory=build_session, title="kggen", theme=theme.studio_theme()),
+        port=port,
+        host=host,
     )
