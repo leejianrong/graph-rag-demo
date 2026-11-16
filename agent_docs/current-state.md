@@ -60,7 +60,8 @@ For the open work and known quality gaps, read `docs/HANDOFF.md` and the pandan 
   renamed; facts change), `docs generate --timeline` (dated documents), `when`/`before`/`duration` questions
   (`docs/results/generator-evolution.md`). Question personas (GRA-187): `--persona newcomer|learner|expert|mixed`, the
   `conversation` and `common` types, `kgbench personas` (`docs/results/question-personas.md`). Year view in the UI (GRA-192):
-  step an evolving world through its years (`kggen_ui.model.TimeGraph`); the redesign it leads to is `docs/design/kggen-studio.md`. `datagen/fixtures/` and
+  step an evolving world through its years (`kggen_ui.model.TimeGraph`); the redesign it leads to is `docs/design/kggen-studio.md`. Studio workspaces (GRA-194): saved settings with revisions in
+  `~/.kggen/studio` (`kggen_ui/workspaces.py`), the UI as rail plus tabs. `datagen/fixtures/` and
   `datagen/examples/` are committed outputs (their own READMEs).
 - `bench/` (`kgbench`): extraction, linking, retrieval (BM25, dense, graph-rag), order, sweeps, typed answers, LLM judge,
   `real` (2Wiki slice), `temporal` (a changing world, scored by question type; `docs/results/temporal-bench.md`), `longmemeval`, `ingest-cost` (GRA-55), `gate` (floors in `bench/kgbench/gate.json`, run by the fast

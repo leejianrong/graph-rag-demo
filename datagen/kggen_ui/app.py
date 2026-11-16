@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 import indah
 
-from kggen_ui import model
+from kggen_ui import model, workspaces
 
 # The Graph component arrived in indah 0.12; an older indah still gets the form, stats, questions.
 HAS_GRAPH = hasattr(indah, "Graph")
@@ -66,6 +66,15 @@ class UI:
     render_spec: indah.Signal  # the RenderSpec the documents on screen were rendered with
     export_file: indah.Signal  # a DownloadFile once the export is prepared, else None
     export_note: indah.Signal  # how big the prepared export is, or why there is none
+    store: workspaces.Store  # saved workspaces on disk
+    ws_rows: indah.Signal  # the saved workspaces, as table rows
+    ws_current: indah.Signal  # the slug of the open workspace, or None (a scratch session)
+    ws_picked: indah.Signal  # the slug picked in the rail
+    ws_name: indah.Signal  # the name typed for a new workspace
+    ws_note: indah.Signal  # what the last workspace action did, or why it failed
+    rev_rows: indah.Signal  # the open workspace's revisions, newest first
+    rev_picked: indah.Signal  # the revision id picked in History
+    ws_confirm: indah.Signal  # whether the delete confirmation is open
 
     def current_values(self) -> dict[str, float]:
         return {name: signal.value for name, signal in self.values.items()}
@@ -188,6 +197,7 @@ class UI:
             self.status.set(f"Generated with seed {summary.seed}.")
 
         indah.batch(apply)
+        self._save_revision()
 
     def derive(self) -> None:
         """Derive a new set of questions from the current world, with the current form."""
@@ -224,6 +234,186 @@ class UI:
         if self.doc_source.value == "llm":
             note += " Its documents.json is template text: the LLM-written set is not exported."
         self.export_note.set(note)
+
+    # -- workspaces ---------------------------------------------------------------------------
+
+    def settings(self) -> dict:
+        """Everything on the form: what a workspace saves, and all that regenerates its data."""
+        return {
+            "preset": self.preset.value,
+            "difficulty": self.difficulty.value,
+            "evolution": self.evolution.value,
+            "persona": self.persona.value,
+            "timeline": self.timeline.value,
+            "phrasing": self.phrasing.value,
+            "name_style": self.name_style.value,
+            "values": self.current_values(),
+            "question_values": self.current_question_values(),
+            "doc_values": self.current_doc_values(),
+        }
+
+    def apply_settings(self, saved: dict) -> None:
+        """Put saved settings back on the form. The selects go first, one by one, because each
+        refills the numbers from its preset; the saved numbers go on top afterwards."""
+        for name in ("preset", "difficulty", "evolution", "persona"):
+            if name in saved:
+                getattr(self, name).set(saved[name])
+        for name in ("timeline", "phrasing", "name_style"):
+            if name in saved:
+                getattr(self, name).set(saved[name])
+        for group, signals in (
+            ("values", self.values),
+            ("question_values", self.question_values),
+            ("doc_values", self.doc_values),
+        ):
+            for key, value in (saved.get(group) or {}).items():
+                if key in signals:
+                    signals[key].set(value)
+
+    def refresh_workspaces(self) -> None:
+        self.ws_rows.set(
+            [
+                {"slug": w.slug, "name": w.name, "saved": (w.latest.saved if w.latest else "")}
+                for w in self.store.list()
+            ]
+        )
+        self.refresh_revisions()
+
+    def refresh_revisions(self) -> None:
+        slug = self.ws_current.value
+        try:
+            ws = self.store.load(slug) if slug else None
+        except workspaces.WorkspaceError:
+            ws = None
+        self.rev_rows.set(
+            [
+                {"id": str(r.id), "saved": r.saved, "what": model.settings_summary(r.settings)}
+                for r in reversed(ws.revisions)
+            ]
+            if ws
+            else []
+        )
+        self.rev_picked.set(None)
+
+    def workspace_title(self) -> str:
+        slug = self.ws_current.value
+        if not slug:
+            return (
+                "Scratch session: not saved. Name a workspace in the rail to keep these settings."
+            )
+        try:
+            return self.store.load(slug).name
+        except workspaces.WorkspaceError:
+            return slug
+
+    def _ws_do(self, action) -> None:  # type: ignore[no-untyped-def]
+        """Run a store action; a failure becomes the note instead of a crash."""
+        try:
+            action()
+        except workspaces.WorkspaceError as exc:
+            self.ws_note.set(str(exc))
+
+    def create_workspace(self) -> None:
+        """A new workspace holding the form as it is now; it becomes the open one."""
+
+        def run() -> None:
+            ws = self.store.create(self.ws_name.value, self.settings())
+            self.ws_current.set(ws.slug)
+            self.ws_picked.set(ws.slug)
+            self.ws_name.set("")
+            self.refresh_workspaces()
+            self.ws_note.set(f"Created {ws.name}.")
+
+        self._ws_do(run)
+
+    def open_workspace(self, slug: str | None) -> None:
+        """Open a saved workspace: its latest settings go on the form and the data is made again
+        from them (not for a stress or large preset, which takes long enough to start by hand)."""
+        if not slug or slug == self.ws_current.value:
+            return
+
+        def run() -> None:
+            ws = self.store.load(slug)
+            self.ws_current.set(slug)
+            if ws.latest is not None:
+                self.apply_settings(ws.latest.settings)
+                if self.preset.value in ("tiny", "small", "medium"):
+                    self.generate()
+                else:
+                    self.status.set("Settings restored. Press Generate to make the data.")
+            self.refresh_revisions()
+            self.ws_note.set(f"Opened {ws.name}.")
+
+        self._ws_do(run)
+
+    def restore_revision(self) -> None:
+        """Put the picked revision's settings back and generate; that saves a new revision."""
+        slug, picked = self.ws_current.value, self.rev_picked.value
+        if not slug or picked is None:
+            self.ws_note.set("Pick a revision first.")
+            return
+
+        def run() -> None:
+            ws = self.store.load(slug)
+            revision = next(r for r in ws.revisions if str(r.id) == str(picked))
+            self.apply_settings(revision.settings)
+            self.generate()
+            self.ws_note.set(f"Restored revision {revision.id}.")
+
+        self._ws_do(run)
+
+    def rename_workspace(self) -> None:
+        slug = self.ws_current.value
+        if not slug:
+            self.ws_note.set("Open a workspace first.")
+            return
+
+        def run() -> None:
+            ws = self.store.rename(slug, self.ws_name.value)
+            self.ws_name.set("")
+            self.refresh_workspaces()
+            self.ws_note.set(f"Renamed to {ws.name}.")
+
+        self._ws_do(run)
+
+    def duplicate_workspace(self) -> None:
+        slug = self.ws_current.value
+        if not slug:
+            self.ws_note.set("Open a workspace first.")
+            return
+
+        def run() -> None:
+            name = self.ws_name.value or f"{self.store.load(slug).name} copy"
+            ws = self.store.duplicate(slug, name)
+            self.ws_name.set("")
+            self.ws_current.set(ws.slug)
+            self.ws_picked.set(ws.slug)
+            self.refresh_workspaces()
+            self.ws_note.set(f"Copied the latest settings to {ws.name}.")
+
+        self._ws_do(run)
+
+    def delete_workspace(self) -> None:
+        slug = self.ws_current.value
+        self.ws_confirm.set(False)
+        if not slug:
+            return
+
+        def run() -> None:
+            self.store.delete(slug)
+            self.ws_current.set(None)
+            self.ws_picked.set(None)
+            self.refresh_workspaces()
+            self.ws_note.set("Deleted. The form keeps its settings as a scratch session.")
+
+        self._ws_do(run)
+
+    def _save_revision(self) -> None:
+        """After a successful Generate in an open workspace: keep the settings that made it."""
+        slug = self.ws_current.value
+        if slug:
+            self._ws_do(lambda: self.store.save(slug, self.settings()))
+            self.refresh_workspaces()
 
     def viewing_time(self) -> bool:
         """Whether the graph shows a year: the switch is on and the world has years to show."""
@@ -310,8 +500,9 @@ class UI:
         return target if any(n["id"] == target for n in self.drawn()[0]) else None
 
 
-def build_ui() -> UI:
-    """Build one viewer's UI: independent signals, so two tabs never share a world."""
+def build_ui(store: workspaces.Store | None = None) -> UI:
+    """Build one viewer's UI: independent signals, so two tabs never share a world. Workspaces
+    are the one shared thing: they live on disk in ``store`` (``~/.kggen/studio`` by default)."""
     start = model.preset_values(model.DEFAULT_PRESET, model.DEFAULT_DIFFICULTY)
     preset = indah.Signal(model.DEFAULT_PRESET)
     difficulty = indah.Signal(model.DEFAULT_DIFFICULTY)
@@ -382,7 +573,17 @@ def build_ui() -> UI:
         render_spec=indah.Signal(None),
         export_file=indah.Signal(None),
         export_note=indah.Signal(""),
+        store=store if store is not None else workspaces.Store(),
+        ws_rows=indah.Signal([]),
+        ws_current=indah.Signal(None),
+        ws_picked=indah.Signal(None),
+        ws_name=indah.Signal(""),
+        ws_note=indah.Signal(""),
+        rev_rows=indah.Signal([]),
+        rev_picked=indah.Signal(None),
+        ws_confirm=indah.Signal(False),
     )
+    ui.refresh_workspaces()
 
     # One thing is emphasised on the graph at a time: picking a question clears the clicked
     # sentence and the reverse, and opening another document clears its sentence. Each effect acts
@@ -399,7 +600,12 @@ def build_ui() -> UI:
         ui.picked_doc.value  # noqa: B018 (read to subscribe)
         ui.picked_fact.set(None)
 
-    for effect in (question_picked, fact_picked, document_opened):
+    def workspace_picked() -> None:
+        slug = ui.ws_picked.value
+        if slug is not None:
+            ui.open_workspace(slug)
+
+    for effect in (question_picked, fact_picked, document_opened, workspace_picked):
         indah.effect(effect)
 
     def group_inputs(group: str) -> list[indah.Component]:
@@ -412,46 +618,38 @@ def build_ui() -> UI:
         off = [r[0] for r in rows if r[3] != "ok"]
         return "All knobs are within tolerance." if not off else "Off target: " + ", ".join(off)
 
-    ui.root = indah.Column(
-        [
-            indah.Card(
-                title="Generate a world",
-                children=[
-                    indah.Select(preset, options=list(model.PRESET_NAMES), label="Preset"),
-                    indah.Select(
-                        difficulty, options=list(model.DIFFICULTY_NAMES), label="Difficulty"
-                    ),
-                    indah.Select(
-                        evolution,
-                        options=list(model.EVOLUTION_LEVELS),
-                        label="Change over time (facts, entities, names)",
-                    ),
-                    indah.Select(
-                        timeline, options=["off", "on"], label="Dated documents across the years"
-                    ),
-                    indah.Select(name_style, options=["invented", "bank"], label="Names"),
-                    indah.Select(
-                        phrasing, options=["plain", "varied"], label="Wording of text and questions"
-                    ),
-                    *[
-                        indah.Column([indah.Text(title), indah.Grid(group_inputs(group))])
-                        for group, title in model.GROUPS.items()
-                    ],
-                    indah.Button("Generate", ui.generate),
-                    indah.Text(lambda: ui.status.value),
-                ],
+    generate_card = indah.Card(
+        title="Generate a world",
+        children=[
+            indah.Select(preset, options=list(model.PRESET_NAMES), label="Preset"),
+            indah.Select(difficulty, options=list(model.DIFFICULTY_NAMES), label="Difficulty"),
+            indah.Select(
+                evolution,
+                options=list(model.EVOLUTION_LEVELS),
+                label="Change over time (facts, entities, names)",
             ),
+            indah.Select(timeline, options=["off", "on"], label="Dated documents across the years"),
+            indah.Select(name_style, options=["invented", "bank"], label="Names"),
+            indah.Select(
+                phrasing, options=["plain", "varied"], label="Wording of text and questions"
+            ),
+            *[
+                indah.Column([indah.Text(title), indah.Grid(group_inputs(group))])
+                for group, title in model.GROUPS.items()
+            ],
+            indah.Button("Generate", ui.generate),
+            indah.Text(lambda: ui.status.value),
+        ],
+    )
+    setup = indah.Column(
+        [
+            generate_card,
             indah.Row(
                 [
                     indah.Stat(lambda: ui.entities.value, label="Entities"),
                     indah.Stat(lambda: ui.facts.value, label="Facts"),
                 ]
             ),
-            world_card(ui),
-            questions_card(ui),
-            documents_card(ui),
-            export_card(ui),
-            *entity_cards(ui),
             indah.Card(
                 title="Asked for vs. realized",
                 children=[
@@ -465,6 +663,22 @@ def build_ui() -> UI:
                 ],
             ),
         ]
+    )
+    tabs = indah.Tabs(
+        [
+            setup,
+            indah.Column([world_card(ui), *entity_cards(ui)]),
+            questions_card(ui),
+            documents_card(ui),
+            export_card(ui),
+            history_card(ui),
+        ],
+        labels=["Setup", "World", "Questions", "Documents", "Export", "History"],
+    )
+    ui.root = indah.AppShell(
+        rail=rail(ui),
+        main=[indah.Text(ui.workspace_title), tabs],
+        rail_width="280px",
     )
     return ui
 
@@ -718,6 +932,77 @@ def entity_cards(ui: UI) -> list[indah.Component]:
             ],
         )
     ]
+
+
+def rail(ui: UI) -> indah.Component:
+    """The Studio rail: the saved workspaces, and a way to name a new one from the form."""
+    table = indah.Table(
+        rows=ui.ws_rows,
+        columns=[indah.Col("name", "Workspace"), indah.Col("saved", "Saved", kind="mono")],
+        key="slug",
+        selected=ui.ws_picked,
+        height="260px",
+        label="Workspaces",
+    )
+    return indah.Column(
+        [
+            indah.Text("Studio"),
+            table,
+            indah.TextInput(ui.ws_name, label="Name", placeholder="Harbour towns, heavy churn"),
+            indah.Button("New workspace from this form", ui.create_workspace),
+            indah.Text(lambda: ui.ws_note.value),
+        ]
+    )
+
+
+def history_card(ui: UI) -> indah.Component:
+    """The open workspace's revisions, and what can be done to the workspace."""
+    table = indah.Table(
+        rows=ui.rev_rows,
+        columns=[
+            indah.Col("id", "Revision", kind="number"),
+            indah.Col("saved", "Saved", kind="mono"),
+            indah.Col("what", "Settings", wrap=True),
+        ],
+        key="id",
+        selected=ui.rev_picked,
+        height="260px",
+        label="Revisions",
+    )
+    return indah.Card(
+        title="History",
+        children=[
+            indah.Text(
+                "Every Generate in a workspace that changed its settings keeps a revision. The "
+                "data is not stored: it is made again from the settings, so a revision costs a few "
+                "lines."
+            ),
+            table,
+            indah.Button("Restore this revision", ui.restore_revision, variant="tonal"),
+            indah.TextInput(ui.ws_name, label="Name for a rename or a copy"),
+            indah.Row(
+                [
+                    indah.Button("Rename workspace", ui.rename_workspace, variant="tonal"),
+                    indah.Button("Duplicate workspace", ui.duplicate_workspace, variant="tonal"),
+                    indah.Button("Delete workspace", lambda: ui.ws_confirm.set(True)),
+                ]
+            ),
+            indah.Modal(
+                [
+                    indah.Text(lambda: f"Delete {ui.workspace_title()}? Its history goes too."),
+                    indah.Row(
+                        [
+                            indah.Button("Delete", ui.delete_workspace),
+                            indah.Button("Keep it", lambda: ui.ws_confirm.set(False)),
+                        ]
+                    ),
+                ],
+                open=ui.ws_confirm,
+                title="Delete workspace",
+                on_close=lambda: ui.ws_confirm.set(False),
+            ),
+        ],
+    )
 
 
 def build_session() -> indah.Session:
