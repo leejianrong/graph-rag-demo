@@ -35,6 +35,20 @@
   "retrieval/graph-rag path/hops=3/recall@5": 0.0866,
   "retrieval/graph-rag path/hops=4/recall@5": 0.05,
   "retrieval/graph-rag path/hops=all/path@5": 0.18,
-  "retrieval/graph-rag path/hops=all/recall@5": 0.2791
+  "retrieval/graph-rag path/hops=all/recall@5": 0.2791,
+  "temporal/graph-rag graph/all/first-version@5": 0.35,
+  "temporal/graph-rag graph/all/path@5": 0.39,
+  "temporal/graph-rag graph/as_of/path@5": 0.33,
+  "temporal/graph-rag graph/before/path@5": 0.13,
+  "temporal/graph-rag graph/duration/path@5": 0.33,
+  "temporal/graph-rag graph/latest/path@5": 0.53,
+  "temporal/graph-rag graph/when/path@5": 0.63,
+  "temporal/graph-rag passages/all/first-version@5": 0.68,
+  "temporal/graph-rag passages/all/path@5": 0.74,
+  "temporal/graph-rag passages/as_of/path@5": 0.48,
+  "temporal/graph-rag passages/before/path@5": 0.63,
+  "temporal/graph-rag passages/duration/path@5": 0.93,
+  "temporal/graph-rag passages/latest/path@5": 0.68,
+  "temporal/graph-rag passages/when/path@5": 0.98
  }
 }

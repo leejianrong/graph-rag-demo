@@ -230,7 +230,7 @@ def ingest(components, documents: tuple[Document, ...]):
         yield (
             doc,
             components.orchestrator.process_document(
-                IngestTrigger(bucket=components.bucket, object_key=key)
+                IngestTrigger(bucket=components.bucket, object_key=key, document_date=doc.date)
             ),
         )
 

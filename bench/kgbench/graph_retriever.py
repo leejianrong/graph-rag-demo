@@ -62,8 +62,12 @@ class GraphRagRetriever:
             return RetrievedSentence(doc.id, s.text, s.fact_ids)
         return RetrievedSentence(doc.id, text, ())
 
-    def retrieve(self, question: str, k: int) -> list[RetrievedSentence]:
-        response = self._components.retriever.retrieve(QueryRequest(question=question))
+    supports_as_of = True  # a temporal question's year is passed to the retriever (GRA-190)
+
+    def retrieve(self, question: str, k: int, as_of: int | None = None) -> list[RetrievedSentence]:
+        # A document is dated mid-year, so "as of a year" means the end of that year.
+        when = None if as_of is None else f"{as_of}-12-31"
+        response = self._components.retriever.retrieve(QueryRequest(question=question, as_of=when))
         ranked: list[RetrievedSentence] = []
         if self.mode == "graph":
             rank = {n.canonical_id: i for i, n in enumerate(response.ranked_nodes)}

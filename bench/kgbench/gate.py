@@ -24,6 +24,8 @@ from graph_rag.wiring import build_embedder, build_offline_components
 from kgbench.compare import CachingEmbedder, run_seed
 from kgbench.extraction import gold_from, run_pipeline, score
 from kgbench.linking import DIFFICULTY, linking_gold, score_linking
+from kgbench.temporal import metrics as temporal_metrics
+from kgbench.temporal import run as run_temporal
 
 DEFAULT_FLOORS = Path(__file__).resolve().parent / "gate.json"
 GATED_SYSTEMS = ("graph-rag passages", "graph-rag graph", "graph-rag path")
@@ -83,6 +85,12 @@ def measure(setup: Setup) -> dict[str, float]:
             run_pipeline(build_offline_components(), documents),
         )
         metrics[f"linking/{name}/f1"] = linking.overall.f1
+    # GRA-190: a world that changes over time, in dated documents, split by question type.
+    metrics.update(
+        temporal_metrics(
+            run_temporal(spec, n_questions=setup.questions, embedder=embedder, k=setup.k)
+        )
+    )
     return metrics
 
 
