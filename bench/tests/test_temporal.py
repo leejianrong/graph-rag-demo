@@ -102,3 +102,29 @@ def test_a_stale_sentence_ranked_first_is_the_wrong_version() -> None:
     assert temporal.first_is_right(q, [other, right, stale], versions)
     assert not temporal.first_is_right(q, [stale, right], versions)  # gold is there, but second
     assert not temporal.first_is_right(q, [other], versions)  # nothing about the fact at all
+
+
+def test_the_recency_baseline_reads_dates_and_puts_the_newest_document_first(built) -> None:
+    from kgbench.baselines import BM25Retriever
+
+    _, documents, questions = built
+    base = BM25Retriever(documents)
+    recency = temporal.RecencyRetriever(base, documents)
+    year = {d.id: int(d.date[:4]) for d in documents}
+    q = next(q for q in questions if q.type == "as_of")
+    ranked = recency.retrieve(q.question, 5, as_of=q.as_of)
+    years = [year[s.doc] for s in ranked]
+    assert years == sorted(years, reverse=True) and all(y <= q.as_of for y in years)
+    now = recency.retrieve(q.question, 5)  # no year: nothing is left out
+    assert max(year[s.doc] for s in now) >= max(years)
+
+
+def test_a_run_can_add_the_recency_baselines_and_only_temporal_questions_are_scored() -> None:
+    result = temporal.run(
+        load_preset("tiny"),
+        n_questions=40,
+        embedder=CachingEmbedder(build_embedder()),
+        recency=True,
+    )
+    assert "BM25 + recency" in result.solved and "Dense + recency" in result.first
+    assert {q.type for q in result.questions} <= set(temporal.TYPES)

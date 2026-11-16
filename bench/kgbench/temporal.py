@@ -61,6 +61,28 @@ def first_is_right(
     return False
 
 
+class RecencyRetriever:
+    """A plain retriever that also reads dates: the baseline a memory store with timestamps gets for
+    free. It fetches a wide pool, drops documents dated after the question's year, and puts the
+    newest documents first, so the latest version of a fact outranks the one it replaced. It cannot
+    tell which sentence is about the fact asked; the base retriever's ranking breaks ties."""
+
+    supports_as_of = True
+
+    def __init__(self, base: Retriever, documents: Sequence[Document], pool: int = 40) -> None:
+        self._base = base
+        self._year = {d.id: int(d.date[:4]) for d in documents if d.date}
+        self._pool = pool
+
+    def retrieve(
+        self, question: str, k: int, as_of: int | None = None
+    ) -> Sequence[RetrievedSentence]:
+        found = self._base.retrieve(question, max(self._pool, k))
+        if as_of is not None:
+            found = [s for s in found if self._year.get(s.doc, 0) <= as_of]
+        return sorted(found, key=lambda s: -self._year.get(s.doc, 0))[:k]
+
+
 def build(
     spec: WorldSpec, n_questions: int, evolution: str = "heavy"
 ) -> tuple[World, tuple[Document, ...], tuple[Question, ...]]:
@@ -70,7 +92,9 @@ def build(
     questions = generate_questions(
         world, QuestionSpec(n_questions=n_questions, type_mix={t: 1.0 for t in TYPES})
     )
-    return world, documents, questions
+    # A world too small to have every kind fills the count with ordinary questions; they say
+    # nothing about time, so they are left out.
+    return world, documents, tuple(q for q in questions if q.type in TYPES)
 
 
 def run(
@@ -81,6 +105,7 @@ def run(
     k: int = 5,
     evolution: str = "heavy",
     pipeline: Callable[[], BenchmarkComponents] | None = None,
+    recency: bool = False,
 ) -> TemporalRun:
     """Score every system on one evolving world, split by question type."""
     world, documents, questions = build(spec, n_questions, evolution)
@@ -91,6 +116,11 @@ def run(
         "graph-rag passages": lambda: GraphRagRetriever(make(), documents, mode="passages"),
         "graph-rag graph": lambda: GraphRagRetriever(make(), documents, mode="graph"),
     }
+    if recency:
+        builders["BM25 + recency"] = lambda: RecencyRetriever(BM25Retriever(documents), documents)
+        builders["Dense + recency"] = lambda: RecencyRetriever(
+            DenseRetriever(documents, embedder), documents
+        )
     same: dict[tuple[str, str], set[str]] = defaultdict(set)
     for f in world.edges:
         same[(f.subject, f.predicate)].add(f.id)
