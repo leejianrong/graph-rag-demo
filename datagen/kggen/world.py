@@ -29,6 +29,31 @@ class Entity:
     community: int
     aliases: tuple[str, ...] = ()
     distractor: bool = False
+    born: int | None = None  # the year it first appears (None: from the start)
+    closed: int | None = None  # the year it stopped existing (None: never)
+    former_name: str | None = None  # the name it had before ``renamed``
+    renamed: int | None = None  # the year it took the name it has now
+
+    def to_dict(self) -> dict:
+        """Plain fields; the evolution ones are left out until they are set, so a world without
+        evolution serialises exactly as before."""
+        data = vars(self).copy()
+        for key in ("born", "closed", "former_name", "renamed"):
+            if data[key] is None:
+                del data[key]
+        return data
+
+    def name_in(self, year: int) -> str:
+        """The name it went by in ``year``."""
+        if self.former_name is not None and self.renamed is not None and year < self.renamed:
+            return self.former_name
+        return self.name
+
+    def exists_in(self, year: int) -> bool:
+        """Whether it had appeared and not yet closed in ``year``."""
+        return (self.born is None or self.born <= year) and (
+            self.closed is None or year < self.closed
+        )
 
 
 @dataclass(frozen=True)
@@ -59,6 +84,10 @@ class World:
             if e.valid_from <= year and (e.valid_to is None or year < e.valid_to)
         )
 
+    def entities_as_of(self, year: int) -> tuple[Entity, ...]:
+        """The entities that exist in ``year``."""
+        return tuple(e for e in self.entities if e.exists_in(year))
+
     def current_edges(self) -> tuple[Edge, ...]:
         """The expected final state: every fact that was never ended."""
         return tuple(e for e in self.edges if e.valid_to is None)
@@ -66,7 +95,7 @@ class World:
     def to_dict(self) -> dict:
         return {
             "spec": self.spec.model_dump(),
-            "entities": [vars(e) for e in self.entities],
+            "entities": [e.to_dict() for e in self.entities],
             "edges": [vars(e) for e in self.edges],
         }
 
@@ -222,8 +251,10 @@ def generate(spec: WorldSpec) -> World:
         )
 
     dated = _churn(spec, edges, by_type, types)
+    born, closed = _evolve(spec, dated, types)
     ids = [f"E{i:0{width}d}" for i in range(n + n_distractors)]
     entities = _entities(spec, ids, name_of, types, community, n_distractors)
+    entities = _rename(spec, entities, born, closed)
     distractor_edges = _distractor_edges(spec, entities[n:])
     ordered = sorted(
         [(ids[s], p, ids[o], vf, vt) for s, p, o, vf, vt in dated] + distractor_edges,
@@ -276,6 +307,94 @@ def _churn(
             "could not place all churn and retractions; lower churn_rate or retraction_rate"
         )
     return dated
+
+
+def _evolve(
+    spec: WorldSpec,
+    dated: list[tuple[int, str, int, int, int | None]],
+    types: list[str],
+) -> tuple[dict[int, int], dict[int, int]]:
+    """Let entities appear and close: edit ``dated`` in place, return each one's year.
+
+    An entity born in a year has no fact before it, and one that closes has every fact end then, so
+    the timeline stays consistent: a fact never starts before an endpoint exists or outlives it.
+    """
+    born: dict[int, int] = {}
+    closed: dict[int, int] = {}
+    if not (spec.birth_rate or spec.closure_rate):
+        return born, closed
+    rng = random.Random(f"{spec.seed}:evolve")
+    n = len(types)
+    touching: dict[int, list[int]] = {}
+    for i, (s, _, o, _, _) in enumerate(dated):
+        touching.setdefault(s, []).append(i)
+        touching.setdefault(o, []).append(i)
+    start, end = spec.start_year, spec.end_year
+    for x in rng.sample(range(n), round(spec.birth_rate * n)):
+        ends = [vt for i in touching.get(x, ()) if (vt := dated[i][4]) is not None]
+        latest = min([end, *[e - 1 for e in ends]])
+        if latest <= start:
+            continue
+        year = rng.randint(start + 1, latest)
+        born[x] = year
+        for i in touching.get(x, ()):
+            s, p, o, vf, vt = dated[i]
+            dated[i] = (s, p, o, max(vf, year), vt)
+    for x in rng.sample(range(n), round(spec.closure_rate * n)):
+        earliest = max([born.get(x, start), *[dated[i][3] for i in touching.get(x, ())]]) + 1
+        if earliest > end:
+            continue
+        year = rng.randint(earliest, end)
+        closed[x] = year
+        for i in touching.get(x, ()):
+            s, p, o, vf, vt = dated[i]
+            if vt is None or vt > year:
+                dated[i] = (s, p, o, vf, year)
+    return born, closed
+
+
+# A different ending for a renamed organisation or product. The first word stays, so an alias that
+# is that word still names the same entity and the name bank's rules keep holding.
+_RENAME_ORG = ("Holdings", "Group", "Labs", "Industries", "Partners", "Systems", "Works")
+_RENAME_PRODUCT = ("X", "Z", "Q")
+
+
+def _rename(
+    spec: WorldSpec,
+    entities: tuple[Entity, ...],
+    born: dict[int, int],
+    closed: dict[int, int],
+) -> tuple[Entity, ...]:
+    """Attach birth and closure years, and rename some organisations and products."""
+    if not (born or closed or spec.rename_rate):
+        return entities
+    rng = random.Random(f"{spec.seed}:rename")
+    real = [i for i, e in enumerate(entities) if not e.distractor]
+    renamable = [i for i in real if entities[i].type in ("ORG", "PRODUCT")]
+    picked = set(rng.sample(renamable, round(spec.rename_rate * len(renamable))))
+    out = list(entities)
+    for i in real:
+        e = entities[i]
+        b, c = born.get(i), closed.get(i)
+        former = year = None
+        name, aliases = e.name, e.aliases
+        if i in picked:
+            low = (b or spec.start_year) + 1
+            high = (c or spec.end_year + 1) - 1
+            head, _, tail = e.name.rpartition(" ")
+            if head and low <= high:
+                options = (
+                    _RENAME_ORG
+                    if e.type == "ORG"
+                    else tuple(f"{k}{rng.randint(1, 99)}" for k in _RENAME_PRODUCT)
+                )
+                options = tuple(o for o in options if o != tail and f"{head} {o}" != e.name)
+                if options:
+                    name = f"{head} {rng.choice(options)}"
+                    former, year = e.name, rng.randint(low, high)
+                    aliases = (*aliases, former)
+        out[i] = Entity(e.id, name, e.type, e.community, aliases, False, b, c, former, year)
+    return tuple(out)
 
 
 def _entities(

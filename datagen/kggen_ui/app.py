@@ -20,6 +20,8 @@ class UI:
     root: indah.Component
     preset: indah.Signal
     difficulty: indah.Signal
+    evolution: indah.Signal
+    timeline: indah.Signal
     phrasing: indah.Signal
     name_style: indah.Signal
     values: dict[str, indah.Signal]
@@ -84,7 +86,9 @@ class UI:
                     self.llm_model.value,
                 )
                 return rendered.documents, model.llm_note(rendered, self.llm_model.value)
-            documents = model.render_world(world, self.current_doc_values(), self.phrasing.value)
+            documents = model.render_world(
+                world, self.current_doc_values(), self.phrasing.value, self.timeline.value == "on"
+            )
         except ValueError as exc:
             return (), str(exc)
         shown = min(len(documents), model.MAX_DOCUMENT_ROWS)
@@ -96,7 +100,9 @@ class UI:
         self.doc_source.set(source)
         try:
             self.render_spec.set(
-                model.render_spec_from_values(self.current_doc_values(), self.phrasing.value)
+                model.render_spec_from_values(
+                    self.current_doc_values(), self.phrasing.value, self.timeline.value == "on"
+                )
             )
         except ValueError:
             self.render_spec.set(None)
@@ -233,13 +239,17 @@ def build_ui() -> UI:
     start = model.preset_values(model.DEFAULT_PRESET, model.DEFAULT_DIFFICULTY)
     preset = indah.Signal(model.DEFAULT_PRESET)
     difficulty = indah.Signal(model.DEFAULT_DIFFICULTY)
+    evolution = indah.Signal(model.DEFAULT_EVOLUTION)
+    timeline = indah.Signal(model.DEFAULT_TIMELINE)
     phrasing = indah.Signal(model.DEFAULT_PHRASING)
     name_style = indah.Signal(model.DEFAULT_NAME_STYLE)
     values = {name: indah.Signal(value) for name, value in start.items()}
     status = indah.Signal("Choose a preset and a difficulty or set the knobs, then generate.")
 
     def apply_preset() -> None:
-        for name, value in model.preset_values(preset.value, difficulty.value).items():
+        for name, value in model.preset_values(
+            preset.value, difficulty.value, evolution.value
+        ).items():
             values[name].set(value)
 
     indah.effect(apply_preset)  # also runs once now, which fills the form from the first preset
@@ -248,6 +258,8 @@ def build_ui() -> UI:
         root=None,  # type: ignore[arg-type]
         preset=preset,
         difficulty=difficulty,
+        evolution=evolution,
+        timeline=timeline,
         phrasing=phrasing,
         name_style=name_style,
         values=values,
@@ -319,6 +331,14 @@ def build_ui() -> UI:
                     indah.Select(preset, options=list(model.PRESET_NAMES), label="Preset"),
                     indah.Select(
                         difficulty, options=list(model.DIFFICULTY_NAMES), label="Difficulty"
+                    ),
+                    indah.Select(
+                        evolution,
+                        options=list(model.EVOLUTION_LEVELS),
+                        label="Change over time (facts, entities, names)",
+                    ),
+                    indah.Select(
+                        timeline, options=["off", "on"], label="Dated documents across the years"
                     ),
                     indah.Select(name_style, options=["invented", "bank"], label="Names"),
                     indah.Select(

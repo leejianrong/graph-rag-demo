@@ -17,7 +17,7 @@ from kggen.questions import (
 )
 from kggen.render import Document, RenderSpec, Sentence, render_documents
 from kggen.render_llm import InvalidRendering, render_documents_llm
-from kggen.spec import DIFFICULTY_NAMES, PRESET_NAMES, WorldSpec, load_preset
+from kggen.spec import DIFFICULTY_NAMES, EVOLUTION, PRESET_NAMES, WorldSpec, load_preset
 from kggen.stats import check_against_spec
 from kggen.world import Edge, Entity, World, WorldGenerationError, generate
 from pydantic import ValidationError
@@ -51,11 +51,17 @@ KNOBS: tuple[Knob, ...] = (
     Knob("noise_rate", "Vague relations", 0, 1, 0.05, group="ambiguity"),
     Knob("churn_rate", "Facts replaced later", 0, 1, 0.05, group="churn"),
     Knob("retraction_rate", "Facts retracted later", 0, 1, 0.05, group="churn"),
+    Knob("birth_rate", "Entities that appear later", 0, 1, 0.05, group="churn"),
+    Knob("closure_rate", "Entities that close", 0, 1, 0.05, group="churn"),
+    Knob("rename_rate", "Organisations renamed", 0, 1, 0.05, group="churn"),
 )
 KNOB_NAMES = tuple(k.name for k in KNOBS)
 DEFAULT_PRESET = "small"
 DEFAULT_NAME_STYLE = "bank"  # realistic names, so a name does not give an entity away
 DEFAULT_PHRASING = "varied"  # more wordings, so the text and questions read less like a template
+EVOLUTION_LEVELS = tuple(EVOLUTION)
+DEFAULT_EVOLUTION = "none"  # a static world; light or heavy lets facts and entities change
+DEFAULT_TIMELINE = "off"  # on writes dated documents across the world's years
 DEFAULT_DIFFICULTY = "hard"  # a clean world is easy to read; the UI starts with a realistic one
 
 
@@ -118,6 +124,18 @@ HELP: dict[str, str] = {
         "Share of facts withdrawn later with nothing replacing them. After retraction the "
         "fact should no longer be answered as true."
     ),
+    "birth_rate": (
+        "Share of entities that first appear after the start year. Their facts begin then, and "
+        "dated documents say when they were established."
+    ),
+    "closure_rate": (
+        "Share of entities that close down in some year. Every fact about them ends then, so "
+        "a question about a later year must not use them."
+    ),
+    "rename_rate": (
+        "Share of organisations and products renamed in some year. Documents before it use the "
+        "old name and documents after it the new one, so a system has to link both to one entity."
+    ),
     "n_questions": (
         "How many questions to derive from the world. Fewer are returned if the world "
         "cannot supply enough with a single correct answer."
@@ -153,6 +171,9 @@ _TYPE_HELP = {
     "as_of": "Questions about the value in a past year. Needs facts replaced later (churn).",
     "latest": "Questions about the current value of a fact that was replaced (needs churn).",
     "retracted": "Questions about a fact that was withdrawn and has no current answer.",
+    "when": "Questions on the year a fact began or ended; the answer is a year (needs change).",
+    "before": "Questions naming what held just before a fact replaced it (needs churn).",
+    "duration": "Questions on how many years a fact held; the answer is a number (needs churn).",
     "path": "Questions asking how two entities are connected; the answer is the chain of facts.",
     "open_ended": "'Summarize what is known' questions, graded on facts covered and stale claims.",
 }
@@ -178,8 +199,10 @@ def values_from_spec(spec: WorldSpec) -> dict[str, float]:
     return {name: getattr(spec, name) for name in KNOB_NAMES}
 
 
-def preset_values(name: str, difficulty: str = "clean") -> dict[str, float]:
-    return values_from_spec(load_preset(name, difficulty))
+def preset_values(
+    name: str, difficulty: str = "clean", evolution: str = "none"
+) -> dict[str, float]:
+    return values_from_spec(load_preset(name, difficulty, evolution))
 
 
 def read_knob(knob: Knob, raw: object) -> float:
@@ -398,22 +421,25 @@ MAX_RENDER_WORDS = 10_000_000  # most words the UI will render at once; the CLI 
 MAX_DOCUMENT_ROWS = 5_000  # the table shows this many; a bigger world still renders them all
 
 
-def render_spec_from_values(values: dict[str, float], phrasing: str = "plain") -> RenderSpec:
+def render_spec_from_values(
+    values: dict[str, float], phrasing: str = "plain", timeline: bool = False
+) -> RenderSpec:
     read = {k.name: read_knob(k, values.get(k.name)) for k in RENDER_KNOBS}
     return RenderSpec(
         alias_use_rate=float(read["alias_use_rate"]),
         max_facts_per_doc=int(read["max_facts_per_doc"]),
-        target_words=int(read["target_words"]),
+        target_words=0 if timeline else int(read["target_words"]),
         neighbour_facts=int(read["neighbour_facts"]),
         phrasing=phrasing,  # type: ignore[arg-type]
+        timeline=timeline,
     )
 
 
 def render_world(
-    world: World, values: dict[str, float], phrasing: str = "plain"
+    world: World, values: dict[str, float], phrasing: str = "plain", timeline: bool = False
 ) -> tuple[Document, ...]:
     """The world's facts as template documents: deterministic, offline, no LLM."""
-    spec = render_spec_from_values(values, phrasing)
+    spec = render_spec_from_values(values, phrasing, timeline)
     if len(world.entities) * spec.target_words > MAX_RENDER_WORDS:
         raise ValueError(
             f"{len(world.entities):,} entities at {spec.target_words:,} words each is more than "

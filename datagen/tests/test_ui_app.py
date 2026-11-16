@@ -595,3 +595,21 @@ def test_exporting_llm_documents_says_the_zip_holds_template_text(llm_ui) -> Non
     llm_ui.render()
     llm_ui.prepare_export()
     assert "template text" in llm_ui.export_note.value
+
+
+def test_change_over_time_fills_the_form_and_dated_documents_can_be_switched_on() -> None:
+    ui = build_ui()
+    assert ui.evolution.value == "none" and ui.timeline.value == "off"
+    assert ui.current_values()["birth_rate"] == 0
+    ui.evolution.set("heavy")
+    assert ui.current_values()["birth_rate"] > 0 and ui.current_values()["rename_rate"] > 0
+    ui.preset.set("small")
+    ui.generate()
+    assert any(e.renamed for e in ui.world.value.entities)
+    ui.render()
+    assert all(d.date is None for d in ui.documents.value)
+    ui.timeline.set("on")
+    ui.render()
+    dates = [d.date for d in ui.documents.value]
+    assert all(dates) and dates == sorted(dates)
+    assert ui.render_spec.value.timeline and ui.render_spec.value.target_words == 0

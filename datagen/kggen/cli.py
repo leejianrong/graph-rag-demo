@@ -17,7 +17,15 @@ from kggen.questions import QuestionSpec, generate_questions
 from kggen.render import Document, RenderSpec, render_documents
 from kggen.render_llm import InvalidRendering, render_documents_llm
 from kggen.scenarios import ScenarioSpec, generate_scenario
-from kggen.spec import DIFFICULTY_NAMES, PRESET_NAMES, load_preset, load_spec, with_difficulty
+from kggen.spec import (
+    DIFFICULTY_NAMES,
+    EVOLUTION,
+    PRESET_NAMES,
+    load_preset,
+    load_spec,
+    with_difficulty,
+    with_evolution,
+)
 from kggen.stats import report
 from kggen.world import generate
 
@@ -89,6 +97,11 @@ def build_parser() -> argparse.ArgumentParser:
         default="plain",
         help="varied: more synonyms and passive forms (same facts and documents, different words).",
     )
+    d_gen.add_argument(
+        "--timeline",
+        action="store_true",
+        help="Dated documents across the world's years: the start, then each change.",
+    )
     d_gen.add_argument("--max-facts", type=int, default=6, help="Most facts in one document.")
     d_gen.add_argument(
         "--alias-rate", type=float, default=0.5, help="Chance a mention is an alias."
@@ -147,6 +160,13 @@ def _add_source(parser: argparse.ArgumentParser) -> None:
         help="Aliases, shared names and look-alikes to layer over the source (default: clean).",
     )
     parser.add_argument(
+        "--evolution",
+        choices=tuple(EVOLUTION),
+        default="none",
+        help="Facts that change, entities that appear, close or are renamed over the years "
+        "(default: none).",
+    )
+    parser.add_argument(
         "--names",
         choices=("invented", "bank"),
         default="invented",
@@ -157,7 +177,7 @@ def _add_source(parser: argparse.ArgumentParser) -> None:
 
 def _world(args: argparse.Namespace):
     spec = load_preset(args.preset) if args.preset else load_spec(args.spec)
-    spec = with_difficulty(spec, args.difficulty)
+    spec = with_evolution(with_difficulty(spec, args.difficulty), args.evolution)
     if args.names != spec.name_style:
         spec = spec.with_overrides(name_style=args.names)
     if args.seed is not None:
@@ -243,6 +263,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             target_words=args.words,
             neighbour_facts=args.context_facts,
             phrasing=args.phrasing,
+            timeline=args.timeline,
         )
         if args.renderer == "llm":
             docs = _render_llm(args, render_spec)
