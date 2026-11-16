@@ -46,6 +46,7 @@ from kgbench import judge_scaled as scaled
 from kgbench import longmemeval as longmemevals
 from kgbench import nightly as nightlies
 from kgbench import order as orders
+from kgbench import personas as persona_bench
 from kgbench import reader as readers
 from kgbench import real as reals
 from kgbench import shortcut as shortcuts
@@ -231,6 +232,18 @@ def build_parser() -> argparse.ArgumentParser:
     tp.add_argument("--k", type=int, default=5, help="The k for the top list.")
     tp.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
     tp.add_argument("--out", type=Path, help="Write the markdown table here.")
+    pe = commands.add_parser(
+        "personas",
+        help="Newcomer, learner and expert questions over one world (GRA-187).",
+    )
+    pe.add_argument("--preset", default="small", choices=PRESET_NAMES)
+    pe.add_argument("--difficulty", default="hard", choices=DIFFICULTY_NAMES)
+    pe.add_argument("--names", default="bank", choices=("invented", "bank"))
+    pe.add_argument("--seed", type=int, default=0)
+    pe.add_argument("--questions", type=int, default=90, help="Per persona.")
+    pe.add_argument("--k", type=int, default=5, help="The k for the top list.")
+    pe.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
+    pe.add_argument("--out", type=Path, help="Write the markdown table here.")
     ic = commands.add_parser(
         "ingest-cost",
         help="Tokens, dollars, time and storage per 1,000 documents ingested (replays a cache).",
@@ -616,6 +629,23 @@ def _temporal(args: argparse.Namespace) -> int:
         f"{temporal.format_table(result)}\n\n**The first sentence about the fact states the "
         f"right version** (not an older or later one)\n\n"
         f"{temporal.format_table(result, 'first')}\n"
+    )
+    print(text)
+    if args.out:
+        args.out.write_text(text)
+    return 0
+
+
+def _personas(args: argparse.Namespace) -> int:
+    spec = with_difficulty(load_preset(args.preset), args.difficulty).model_copy(
+        update={"seed": args.seed, "name_style": args.names}
+    )
+    embedder = CachingEmbedder(build_embedder(real=args.embedder == "bge"))
+    result = persona_bench.run(spec, n_questions=args.questions, embedder=embedder, k=args.k)
+    text = (
+        f"Whole-path@{args.k} on a `{args.preset}` world ({args.difficulty}, {args.names} names, "
+        f"seed {args.seed}): {len(result.world.entities)} entities, {len(result.world.edges)} "
+        f"facts.\n\n{persona_bench.format_table(result)}\n"
     )
     print(text)
     if args.out:
@@ -1170,6 +1200,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         return _sweep(args)
     if args.command == "temporal":
         return _temporal(args)
+    if args.command == "personas":
+        return _personas(args)
     if args.command == "hard":
         return _hard(args)
     if args.command == "ingest-cost":

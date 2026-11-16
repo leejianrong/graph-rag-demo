@@ -80,7 +80,7 @@ def test_every_varied_question_is_a_sentence_that_names_where_it_starts(world) -
         text = q.question
         assert text[0].isupper() and text.rstrip().endswith((".", "?")), text
         assert "{" not in text and "}" not in text, text
-        if q.type not in {"path", "open_ended", "superlative"}:  # these do not name a start
+        if q.type not in {"path", "open_ended", "superlative", "conversation"}:  # no start named
             assert names[q.start] in text, text
 
 

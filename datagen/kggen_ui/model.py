@@ -10,6 +10,8 @@ from kggen.export import export_archive
 from kggen.llm import CachedChat, CacheMiss, OpenAICompatible, ResponseCache
 from kggen.questions import (
     MAX_HOPS,
+    PERSONA_NAMES,
+    PERSONAS,
     QUESTION_TYPES,
     Question,
     QuestionSpec,
@@ -60,6 +62,10 @@ DEFAULT_PRESET = "small"
 DEFAULT_NAME_STYLE = "bank"  # realistic names, so a name does not give an entity away
 DEFAULT_PHRASING = "varied"  # more wordings, so the text and questions read less like a template
 EVOLUTION_LEVELS = tuple(EVOLUTION)
+PERSONA_CHOICES = PERSONA_NAMES
+DEFAULT_PERSONA = (
+    "none"  # no one in particular; a persona fills the question form and sets the voice
+)
 DEFAULT_EVOLUTION = "none"  # a static world; light or heavy lets facts and entities change
 DEFAULT_TIMELINE = "off"  # on writes dated documents across the world's years
 DEFAULT_DIFFICULTY = "hard"  # a clean world is easy to read; the UI starts with a realistic one
@@ -174,6 +180,8 @@ _TYPE_HELP = {
     "when": "Questions on the year a fact began or ended; the answer is a year (needs change).",
     "before": "Questions naming what held just before a fact replaced it (needs churn).",
     "duration": "Questions on how many years a fact held; the answer is a number (needs churn).",
+    "conversation": "A chain asked a step at a time, each turn referring back with a pronoun.",
+    "common": "Questions asking what two entities are both connected to; the answer is a set.",
     "path": "Questions asking how two entities are connected; the answer is the chain of facts.",
     "open_ended": "'Summarize what is known' questions, graded on facts covered and stale claims.",
 }
@@ -271,7 +279,20 @@ QUESTION_DEFAULTS: dict[str, float] = {
 }
 
 
-def question_spec_from_values(values: dict[str, float], phrasing: str = "plain") -> QuestionSpec:
+def persona_values(persona: str) -> dict[str, float]:
+    """The question form's type and hop weights for a persona (empty for none and mixed)."""
+    profile = PERSONAS.get(persona)
+    if not profile:
+        return {}
+    return {
+        **{f"type_{t}": float(profile["type_mix"].get(t, 0)) for t in QUESTION_TYPES},
+        **{f"hops_{h}": float(profile["hop_mix"].get(h, 0)) for h in range(1, MAX_HOPS + 1)},
+    }
+
+
+def question_spec_from_values(
+    values: dict[str, float], phrasing: str = "plain", persona: str = "none"
+) -> QuestionSpec:
     """Build the question spec from the form; a ``ValueError`` explains what is wrong."""
     read = {k.name: read_knob(k, values.get(k.name)) for k in QUESTION_KNOBS}
     mix = {h: float(read[f"hops_{h}"]) for h in range(1, MAX_HOPS + 1) if read[f"hops_{h}"] > 0}
@@ -285,16 +306,17 @@ def question_spec_from_values(values: dict[str, float], phrasing: str = "plain")
         hop_mix=mix,
         type_mix=types,
         phrasing=phrasing,  # type: ignore[arg-type]
+        persona=persona,  # type: ignore[arg-type]
     )
 
 
 def derive_questions(
-    world: World, values: dict[str, float], phrasing: str = "plain"
+    world: World, values: dict[str, float], phrasing: str = "plain", persona: str = "none"
 ) -> tuple[Question, ...]:
     """Questions from the world, or a ``ValueError`` saying why it cannot (for example, too few
     chains with a unique answer in a small world)."""
     try:
-        return generate_questions(world, question_spec_from_values(values, phrasing))
+        return generate_questions(world, question_spec_from_values(values, phrasing, persona))
     except WorldGenerationError as exc:
         raise ValueError(str(exc)) from None
 
@@ -373,7 +395,10 @@ def answer_text(q: Question | None) -> str:
         if len(q.accepted_answers) > 1
         else ""
     )
-    if q.type == "set":
+    if q.type == "conversation":
+        steps = " → ".join(f"{t['answer_name']}" for t in q.turns)
+        return f"Asked in {len(q.turns)} turns. {q.transcript()}  Answers in turn: {steps}"
+    if q.type in ("set", "common"):
         return f"Answers ({len(q.answers)}): {q.answer_name}"
     if q.type == "count":
         return f"Answer: {q.number}"
