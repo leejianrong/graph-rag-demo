@@ -13,7 +13,7 @@ from kggen import __version__
 from kggen.export import export_archive
 from kggen.fixtures import write as write_fixtures
 from kggen.llm import CachedChat, CacheMiss, OpenAICompatible, ResponseCache
-from kggen.questions import QuestionSpec, generate_questions
+from kggen.questions import PERSONA_NAMES, QuestionSpec, generate_questions, with_persona
 from kggen.render import Document, RenderSpec, render_documents
 from kggen.render_llm import InvalidRendering, render_documents_llm
 from kggen.scenarios import ScenarioSpec, generate_scenario
@@ -55,11 +55,11 @@ def build_parser() -> argparse.ArgumentParser:
     q_gen = q_commands.add_parser("generate", help="Generate questions with gold paths as JSON.")
     _add_source(q_gen)
     q_gen.add_argument("--n", type=int, default=50, help="How many questions.")
-    q_gen.add_argument("--hops", default="1:1,2:1,3:1,4:1", help="Hop mix, e.g. 1:1,2:2,3:1.")
+    q_gen.add_argument("--hops", help="Hop mix, e.g. 1:1,2:2,3:1 (default 1:1,2:1,3:1,4:1).")
     q_gen.add_argument(
         "--types",
-        default="entity:1",
-        help="Question type mix, e.g. entity:2,set:1,count:1,compare:1,superlative:1.",
+        help="Question type mix, e.g. entity:2,set:1,count:1,compare:1,superlative:1 "
+        "(default entity:1).",
     )
     q_gen.add_argument("--question-seed", type=int, default=0, help="Seed for question choice.")
     q_gen.add_argument(
@@ -67,6 +67,14 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("ignore", "mark", "drop"),
         default="ignore",
         help="mark: record whether names alone give a second answer. drop: avoid such questions.",
+    )
+    q_gen.add_argument(
+        "--persona",
+        choices=PERSONA_NAMES,
+        default="none",
+        help="Who asks: newcomer (discovery), learner (a conversation that follows each answer), "
+        "expert (links across entities), mixed (all three). Sets the mix of types and hops "
+        "unless --types or --hops is given.",
     )
     q_gen.add_argument(
         "--phrasing",
@@ -220,16 +228,33 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(world.to_json(), end="")
         return 0
     if args.command == "questions":
-        hop_mix = {int(h): float(w) for h, w in (p.split(":") for p in args.hops.split(","))}
-        type_mix = {t: float(w) for t, w in (p.split(":") for p in args.types.split(","))}
         spec = QuestionSpec(
             seed=args.question_seed,
             n_questions=args.n,
-            hop_mix=hop_mix,
-            type_mix=type_mix,
             phrasing=args.phrasing,
             ambiguity=args.ambiguity,
         )
+        spec = with_persona(spec, args.persona)  # a persona's mixes, unless given below
+        if args.hops:
+            spec = spec.model_copy(
+                update={
+                    "hop_mix": {
+                        int(h): float(w) for h, w in (p.split(":") for p in args.hops.split(","))
+                    }
+                }
+            )
+        elif args.persona == "none":
+            spec = spec.model_copy(update={"hop_mix": {1: 1.0, 2: 1.0, 3: 1.0, 4: 1.0}})
+        if args.types:
+            spec = spec.model_copy(
+                update={
+                    "type_mix": {
+                        t: float(w) for t, w in (p.split(":") for p in args.types.split(","))
+                    }
+                }
+            )
+        elif args.persona == "none":
+            spec = spec.model_copy(update={"type_mix": {"entity": 1.0}})
         data = [q.to_dict() for q in generate_questions(_world(args), spec)]
         text = json.dumps(data, sort_keys=True, indent=1) + "\n"
         if args.out:

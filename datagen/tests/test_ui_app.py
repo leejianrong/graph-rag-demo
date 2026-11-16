@@ -613,3 +613,19 @@ def test_change_over_time_fills_the_form_and_dated_documents_can_be_switched_on(
     dates = [d.date for d in ui.documents.value]
     assert all(dates) and dates == sorted(dates)
     assert ui.render_spec.value.timeline and ui.render_spec.value.target_words == 0
+
+
+def test_choosing_who_asks_fills_the_question_form_and_the_voice_follows() -> None:
+    ui = build_ui()
+    assert ui.persona.value == "none"
+    ui.persona.set("expert")
+    values = ui.current_question_values()
+    assert values["type_common"] > 0 and values["type_entity"] == 0 and values["hops_1"] == 0
+    ui.preset.set("small")
+    ui.generate()
+    ui.derive()
+    assert ui.questions.value and {q.persona for q in ui.questions.value} == {"expert"}
+    ui.persona.set("learner")
+    ui.derive()
+    talking = [q for q in ui.questions.value if q.type == "conversation"]
+    assert talking and "Q:" in model.answer_text(talking[0])

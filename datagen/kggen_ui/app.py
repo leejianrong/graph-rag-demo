@@ -21,6 +21,7 @@ class UI:
     preset: indah.Signal
     difficulty: indah.Signal
     evolution: indah.Signal
+    persona: indah.Signal
     timeline: indah.Signal
     phrasing: indah.Signal
     name_style: indah.Signal
@@ -117,7 +118,9 @@ class UI:
         """Questions for ``world`` from the current form, or none and the reason."""
         try:
             return (
-                model.derive_questions(world, self.current_question_values(), self.phrasing.value),
+                model.derive_questions(
+                    world, self.current_question_values(), self.phrasing.value, self.persona.value
+                ),
                 "",
             )
         except ValueError as exc:
@@ -132,7 +135,9 @@ class UI:
         self._drop_export()
         try:
             self.question_spec.set(
-                model.question_spec_from_values(self.current_question_values(), self.phrasing.value)
+                model.question_spec_from_values(
+                    self.current_question_values(), self.phrasing.value, self.persona.value
+                )
             )
         except ValueError:
             self.question_spec.set(None)
@@ -240,6 +245,7 @@ def build_ui() -> UI:
     preset = indah.Signal(model.DEFAULT_PRESET)
     difficulty = indah.Signal(model.DEFAULT_DIFFICULTY)
     evolution = indah.Signal(model.DEFAULT_EVOLUTION)
+    persona = indah.Signal(model.DEFAULT_PERSONA)
     timeline = indah.Signal(model.DEFAULT_TIMELINE)
     phrasing = indah.Signal(model.DEFAULT_PHRASING)
     name_style = indah.Signal(model.DEFAULT_NAME_STYLE)
@@ -254,11 +260,20 @@ def build_ui() -> UI:
 
     indah.effect(apply_preset)  # also runs once now, which fills the form from the first preset
 
+    question_values = {k: indah.Signal(v) for k, v in model.QUESTION_DEFAULTS.items()}
+
+    def apply_persona() -> None:
+        for name, value in model.persona_values(persona.value).items():
+            question_values[name].set(value)
+
+    indah.effect(apply_persona)  # choosing who asks fills the type and hop weights
+
     ui = UI(
         root=None,  # type: ignore[arg-type]
         preset=preset,
         difficulty=difficulty,
         evolution=evolution,
+        persona=persona,
         timeline=timeline,
         phrasing=phrasing,
         name_style=name_style,
@@ -273,7 +288,7 @@ def build_ui() -> UI:
         selected=indah.Signal(None),
         window=indah.Signal(300),
         index=indah.Signal(None),
-        question_values={k: indah.Signal(v) for k, v in model.QUESTION_DEFAULTS.items()},
+        question_values=question_values,
         questions=indah.Signal(()),
         question_rows=indah.Signal([]),
         question_note=indah.Signal(""),
@@ -439,6 +454,11 @@ def questions_card(ui: UI) -> indah.Component:
             indah.Text(
                 "Questions come from the world, never from a pipeline's output. Pick one to "
                 "see its gold path on the graph."
+            ),
+            indah.Select(
+                ui.persona,
+                options=list(model.PERSONA_CHOICES),
+                label="Who asks (newcomer, learner, expert, mixed)",
             ),
             indah.Grid(inputs),
             indah.Button("Derive questions", ui.derive, variant="tonal"),

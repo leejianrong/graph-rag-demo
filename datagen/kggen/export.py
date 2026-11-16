@@ -111,8 +111,8 @@ _FILES: tuple[tuple[str, str], ...] = (
     (
         "questions.json",
         "Questions: `question`, `type` (entity, set, count, compare, superlative, unanswerable, "
-        "false_premise, as_of, latest, retracted, when, before, duration, path, "
-        "open_ended), `hops`, "
+        "false_premise, as_of, latest, retracted, when, before, duration, conversation, "
+        "common, path, open_ended), `hops`, "
         "`answer` (an entity id; empty for a set or count), `answers` (every correct entity id) "
         "with `answer_names` (each one's name and aliases), "
         "`number` (a count's answer), `accepted_answers` (names and aliases), `supporting_facts` "
@@ -120,7 +120,10 @@ _FILES: tuple[tuple[str, str], ...] = (
         "correct answer), `answer_kind` and `grading` (how to score it), and for the declining "
         "types `abstain` and (for a false premise) `premise` with the contradicting fact and the "
         "correction. Temporal types (as_of, latest, retracted) add `as_of` (a year) and "
-        "`stale_values` (names that held at another time and are wrong now); `when` and `duration` "
+        "`stale_values` (names that held at another time and are wrong now); `persona` says who "
+        "asked (newcomer, learner or expert) when one was chosen, and a `conversation` has `turns` "
+        "(each with its question, answer and fact) while `question` is its last turn, which "
+        "refers back with a pronoun; `when` and `duration` "
         "answer with a year or a number of years in `number`, and `before` names what held "
         "just before another fact. Open-ended questions "
         "carry `required_facts` (what a good answer covers, each with a weight) and "

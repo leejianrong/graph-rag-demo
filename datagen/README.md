@@ -23,6 +23,7 @@ over any preset or spec. Each is opt-in, and the default output of every preset 
 | names | `bank` draws realistic names from a bank checked so no two entities share an alias word; `invented` is the default | `--names bank` |
 | evolution | `light` or `heavy` lets the world change over its years: facts are replaced or retracted, entities appear later or close (and their facts end), organisations and products are renamed. Left at `none` it adds nothing | `--evolution heavy` |
 | dated documents | `--timeline` writes short dated documents in date order: the start year, then each change in the year it happens (a fact begins or ends, an entity is established, closes or is renamed), each entity under the name it had that year | `docs generate --timeline` |
+| persona | who asks: `newcomer` (discovery), `learner` (a conversation, each turn referring back), `expert` (what two entities share, links, false premises), `mixed`; sets the mix of types and hops | `questions generate --persona learner` |
 | phrasing | `varied` picks sentence and question wording from a planned bank, on a stream of its own: same facts, questions and gold, different words; some sentences are passive and name the object first | `--phrasing varied` |
 | ambiguity | `mark` records `ambiguous_under_names` on chain questions (a reader who sees only names would find a second answer); `drop` never emits one | `--ambiguity drop` |
 

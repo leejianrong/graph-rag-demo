@@ -49,6 +49,8 @@ QUESTION_TYPES = (
     "when",
     "before",
     "duration",
+    "conversation",
+    "common",
     "path",
     "open_ended",
 )
@@ -101,6 +103,35 @@ _BEGAN = {
 }
 
 
+# Who is asking (GRA-187). A persona is a profile of what to ask and how: ``with_persona`` sets the
+# mixes, and the wording and the conversation shape follow from ``QuestionSpec.persona``.
+PERSONA_NAMES = ("none", "newcomer", "learner", "expert", "mixed")
+PERSONAS: dict[str, dict] = {
+    # New to the world: discovery, one step at a time, "tell me about", things that may not exist.
+    "newcomer": {
+        "type_mix": {"entity": 3.0, "open_ended": 2.0, "set": 1.0, "unanswerable": 1.0},
+        "hop_mix": {1: 3.0, 2: 1.0},
+    },
+    # Knows some of it: a conversation that follows what each answer reveals.
+    "learner": {
+        "type_mix": {"conversation": 4.0, "entity": 1.0, "set": 1.0},
+        "hop_mix": {2: 2.0, 3: 1.0},
+    },
+    # Knows a lot: looks for links across several entities and for what does not hold.
+    "expert": {
+        "type_mix": {
+            "common": 3.0,
+            "path": 2.0,
+            "compare": 1.0,
+            "superlative": 1.0,
+            "false_premise": 1.0,
+            "count": 1.0,
+        },
+        "hop_mix": {2: 2.0, 3: 2.0, 4: 1.0},
+    },
+}
+
+
 class QuestionSpec(BaseModel):
     """How many questions to derive and how many hops each should take."""
 
@@ -116,6 +147,11 @@ class QuestionSpec(BaseModel):
     type_mix: dict[str, float] = Field(
         default_factory=lambda: {"entity": 1.0},
         description=f"Relative weight of each question type: {', '.join(QUESTION_TYPES)}.",
+    )
+    persona: Literal["none", "newcomer", "learner", "expert", "mixed"] = Field(
+        default="none",
+        description="Who asks. newcomer, learner and expert shape the wording; mixed uses all three"
+        " in equal shares. Use with_persona to take a persona's mix of types and hops too.",
     )
     ambiguity: Literal["ignore", "mark", "drop"] = Field(
         default="ignore",
@@ -135,6 +171,8 @@ class QuestionSpec(BaseModel):
             data.pop("phrasing")
         if data.get("ambiguity") == "ignore":
             data.pop("ambiguity")
+        if data.get("persona") == "none":
+            data.pop("persona")
         return data
 
     @model_validator(mode="after")
@@ -148,6 +186,14 @@ class QuestionSpec(BaseModel):
         if any(w < 0 for w in self.hop_mix.values()) or sum(self.hop_mix.values()) <= 0:
             raise ValueError("hop_mix needs non-negative weights with a positive sum")
         return self
+
+
+def with_persona(spec: QuestionSpec, persona: str) -> QuestionSpec:
+    """``spec`` asking as ``persona``: its mix of types and hops, and its wording."""
+    if persona not in PERSONA_NAMES:
+        raise ValueError(f"unknown persona {persona!r}; choose from {list(PERSONA_NAMES)}")
+    profile = PERSONAS.get(persona, {})
+    return spec.model_copy(update={"persona": persona, **profile})
 
 
 @dataclass(frozen=True)
@@ -184,12 +230,25 @@ class Question:
     # Names alone give a second answer along a chain question's path (``kggen.ambiguity``); None
     # when it was not assessed, which keeps it out of the file.
     ambiguous_under_names: bool | None = None
+    # Who asked (GRA-187); None when no persona was chosen, which keeps it out of the file.
+    persona: str | None = None
+    # A conversation: one entry per turn (question, answer, the fact that answers it). ``question``
+    # is the last turn alone, which refers back with a pronoun; ``transcript`` has them all.
+    turns: tuple[dict, ...] = ()
+
+    def transcript(self) -> str:
+        """The conversation so far, each earlier turn with its answer, then the last question."""
+        if not self.turns:
+            return self.question
+        earlier = [f"Q: {t['question']} A: {t['answer_name']}." for t in self.turns[:-1]]
+        return " ".join([*earlier, f"Q: {self.turns[-1]['question']}"])
 
     def to_dict(self) -> dict:
         record = {
             key: value
             for key, value in vars(self).items()
-            if value is not None or key != "ambiguous_under_names"
+            if (value is not None or key not in ("ambiguous_under_names", "persona"))
+            and (value or key != "turns")
         }
         return {
             **record,
@@ -201,6 +260,7 @@ class Question:
             "answer_names": [list(n) for n in self.answer_names],
             "required_facts": list(self.required_facts),
             "forbidden_claims": list(self.forbidden_claims),
+            **({"turns": list(self.turns)} if self.turns else {}),
         }
 
 
@@ -243,6 +303,31 @@ _NAME_THE_STEMS = (
 )
 
 
+# What a newcomer asks about something: plain curiosity, in the first person.
+_DISCOVER_STEMS = (
+    "{wh} is {np}?",
+    "Can you tell me {wh_lower} {np} is?",
+    "I'm new to this. {wh} is {np}?",
+    "I'd like to find out: {wh_lower} is {np}?",
+)
+_DISCOVER_TELL = (
+    "Tell me about {name}",
+    "I'm new here, so tell me what I should know about {name}",
+    "Give me an overview of {name}",
+)
+# The follow-up turns of a conversation, which refer back to the last answer.
+_FOLLOW_STEMS = (
+    "And name the {label} that {tail}.",
+    "Now name the {label} that {tail}.",
+    "Next, name the {label} that {tail}.",
+)
+_COMMON_STEMS = (
+    "What do {a} and {b} have in common?",
+    "Which entities are directly connected to both {a} and {b}?",
+    "Is there anything that links {a} and {b}? Name what both are connected to.",
+)
+
+
 class _Phrasing:
     """Chooses question wording. Plain always uses the first; varied draws from its own stream.
 
@@ -250,8 +335,8 @@ class _Phrasing:
     produce the same questions, ids, answers and gold, and only the words differ.
     """
 
-    def __init__(self, varied: bool, rng: random.Random) -> None:
-        self._varied, self._rng = varied, rng
+    def __init__(self, varied: bool, rng: random.Random, persona: str = "none") -> None:
+        self._varied, self._rng, self.persona = varied, rng, persona
 
     @property
     def varied(self) -> bool:
@@ -266,8 +351,26 @@ class _Phrasing:
             return "that"
         return self._rng.choice(("that", "who" if label == "person" else "which"))
 
-    def name(self, np: str) -> str:
+    def name(self, np: str, label: str | None = None) -> str:
+        if self.persona == "newcomer" and label:
+            wh = "Who" if label == "person" else "What"
+            stem = self._rng.choice(_DISCOVER_STEMS)
+            return stem.format(np=np, wh=wh, wh_lower=wh.lower())
         return self._pick(_NAME_STEMS).format(np=np)
+
+    def tell_me_about(self, name: str) -> str | None:
+        """A newcomer's way to open an open-ended question; None for any other asker."""
+        return (
+            self._rng.choice(_DISCOVER_TELL).format(name=name)
+            if self.persona == "newcomer"
+            else None
+        )
+
+    def follow_up(self, label: str, tail: str) -> str:
+        return self._pick(_FOLLOW_STEMS).format(label=label, tail=tail)
+
+    def common(self, a: str, b: str) -> str:
+        return self._pick(_COMMON_STEMS).format(a=a, b=b)
 
     def name_the(self, label: str, tail: str) -> str:
         return self._pick(_NAME_THE_STEMS).format(label=label, tail=tail)
@@ -432,12 +535,31 @@ class _Walker:
         return steps
 
 
+def _mixed(world: World, spec: QuestionSpec) -> tuple[Question, ...]:
+    """All three askers in equal shares, each with its own mix of types and hops."""
+    shares = apportion(spec.n_questions, {p: 1.0 for p in ("newcomer", "learner", "expert")})
+    out: list[Question] = []
+    for persona in ("newcomer", "learner", "expert"):
+        if not shares.get(persona):
+            continue
+        part = with_persona(spec, persona).model_copy(
+            update={"n_questions": shares[persona], "seed": spec.seed}
+        )
+        out += generate_questions(world, part)
+    width = len(str(len(out) - 1))
+    return tuple(Question(**{**vars(q), "id": f"Q{i:0{width}d}"}) for i, q in enumerate(out))
+
+
 def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[Question, ...]:
     """Derive ``spec.n_questions`` questions from the world's final state, by ``spec.type_mix``."""
     spec = spec or QuestionSpec()
     rng = random.Random(f"{world.spec.seed}:{spec.seed}:questions")
+    if spec.persona == "mixed":
+        return _mixed(world, spec)
     phrasing = _Phrasing(
-        spec.phrasing == "varied", random.Random(f"{world.spec.seed}:{spec.seed}:phrasing")
+        spec.phrasing == "varied",
+        random.Random(f"{world.spec.seed}:{spec.seed}:phrasing"),
+        spec.persona,
     )
     entities = {e.id: e for e in world.entities}
     names = {i: e.name for i, e in entities.items()}
@@ -505,7 +627,10 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 Question(
                     id="",
                     question=phrasing.name(
-                        _noun_phrase(names, types, start, steps, phrasing.relative, phrasing.varied)
+                        _noun_phrase(
+                            names, types, start, steps, phrasing.relative, phrasing.varied
+                        ),
+                        TYPE_LABEL[types[at]],
                     ),
                     hops=hops,
                     start=start,
@@ -984,6 +1109,122 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             )
         return found
 
+    def conversation_questions(turns: int, target: int) -> list[Question]:
+        """A chain asked one step at a time, each turn referring back to the last answer."""
+        found: list[Question] = []
+        budget = 400 * target + 2000
+        while len(found) < target and budget > 0:
+            budget -= 1
+            start = rng.choice(starts)
+            steps = walker.walk(rng, turns, start)
+            if len(steps) < turns:
+                continue
+            at, rows, texts = start, [], []
+            for i, (edge, forward) in enumerate(steps):
+                nxt = edge.object if forward else edge.subject
+                if reach({at}, edge.predicate, forward) != {nxt} or name_count[names[nxt]] != 1:
+                    break  # this turn would have more than one answer
+                label, verb = TYPE_LABEL[types[nxt]], VERB[edge.predicate]
+                if i == 0:
+                    np = _noun_phrase(
+                        names, types, start, [(edge, forward)], phrasing.relative, phrasing.varied
+                    )
+                    text = phrasing.name(np)
+                else:
+                    person = types[at] == "PERSON"
+                    verb = _plural_verb(verb) if person else verb
+                    pron = "they" if person else "it"
+                    obj = "them" if person else "it"
+                    tail = f"{pron} {verb}" if forward else f"{verb} {obj}"
+                    text = phrasing.follow_up(label, tail)
+                texts.append(text)
+                rows.append(
+                    {
+                        "question": text,
+                        "answer": nxt,
+                        "answer_name": names[nxt],
+                        "supporting_facts": [edge.id],
+                    }
+                )
+                at = nxt
+            else:
+                facts = tuple(e.id for e, _ in steps)
+                key = ("conversation", start, facts)
+                if key in seen or len(set(names[r["answer"]] for r in rows)) != len(rows):
+                    continue
+                if avoid_ambiguous and reader and reader.ambiguous(start, facts, (at,)):
+                    continue
+                seen.add(key)
+                final = entities[at]
+                found.append(
+                    Question(
+                        id="",
+                        question=texts[-1],
+                        hops=turns,
+                        start=start,
+                        answer=at,
+                        answer_name=final.name,
+                        accepted_answers=(final.name, *final.aliases),
+                        supporting_facts=facts,
+                        type="conversation",
+                        answers=(at,),
+                        gold_paths=(facts,),
+                        turns=tuple(rows),
+                    )
+                )
+        return found
+
+    neighbours: dict[str, dict[str, Edge]] = {}  # entity -> {neighbour: its lowest-id fact}
+    for e in sorted(live, key=lambda e: e.id):
+        neighbours.setdefault(e.subject, {}).setdefault(e.object, e)
+        neighbours.setdefault(e.object, {}).setdefault(e.subject, e)
+
+    def common_questions(target: int) -> list[Question]:
+        """What two entities both connect to: a link across the graph that a chain does not show."""
+        found: list[Question] = []
+        budget = 200 * target + 1000
+        while len(found) < target and budget > 0:
+            budget -= 1
+            a = rng.choice(starts)
+            near = sorted(neighbours.get(a, ()))
+            if not near:
+                continue
+            via = rng.choice(near)
+            others = sorted(set(neighbours.get(via, ())) - {a})
+            if not others:
+                continue
+            b = rng.choice(others)
+            if name_count[names[b]] != 1 or b == a or b in neighbours.get(a, ()):
+                continue
+            shared = sorted((set(neighbours[a]) & set(neighbours[b])) - {a, b})
+            if not 1 <= len(shared) <= 5 or any(name_count[names[m]] != 1 for m in shared):
+                continue
+            key = ("common", *sorted((a, b)))
+            if key in seen:
+                continue
+            paths = tuple((neighbours[a][m].id, neighbours[b][m].id) for m in shared)
+            if avoid_ambiguous and reader and reader.ambiguous(a, paths[0], tuple(shared)):
+                continue
+            seen.add(key)
+            found.append(
+                Question(
+                    id="",
+                    question=phrasing.common(names[a], names[b]),
+                    hops=2,
+                    start=a,
+                    answer="",
+                    answer_name="; ".join(names[m] for m in shared),
+                    accepted_answers=names_of(shared),
+                    supporting_facts=paths[0],
+                    type="common",
+                    answer_kind="set",
+                    answers=tuple(shared),
+                    gold_paths=paths,
+                    grading="set_f1",
+                )
+            )
+        return found
+
     def path_questions(hops: int, target: int) -> list[Question]:
         """ "How is A connected to B?" where the shortest chain of facts is ``hops`` long."""
         found: list[Question] = []
@@ -1120,7 +1361,9 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 and not entities[e.subject].distractor
                 and not entities[e.object].distractor
             )
-            lead = f"Summarize what is known about {names[start]}"
+            lead = phrasing.tell_me_about(names[start]) or (
+                f"Summarize what is known about {names[start]}"
+            )
             text = lead + (" and the entities it is directly connected to." if hops >= 2 else ".")
             paths = tuple((r["fact_id"],) for r in required)
             found.append(
@@ -1148,11 +1391,13 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
     quota = apportion(spec.n_questions, spec.type_mix)
     questions: list[Question] = []
     short = 0  # questions another type could not supply; plain entity questions make them up
-    for kind in ("set", "count", "path", "open_ended"):
+    for kind in ("set", "count", "path", "open_ended", "conversation"):
         wanted = apportion(quota.get(kind, 0), {str(h): w for h, w in spec.hop_mix.items()})
         for hops_key in sorted(wanted):
             hops, n = int(hops_key), wanted[hops_key]
-            if kind == "path":
+            if kind == "conversation":
+                got = conversation_questions(max(2, hops), n)
+            elif kind == "path":
                 got = path_questions(hops, n)
             elif kind == "open_ended":
                 got = open_ended_questions(min(hops, 2), n)
@@ -1165,6 +1410,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
         ("superlative", superlative_questions),
         ("unanswerable", unanswerable_questions),
         ("false_premise", false_premise_questions),
+        ("common", common_questions),
         *((t, lambda n, t=t: temporal_questions(t, n)) for t in ("as_of", "latest", "retracted")),
         *((t, lambda n, t=t: timeline_questions(t, n)) for t in ("when", "before", "duration")),
     ):
@@ -1212,6 +1458,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 "answer_names": who,
                 "shared_name": bool(ends & clash),
                 "ambiguous_under_names": unclear,
+                "persona": spec.persona if spec.persona != "none" else None,
             }
         )
 
