@@ -19,7 +19,7 @@ from kggen.questions import (
 )
 from kggen.render import Document, RenderSpec, Sentence, render_documents
 from kggen.render_llm import InvalidRendering, render_documents_llm
-from kggen.spec import DIFFICULTY_NAMES, EVOLUTION, PRESET_NAMES, WorldSpec, load_preset
+from kggen.spec import DIFFICULTY, DIFFICULTY_NAMES, EVOLUTION, PRESET_NAMES, WorldSpec, load_preset
 from kggen.stats import check_against_spec
 from kggen.world import Edge, Entity, World, WorldGenerationError, generate
 from pydantic import ValidationError
@@ -701,6 +701,136 @@ def settings_summary(saved: dict) -> str:
     return ", ".join(p for p in parts if p)
 
 
+# -- the dataset wizard (GRA-195) --------------------------------------------------------------
+
+# What each choice means, in the words of what it produces. A choice is (value, title, blurb).
+# The numbers come from the generator's own tables, so the wording cannot drift from them.
+PRESET_CHOICES = tuple(
+    (name, name.capitalize(), f"About {load_preset(name).n_entities:,} entities.")
+    for name in PRESET_NAMES
+    if name != "stress"
+) + (("stress", "Stress", "About 50,000 entities. Slow to make; for scale tests."),)
+DIFFICULTY_CHOICES = (
+    ("clean", "Clean", "Every entity has one name, and no two share one. Easy to read."),
+    (
+        "aliases",
+        "Aliases",
+        f"{DIFFICULTY['aliases']['alias_rate']:.0%} of entities also go by short forms and "
+        "nicknames in the text.",
+    ),
+    (
+        "hard",
+        "Hard",
+        "Aliases, plus entities that share a name ("
+        f"{DIFFICULTY['hard']['homonym_rate']:.0%}) and look-alike distractors ("
+        f"{DIFFICULTY['hard']['distractor_rate']:.0%}). The default: closest to real text.",
+    ),
+)
+NAME_CHOICES = (
+    ("invented", "Invented", "Made-up words. Fast, and every name is one capitalised word."),
+    ("bank", "Realistic", "People, places and companies that read like real ones."),
+)
+EVOLUTION_CHOICES = (
+    ("none", "Static", "The world never changes. Every fact is true throughout."),
+    (
+        "light",
+        "Light change",
+        f"Over the years about {EVOLUTION['light']['churn_rate']:.0%} of facts are replaced, "
+        f"{EVOLUTION['light']['birth_rate']:.0%} of entities appear later, "
+        f"{EVOLUTION['light']['closure_rate']:.0%} close and "
+        f"{EVOLUTION['light']['rename_rate']:.0%} of organisations are renamed.",
+    ),
+    (
+        "heavy",
+        "Heavy change",
+        f"About {EVOLUTION['heavy']['churn_rate']:.0%} of facts are replaced, "
+        f"{EVOLUTION['heavy']['birth_rate']:.0%} of entities appear later, "
+        f"{EVOLUTION['heavy']['closure_rate']:.0%} close and "
+        f"{EVOLUTION['heavy']['rename_rate']:.0%} of organisations are renamed.",
+    ),
+)
+TIMELINE_CHOICES = (
+    ("off", "One snapshot", "Documents state the world as it ends up."),
+    ("on", "Dated documents", "Short documents in date order, one per year something changes."),
+)
+PERSONA_CHOICES_TEXT = (
+    ("none", "Anyone", "Questions as the generator makes them: you choose the types."),
+    ("newcomer", "A newcomer", "\"I'm new to this. Who is Abel's employer?\" Discovery questions."),
+    (
+        "learner",
+        "A learner",
+        'A conversation: "Who is Abel\'s employer?" then "Who owns it?", each turn referring back.',
+    ),
+    (
+        "expert",
+        "An expert",
+        '"What do Acme and Borealis have in common?" Links, comparisons, false premises.',
+    ),
+    ("mixed", "A mix", "All three, blended."),
+)
+WORDING_CHOICES = (
+    ("plain", "Plain", "One wording per kind of question and sentence."),
+    ("varied", "Varied", "Several wordings, so questions and text read less like a template."),
+)
+WIZARD_STEPS = ("Start", "World", "Time", "Questions", "Review")
+
+
+def estimate(values: dict[str, float]) -> str:
+    """What a form will make, from its numbers (no generation): entities and facts, roughly."""
+    n = int(values.get("n_entities", 0))
+    distractors = n * float(values.get("distractor_rate", 0))
+    facts = n * float(values.get("avg_degree", 0)) / 2 * (1 + float(values.get("churn_rate", 0)))
+    return f"About {round(n + distractors):,} entities and {round(facts):,} facts."
+
+
+def review_lines(saved: dict) -> list[str]:
+    """What a form asks for, as sentences: the choices, then every number that is not what its
+    preset, difficulty and change level would set."""
+    pick = {
+        "preset": {v: t for v, t, _ in PRESET_CHOICES},
+        "difficulty": {v: t for v, t, _ in DIFFICULTY_CHOICES},
+        "evolution": {v: t for v, t, _ in EVOLUTION_CHOICES},
+        "persona": {v: t for v, t, _ in PERSONA_CHOICES_TEXT},
+        "name_style": {v: t for v, t, _ in NAME_CHOICES},
+        "timeline": {v: t for v, t, _ in TIMELINE_CHOICES},
+        "phrasing": {v: t for v, t, _ in WORDING_CHOICES},
+    }
+    label = {
+        "preset": "Size",
+        "difficulty": "Difficulty",
+        "evolution": "Change over time",
+        "timeline": "Documents",
+        "name_style": "Names",
+        "phrasing": "Wording",
+        "persona": "Who asks",
+    }
+    lines = [
+        f"{label[k]}: {pick[k].get(saved.get(k, ''), saved.get(k, '?'))}"
+        for k in (
+            "preset",
+            "difficulty",
+            "evolution",
+            "timeline",
+            "name_style",
+            "phrasing",
+            "persona",
+        )
+    ]
+    try:
+        base = preset_values(
+            saved.get("preset", DEFAULT_PRESET),
+            saved.get("difficulty", "clean"),
+            saved.get("evolution", "none"),
+        )
+    except (KeyError, ValueError):
+        return lines
+    for knob in KNOBS:
+        asked = (saved.get("values") or {}).get(knob.name)
+        if asked is not None and asked != base.get(knob.name):
+            lines.append(f"{knob.label}: {asked:g} instead of {base.get(knob.name, 0):g}")
+    return lines
+
+
 # -- the world through the years ---------------------------------------------------------------
 
 # One fixed code for what a year changed, drawn as a node or edge colour.
@@ -991,6 +1121,16 @@ __all__ = [
     "export_summary",
     "document_rows",
     "settings_summary",
+    "PRESET_CHOICES",
+    "DIFFICULTY_CHOICES",
+    "NAME_CHOICES",
+    "EVOLUTION_CHOICES",
+    "TIMELINE_CHOICES",
+    "PERSONA_CHOICES_TEXT",
+    "WORDING_CHOICES",
+    "WIZARD_STEPS",
+    "estimate",
+    "review_lines",
     "TimeGraph",
     "time_graph",
     "MAX_YEAR_STEPS",

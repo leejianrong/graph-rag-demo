@@ -75,6 +75,8 @@ class UI:
     rev_rows: indah.Signal  # the open workspace's revisions, newest first
     rev_picked: indah.Signal  # the revision id picked in History
     ws_confirm: indah.Signal  # whether the delete confirmation is open
+    step: indah.Signal  # the wizard step shown (an index into model.WIZARD_STEPS)
+    tab: indah.Signal  # the tab shown (an index; 0 is Setup, 1 is World)
 
     def current_values(self) -> dict[str, float]:
         return {name: signal.value for name, signal in self.values.items()}
@@ -408,6 +410,23 @@ class UI:
 
         self._ws_do(run)
 
+    def go(self, step: int) -> None:
+        """Show a wizard step (clamped to the steps there are)."""
+        self.step.set(max(0, min(len(model.WIZARD_STEPS) - 1, step)))
+
+    def generate_and_show(self) -> None:
+        """Generate from the Review step, then open the World tab if there is a world to see."""
+        self.generate()
+        if self.world.value is not None:
+            self.tab.set(1)
+
+    def step_items(self) -> list[dict]:
+        at = self.step.value
+        return [
+            {"label": name, "state": "done" if i < at else "current" if i == at else "pending"}
+            for i, name in enumerate(model.WIZARD_STEPS)
+        ]
+
     def _save_revision(self) -> None:
         """After a successful Generate in an open workspace: keep the settings that made it."""
         slug = self.ws_current.value
@@ -512,7 +531,7 @@ def build_ui(store: workspaces.Store | None = None) -> UI:
     phrasing = indah.Signal(model.DEFAULT_PHRASING)
     name_style = indah.Signal(model.DEFAULT_NAME_STYLE)
     values = {name: indah.Signal(value) for name, value in start.items()}
-    status = indah.Signal("Choose a preset and a difficulty or set the knobs, then generate.")
+    status = indah.Signal("Check your choices, then generate.")
 
     def apply_preset() -> None:
         for name, value in model.preset_values(
@@ -582,6 +601,8 @@ def build_ui(store: workspaces.Store | None = None) -> UI:
         rev_rows=indah.Signal([]),
         rev_picked=indah.Signal(None),
         ws_confirm=indah.Signal(False),
+        step=indah.Signal(0),
+        tab=indah.Signal(0),
     )
     ui.refresh_workspaces()
 
@@ -618,47 +639,30 @@ def build_ui(store: workspaces.Store | None = None) -> UI:
         off = [r[0] for r in rows if r[3] != "ok"]
         return "All knobs are within tolerance." if not off else "Off target: " + ", ".join(off)
 
-    generate_card = indah.Card(
-        title="Generate a world",
-        children=[
-            indah.Select(preset, options=list(model.PRESET_NAMES), label="Preset"),
-            indah.Select(difficulty, options=list(model.DIFFICULTY_NAMES), label="Difficulty"),
-            indah.Select(
-                evolution,
-                options=list(model.EVOLUTION_LEVELS),
-                label="Change over time (facts, entities, names)",
-            ),
-            indah.Select(timeline, options=["off", "on"], label="Dated documents across the years"),
-            indah.Select(name_style, options=["invented", "bank"], label="Names"),
-            indah.Select(
-                phrasing, options=["plain", "varied"], label="Wording of text and questions"
-            ),
-            *[
-                indah.Column([indah.Text(title), indah.Grid(group_inputs(group))])
-                for group, title in model.GROUPS.items()
-            ],
-            indah.Button("Generate", ui.generate),
-            indah.Text(lambda: ui.status.value),
-        ],
-    )
+    generate_card = wizard(ui, values)
     setup = indah.Column(
         [
             generate_card,
-            indah.Row(
+            indah.Show(
+                lambda: ui.world.value is not None,
                 [
-                    indah.Stat(lambda: ui.entities.value, label="Entities"),
-                    indah.Stat(lambda: ui.facts.value, label="Facts"),
-                ]
-            ),
-            indah.Card(
-                title="Asked for vs. realized",
-                children=[
-                    indah.Text(verdict),
-                    indah.DataFrame(
-                        lambda: {
-                            "columns": ["Knob", "Asked for", "Realized", "Result"],
-                            "rows": ui.checks.value,
-                        }
+                    indah.Row(
+                        [
+                            indah.Stat(lambda: ui.entities.value, label="Entities"),
+                            indah.Stat(lambda: ui.facts.value, label="Facts"),
+                        ]
+                    ),
+                    indah.Card(
+                        title="Asked for vs. realized",
+                        children=[
+                            indah.Text(verdict),
+                            indah.DataFrame(
+                                lambda: {
+                                    "columns": ["Knob", "Asked for", "Realized", "Result"],
+                                    "rows": ui.checks.value,
+                                }
+                            ),
+                        ],
                     ),
                 ],
             ),
@@ -674,6 +678,7 @@ def build_ui(store: workspaces.Store | None = None) -> UI:
             history_card(ui),
         ],
         labels=["Setup", "World", "Questions", "Documents", "Export", "History"],
+        active=ui.tab,
     )
     ui.root = indah.AppShell(
         rail=rail(ui),
@@ -932,6 +937,119 @@ def entity_cards(ui: UI) -> list[indah.Component]:
             ],
         )
     ]
+
+
+def choice_cards(signal: indah.Signal, choices: tuple) -> indah.Component:
+    """One card per choice: its title, what it means, and a button; the chosen one says so. (A
+    radio with rich options is an indah gap, GRA-193.)"""
+    cards = []
+    for value, title, blurb in choices:
+        cards.append(
+            indah.Card(
+                title=title,
+                children=[
+                    indah.Text(blurb),
+                    indah.Text(lambda value=value: "Chosen" if signal.value == value else ""),
+                    indah.Button(
+                        "Choose",
+                        lambda value=value: signal.set(value),
+                        variant="tonal",
+                    ),
+                ],
+            )
+        )
+    return indah.Grid(cards)
+
+
+def wizard(ui: UI, values: dict[str, indah.Signal]) -> indah.Component:
+    """Making a dataset as five short steps instead of one long form. Every step edits the same
+    signals the form always did, so a workspace saves and restores them unchanged."""
+
+    def knobs(group: str) -> list[indah.Component]:
+        return [field(k, values[k.name]) for k in model.KNOBS if k.group == group]
+
+    start = indah.Show(
+        lambda: ui.step.value == 0,
+        [
+            indah.Text("How big should the world be? A preset is a complete answer."),
+            choice_cards(ui.preset, model.PRESET_CHOICES),
+            indah.Button("Skip to review", lambda: ui.go(4), variant="tonal"),
+        ],
+    )
+    world = indah.Show(
+        lambda: ui.step.value == 1,
+        [
+            indah.Text("How hard should the text be to read?"),
+            choice_cards(ui.difficulty, model.DIFFICULTY_CHOICES),
+            indah.Text("What should the names look like?"),
+            choice_cards(ui.name_style, model.NAME_CHOICES),
+            indah.Expander(
+                [
+                    indah.Column([indah.Text(title), indah.Grid(knobs(group))])
+                    for group, title in model.GROUPS.items()
+                    if group != "churn"
+                ],
+                label="Fine-tune the numbers",
+            ),
+        ],
+    )
+    time = indah.Show(
+        lambda: ui.step.value == 2,
+        [
+            indah.Text("Does the world change over the years?"),
+            choice_cards(ui.evolution, model.EVOLUTION_CHOICES),
+            indah.Text("How are the documents dated?"),
+            choice_cards(ui.timeline, model.TIMELINE_CHOICES),
+            indah.Expander([indah.Grid(knobs("churn"))], label="Fine-tune the changes"),
+        ],
+    )
+    questions = indah.Show(
+        lambda: ui.step.value == 3,
+        [
+            indah.Text("Who is asking the questions?"),
+            choice_cards(ui.persona, model.PERSONA_CHOICES_TEXT),
+            indah.Text("How should the questions and text be worded?"),
+            choice_cards(ui.phrasing, model.WORDING_CHOICES),
+        ],
+    )
+    review = indah.Show(
+        lambda: ui.step.value == 4,
+        [
+            indah.Text("This is what you are asking for. Go back to change any of it."),
+            indah.DataFrame(
+                lambda: {
+                    "columns": ["Your choices"],
+                    "rows": [[line] for line in model.review_lines(ui.settings())],
+                }
+            ),
+            indah.Button("Generate world", ui.generate_and_show),
+            indah.Text(lambda: ui.status.value),
+        ],
+    )
+    return indah.Card(
+        title="Make a dataset",
+        children=[
+            indah.Steps(ui.step_items, orientation="horizontal"),
+            indah.Text(lambda: model.estimate(ui.current_values())),
+            start,
+            world,
+            time,
+            questions,
+            review,
+            indah.Row(
+                [
+                    indah.Show(
+                        lambda: ui.step.value > 0,
+                        [indah.Button("Back", lambda: ui.go(ui.step.value - 1), variant="tonal")],
+                    ),
+                    indah.Show(
+                        lambda: ui.step.value < len(model.WIZARD_STEPS) - 1,
+                        [indah.Button("Next", lambda: ui.go(ui.step.value + 1))],
+                    ),
+                ]
+            ),
+        ],
+    )
 
 
 def rail(ui: UI) -> indah.Component:
