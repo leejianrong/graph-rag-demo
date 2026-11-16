@@ -231,6 +231,21 @@ def build_parser() -> argparse.ArgumentParser:
     tp.add_argument("--questions", type=int, default=100)
     tp.add_argument("--k", type=int, default=5, help="The k for the top list.")
     tp.add_argument("--embedder", choices=("fake", "bge"), default="fake", help="As in compare.")
+    tp.add_argument(
+        "--pipeline",
+        choices=hards.PIPELINES,
+        default="offline",
+        help="The graph-rag pipeline: offline (the default), or the real LLM and/or spaCy stages.",
+    )
+    tp.add_argument("--llm-cache", type=Path, help="The recorded LLM answers (llm pipelines).")
+    tp.add_argument("--llm-base-url", help="OpenAI-compatible endpoint; omit to replay.")
+    tp.add_argument("--llm-model", default="openai/claude-haiku", help="LiteLLM model string.")
+    tp.add_argument("--spacy", metavar="MODEL", help="Real spaCy NER, e.g. en_core_web_trf.")
+    tp.add_argument(
+        "--recency",
+        action="store_true",
+        help="Also score BM25 and dense search that read dates (newest document first).",
+    )
     tp.add_argument("--out", type=Path, help="Write the markdown table here.")
     pe = commands.add_parser(
         "personas",
@@ -614,16 +629,25 @@ def _temporal(args: argparse.Namespace) -> int:
         update={"seed": args.seed}
     )
     embedder = CachingEmbedder(build_embedder(real=args.embedder == "bge"))
+    make = None
+    if args.pipeline != "offline":
+        build = hards.pipeline_builders(embedder, _llm_settings(args), args.spacy, [args.pipeline])
+        if not build:
+            raise SystemExit(f"pipeline {args.pipeline!r} needs --llm-cache and/or --spacy")
+        make = next(iter(build.values()))
     result = temporal.run(
         spec,
         n_questions=args.questions,
         embedder=embedder,
         k=args.k,
         evolution=args.evolution,
+        pipeline=make,
+        recency=args.recency,
     )
     text = (
         f"Whole-path@{args.k} on a `{args.preset}` world ({args.difficulty}, evolution "
-        f"{args.evolution}, seed {args.seed}): {len(result.world.entities)} entities, "
+        f"{args.evolution}, seed {args.seed}, graph-rag pipeline {args.pipeline}): "
+        f"{len(result.world.entities)} entities, "
         f"{len(result.world.edges)} facts, {len(result.documents)} dated documents, "
         f"{len(result.questions)} questions.\n\n**Whole path in the top {args.k}**\n\n"
         f"{temporal.format_table(result)}\n\n**The first sentence about the fact states the "
