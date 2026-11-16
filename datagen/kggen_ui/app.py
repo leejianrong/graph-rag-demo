@@ -13,6 +13,13 @@ from kggen_ui import model
 HAS_GRAPH = hasattr(indah, "Graph")
 
 
+YEAR_VIEW_WINDOW = 1000
+YEAR_LEGEND = (
+    "Green: new this year. Purple: renamed this year. Rust: ends this year. Pale: not in this "
+    "year. Everything else holds."
+)
+
+
 @dataclass
 class UI:
     """The app's state and root component, kept apart so tests can drive it without a browser."""
@@ -33,6 +40,9 @@ class UI:
     checks: indah.Signal
     graph: indah.Signal  # (nodes, edges) as the Graph component takes them
     graph_note: indah.Signal  # why there is no graph to draw, when there is not
+    tgraph: indah.Signal  # a model.TimeGraph when the world changes over time, else None
+    time_on: indah.Signal  # draw the world as of a year instead of its final state
+    offset: indah.Signal  # years after the first year: the year being shown when time_on
     selected: indah.Signal  # the entity id the viewer clicked, or None
     window: indah.Signal  # how many nodes are drawn in full
     index: indah.Signal  # a model.WorldIndex for the detail panels
@@ -155,6 +165,7 @@ class UI:
         summary = model.summarize(world)
         nodes, edges, note = model.graph_view(world)
         shown = (nodes, edges)
+        tgraph = model.time_graph(world)
         questions, question_note = self._derive(world)
         documents, doc_note = self._render(world)
 
@@ -166,6 +177,9 @@ class UI:
             self.index.set(model.index_world(world))
             self.graph.set(shown)
             self.graph_note.set(note or "")
+            self.tgraph.set(tgraph)
+            self.time_on.set(False)  # a new world opens on its final state
+            self.offset.set(0)
             self._set_questions(questions, question_note)
             self._set_documents(documents, doc_note)
             self.checks.set(model.check_rows(world))
@@ -211,14 +225,71 @@ class UI:
             note += " Its documents.json is template text: the LLM-written set is not exported."
         self.export_note.set(note)
 
+    def viewing_time(self) -> bool:
+        """Whether the graph shows a year: the switch is on and the world has years to show."""
+        return bool(self.time_on.value) and self.tgraph.value is not None
+
+    def drawn(self) -> tuple[list[dict], list[dict]]:
+        """The nodes and edges on the graph: the final state, or the world as of the chosen year."""
+        if self.viewing_time():
+            return self.tgraph.value.nodes_edges(self.current_year())
+        return self.graph.value
+
+    def drawn_in_full(self) -> int:
+        """How many nodes the graph draws in full. The year view draws at least 1,000: a node
+        outside the window is a dot in its type's colour, which would hide what the year did."""
+        return (
+            max(int(self.window.value), YEAR_VIEW_WINDOW)
+            if self.viewing_time()
+            else int(self.window.value)
+        )
+
+    def current_year(self) -> int:
+        """The year the slider is on (the first year when the world has no years to step)."""
+        tgraph = self.tgraph.value
+        if tgraph is None:
+            return 0
+        return tgraph.clamp(tgraph.first + int(self.offset.value))
+
+    def step_year(self, direction: int, by_change: bool) -> None:
+        """Move the year one year, or to the next year anything changes."""
+        tgraph = self.tgraph.value
+        if tgraph is not None:
+            year = tgraph.step(self.current_year(), direction, by_change)
+            self.offset.set(year - tgraph.first)
+
+    def year_events(self) -> list[list[str]]:
+        tgraph = self.tgraph.value
+        return tgraph.events(self.current_year()) if tgraph is not None else []
+
+    def year_note(self) -> str:
+        tgraph = self.tgraph.value
+        if self.world.value is None:
+            return "Generate a world first."
+        if tgraph is None:
+            return (
+                "This world does not change over time. Set Change over time to light or heavy "
+                "and generate again to step through its years."
+            )
+        return tgraph.note
+
+    def document_rows_now(self) -> list[dict]:
+        """The document table: all of them, or those dated in or before the chosen year."""
+        as_of = self.current_year() if self.viewing_time() else None
+        return model.document_rows(self.documents.value, as_of)
+
     def highlight(self) -> dict | None:
         """What the graph emphasises: the clicked sentence's fact, else the picked question's path.
         Only what is drawn: a sampled graph may lack part of a path."""
-        fact = model.fact_highlight(self.index.value, self.picked_fact.value)
+        fact = model.fact_highlight(
+            self.index.value, self.picked_fact.value, every_fact=self.viewing_time()
+        )
         wanted = fact or model.highlight_for(self.index.value, self.picked_question())
-        if wanted is None or not self.graph_note.value:
+        if wanted is None and self.viewing_time():
+            return self.tgraph.value.changed(self.current_year())  # every id is drawn
+        if wanted is None or not (self.graph_note.value or self.viewing_time()):
             return wanted
-        nodes, edges = self.graph.value
+        nodes, edges = self.drawn()
         nodes_drawn, edges_drawn = {n["id"] for n in nodes}, {e["id"] for e in edges}
         return {
             "nodes": [n for n in wanted["nodes"] if n in nodes_drawn],
@@ -236,7 +307,7 @@ class UI:
             target = question.start if question else None
         if target is None or not self.graph_note.value:
             return target
-        return target if any(n["id"] == target for n in self.graph.value[0]) else None
+        return target if any(n["id"] == target for n in self.drawn()[0]) else None
 
 
 def build_ui() -> UI:
@@ -285,6 +356,9 @@ def build_ui() -> UI:
         checks=indah.Signal([]),
         graph=indah.Signal(([], [])),
         graph_note=indah.Signal(""),
+        tgraph=indah.Signal(None),
+        time_on=indah.Signal(False),
+        offset=indah.Signal(0),
         selected=indah.Signal(None),
         window=indah.Signal(300),
         index=indah.Signal(None),
@@ -402,11 +476,12 @@ def world_card(ui: UI) -> indah.Component:
             title="The world",
             children=[indah.Text("The graph view needs indah 0.12 or newer; yours has no Graph.")],
         )
+    drawn = indah.computed(ui.drawn)
     graph = indah.Graph(
-        lambda: ui.graph.value[0],
-        lambda: ui.graph.value[1],
+        lambda: drawn.value[0],
+        lambda: drawn.value[1],
         selected=ui.selected,
-        focus_size=ui.window,
+        focus_size=ui.drawn_in_full,
         highlight=ui.highlight,
         focus=ui.focus,
         height=520,
@@ -419,7 +494,53 @@ def world_card(ui: UI) -> indah.Component:
             indah.Text(lambda: ui.graph_note.value or ""),
             graph,
             indah.Slider(ui.window, min=20, max=2000, step=10, label="Nodes drawn in full"),
+            years_panel(ui),
         ],
+    )
+
+
+def years_panel(ui: UI) -> indah.Component:
+    """Step the world through its years: a slider, buttons, and what each year changed."""
+    return indah.Column(
+        [
+            indah.Switch(ui.time_on, label="Step through the years"),
+            indah.Text(ui.year_note),
+            indah.Show(
+                lambda: ui.viewing_time(),
+                [
+                    indah.Text(lambda: f"Showing {ui.current_year()}"),
+                    indah.Text(YEAR_LEGEND),
+                    indah.Slider(
+                        ui.offset,
+                        min=0,
+                        max=model.MAX_YEAR_STEPS,
+                        step=1,
+                        label="Years after the first year",
+                        show_value=True,
+                    ),
+                    indah.Row(
+                        [
+                            indah.Button("Previous change", lambda: ui.step_year(-1, True)),
+                            indah.Button("Previous year", lambda: ui.step_year(-1, False)),
+                            indah.Button("Next year", lambda: ui.step_year(1, False)),
+                            indah.Button("Next change", lambda: ui.step_year(1, True)),
+                        ]
+                    ),
+                    indah.Table(
+                        rows=indah.computed(
+                            lambda: [{"sign": r[0], "what": r[1]} for r in ui.year_events()]
+                        ),
+                        columns=[
+                            indah.Col("sign", ""),
+                            indah.Col("what", "What changed", wrap=True),
+                        ],
+                        key="what",
+                        height="220px",
+                        label="What changed in this year",
+                    ),
+                ],
+            ),
+        ]
     )
 
 
@@ -479,9 +600,10 @@ def documents_card(ui: UI) -> indah.Component:
     """Documents rendered from the world's facts, and the sentences of the one being read."""
     inputs = [field(k, ui.doc_values[k.name]) for k in model.RENDER_KNOBS]
     documents = indah.Table(
-        rows=ui.doc_rows,
+        rows=indah.computed(ui.document_rows_now),
         columns=[
             indah.Col("id", "ID", kind="mono"),
+            indah.Col("date", "Dated", kind="mono"),
             indah.Col("title", "About"),
             indah.Col("sentences", "Sentences", kind="number"),
             indah.Col("words", "Words", kind="number"),

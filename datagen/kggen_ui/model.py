@@ -527,12 +527,18 @@ def llm_note(rendered: LLMRendered, model_name: str) -> str:
     )
 
 
-def document_rows(documents: tuple[Document, ...] | list[Document]) -> list[dict]:
-    """The document list as table rows (the first ``MAX_DOCUMENT_ROWS``)."""
+def document_rows(
+    documents: tuple[Document, ...] | list[Document], as_of: int | None = None
+) -> list[dict]:
+    """The document list as table rows (the first ``MAX_DOCUMENT_ROWS``). With ``as_of`` a year,
+    only documents dated in or before it are listed; an undated document is always listed."""
+    if as_of is not None:
+        documents = [d for d in documents if d.date is None or int(d.date[:4]) <= as_of]
     return [
         {
             "id": d.id,
             "title": d.title,
+            "date": d.date or "",
             "sentences": len(d.sentences),
             "words": len(d.text.split()),
             "kind": "distractor" if d.distractor else "",
@@ -583,15 +589,18 @@ def mention_rows(
     return [[m.surface, index.entities[m.entity_id].name, m.entity_id] for m in sentence.mentions]
 
 
-def fact_highlight(index: WorldIndex | None, fact_id: str | None) -> dict | None:
+def fact_highlight(
+    index: WorldIndex | None, fact_id: str | None, every_fact: bool = False
+) -> dict | None:
     """Emphasise a fact on the graph: both its entities, and the edge when the graph draws it. The
-    graph holds only facts still true at the end, so a fact that ended has no edge to show."""
+    end-state graph holds only facts still true at the end, so a fact that ended has no edge to
+    show there; the year view (``every_fact``) draws every fact."""
     if index is None or fact_id is None or fact_id not in index.facts:
         return None
     fact = index.facts[fact_id]
     return {
         "nodes": [fact.subject, fact.object],
-        "edges": [fact.id] if fact.valid_to is None else [],
+        "edges": [fact.id] if fact.valid_to is None or every_fact else [],
     }
 
 
@@ -675,6 +684,198 @@ def graph_view(world: World) -> tuple[list[dict], list[dict], str]:
         "between them."
     )
     return shown_nodes, shown_edges, note
+
+
+# -- the world through the years ---------------------------------------------------------------
+
+# One fixed code for what a year changed, drawn as a node or edge colour.
+BORN, RENAMED, ENDED, GONE = (
+    "Born this year",
+    "Renamed this year",
+    "Ended this year",
+    "Not in this year",
+)
+STATE_COLOURS = {BORN: "#1F8A5F", RENAMED: "#6A4BB8", ENDED: "#B8452A", GONE: "#C9CFCD"}
+EDGE_ACTIVE = "#7A8A90"
+MAX_EVENT_ROWS = 300
+MAX_YEAR_STEPS = 50  # the year slider's span: indah sliders have a fixed range
+
+
+def change_years(world: World) -> list[int]:
+    """Every year something in the world starts, ends or is renamed, in order. The first is the
+    year the world begins; a world that never changes has one at most."""
+    years: set[int] = set()
+    for e in world.entities:
+        years.update(y for y in (e.born, e.closed, e.renamed) if y is not None)
+    for f in world.edges:
+        years.add(f.valid_from)
+        if f.valid_to is not None:
+            years.add(f.valid_to)
+    return sorted(years)
+
+
+def evolves(world: World) -> bool:
+    """Whether the world changes at all, so a year view has something to show."""
+    return len(change_years(world)) > 1
+
+
+@dataclass(frozen=True)
+class TimeGraph:
+    """A world drawn through its years. Everything that ever existed is always on the graph, so
+    the browser lays it out once and no node moves as years pass; a year only recolours it: what
+    holds is drawn, what is new, renamed or ending is coloured, what does not hold is pale."""
+
+    world: World
+    years: tuple[int, ...]
+    keep: frozenset[str]  # the entities drawn (all of them unless the world is too big)
+    note: str
+
+    @property
+    def first(self) -> int:
+        return self.years[0]
+
+    @property
+    def last(self) -> int:
+        return self.years[-1]
+
+    def clamp(self, year: int) -> int:
+        return max(self.first, min(self.last, int(year)))
+
+    def nodes_edges(self, year: int) -> tuple[list[dict], list[dict]]:
+        """The graph for ``year``: every entity and every fact, styled for that year."""
+        year = self.clamp(year)
+        nodes = []
+        for e in self.world.entities:
+            if e.id not in self.keep:
+                continue
+            label = e.name_in(year)
+            colour = None
+            if not e.exists_in(year):
+                colour = STATE_COLOURS[ENDED if e.closed == year else GONE]
+            elif year > self.first and e.born == year:
+                colour = STATE_COLOURS[BORN]
+            elif year > self.first and e.renamed == year:
+                label = f"{e.name} (was {e.former_name})"
+                colour = STATE_COLOURS[RENAMED]
+            # The group stays the type in every year: the browser starts its layout from the
+            # groups, so a group that changed with the year would move the nodes.
+            group = DISTRACTOR_GROUP if e.distractor else e.type
+            node = {"id": e.id, "label": label, "group": group}
+            if colour:
+                node["color"] = colour
+            nodes.append(node)
+        edges = []
+        for f in self.world.edges:
+            if f.subject not in self.keep or f.object not in self.keep:
+                continue
+            holds = f.valid_from <= year and (f.valid_to is None or year < f.valid_to)
+            if not holds:
+                colour = STATE_COLOURS[ENDED if f.valid_to == year else GONE]
+            elif year > self.first and f.valid_from == year:
+                colour = STATE_COLOURS[BORN]
+            else:
+                colour = EDGE_ACTIVE
+            edges.append({"source": f.subject, "target": f.object, "id": f.id, "color": colour})
+        return nodes, edges
+
+    def changed(self, year: int) -> dict | None:
+        """What the year changed, as the graph's ``highlight``: the entities born, renamed or
+        ending and the facts that start or end, with the ends of those facts. None in the first
+        year, which is the start and has nothing to single out."""
+        year = self.clamp(year)
+        if year == self.first:
+            return None
+        nodes = {
+            e.id
+            for e in self.world.entities
+            if year in (e.born, e.renamed, e.closed) and e.id in self.keep
+        }
+        edges = []
+        for f in self.world.edges:
+            if (
+                year in (f.valid_from, f.valid_to)
+                and f.subject in self.keep
+                and f.object in self.keep
+            ):
+                edges.append(f.id)
+                nodes.update((f.subject, f.object))
+        return {"nodes": sorted(nodes), "edges": edges}
+
+    def events(self, year: int) -> list[list[str]]:
+        """What changed going into ``year``, as ``[sign, what]`` rows: + starts, ~ renamed, - ended.
+        The first year has no change: it is the start, and its row says how much holds."""
+        year = self.clamp(year)
+        names = {e.id: e for e in self.world.entities}
+
+        def fact_text(f) -> str:  # type: ignore[no-untyped-def]
+            subject, obj = names[f.subject].name_in(year), names[f.object].name_in(year)
+            return f"{subject} {f.predicate.replace('_', ' ').lower()} {obj}"
+
+        if year == self.first:
+            n_e = sum(1 for e in self.world.entities if e.exists_in(year))
+            n_f = sum(1 for f in self.world.edges if f.valid_from <= year)
+            return [["", f"The start: {n_e:,} entities and {n_f:,} facts hold."]]
+        rows: list[list[str]] = []
+        for e in self.world.entities:
+            if e.born == year:
+                rows.append(["+", f"{e.name} appears ({e.type.lower()})"])
+            if e.renamed == year:
+                rows.append(["~", f"{e.former_name} is now {e.name}"])
+            if e.closed == year:
+                rows.append(["-", f"{e.name_in(year - 1)} closes"])
+        for f in self.world.edges:
+            if f.valid_from == year:
+                rows.append(["+", fact_text(f)])
+            if f.valid_to == year:
+                rows.append(["-", fact_text(f) + " (ended)"])
+        if not rows:
+            return [["", "Nothing changes in this year."]]
+        if len(rows) > MAX_EVENT_ROWS:
+            rows = rows[:MAX_EVENT_ROWS] + [["", f"... and {len(rows) - MAX_EVENT_ROWS:,} more."]]
+        return rows
+
+    def step(self, year: int, direction: int, by_change: bool) -> int:
+        """The year ``direction`` (+1 or -1) from ``year``: the next calendar year, or with
+        ``by_change`` the next year anything changes (staying put at either end)."""
+        year = self.clamp(year)
+        if not by_change:
+            return self.clamp(year + direction)
+        later = [y for y in self.years if (y > year if direction > 0 else y < year)]
+        if not later:
+            return year
+        return min(later) if direction > 0 else max(later)
+
+
+def time_graph(world: World) -> TimeGraph | None:
+    """The year view of ``world``, or None when the world never changes. A world bigger than the
+    graph view holds is cut to its most connected entities (counting every fact, ended or not),
+    chosen once so the cut does not move between years."""
+    years = change_years(world)
+    if len(years) < 2:
+        return None
+    ids = [e.id for e in world.entities]
+    note = ""
+    if len(ids) > MAX_GRAPH_NODES or len(world.edges) > MAX_GRAPH_EDGES:
+        degree: dict[str, int] = {}
+        for f in world.edges:
+            degree[f.subject] = degree.get(f.subject, 0) + 1
+            degree[f.object] = degree.get(f.object, 0) + 1
+        ranked = sorted(ids, key=lambda i: (-degree.get(i, 0), i))
+        k = min(MAX_GRAPH_NODES, len(ids))
+        kept = set(ranked[:k])
+
+        def too_many() -> bool:
+            return sum(1 for f in world.edges if f.subject in kept and f.object in kept) > (
+                MAX_GRAPH_EDGES
+            )
+
+        while k > 1 and too_many():
+            k = int(k * 0.9)
+            kept = set(ranked[:k])
+        note = f"Showing the {len(kept):,} most connected of {len(ids):,} entities."
+    else:
+        kept = set(ids)
+    return TimeGraph(world, tuple(years), frozenset(kept), note)
 
 
 @dataclass(frozen=True)
@@ -774,6 +975,11 @@ __all__ = [
     "export_name",
     "export_summary",
     "document_rows",
+    "TimeGraph",
+    "time_graph",
+    "MAX_YEAR_STEPS",
+    "evolves",
+    "change_years",
     "fact_highlight",
     "fact_note",
     "find_document",
