@@ -19,7 +19,7 @@ import re
 from dataclasses import dataclass
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_serializer
+from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
 from kggen.filler import filler_sentence
 from kggen.spec import VAGUE_PREDICATE
@@ -152,14 +152,27 @@ class RenderSpec(BaseModel):
         default="plain",
         description="plain: two wordings per relation. varied: more synonyms and passive forms.",
     )
+    timeline: bool = Field(
+        default=False,
+        description="Write dated documents across the world's years: what is true at the start, "
+        "then each change (a fact begins or ends, an entity appears, closes or is renamed).",
+    )
 
     @model_serializer(mode="wrap")
-    def _omit_the_default_phrasing(self, handler):  # type: ignore[no-untyped-def]
-        """Leave a plain ``phrasing`` out of a spec file, so existing files keep their bytes."""
+    def _omit_the_defaults(self, handler):  # type: ignore[no-untyped-def]
+        """Leave default options out of a spec file, so existing files keep their bytes."""
         data = handler(self)
         if data.get("phrasing") == "plain":
             data.pop("phrasing")
+        if not data.get("timeline"):
+            data.pop("timeline", None)
         return data
+
+    @model_validator(mode="after")
+    def _timeline_is_short(self) -> RenderSpec:
+        if self.timeline and self.target_words:
+            raise ValueError("timeline documents are short; use target_words 0")
+        return self
 
 
 @dataclass(frozen=True)
@@ -187,6 +200,7 @@ class Document:
     sentences: tuple[Sentence, ...]
     distractor: bool
     subject: str = ""  # the entity id the document is about
+    date: str | None = None  # YYYY-MM-DD it was written (timeline documents only)
 
     @classmethod
     def from_dict(cls, data: dict) -> Document:
@@ -202,16 +216,24 @@ class Document:
             for s in data["sentences"]
         )
         return cls(
-            data["id"], data["title"], data["text"], sentences, data["distractor"], data["subject"]
+            data["id"],
+            data["title"],
+            data["text"],
+            sentences,
+            data["distractor"],
+            data["subject"],
+            data.get("date"),
         )
 
     def to_dict(self) -> dict:
+        dated = {"date": self.date} if self.date else {}
         return {
             "id": self.id,
             "title": self.title,
             "subject": self.subject,
             "text": self.text,
             "distractor": self.distractor,
+            **dated,
             "sentences": [
                 {
                     "text": s.text,
@@ -228,6 +250,8 @@ class Document:
 def render_documents(world: World, spec: RenderSpec | None = None) -> tuple[Document, ...]:
     """One or more documents per subject entity, covering every fact exactly once."""
     spec = spec or RenderSpec()
+    if spec.timeline:
+        return _timeline_documents(world, spec)
     rng = random.Random(f"{world.spec.seed}:{spec.seed}:render")
     # Wording has a stream of its own, and the main one still makes the draw a plain run makes, so a
     # varied run lays out the same facts in the same documents and only the words differ.
@@ -358,6 +382,113 @@ def render_documents(world: World, spec: RenderSpec | None = None) -> tuple[Docu
                     sentences=tuple(written),
                     distractor=entities[subject].distractor,
                     subject=subject,
+                )
+            )
+    return tuple(documents)
+
+
+def _timeline_documents(world: World, spec: RenderSpec) -> tuple[Document, ...]:
+    """Dated documents in date order: the start year's facts, then each year's changes.
+
+    A fact that begins after the start is stated in the year it begins and, if it ends, again in the
+    year it ends; an entity's appearance, closure and renaming are sentences of their own, with no
+    fact behind them. Entities go by the name they had that year.
+    """
+    rng = random.Random(f"{world.spec.seed}:{spec.seed}:timeline")
+    entities = {e.id: e for e in world.entities}
+    start = world.spec.start_year
+
+    def surface(entity_id: str, year: int) -> str:
+        e = entities[entity_id]
+        aliases = [a for a in e.aliases if a != e.former_name]
+        if aliases and rng.random() < spec.alias_use_rate:
+            return rng.choice(aliases)
+        return e.name_in(year)
+
+    def compose(template: str, parts: dict[str, tuple[str, str]], year: int, suffix: str, facts):
+        text, mentions = "", []
+        for piece in re.split(r"(\{\w+\})", template):
+            if piece.startswith("{") and piece.endswith("}"):
+                entity_id, name = parts[piece[1:-1]][0], parts[piece[1:-1]][1]
+                mentions.append((entity_id, name, len(text), len(text) + len(name)))
+                text += name
+            else:
+                text += piece
+        return text + suffix + ".", mentions, facts
+
+    def fact_sentence(edge: Edge, year: int, ending: bool):
+        present, past = rng.choice(TEMPLATES[edge.predicate])
+        if spec.phrasing == "varied":
+            present, past = rng.choice(VARIED_TEMPLATES[edge.predicate])
+        parts = {
+            "S": (edge.subject, surface(edge.subject, year)),
+            "O": (edge.object, surface(edge.object, year)),
+        }
+        if ending:
+            since = f"from {edge.valid_from} " if edge.valid_from > start else ""
+            return compose(past, parts, year, f" {since}until {edge.valid_to}", (edge.id,))
+        suffix = f" since {edge.valid_from}" if edge.valid_from > start else ""
+        return compose(present, parts, year, suffix, (edge.id,))
+
+    def lifecycle(e, year: int, kind: str):
+        if kind == "born":
+            return compose(
+                "{S} was established", {"S": (e.id, e.name_in(year))}, year, f" in {year}", ()
+            )
+        if kind == "closed":
+            return compose(
+                "{S} ceased operations", {"S": (e.id, e.name_in(year - 1))}, year, f" in {year}", ()
+            )
+        parts = {"S": (e.id, e.former_name), "N": (e.id, e.name)}
+        return compose("{S} was renamed {N}", parts, year, f" in {year}", ())
+
+    # (year, subject) -> sentences to write there, in a stable order
+    plan: dict[tuple[int, str], list] = {}
+    for e in world.entities:
+        if e.born is not None:
+            plan.setdefault((e.born, e.id), []).append(lifecycle(e, e.born, "born"))
+        if e.renamed is not None:
+            plan.setdefault((e.renamed, e.id), []).append(lifecycle(e, e.renamed, "renamed"))
+        if e.closed is not None:
+            plan.setdefault((e.closed, e.id), []).append(lifecycle(e, e.closed, "closed"))
+    for edge in world.edges:
+        plan.setdefault((edge.valid_from, edge.subject), []).append(
+            fact_sentence(edge, edge.valid_from, False)
+        )
+        if edge.valid_to is not None:
+            plan.setdefault((edge.valid_to, edge.subject), []).append(
+                fact_sentence(edge, edge.valid_to, True)
+            )
+
+    documents: list[Document] = []
+    for year, subject in sorted(plan, key=lambda k: (k[0], k[1])):
+        items = plan[(year, subject)]
+        for i in range(0, len(items), spec.max_facts_per_doc):
+            written, offset = [], 0
+            for text, mentions, facts in items[i : i + spec.max_facts_per_doc]:
+                written.append(
+                    Sentence(
+                        text,
+                        offset,
+                        offset + len(text),
+                        facts,
+                        tuple(
+                            Mention(eid, name, offset + a, offset + b)
+                            for eid, name, a, b in mentions
+                        ),
+                    )
+                )
+                offset += len(text) + 1
+            entity = entities[subject]
+            documents.append(
+                Document(
+                    id=f"D{len(documents):05d}",
+                    title=entity.name_in(year),
+                    text=" ".join(s.text for s in written),
+                    sentences=tuple(written),
+                    distractor=entity.distractor,
+                    subject=subject,
+                    date=f"{year}-07-01",
                 )
             )
     return tuple(documents)

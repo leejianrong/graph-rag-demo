@@ -46,6 +46,9 @@ QUESTION_TYPES = (
     "as_of",
     "latest",
     "retracted",
+    "when",
+    "before",
+    "duration",
     "path",
     "open_ended",
 )
@@ -80,6 +83,21 @@ TYPE_LABEL = {
     "PRODUCT": "product",
     "NORP": "group",
     "LAW": "law",
+}
+
+
+# How each relation reads when asking the year it began: "In what year did {S} ... ?"
+_BEGAN = {
+    "LOCATED_IN": "come to be located in",
+    "PART_OF": "become part of",
+    "MEMBER_OF": "join",
+    "WORKS_FOR": "start working for",
+    "FOUNDED": "found",
+    "OWNS": "come to own",
+    "PRODUCES": "begin producing",
+    "PARTICIPATED_IN": "take part in",
+    "AFFILIATED_WITH": "become affiliated with",
+    "GOVERNED_BY": "come under",
 }
 
 
@@ -874,6 +892,98 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             )
         return found
 
+    def timeline_questions(kind: str, target: int) -> list[Question]:
+        """Questions on when a fact held: the year it began or ended, what came just before it,
+        and how long it lasted. Only a fact whose dates the documents state is asked about."""
+        found: list[Question] = []
+        start = world.spec.start_year
+        facts = sorted(
+            (
+                e
+                for versions in history.values()
+                for e in versions
+                if name_count[names[e.object]] == 1
+            ),
+            key=lambda e: e.id,
+        )
+        if kind == "before":
+            pairs = [
+                (a, b)
+                for versions in history.values()
+                for a in versions
+                for b in versions
+                if a.valid_to is not None
+                and a.valid_to == b.valid_from
+                and a.object != b.object
+                and name_count[names[a.object]] == 1
+                and name_count[names[b.object]] == 1
+            ]
+            pairs.sort(key=lambda p: (p[0].id, p[1].id))
+            pool: list = pairs
+        elif kind == "duration":
+            pool = [e for e in facts if e.valid_from > start and e.valid_to is not None]
+        else:
+            pool = [e for e in facts if e.valid_from > start or e.valid_to is not None]
+        rng.shuffle(pool)
+        for item in pool:
+            if len(found) >= target:
+                break
+            if kind == "before":
+                a, b = item
+                key: tuple = (kind, a.id, b.id)
+                label = TYPE_LABEL[types[a.object]]
+                text = (
+                    f"Name the {label} that {names[a.subject]} {VERB[a.predicate]} "
+                    f"immediately before {names[b.object]}."
+                )
+                answers: tuple[str, ...] = (a.object,)
+                shown = names[a.object]
+                gold: tuple[str, ...] = (a.id, b.id)
+                number = None
+                accepted = names_of(answers)
+                number_kind = False
+            else:
+                e = item
+                s_, o_ = names[e.subject], names[e.object]
+                if kind == "duration":
+                    key = (kind, e.id)
+                    text = f"For how many years was it true that {s_} {VERB[e.predicate]} {o_}?"
+                    number = e.valid_to - e.valid_from
+                else:
+                    began = e.valid_from > start and (e.valid_to is None or rng.random() < 0.5)
+                    key = (kind, e.id, began)
+                    if began:
+                        text = f"In what year did {s_} {_BEGAN[e.predicate]} {o_}?"
+                        number = e.valid_from
+                    else:
+                        text = f"Until what year was it true that {s_} {VERB[e.predicate]} {o_}?"
+                        number = e.valid_to
+                answers, shown, gold = (), str(number), (e.id,)  # type: ignore[assignment]
+                accepted = (shown,)
+                number_kind = True
+            if key in seen:
+                continue
+            seen.add(key)
+            found.append(
+                Question(
+                    id="",
+                    question=text,
+                    hops=len(gold),
+                    start=item[0].subject if kind == "before" else item.subject,
+                    answer=answers[0] if answers else "",
+                    answer_name=shown,
+                    accepted_answers=accepted,
+                    supporting_facts=gold,
+                    type=kind,
+                    answer_kind="number" if number_kind else "entity",
+                    answers=answers,
+                    number=number if number_kind else None,
+                    gold_paths=(gold,),
+                    grading="numeric" if number_kind else "exact",
+                )
+            )
+        return found
+
     def path_questions(hops: int, target: int) -> list[Question]:
         """ "How is A connected to B?" where the shortest chain of facts is ``hops`` long."""
         found: list[Question] = []
@@ -1056,6 +1166,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
         ("unanswerable", unanswerable_questions),
         ("false_premise", false_premise_questions),
         *((t, lambda n, t=t: temporal_questions(t, n)) for t in ("as_of", "latest", "retracted")),
+        *((t, lambda n, t=t: timeline_questions(t, n)) for t in ("when", "before", "duration")),
     ):
         got = make(quota.get(kind, 0))
         questions += got

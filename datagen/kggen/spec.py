@@ -137,6 +137,16 @@ class WorldSpec(BaseModel):
     retraction_rate: float = Field(
         default=0.0, ge=0, le=1, description="Share of edges later retracted with no replacement."
     )
+    # Entity evolution (GRA-190): entities that appear, close or are renamed over the years.
+    birth_rate: float = Field(
+        default=0.0, ge=0, le=1, description="Share of entities that first appear after the start."
+    )
+    closure_rate: float = Field(
+        default=0.0, ge=0, le=1, description="Share of entities that close; their facts end then."
+    )
+    rename_rate: float = Field(
+        default=0.0, ge=0, le=1, description="Share of organisations and products renamed later."
+    )
     name_style: Literal["invented", "bank"] = Field(
         default="invented",
         description="invented: made-up words. bank: realistic names from a deconflicted bank.",
@@ -148,6 +158,9 @@ class WorldSpec(BaseModel):
         data = handler(self)
         if data.get("name_style") == "invented":
             data.pop("name_style")
+        for knob in ("birth_rate", "closure_rate", "rename_rate"):
+            if data.get(knob) == 0.0:
+                data.pop(knob)
         return data
 
     @model_validator(mode="after")
@@ -216,6 +229,32 @@ DIFFICULTY: dict[str, dict[str, float | int]] = {
 DIFFICULTY_NAMES: tuple[str, ...] = tuple(DIFFICULTY)
 
 
+EVOLUTION = {
+    "none": {},
+    "light": {
+        "churn_rate": 0.15,
+        "retraction_rate": 0.05,
+        "birth_rate": 0.1,
+        "closure_rate": 0.05,
+        "rename_rate": 0.1,
+    },
+    "heavy": {
+        "churn_rate": 0.35,
+        "retraction_rate": 0.1,
+        "birth_rate": 0.25,
+        "closure_rate": 0.12,
+        "rename_rate": 0.25,
+    },
+}
+
+
+def with_evolution(spec: WorldSpec, level: str) -> WorldSpec:
+    """``spec`` with facts, entities and names changing over its years (``none``: unchanged)."""
+    if level not in EVOLUTION:
+        raise ValueError(f"unknown evolution {level!r}; choose from {list(EVOLUTION)}")
+    return spec.with_overrides(**EVOLUTION[level]) if EVOLUTION[level] else spec
+
+
 def with_difficulty(spec: WorldSpec, difficulty: str) -> WorldSpec:
     """``spec`` with a difficulty's knobs set; ``clean`` returns it unchanged."""
     if difficulty not in DIFFICULTY:
@@ -223,9 +262,10 @@ def with_difficulty(spec: WorldSpec, difficulty: str) -> WorldSpec:
     return spec.with_overrides(**DIFFICULTY[difficulty]) if DIFFICULTY[difficulty] else spec
 
 
-def load_preset(name: str, difficulty: str = "clean") -> WorldSpec:
-    """Load one of the named presets shipped with kggen, at a difficulty (default: clean)."""
+def load_preset(name: str, difficulty: str = "clean", evolution: str = "none") -> WorldSpec:
+    """Load one of the named presets shipped with kggen, at a difficulty and a level of change."""
     if name not in PRESET_NAMES:
         raise ValueError(f"unknown preset {name!r}; choose from {list(PRESET_NAMES)}")
     text = (resources.files("kggen") / "presets" / f"{name}.yaml").read_text()
-    return with_difficulty(WorldSpec.model_validate(yaml.safe_load(text)), difficulty)
+    spec = with_difficulty(WorldSpec.model_validate(yaml.safe_load(text)), difficulty)
+    return with_evolution(spec, evolution)
