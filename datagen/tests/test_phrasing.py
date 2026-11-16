@@ -150,3 +150,51 @@ def test_a_plain_spec_serialises_as_it_always_did_and_a_varied_one_says_so() -> 
         == "varied"
     )
     assert RenderSpec.model_validate_json("{}").phrasing == "plain"
+
+
+# GRA-185: a varied chain question reads as a person would ask it, not as a stack of clauses.
+def test_varied_questions_do_not_stack_the_same_clause(world) -> None:
+    import re
+
+    stacked = re.compile(r"\b(the \w+) (?:that|which|who)\b.*\b\1 (?:that|which|who)\b")
+    many = generate_questions(
+        world,
+        QuestionSpec(
+            seed=3,
+            n_questions=300,
+            type_mix={"entity": 3, "set": 1, "count": 1, "false_premise": 1},
+            phrasing="varied",
+        ),
+    )
+    assert many and not [q.question for q in many if stacked.search(q.question)]
+
+
+def test_varied_chains_use_possessives_and_plain_chains_still_nest(world) -> None:
+    varied = [q for q in questions(world, "varied") if q.type == "entity" and q.hops >= 2]
+    assert any("'s " in q.question or "' " in q.question for q in varied)
+    plain = [q for q in questions(world, "plain") if q.type == "entity" and q.hops >= 2]
+    assert plain and all("'s " not in q.question for q in plain)
+
+
+def test_a_name_ending_in_s_takes_a_bare_apostrophe_and_a_long_run_is_counted() -> None:
+    from types import SimpleNamespace as NS
+
+    from kggen.questions import _noun_phrase
+
+    names = {"a": "Yewtree Works", "b": "B", "c": "C", "d": "D", "e": "E"}
+    types = dict.fromkeys(names, "LOCATION")
+
+    def hop(s, o, pred="LOCATED_IN"):
+        return NS(subject=s, object=o, predicate=pred)
+
+    one = _noun_phrase(names, types, "a", [(hop("a", "b"), True)], None, True)
+    assert one == "Yewtree Works' location"
+    three = _noun_phrase(
+        names,
+        types,
+        "a",
+        [(hop("a", "b"), True), (hop("b", "c"), True), (hop("c", "d"), True)],
+        None,
+        True,
+    )
+    assert "three times" in three and three.count("located in") == 1
