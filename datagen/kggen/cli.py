@@ -175,6 +175,13 @@ def _add_source(parser: argparse.ArgumentParser) -> None:
         "(default: none).",
     )
     parser.add_argument(
+        "--time-unit",
+        choices=("year", "month", "day"),
+        default=None,
+        help="How finely things change: a year (the spec's default), a month or a day. Dates in "
+        "documents and questions are written to that precision.",
+    )
+    parser.add_argument(
         "--names",
         choices=("invented", "bank"),
         default="invented",
@@ -186,6 +193,8 @@ def _add_source(parser: argparse.ArgumentParser) -> None:
 def _world(args: argparse.Namespace):
     spec = load_preset(args.preset) if args.preset else load_spec(args.spec)
     spec = with_evolution(with_difficulty(spec, args.difficulty), args.evolution)
+    if args.time_unit is not None and args.time_unit != spec.time_unit:
+        spec = spec.with_overrides(time_unit=args.time_unit)
     if args.names != spec.name_style:
         spec = spec.with_overrides(name_style=args.names)
     if args.seed is not None:

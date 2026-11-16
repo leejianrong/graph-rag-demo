@@ -16,6 +16,8 @@ from typing import Any, Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_serializer, model_validator
 
+from kggen.timeaxis import Axis
+
 # kggen's own vocabulary. It is a plain contract, not an import: whether a pipeline's schema
 # lines up with it is checked on the consumer side (see the bench's alignment test).
 ENTITY_TYPES: tuple[str, ...] = ("PERSON", "ORG", "LOCATION", "LAW", "EVENT", "PRODUCT", "NORP")
@@ -131,6 +133,13 @@ class WorldSpec(BaseModel):
     # Temporal churn knobs.
     start_year: int = Field(default=2000, description="Year every original fact starts.")
     end_year: int = Field(default=2024, description="Last year a fact can change.")
+    time_unit: Literal["year", "month", "day"] = Field(
+        default="year",
+        description=(
+            "How finely facts change between start_year and end_year: a year (default), a month "
+            "or a day. Documents and questions name the date to that precision."
+        ),
+    )
     churn_rate: float = Field(
         default=0.0, ge=0, le=1, description="Share of edges later replaced by a new object."
     )
@@ -158,10 +167,17 @@ class WorldSpec(BaseModel):
         data = handler(self)
         if data.get("name_style") == "invented":
             data.pop("name_style")
+        if data.get("time_unit") == "year":
+            data.pop("time_unit")
         for knob in ("birth_rate", "closure_rate", "rename_rate"):
             if data.get(knob) == 0.0:
                 data.pop(knob)
         return data
+
+    @property
+    def axis(self) -> Axis:
+        """The world's clock: what its whole-number times mean (see ``timeaxis``)."""
+        return Axis(self.time_unit, self.start_year, self.end_year)
 
     @model_validator(mode="after")
     def _check(self) -> WorldSpec:

@@ -54,7 +54,7 @@ def facts_of(doc: Document, world: World) -> list[str]:
     for sentence in doc.sentences:
         seen += [f for f in sentence.fact_ids if f not in seen]
     return [
-        statement(edges[f], names[edges[f].subject], names[edges[f].object], world.spec.start_year)
+        statement(edges[f], names[edges[f].subject], names[edges[f].object], world.spec.axis)
         for f in seen
     ]
 
@@ -120,7 +120,7 @@ def _reversed_fact(doc: Document, world: World) -> tuple[list[str], int]:
     first = next(f for s in doc.sentences for f in s.fact_ids)
     edge = edges[first]
     facts = facts_of(doc, world)
-    facts[0] = statement(edge, names[edge.object], names[edge.subject], world.spec.start_year)
+    facts[0] = statement(edge, names[edge.object], names[edge.subject], world.spec.axis)
     return facts, 0
 
 

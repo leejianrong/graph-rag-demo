@@ -16,6 +16,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from kggen.llm import CachedChat, Messages
 from kggen.render import Document, Mention, RenderSpec, Sentence
+from kggen.timeaxis import Axis
 from kggen.world import Edge, World
 
 PROMPT_VERSION = 1
@@ -54,25 +55,25 @@ def _relation(predicate: str) -> str:
     return _READABLE.get(predicate, "is connected to")
 
 
-def _when(edge: Edge, start_year: int) -> str:
+def _when(edge: Edge, axis: Axis) -> str:
     when = ""
-    if edge.valid_from > start_year:
-        when += f" (since {edge.valid_from})"
+    if edge.valid_from > axis.start:
+        when += f" (since {axis.label(edge.valid_from)})"
     if edge.valid_to is not None:
-        when += f" (ended {edge.valid_to}; use the past tense)"
+        when += f" (ended {axis.label(edge.valid_to)}; use the past tense)"
     return when
 
 
-def statement(edge: Edge, subject: str, obj: str, start_year: int) -> str:
+def statement(edge: Edge, subject: str, obj: str, axis: Axis) -> str:
     """A fact as a plain sentence-like line (the wording the writer is given, years included)."""
-    return f"{subject} {_relation(edge.predicate)} {obj}{_when(edge, start_year)}"
+    return f"{subject} {_relation(edge.predicate)} {obj}{_when(edge, axis)}"
 
 
 def build_messages(
-    facts: list[tuple[Edge, str, str]], start_year: int, style: str = "plain"
+    facts: list[tuple[Edge, str, str]], axis: Axis, style: str = "plain"
 ) -> Messages:
     lines = [
-        f"F{i}: {subject} | {_relation(edge.predicate)} | {obj}{_when(edge, start_year)}"
+        f"F{i}: {subject} | {_relation(edge.predicate)} | {obj}{_when(edge, axis)}"
         for i, (edge, subject, obj) in enumerate(facts, 1)
     ]
     if style == "rich":
@@ -102,7 +103,7 @@ def build_messages(
     return [{"role": "system", "content": SYSTEM}, {"role": "user", "content": user}]
 
 
-def parse_response(raw: str, facts: list[tuple[Edge, str, str]], start_year: int) -> list[str]:
+def parse_response(raw: str, facts: list[tuple[Edge, str, str]], axis: Axis) -> list[str]:
     """The sentence texts, in fact order, or ``InvalidRendering`` saying what is wrong."""
     text = raw.strip()
     if text.startswith("```"):
@@ -120,9 +121,9 @@ def parse_response(raw: str, facts: list[tuple[Edge, str, str]], start_year: int
         spans = _find_spans(sentence, subject, obj)
         if spans is None:
             raise InvalidRendering(f"{edge.id}: names {subject!r} and {obj!r} not both present")
-        years = [edge.valid_to] if edge.valid_to is not None else []
-        years += [edge.valid_from] if edge.valid_from > start_year else []
-        if missing := [y for y in years if str(y) not in sentence]:
+        years = [axis.label(edge.valid_to)] if edge.valid_to is not None else []
+        years += [axis.label(edge.valid_from)] if edge.valid_from > axis.start else []
+        if missing := [y for y in years if y not in sentence]:
             raise InvalidRendering(f"{edge.id}: year {missing[0]} missing from {sentence!r}")
     return texts
 
@@ -130,7 +131,7 @@ def parse_response(raw: str, facts: list[tuple[Edge, str, str]], start_year: int
 def parse_rich(
     raw: str,
     facts: list[tuple[Edge, str, str]],
-    start_year: int,
+    axis: Axis,
     unlisted: list[str],
 ) -> list[tuple[str, tuple[int, ...]]]:
     """``(text, fact indices)`` per sentence in reading order, or ``InvalidRendering``."""
@@ -164,9 +165,9 @@ def parse_rich(
                 raise InvalidRendering(f"{edge.id}: object {obj!r} not in {sentence!r}")
             if not _spans(before + " " + sentence, subject):
                 raise InvalidRendering(f"{edge.id}: subject {subject!r} not named yet")
-            years = [edge.valid_to] if edge.valid_to is not None else []
-            years += [edge.valid_from] if edge.valid_from > start_year else []
-            if missing := [y for y in years if str(y) not in sentence]:
+            years = [axis.label(edge.valid_to)] if edge.valid_to is not None else []
+            years += [axis.label(edge.valid_from)] if edge.valid_from > axis.start else []
+            if missing := [y for y in years if y not in sentence]:
                 raise InvalidRendering(f"{edge.id}: year {missing[0]} missing from {sentence!r}")
         before += " " + sentence
         out.append((sentence, indices))
@@ -217,7 +218,7 @@ def render_documents_llm(
     spec = spec or RenderSpec()
     rng = random.Random(f"{world.spec.seed}:{spec.seed}:render-llm")
     entities = {e.id: e for e in world.entities}
-    start_year = world.spec.start_year
+    axis = world.spec.axis
 
     def surface(entity_id: str) -> str:
         entity = entities[entity_id]
@@ -236,7 +237,7 @@ def render_documents_llm(
         for i in range(0, len(edges), spec.max_facts_per_doc):
             chunk = edges[i : i + spec.max_facts_per_doc]
             facts = [(e, surface(e.subject), surface(e.object)) for e in chunk]
-            jobs.append((subject, facts, build_messages(facts, start_year, style)))
+            jobs.append((subject, facts, build_messages(facts, axis, style)))
 
     def write(job: tuple) -> list[Sentence]:
         _, facts, messages = job
@@ -247,7 +248,7 @@ def render_documents_llm(
             surfaces = {
                 n: e for edge, a, b in facts for n, e in ((a, edge.subject), (b, edge.object))
             }
-            for text, indices in parse_rich(raw, facts, start_year, sorted(names - set(surfaces))):
+            for text, indices in parse_rich(raw, facts, axis, sorted(names - set(surfaces))):
                 ids = tuple(facts[k][0].id for k in indices)
                 sentences.append(
                     Sentence(
@@ -257,7 +258,7 @@ def render_documents_llm(
                 offset += len(text) + 1  # a single space joins sentences
             chat.store(messages, raw, prompt_version=RICH_PROMPT_VERSION)
             return sentences
-        texts = parse_response(raw, facts, start_year)
+        texts = parse_response(raw, facts, axis)
         chat.store(messages, raw, prompt_version=PROMPT_VERSION)  # only once it is valid
         for (edge, name_s, name_o), text in zip(facts, texts, strict=True):
             span_s, span_o = _find_spans(text, name_s, name_o)  # type: ignore[misc]

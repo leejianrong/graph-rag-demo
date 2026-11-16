@@ -937,7 +937,8 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
         if any(a.valid_to == b.valid_from for a in v for b in v if a is not b)
     )
     withdrawn = sorted(k for k, v in history.items() if all(e.valid_to is not None for e in v))
-    last_year = world.spec.end_year
+    axis = world.spec.axis
+    last_year = axis.end
 
     def asked(subject: str, predicate: str, kind: str, prefix: str = "") -> str:
         return f"{prefix}name the {TYPE_LABEL[kind]} that {names[subject]} {VERB[predicate]}"
@@ -959,7 +960,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 stale = tuple(dict.fromkeys(names[e.object] for e in versions))
                 text = asked(subject, predicate, kind_of, "Currently, ")
                 gold = ((gone.id,),)
-                shown = f"no current answer: the fact was withdrawn in {last_end}"
+                shown = f"no current answer: the fact was withdrawn in {axis.label(last_end)}"
                 year = None
             elif kind == "latest":
                 now = [e for e in versions if e.valid_to is None]
@@ -986,7 +987,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 stale = tuple(
                     dict.fromkeys(names[e.object] for e in versions if e.object != pick.object)
                 )
-                text = asked(subject, predicate, kind_of, f"As of {year}, ")
+                text = asked(subject, predicate, kind_of, f"As of {axis.label(year)}, ")
                 gold = ((pick.id,),)
                 shown = names[pick.object]
             if key in seen:
@@ -1021,7 +1022,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
         """Questions on when a fact held: the year it began or ended, what came just before it,
         and how long it lasted. Only a fact whose dates the documents state is asked about."""
         found: list[Question] = []
-        start = world.spec.start_year
+        start = axis.start
         facts = sorted(
             (
                 e
@@ -1072,20 +1073,30 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 s_, o_ = names[e.subject], names[e.object]
                 if kind == "duration":
                     key = (kind, e.id)
-                    text = f"For how many years was it true that {s_} {VERB[e.predicate]} {o_}?"
+                    text = (
+                        f"For how many {axis.noun(True)} was it true that "
+                        f"{s_} {VERB[e.predicate]} {o_}?"
+                    )
                     number = e.valid_to - e.valid_from
                 else:
                     began = e.valid_from > start and (e.valid_to is None or rng.random() < 0.5)
                     key = (kind, e.id, began)
                     if began:
-                        text = f"In what year did {s_} {_BEGAN[e.predicate]} {o_}?"
+                        text = f"In what {axis.noun()} did {s_} {_BEGAN[e.predicate]} {o_}?"
                         number = e.valid_from
                     else:
-                        text = f"Until what year was it true that {s_} {VERB[e.predicate]} {o_}?"
+                        text = (
+                            f"Until what {axis.noun()} was it true that "
+                            f"{s_} {VERB[e.predicate]} {o_}?"
+                        )
                         number = e.valid_to
                 answers, shown, gold = (), str(number), (e.id,)  # type: ignore[assignment]
                 accepted = (shown,)
                 number_kind = True
+                if kind != "duration" and axis.unit != "year":
+                    # A month or a day is not a number to compare: it is a date, written the way
+                    # the documents write it (or as ISO), and graded like a name.
+                    shown, accepted, number_kind = axis.label(number), axis.accepted(number), False
             if key in seen:
                 continue
             seen.add(key)
