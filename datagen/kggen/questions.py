@@ -235,6 +235,10 @@ class _Phrasing:
     def __init__(self, varied: bool, rng: random.Random) -> None:
         self._varied, self._rng = varied, rng
 
+    @property
+    def varied(self) -> bool:
+        return self._varied
+
     def _pick(self, stems: tuple[str, ...]) -> str:
         return self._rng.choice(stems) if self._varied else stems[0]
 
@@ -250,9 +254,15 @@ class _Phrasing:
     def name_the(self, label: str, tail: str) -> str:
         return self._pick(_NAME_THE_STEMS).format(label=label, tail=tail)
 
-    def members(self, kind: str, label: str, plural: str, tail: str) -> str:
-        stems = _SET_STEMS if kind == "set" else _COUNT_STEMS
-        return self._pick(stems).format(label=label, plural=plural, tail=tail)
+    def members(
+        self, kind: str, label: str, plural: str, inner: str, verb: str, forward: bool
+    ) -> str:
+        """A set or count question; varied wording makes the verb agree with a plural noun."""
+        stem = self._pick(_SET_STEMS if kind == "set" else _COUNT_STEMS)
+        if self._varied and "{plural}" in stem:
+            verb = _plural_verb(verb) if not forward else verb
+        tail = f"{inner} {verb}" if forward else f"{verb} {inner}"
+        return stem.format(label=label, plural=plural, tail=tail)
 
     def compare(self, a: str, b: str, what: str) -> str:
         return self._pick(_COMPARE_STEMS).format(a=a, b=b, what=what)
@@ -271,23 +281,94 @@ def _plural_verb(verb: str) -> str:
     return (first.removesuffix("s") + (" " + rest if rest else "")) if first.endswith("s") else verb
 
 
+# The noun a relation gives the entity at its far end, read from the near one ("Abel's employer"):
+# ``(predicate, forward)`` where forward means the answer is the object. A relation without a noun
+# in a direction is absent (nothing natural names "something located in X").
+NOUN = {
+    ("LOCATED_IN", True): "location",
+    ("PART_OF", True): "parent",
+    ("PART_OF", False): "part",
+    ("MEMBER_OF", True): "group",
+    ("MEMBER_OF", False): "member",
+    ("WORKS_FOR", True): "employer",
+    ("WORKS_FOR", False): "employee",
+    ("FOUNDED", True): "venture",
+    ("FOUNDED", False): "founder",
+    ("OWNS", True): "holding",
+    ("OWNS", False): "owner",
+    ("PRODUCES", True): "product",
+    ("PRODUCES", False): "producer",
+    ("PARTICIPATED_IN", True): "event",
+    ("PARTICIPATED_IN", False): "participant",
+    ("AFFILIATED_WITH", True): "affiliate",
+    ("AFFILIATED_WITH", False): "affiliate",
+    ("GOVERNED_BY", True): "governing body",
+}
+# What a location calls what is in it, by the type of the thing in it.
+_INSIDE = {
+    "PERSON": "resident",
+    "ORG": "local organization",
+    "LOCATION": "sublocation",
+    "EVENT": "local event",
+    "PRODUCT": "local product",
+}
+_COUNT_WORD = {2: "twice", 3: "three times", 4: "four times"}
+
+
 def _noun_phrase(
-    world_names: dict[str, str], types: dict[str, str], start: str, steps, relative=None
+    world_names: dict[str, str],
+    types: dict[str, str],
+    start: str,
+    steps,
+    relative=None,
+    possessive: bool = False,
 ) -> str:
-    """The nested phrase naming the entity reached after ``steps`` from ``start``.
+    """The phrase naming the entity reached after ``steps`` from ``start``.
 
     ``relative`` chooses the word that opens each clause from the noun before it (default "that").
+    With ``possessive`` a step that has a noun reads "Abel's employer's location" instead of nesting
+    a clause per hop, and a run of three or more of one relation is stated once with a count.
     """
     phrase = world_names[start]
-    for edge, forward in steps:
+    poss = possessive
+    i = 0
+    while i < len(steps):
+        edge, forward = steps[i]
+        run = 1
+        while i + run < len(steps) and (steps[i + run][0].predicate, steps[i + run][1]) == (
+            edge.predicate,
+            forward,
+        ):
+            run += 1
         verb = VERB[edge.predicate]
         target = edge.object if forward else edge.subject
+        noun = NOUN.get((edge.predicate, forward))
+        if edge.predicate == "LOCATED_IN" and not forward:
+            noun = _INSIDE.get(types[target])
         label = TYPE_LABEL[types[target]]
+        if poss and noun and run <= 2:
+            of = "'" if phrase.endswith("s") else "'s"
+            phrase += of + f" {noun}"
+            for _ in range(run - 1):
+                phrase += f"'s {noun}"
+            i += run
+            continue
+        if poss and run >= 2:
+            how = "" if forward else " backwards"
+            phrase = (
+                f"the {label} you reach by following \u201c{verb}\u201d links{how} "
+                f"{_COUNT_WORD.get(run, f'{run} times')} from {phrase}"
+            )
+            i += run
+            poss = False  # one clause at most: the rest nests as before
+            continue
+        poss = False
         word = relative(label) if relative else "that"
         if forward:
             phrase = f"the {label} {word} {phrase} {verb}"
         else:
             phrase = f"the {label} {word} {verb} {phrase}"
+        i += 1
     return phrase
 
 
@@ -406,7 +487,7 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 Question(
                     id="",
                     question=phrasing.name(
-                        _noun_phrase(names, types, start, steps, phrasing.relative)
+                        _noun_phrase(names, types, start, steps, phrasing.relative, phrasing.varied)
                     ),
                     hops=hops,
                     start=start,
@@ -455,12 +536,11 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
             paths = tuple((*lead, edge_of[m]) for m in members)
             if avoid_ambiguous and reader and reader.ambiguous(start, paths[0], members):
                 continue
-            inner = _noun_phrase(names, types, start, prefix, phrasing.relative)
+            inner = _noun_phrase(names, types, start, prefix, phrasing.relative, phrasing.varied)
             label = TYPE_LABEL[types[members[0]]]
             plural = PLURAL[types[members[0]]]
             verb = VERB[last.predicate]
-            tail = f"{inner} {verb}" if forward else f"{verb} {inner}"
-            text = phrasing.members(kind, label, plural, tail)
+            text = phrasing.members(kind, label, plural, inner, verb, forward)
             found.append(
                 Question(
                     id="",
@@ -666,7 +746,9 @@ def generate_questions(world: World, spec: QuestionSpec | None = None) -> tuple[
                 if forward
                 else f"{names[true_end]} {verb} {names[start]}"
             )
-            asked = _noun_phrase(names, types, fake, [(second, second_forward)], phrasing.relative)
+            asked = _noun_phrase(
+                names, types, fake, [(second, second_forward)], phrasing.relative, phrasing.varied
+            )
             found.append(
                 Question(
                     id="",
