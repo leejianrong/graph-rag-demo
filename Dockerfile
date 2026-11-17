@@ -12,7 +12,7 @@ COPY ui/src ./src
 RUN npm run build
 
 # Pipeline/API service image (ARCHITECTURE §8): Python 3.12 + uv.
-FROM python:3.12-slim
+FROM python:3.15-slim
 
 # uv for fast, reproducible installs from the locked pyproject.toml/uv.lock.
 RUN pip install --no-cache-dir uv
