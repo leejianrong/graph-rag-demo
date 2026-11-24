@@ -2,7 +2,7 @@
 # docs/openapi.json first, so the spec is copied beside ui/ the way the repo lays it out. Only the
 # files the build reads are copied (there is no .dockerignore, and a local node_modules must not
 # come along). Nothing from this stage but the built files reaches the final image.
-FROM node:24.11.0-slim AS ui
+FROM node:26.13.0-slim AS ui
 WORKDIR /build/ui
 COPY ui/package.json ui/package-lock.json ./
 RUN npm ci
